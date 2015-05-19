@@ -4139,7 +4139,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             setFieldEnabled(false, false, endtime);
         } else {
             setFieldEnabled(true, true, starttime);
-            setFieldEnabled(false, false, endtime);
+            setFieldEnabled(true, true, endtime);
         }
         setFieldEnabled(true, true, destination);
         setFieldEnabled(false, false, distance);
@@ -4180,7 +4180,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             setFieldEnabled(false, false, endtime);
         } else {
             setFieldEnabled(true, true, starttime);
-            setFieldEnabled(false, false, endtime);
+            setFieldEnabled(true, true, endtime);
         }
         setFieldEnabled(true, true, destination);
         setFieldEnabled(false, false, distance);

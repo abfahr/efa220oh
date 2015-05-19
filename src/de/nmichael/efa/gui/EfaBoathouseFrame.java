@@ -1952,6 +1952,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     void showEfaBaseFrame(int mode, ItemTypeBoatstatusList.BoatListItem action) {
+        if (!Daten.isWriteModeMitSchluessel()) { // abf
+        	Dialog.meldung("Nur für Vereinsmitglieder","Bitte erst Schlüssel nach rechts drehen."); // abf
+        	return; // abf
+        } // abf
         for (IWidget w : widgets) {
             w.runWidgetWarnings(mode, true, null);
         }
@@ -2179,6 +2183,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (Daten.project == null) {
             return;
         }
+
+        if (!Daten.isWriteModeMitSchluessel()) { // abf
+        	Dialog.meldung("Nur für Vereinsmitglieder","Bitte erst Schlüssel nach rechts drehen."); // abf
+        	return; // abf
+        } // abf
 
         ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
         if (item == null || item.boat == null) {

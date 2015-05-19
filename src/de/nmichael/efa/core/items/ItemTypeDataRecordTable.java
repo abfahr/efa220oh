@@ -310,6 +310,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     records[i] = mappingKeyToRecord.get(keys[rows[i]]);
                 }
             }
+            if (!Daten.isWriteModeMitSchluessel()) { // abf
+            	Dialog.meldung("Nur für Vereinsmitglieder","Bitte erst Schlüssel nach rechts drehen!"); // abf
+            } else // abf
             if (persistence != null && itemListenerActionTable != null) {
                 DataEditDialog dlg;
                 switch (actionId) {

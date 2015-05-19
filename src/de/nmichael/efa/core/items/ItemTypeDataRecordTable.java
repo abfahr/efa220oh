@@ -8,13 +8,16 @@
  */
 package de.nmichael.efa.core.items;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.data.ClubworkRecord;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.*;
 import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
@@ -613,7 +616,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     if (filterFieldName == null || filterFieldValue == null
                             || filterFieldValue.equals(r.getAsString(filterFieldName))) {
                         if (filterByAnyText == null || r.getAllFieldsAsSeparatedText().toLowerCase().indexOf(filterByAnyText) >= 0) {
-                            data.add(r);
+                        	if (!(r instanceof ClubworkRecord) || Daten.isAdminMode() || isToday(r.getLastModified())) {
+                        		data.add(r);
+                        	}
                         }
                     }
                 }
@@ -623,6 +628,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             Logger.logdebug(e);
         }
     }
+
+	private boolean isToday(long timeInMillis) {
+    	long todayInMillis = DataTypeDate.today().toCalendar().getTimeInMillis();
+		return timeInMillis > todayInMillis;
+	}
 
     public void actionPerformed(ActionEvent e) {
         itemListenerAction(this, e);

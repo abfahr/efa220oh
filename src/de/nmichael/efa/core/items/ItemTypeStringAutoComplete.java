@@ -58,7 +58,39 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         super(name, value, type, category, description);
         this.showButton = showButton;
         this.popupComplete = Daten.efaConfig == null || Daten.efaConfig.getValuePopupComplete();
+        if (isPerson(name)) {
+        	this.showButton = false;
+        	this.popupComplete = false;
+        }
     }
+
+    private boolean isPerson(String fieldname) {
+    	if (fieldname == null) {
+    		return false;
+    	}
+    	if (Daten.isAdminMode()) {
+    		return false; // kein filter
+    	}
+        if (fieldname == "PersonId"
+    		|| fieldname == "CoxName"
+    		|| fieldname.matches("Crew.Name")
+    		|| fieldname.matches("Crew..Name")
+    		|| fieldname.matches("PersonList_._PersonId")
+    		|| fieldname.matches("PersonList_.._PersonId")
+    		|| name == "ReportedByPersonId"
+    		|| name == "FixedByPersonId"
+		) {        
+        	return true;
+        } else if (fieldname == "BOAT"
+    		|| name == "BoatName"
+    		|| name == "DestinationName"
+    		|| name == "GUIITEM_ADDITIONALWATERS"
+    		|| name == "SessionGroupId"
+		) {
+      	return false;
+        }
+        return false; // fuer Breakpoint
+	}
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
             String category, String description, boolean showButton,
@@ -231,6 +263,10 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             list.update();
         }
 
+        if (isPerson(getName())) { 
+        	return;
+        }
+        
         if (e != null && e.getKeyCode() == -23) {
             return; // dieses Key-Event wurde von AutoCompletePopupWindow generiert
         }

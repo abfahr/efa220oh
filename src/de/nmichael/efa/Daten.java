@@ -28,6 +28,7 @@ import java.lang.management.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import javax.swing.plaf.ColorUIResource;
+import org.apache.commons.io.FileUtils;
 
 // @i18n complete
 public class Daten {
@@ -1044,6 +1045,23 @@ public class Daten {
     public static boolean isAdminMode() {
         return applID != APPL_EFABH || applMode == APPL_MODE_ADMIN;
     }
+
+    public static boolean isWriteModeMitSchluessel() { // abf
+        return applID != APPL_EFABH || istSchluesselGedrehtIntern(); // abf
+    } // abf
+
+    private static boolean istSchluesselGedrehtIntern() { // abf
+    	String x = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep; // abf
+    	File file1 = new File(x + "value"); // abf
+    	File file2 = new File(x + "value.gut.txt"); // abf
+    	try { // abf
+			return FileUtils.contentEquals(file1, file2); // abf
+		} catch (IOException e) { // abf
+			Logger.log(e); // abf
+			Dialog.exceptionError(e.getMessage(), e.fillInStackTrace().toString()); // abf
+			return false; // abf
+		} // abf
+	} // abf
 
     public static boolean isOsLinux() {
         return "Linux".equals(osName);

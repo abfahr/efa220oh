@@ -184,6 +184,7 @@
             <xsl:apply-templates select="Gender"/>
             <xsl:apply-templates select="Status"/>
             <xsl:apply-templates select="YearOfBirth"/>
+            <xsl:apply-templates select="MemberNo"/>
             <xsl:apply-templates select="BoatType"/>
             <xsl:apply-templates select="Distance"/>
             <xsl:apply-templates select="RowDistance"/>
@@ -279,6 +280,10 @@
   </xsl:template>
 
   <xsl:template match="YearOfBirth">
+    <fo:table-cell padding-right="6pt"><fo:block><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="MemberNo">
     <fo:table-cell padding-right="6pt"><fo:block><xsl:value-of select="."/></fo:block></fo:table-cell>
   </xsl:template>
 

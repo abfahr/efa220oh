@@ -417,8 +417,13 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
     public TableItem[] getGuiTableItems() {
         TableItem[] items = new TableItem[6];
         if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
-            items[0] = new TableItem(getFirstName());
-            items[1] = new TableItem(getLastName());
+        	if (Daten.isAdminMode()) {
+        		items[0] = new TableItem(getFirstName());
+        		items[1] = new TableItem(getLastName());        		
+        	} else {
+        		items[0] = new TableItem(getFirstName().substring(0, 1) + ".");
+        		items[1] = new TableItem(getLastName().substring(0, 1) + ".");        		
+        	}
         } else {
             items[0] = new TableItem(getLastName());
             items[1] = new TableItem(getFirstName());

@@ -1449,6 +1449,7 @@ public class EfaUtil {
                 }
                 file = (files.hasMoreElements() ? (ZipEntry) files.nextElement() : null);
             }
+            zip.close();
         } catch (Exception ee) {
             result = (result == null ? "" : result + "\n") +
                     LogString.operationFailed(International.getString("Entpacken"), ee.toString())

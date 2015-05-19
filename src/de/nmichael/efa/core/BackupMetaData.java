@@ -144,6 +144,7 @@ public class BackupMetaData extends XMLWriter {
             parser.setContentHandler(xmlhandler);
             parser.parse(new InputSource(in));
             zipFileName = zipFile;
+            zip.close();
         } catch(Exception e) {
             Logger.logdebug(e);
             return false;

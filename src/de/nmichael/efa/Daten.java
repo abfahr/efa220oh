@@ -1239,6 +1239,7 @@ public class Daten {
                             while (_enum.hasMoreElements() && (o = _enum.nextElement()) != null) {
                                 infos.add("java.jar.content=" + o + ":" + (jar.getEntry(o.toString()) == null ? "null" : Long.toString(jar.getEntry(o.toString()).getSize())));
                             }
+                            jar.close();
                         } catch (Exception e) {
                             Logger.log(Logger.ERROR, Logger.MSG_CORE_INFOFAILED, e.toString());
                             return null;

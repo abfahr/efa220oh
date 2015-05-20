@@ -1046,22 +1046,22 @@ public class Daten {
         return applID != APPL_EFABH || applMode == APPL_MODE_ADMIN;
     }
 
-    public static boolean isWriteModeMitSchluessel() { // abf
-        return applID != APPL_EFABH || istSchluesselGedrehtIntern(); // abf
-    } // abf
+    public static boolean isWriteModeMitSchluessel() {
+        return applID != APPL_EFABH || istSchluesselGedrehtIntern();
+    }
 
-    private static boolean istSchluesselGedrehtIntern() { // abf
-    	String x = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep; // abf
-    	File file1 = new File(x + "value"); // abf
-    	File file2 = new File(x + "value.gut.txt"); // abf
-    	try { // abf
-			return FileUtils.contentEquals(file1, file2); // abf
-		} catch (IOException e) { // abf
-			Logger.log(e); // abf
-			Dialog.exceptionError(e.getMessage(), e.fillInStackTrace().toString()); // abf
-			return false; // abf
-		} // abf
-	} // abf
+    private static boolean istSchluesselGedrehtIntern() {
+    	String x = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep;
+    	File file1 = new File(x + "value");
+    	File file2 = new File(x + "value.gut.txt");
+    	try {
+			return FileUtils.contentEquals(file1, file2);
+		} catch (IOException e) {
+			Logger.log(e);
+			Dialog.exceptionError(e.getMessage(), e.fillInStackTrace().toString());
+			return false;
+		}
+	}
 
     public static boolean isOsLinux() {
         return "Linux".equals(osName);

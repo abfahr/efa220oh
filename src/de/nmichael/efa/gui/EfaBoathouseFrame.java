@@ -1952,10 +1952,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     void showEfaBaseFrame(int mode, ItemTypeBoatstatusList.BoatListItem action) {
-        if (!Daten.isWriteModeMitSchluessel()) { // abf
-        	Dialog.meldung("Nur für Vereinsmitglieder","Bitte erst Schlüssel nach rechts drehen."); // abf
-        	return; // abf
-        } // abf
+        if (!Daten.isWriteModeMitSchluessel()) {
+        	Dialog.meldung("Nur für Vereinsmitglieder","Bitte erst Schlüssel nach rechts drehen.");
+        	return;
+        }
         for (IWidget w : widgets) {
             w.runWidgetWarnings(mode, true, null);
         }
@@ -2184,10 +2184,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             return;
         }
 
-        if (!Daten.isWriteModeMitSchluessel()) { // abf
-        	Dialog.meldung("Nur für Vereinsmitglieder","Bitte erst Schlüssel nach rechts drehen."); // abf
-        	return; // abf
-        } // abf
+        if (!Daten.isWriteModeMitSchluessel()) {
+        	Dialog.meldung("Nur für Vereinsmitglieder","Bitte erst Schlüssel nach rechts drehen.");
+        	return;
+        }
 
         ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
         if (item == null || item.boat == null) {

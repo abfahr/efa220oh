@@ -10,69 +10,73 @@
 
 package de.nmichael.efa.util;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXParseException;
 
 // @i18n complete
 
 public class SaxErrorHandler implements ErrorHandler {
 
-    private String filename;
-    private int fatalErrors = 0;
-    private int errors = 0;
-    private int warnings = 0;
-    private String lastFatalError = null;
-    private String lastError = null;
-    private String lastWarning = null;
+  private String filename;
+  private int fatalErrors = 0;
+  private int errors = 0;
+  private int warnings = 0;
+  private String lastFatalError = null;
+  private String lastError = null;
+  private String lastWarning = null;
 
-    public SaxErrorHandler(String filename) {
-        this.filename = filename;
-    }
+  public SaxErrorHandler(String filename) {
+    this.filename = filename;
+  }
 
-    private String getErrorLocation(SAXParseException e) {
-        return e.getSystemId() + ":" + e.getLineNumber() + ":" + e.getColumnNumber();
-    }
+  private String getErrorLocation(SAXParseException e) {
+    return e.getSystemId() + ":" + e.getLineNumber() + ":" + e.getColumnNumber();
+  }
 
-    public void fatalError(SAXParseException e) {
-        lastFatalError = "Fatal XML Error on "+filename+" ("+getErrorLocation(e)+"): "+e.toString();
-        Logger.log(Logger.ERROR, Logger.MSG_FILE_XMLFALATERROR, lastFatalError);
-        fatalErrors++;
-    }
+  @Override
+  public void fatalError(SAXParseException e) {
+    lastFatalError = "Fatal XML Error on " + filename + " (" + getErrorLocation(e) + "): "
+        + e.toString();
+    Logger.log(Logger.ERROR, Logger.MSG_FILE_XMLFALATERROR, lastFatalError);
+    fatalErrors++;
+  }
 
-    public void error(SAXParseException e) {
-        lastError = "XML Error on "+filename+" ("+getErrorLocation(e)+"): "+e.toString();
-        Logger.log(Logger.ERROR, Logger.MSG_FILE_XMLERROR, lastError);
-        errors++;
-    }
+  @Override
+  public void error(SAXParseException e) {
+    lastError = "XML Error on " + filename + " (" + getErrorLocation(e) + "): " + e.toString();
+    Logger.log(Logger.ERROR, Logger.MSG_FILE_XMLERROR, lastError);
+    errors++;
+  }
 
-    public void warning(SAXParseException e) {
-        lastWarning = "XML Warning on "+filename+" ("+getErrorLocation(e)+"): "+e.toString();
-        Logger.log(Logger.WARNING, Logger.MSG_FILE_XMLWARNING, lastWarning);
-        warnings++;
-    }
+  @Override
+  public void warning(SAXParseException e) {
+    lastWarning = "XML Warning on " + filename + " (" + getErrorLocation(e) + "): " + e.toString();
+    Logger.log(Logger.WARNING, Logger.MSG_FILE_XMLWARNING, lastWarning);
+    warnings++;
+  }
 
-    public int getNumberOfFatalErrors() {
-        return fatalErrors;
-    }
-    
-    public int getNumberOfErrors() {
-        return errors;
-    }
+  public int getNumberOfFatalErrors() {
+    return fatalErrors;
+  }
 
-    public int getNumberOfWarnings() {
-        return warnings;
-    }
+  public int getNumberOfErrors() {
+    return errors;
+  }
 
-    public String getLastFatalError() {
-        return lastFatalError;
-    }
+  public int getNumberOfWarnings() {
+    return warnings;
+  }
 
-    public String getLastError() {
-        return lastError;
-    }
+  public String getLastFatalError() {
+    return lastFatalError;
+  }
 
-    public String getLastWarning() {
-        return lastWarning;
-    }
+  public String getLastError() {
+    return lastError;
+  }
+
+  public String getLastWarning() {
+    return lastWarning;
+  }
 
 }

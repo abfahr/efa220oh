@@ -7,56 +7,50 @@
  * @author Nicolas Michael
  * @version 2
  */
-package de.nmichael.efa.gui.util;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
-import java.util.Vector;
+package de.nmichael.efa.gui.util;
 
 public class TableItem {
 
-    private String txt;
-    private boolean marked = false;
-    private boolean disabled = false;
+  private String txt;
+  private boolean marked = false;
+  private boolean disabled = false;
 
-    public TableItem(String txt) {
-        this.txt = (txt != null ? txt : "");
-    }
+  public TableItem(String txt) {
+    this.txt = (txt != null ? txt : "");
+  }
 
-    public TableItem(String txt, boolean marked) {
-        this.txt = (txt != null ? txt : "");
-        this.marked = marked;
-    }
+  public TableItem(String txt, boolean marked) {
+    this.txt = (txt != null ? txt : "");
+    this.marked = marked;
+  }
 
-    public TableItem(Object o) {
-        this.txt = (o != null && o.toString() != null ? o.toString() : "");
-    }
+  public TableItem(Object o) {
+    this.txt = (o != null && o.toString() != null ? o.toString() : "");
+  }
 
-    public String toString() {
-        return txt;
-    }
-    
-    public boolean isMarked() {
-        return marked;
-    }
+  @Override
+  public String toString() {
+    return txt;
+  }
 
-    public void setText(String text) {
-        this.txt = text;
-    }
-    
-    public void setMarked(boolean marked) {
-        this.marked = marked;
-    }
+  public boolean isMarked() {
+    return marked;
+  }
 
-    public boolean isDisabled() {
-        return disabled;
-    }
+  public void setText(String text) {
+    this.txt = text;
+  }
 
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
-    }
+  public void setMarked(boolean marked) {
+    this.marked = marked;
+  }
+
+  public boolean isDisabled() {
+    return disabled;
+  }
+
+  public void setDisabled(boolean disabled) {
+    this.disabled = disabled;
+  }
 }

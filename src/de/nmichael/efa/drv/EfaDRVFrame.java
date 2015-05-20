@@ -10,17 +10,36 @@
 
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.efawett.WettDefs;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import de.nmichael.efa.*;
+import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class EfaDRVFrame extends JFrame {
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
   JPanel contentPane;
   BorderLayout borderLayout1 = new BorderLayout();
   JPanel mainPanel = new JPanel();
@@ -38,19 +57,17 @@ public class EfaDRVFrame extends JFrame {
   JLabel copyLabel = new JLabel();
   JLabel modeLabel = new JLabel();
 
-  //Construct the frame
+  // Construct the frame
   public EfaDRVFrame() {
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     try {
       jbInit();
       appIni();
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     Dialog.frameOpened(this);
   }
-
 
   void cancel() {
     Dialog.frameClosed(this);
@@ -59,62 +76,86 @@ public class EfaDRVFrame extends JFrame {
 
   // ActionHandler Events
   public void keyAction(ActionEvent evt) {
-    if (evt == null || evt.getActionCommand() == null) return;
+    if (evt == null || evt.getActionCommand() == null) {
+      return;
+    }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
       cancel();
     }
   }
 
-
   private void appIni() {
     // WettDefs.cfg
-    Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory+Daten.WETTDEFS);
+    Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
     Daten.wettDefs.createNewIfDoesntExist();
     Daten.wettDefs.readFile();
 
     this.meldungenFAButton.setEnabled(false);
     this.meldungenWSButton.setEnabled(false);
     if (Main.drvConfig.aktJahr != 0) {
-      String mdat = Daten.efaDataDirectory+Main.drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDUNGEN_FA_FILE;
+      String mdat = Daten.efaDataDirectory + Main.drvConfig.aktJahr + Daten.fileSep
+          + DRVConfig.MELDUNGEN_FA_FILE;
       if (EfaUtil.canOpenFile(mdat)) {
-        this.meldungenFAButton.setText("DRV-Fahrtenabzeichen für das Jahr "+Main.drvConfig.aktJahr+" bearbeiten");
+        this.meldungenFAButton.setText("DRV-Fahrtenabzeichen für das Jahr "
+            + Main.drvConfig.aktJahr + " bearbeiten");
         this.meldungenFAButton.setEnabled(true);
       } else {
-        Dialog.error("Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "+Main.drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
-        Logger.log(Logger.ERROR,"Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "+Main.drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
+        Dialog.error("Die Datei\n" + mdat
+            + "\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "
+            + Main.drvConfig.aktJahr + " können daher nicht bearbeitet werden.");
+        Logger.log(Logger.ERROR, "Die Datei\n" + mdat
+            + "\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "
+            + Main.drvConfig.aktJahr + " können daher nicht bearbeitet werden.");
       }
-      mdat = Daten.efaDataDirectory+Main.drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDUNGEN_WS_FILE;
+      mdat = Daten.efaDataDirectory + Main.drvConfig.aktJahr + Daten.fileSep
+          + DRVConfig.MELDUNGEN_WS_FILE;
       if (EfaUtil.canOpenFile(mdat)) {
-        this.meldungenWSButton.setText("DRV-Wanderruderstatistik für das Jahr "+Main.drvConfig.aktJahr+" bearbeiten");
+        this.meldungenWSButton.setText("DRV-Wanderruderstatistik für das Jahr "
+            + Main.drvConfig.aktJahr + " bearbeiten");
         this.meldungenWSButton.setEnabled(true);
       } else {
-        Dialog.error("Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "+Main.drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
-        Logger.log(Logger.ERROR,"Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "+Main.drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
+        Dialog
+        .error("Die Datei\n"
+            + mdat
+            + "\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "
+            + Main.drvConfig.aktJahr + " können daher nicht bearbeitet werden.");
+        Logger
+        .log(
+            Logger.ERROR,
+            "Die Datei\n"
+                + mdat
+                + "\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "
+                + Main.drvConfig.aktJahr + " können daher nicht bearbeitet werden.");
       }
 
     }
     this.meldungenFAButton.setVisible(Main.drvConfig.darfFAbearbeiten);
     this.meldungenWSButton.setVisible(Main.drvConfig.darfWSbearbeiten);
     if (Main.drvConfig.testmode || Main.drvConfig.readOnlyMode) {
-      if (Main.drvConfig.testmode) modeLabel.setText(" - Testmode - ");
-      if (Main.drvConfig.readOnlyMode) modeLabel.setText((Main.drvConfig.testmode ? modeLabel.getText() : "") + " - ReadOnly-Mode - ");
+      if (Main.drvConfig.testmode) {
+        modeLabel.setText(" - Testmode - ");
+      }
+      if (Main.drvConfig.readOnlyMode) {
+        modeLabel.setText((Main.drvConfig.testmode ? modeLabel.getText() : "")
+            + " - ReadOnly-Mode - ");
+      }
     } else {
       modeLabel.setText("");
     }
   }
 
-  //Component initialization
-  private void jbInit() throws Exception  {
-    ActionHandler ah= new ActionHandler(this);
+  // Component initialization
+  private void jbInit() throws Exception {
+    ActionHandler ah = new ActionHandler(this);
     try {
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
-                       new String[] {"ESCAPE","F1"},
-                       new String[] {"keyAction","keyAction"});
-    } catch(NoSuchMethodException e) {
+          new String[] { "ESCAPE", "F1" },
+          new String[] { "keyAction", "keyAction" });
+    } catch (NoSuchMethodException e) {
       System.err.println("Error setting up ActionHandler");
     }
 
-    //setIconImage(Toolkit.getDefaultToolkit().createImage(EfaDRVFrame.class.getResource("[Your Icon]")));
+    // setIconImage(Toolkit.getDefaultToolkit().createImage(EfaDRVFrame.class.getResource("[Your Icon]")));
     contentPane = (JPanel) this.getContentPane();
     contentPane.setLayout(borderLayout1);
     this.setSize(new Dimension(516, 308));
@@ -129,6 +170,7 @@ public class EfaDRVFrame extends JFrame {
     administrationButton.setMnemonic('A');
     administrationButton.setText("Administration");
     administrationButton.addActionListener(new java.awt.event.ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         administrationButton_actionPerformed(e);
       }
@@ -138,11 +180,13 @@ public class EfaDRVFrame extends JFrame {
     meldungenFAButton.setMnemonic('F');
     meldungenFAButton.setText("DRV-Fahrtenabzeichen für das Jahr ???? bearbeiten");
     meldungenFAButton.addActionListener(new java.awt.event.ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         meldungenFAButton_actionPerformed(e);
       }
     });
     meldungenWSButton.addActionListener(new java.awt.event.ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         meldungenWSButton_actionPerformed(e);
       }
@@ -152,39 +196,50 @@ public class EfaDRVFrame extends JFrame {
     beendenButton.setMnemonic('B');
     beendenButton.setText("Beenden");
     beendenButton.addActionListener(new java.awt.event.ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         beendenButton_actionPerformed(e);
       }
     });
-    versionLabel.setText("Version "+Daten.VERSION + " (" + Daten.VERSIONID + ")");
+    versionLabel.setText("Version " + Daten.VERSION + " (" + Daten.VERSIONID + ")");
     meldungenWSButton.setEnabled(false);
     meldungenWSButton.setNextFocusableComponent(administrationButton);
     meldungenWSButton.setMnemonic('W');
     meldungenWSButton.setText("DRV-Wanderruderstatistik für das Jahr ???? bearbeiten");
-    copyLabel.setText("Copyright (c) 2004-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael");
+    copyLabel.setText("Copyright (c) 2004-" + Daten.COPYRIGHTYEAR + " by Nicolas Michael");
     modeLabel.setForeground(Color.red);
     modeLabel.setText("Testmode");
     contentPane.add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(northPanel, BorderLayout.NORTH);
     mainPanel.add(centerPanel, BorderLayout.CENTER);
-    northPanel.add(titleLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 0, 10), 0, 0));
-    northPanel.add(versionLabel,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    northPanel.add(copyLabel,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    northPanel.add(modeLabel,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    centerPanel.add(administrationButton,      new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 20, 0, 20), 0, 0));
-    centerPanel.add(meldungenFAButton,       new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 20, 0, 20), 0, 0));
-    centerPanel.add(beendenButton,     new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 20, 20, 20), 0, 0));
-    centerPanel.add(meldungenWSButton,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 20, 0, 20), 0, 0));
+    northPanel.add(titleLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 0, 10), 0, 0));
+    northPanel.add(versionLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    northPanel.add(copyLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    northPanel.add(modeLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
+    centerPanel
+    .add(administrationButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 20, 0, 20),
+        0, 0));
+    centerPanel.add(meldungenFAButton,
+        new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 20, 0, 20),
+            0, 0));
+    centerPanel.add(beendenButton,
+        new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 20, 20, 20),
+            0, 0));
+    centerPanel
+    .add(meldungenWSButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 20, 0, 20),
+        0, 0));
   }
-  //Overridden so we can exit when window is closed
+
+  // Overridden so we can exit when window is closed
+  @Override
   protected void processWindowEvent(WindowEvent e) {
     super.processWindowEvent(e);
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -193,85 +248,109 @@ public class EfaDRVFrame extends JFrame {
   }
 
   void administrationButton_actionPerformed(ActionEvent e) {
-    Logger.log(Logger.INFO,"START Administrationsmodus");
+    Logger.log(Logger.INFO, "START Administrationsmodus");
     DRVAdminFrame dlg = new DRVAdminFrame(this);
-    Dialog.setDlgLocation(dlg,this);
+    Dialog.setDlgLocation(dlg, this);
     dlg.setModal(true);
     dlg.show();
-    Logger.log(Logger.INFO,"ENDE Administrationsmodus");
+    Logger.log(Logger.INFO, "ENDE Administrationsmodus");
     appIni();
   }
 
   void meldungenFAButton_actionPerformed(ActionEvent e) {
     if (Main.drvConfig.aktJahr < 1980) {
-      Dialog.error("Es ist kein Wettbewerbsjahr ausgewählt.\nBitte wähle zuerst über den Punkt 'Administration' ein Wettbewerbsjahr aus.");
+      Dialog
+      .error("Es ist kein Wettbewerbsjahr ausgewählt.\nBitte wähle zuerst über den Punkt 'Administration' ein Wettbewerbsjahr aus.");
       return;
     }
 
-    Main.drvConfig.meldungenIndex = new MeldungenIndex(Daten.efaDataDirectory+Main.drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDUNGEN_FA_FILE);
+    Main.drvConfig.meldungenIndex = new MeldungenIndex(Daten.efaDataDirectory
+        + Main.drvConfig.aktJahr + Daten.fileSep + DRVConfig.MELDUNGEN_FA_FILE);
     if (!Main.drvConfig.meldungenIndex.readFile()) {
-      Dialog.error("Die Meldungen-Indexdatei\n"+Main.drvConfig.meldungenIndex.getFileName()+"\nkann nicht gelesen werden!");
-      Logger.log(Logger.ERROR,"Die Meldungen-Indexdatei\n"+Main.drvConfig.meldungenIndex.getFileName()+"\nkann nicht gelesen werden!");
+      Dialog.error("Die Meldungen-Indexdatei\n" + Main.drvConfig.meldungenIndex.getFileName()
+          + "\nkann nicht gelesen werden!");
+      Logger.log(Logger.ERROR,
+          "Die Meldungen-Indexdatei\n" + Main.drvConfig.meldungenIndex.getFileName()
+          + "\nkann nicht gelesen werden!");
       return;
     }
 
-    Main.drvConfig.teilnehmer = new Teilnehmer(Daten.efaDataDirectory+DRVConfig.TEILNEHMER_FILE);
+    Main.drvConfig.teilnehmer = new Teilnehmer(Daten.efaDataDirectory + DRVConfig.TEILNEHMER_FILE);
     if (!Main.drvConfig.teilnehmer.readFile()) {
-      Dialog.error("Die Teilnehmer-Datei\n"+Main.drvConfig.teilnehmer.getFileName()+"\nkann nicht gelesen werden!");
-      Logger.log(Logger.ERROR,"Die Teilnehmer-Datei\n"+Main.drvConfig.teilnehmer.getFileName()+"\nkann nicht gelesen werden!");
+      Dialog.error("Die Teilnehmer-Datei\n" + Main.drvConfig.teilnehmer.getFileName()
+          + "\nkann nicht gelesen werden!");
+      Logger.log(Logger.ERROR, "Die Teilnehmer-Datei\n" + Main.drvConfig.teilnehmer.getFileName()
+          + "\nkann nicht gelesen werden!");
       return;
     }
 
-    Main.drvConfig.meldestatistik = new Meldestatistik(Daten.efaDataDirectory+Main.drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDESTATISTIK_FA_FILE);
+    Main.drvConfig.meldestatistik = new Meldestatistik(Daten.efaDataDirectory
+        + Main.drvConfig.aktJahr + Daten.fileSep + DRVConfig.MELDESTATISTIK_FA_FILE);
     if (!Main.drvConfig.meldestatistik.readFile()) {
-      Dialog.error("Die Meldestatistik-Datei\n"+Main.drvConfig.meldestatistik.getFileName()+"\nkann nicht gelesen werden!");
-      Logger.log(Logger.ERROR,"Die Meldestatistik-Datei\n"+Main.drvConfig.meldestatistik.getFileName()+"\nkann nicht gelesen werden!");
+      Dialog.error("Die Meldestatistik-Datei\n" + Main.drvConfig.meldestatistik.getFileName()
+          + "\nkann nicht gelesen werden!");
+      Logger.log(Logger.ERROR,
+          "Die Meldestatistik-Datei\n" + Main.drvConfig.meldestatistik.getFileName()
+          + "\nkann nicht gelesen werden!");
       return;
     }
 
-    Logger.log(Logger.INFO,"START Meldungen für "+Main.drvConfig.aktJahr+" bearbeiten");
-    MeldungenIndexFrame dlg = new MeldungenIndexFrame(this,MeldungenIndexFrame.MELD_FAHRTENABZEICHEN);
-    dlg.setSize((int)Dialog.screenSize.getWidth()-100,(int)Dialog.screenSize.getHeight()-100);
-    Dialog.setDlgLocation(dlg,this);
+    Logger.log(Logger.INFO, "START Meldungen für " + Main.drvConfig.aktJahr + " bearbeiten");
+    MeldungenIndexFrame dlg = new MeldungenIndexFrame(this,
+        MeldungenIndexFrame.MELD_FAHRTENABZEICHEN);
+    dlg.setSize((int) Dialog.screenSize.getWidth() - 100, (int) Dialog.screenSize.getHeight() - 100);
+    Dialog.setDlgLocation(dlg, this);
     dlg.setModal(true);
     dlg.show();
-    Logger.log(Logger.INFO,"ENDE Meldungen für "+Main.drvConfig.aktJahr+" bearbeiten");
+    Logger.log(Logger.INFO, "ENDE Meldungen für " + Main.drvConfig.aktJahr + " bearbeiten");
   }
 
   void meldungenWSButton_actionPerformed(ActionEvent e) {
     if (Main.drvConfig.aktJahr < 1980) {
-      Dialog.error("Es ist kein Wettbewerbsjahr ausgewählt.\nBitte wähle zuerst über den Punkt 'Administration' ein Wettbewerbsjahr aus.");
+      Dialog
+      .error("Es ist kein Wettbewerbsjahr ausgewählt.\nBitte wähle zuerst über den Punkt 'Administration' ein Wettbewerbsjahr aus.");
       return;
     }
 
-    Main.drvConfig.meldungenIndex = new MeldungenIndex(Daten.efaDataDirectory+Main.drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDUNGEN_WS_FILE);
+    Main.drvConfig.meldungenIndex = new MeldungenIndex(Daten.efaDataDirectory
+        + Main.drvConfig.aktJahr + Daten.fileSep + DRVConfig.MELDUNGEN_WS_FILE);
     if (!Main.drvConfig.meldungenIndex.readFile()) {
-      Dialog.error("Die Meldungen-Indexdatei\n"+Main.drvConfig.meldungenIndex.getFileName()+"\nkann nicht gelesen werden!");
-      Logger.log(Logger.ERROR,"Die Meldungen-Indexdatei\n"+Main.drvConfig.meldungenIndex.getFileName()+"\nkann nicht gelesen werden!");
+      Dialog.error("Die Meldungen-Indexdatei\n" + Main.drvConfig.meldungenIndex.getFileName()
+          + "\nkann nicht gelesen werden!");
+      Logger.log(Logger.ERROR,
+          "Die Meldungen-Indexdatei\n" + Main.drvConfig.meldungenIndex.getFileName()
+          + "\nkann nicht gelesen werden!");
       return;
     }
 
-    Main.drvConfig.teilnehmer = new Teilnehmer(Daten.efaDataDirectory+DRVConfig.TEILNEHMER_FILE);
+    Main.drvConfig.teilnehmer = new Teilnehmer(Daten.efaDataDirectory + DRVConfig.TEILNEHMER_FILE);
     if (!Main.drvConfig.teilnehmer.readFile()) {
-      Dialog.error("Die Teilnehmer-Datei\n"+Main.drvConfig.teilnehmer.getFileName()+"\nkann nicht gelesen werden!");
-      Logger.log(Logger.ERROR,"Die Teilnehmer-Datei\n"+Main.drvConfig.teilnehmer.getFileName()+"\nkann nicht gelesen werden!");
+      Dialog.error("Die Teilnehmer-Datei\n" + Main.drvConfig.teilnehmer.getFileName()
+          + "\nkann nicht gelesen werden!");
+      Logger.log(Logger.ERROR, "Die Teilnehmer-Datei\n" + Main.drvConfig.teilnehmer.getFileName()
+          + "\nkann nicht gelesen werden!");
       return;
     }
 
-    Main.drvConfig.meldestatistik = new Meldestatistik(Daten.efaDataDirectory+Main.drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDESTATISTIK_WS_FILE);
+    Main.drvConfig.meldestatistik = new Meldestatistik(Daten.efaDataDirectory
+        + Main.drvConfig.aktJahr + Daten.fileSep + DRVConfig.MELDESTATISTIK_WS_FILE);
     if (!Main.drvConfig.meldestatistik.readFile()) {
-      Dialog.error("Die Meldestatistik-Datei\n"+Main.drvConfig.meldestatistik.getFileName()+"\nkann nicht gelesen werden!");
-      Logger.log(Logger.ERROR,"Die Meldestatistik-Datei\n"+Main.drvConfig.meldestatistik.getFileName()+"\nkann nicht gelesen werden!");
+      Dialog.error("Die Meldestatistik-Datei\n" + Main.drvConfig.meldestatistik.getFileName()
+          + "\nkann nicht gelesen werden!");
+      Logger.log(Logger.ERROR,
+          "Die Meldestatistik-Datei\n" + Main.drvConfig.meldestatistik.getFileName()
+          + "\nkann nicht gelesen werden!");
       return;
     }
 
-    Logger.log(Logger.INFO,"START Meldungen für "+Main.drvConfig.aktJahr+" bearbeiten");
-    MeldungenIndexFrame dlg = new MeldungenIndexFrame(this,MeldungenIndexFrame.MELD_WANDERRUDERSTATISTIK);
-    dlg.setSize((int)Dialog.screenSize.getWidth()-100,(int)Dialog.screenSize.getHeight()-100);
-    Dialog.setDlgLocation(dlg,this);
+    Logger.log(Logger.INFO, "START Meldungen für " + Main.drvConfig.aktJahr + " bearbeiten");
+    MeldungenIndexFrame dlg = new MeldungenIndexFrame(this,
+        MeldungenIndexFrame.MELD_WANDERRUDERSTATISTIK);
+    dlg.setSize((int) Dialog.screenSize.getWidth() - 100, (int) Dialog.screenSize.getHeight() - 100);
+    Dialog.setDlgLocation(dlg, this);
     dlg.setModal(true);
     dlg.show();
-    Logger.log(Logger.INFO,"ENDE Meldungen für "+Main.drvConfig.aktJahr+" bearbeiten");
+    Logger.log(Logger.INFO, "ENDE Meldungen für " + Main.drvConfig.aktJahr + " bearbeiten");
   }
 
   void beendenButton_actionPerformed(ActionEvent e) {

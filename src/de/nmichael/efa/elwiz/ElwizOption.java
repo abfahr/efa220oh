@@ -33,6 +33,5 @@ public class ElwizOption {
   public Vector options = null;
   public Vector components = null;
 
-  public ElwizOption() {
-  }
+  public ElwizOption() {}
 }

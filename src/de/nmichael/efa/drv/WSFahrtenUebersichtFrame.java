@@ -10,23 +10,43 @@
 
 package de.nmichael.efa.drv;
 
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+
 import de.nmichael.efa.data.efawett.EfaWettMeldung;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.ActionHandler;
 import de.nmichael.efa.util.Dialog;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import java.beans.*;
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener {
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
   JDialog parent;
   Vector data;
   private int result = -1;
-  boolean firstclick=false;
+  boolean firstclick = false;
 
   JPanel jPanel1 = new JPanel();
   BorderLayout borderLayout1 = new BorderLayout();
@@ -37,7 +57,6 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
   JScrollPane scrollPane = new JScrollPane();
   JTable table;
 
-
   public WSFahrtenUebersichtFrame(JDialog parent, Vector data) {
     super(parent);
     this.data = data;
@@ -46,8 +65,7 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
     try {
       jbInit();
       initTable();
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     EfaUtil.pack(this);
@@ -55,50 +73,53 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
     // this.requestFocus();
   }
 
-
   // ActionHandler Events
   public void keyAction(ActionEvent evt) {
-    if (evt == null || evt.getActionCommand() == null) return;
+    if (evt == null || evt.getActionCommand() == null) {
+      return;
+    }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
       cancel(-1);
     }
   }
 
-
   // Initialisierung des Frames
   private void jbInit() throws Exception {
-    ActionHandler ah= new ActionHandler(this);
+    ActionHandler ah = new ActionHandler(this);
     try {
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
-                       new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
+          new String[] { "ESCAPE", "F1" }, new String[] { "keyAction", "keyAction" });
       jPanel1.setLayout(borderLayout1);
       closeButton.setText("Schließen");
       closeButton.addActionListener(new java.awt.event.ActionListener() {
+        @Override
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);
         }
-    });
+      });
       jPanel2.setLayout(gridBagLayout1);
       editButton.setText("Bearbeiten");
       editButton.addActionListener(new java.awt.event.ActionListener() {
+        @Override
         public void actionPerformed(ActionEvent e) {
           editButton_actionPerformed(e);
         }
-    });
+      });
       this.setTitle("Übersicht der Wanderfahrten");
       scrollPane.setPreferredSize(new Dimension(500, 400));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(closeButton, BorderLayout.SOUTH);
       jPanel1.add(jPanel2, BorderLayout.EAST);
-      jPanel2.add(editButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      jPanel2.add(editButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+          , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel1.add(scrollPane, BorderLayout.CENTER);
-    } catch(NoSuchMethodException e) {
+    } catch (NoSuchMethodException e) {
       System.err.println("Error setting up ActionHandler");
     }
   }
 
-  /**Overridden so we can exit when window is closed*/
+  /** Overridden so we can exit when window is closed */
+  @Override
   protected void processWindowEvent(WindowEvent e) {
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
       cancel(-1);
@@ -106,16 +127,16 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
     super.processWindowEvent(e);
   }
 
-  /**Close the dialog*/
+  /** Close the dialog */
   void cancel(int result) {
     this.result = result;
     Dialog.frameClosed(this);
     dispose();
   }
 
-  /**Close the dialog on a button event*/
-  public void actionPerformed(ActionEvent e) {
-  }
+  /** Close the dialog on a button event */
+  @Override
+  public void actionPerformed(ActionEvent e) {}
 
   private void initTable() {
     String[] title = new String[3];
@@ -123,22 +144,24 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
     title[0] = "Fahrt";
     title[1] = "Tage";
     title[2] = "Kilometer";
-    for (int i=0; i<data.size(); i++) {
-      EfaWettMeldung ewm = (EfaWettMeldung)data.get(i);
+    for (int i = 0; i < data.size(); i++) {
+      EfaWettMeldung ewm = (EfaWettMeldung) data.get(i);
       content[i][0] = ewm.drvWS_StartZiel;
       content[i][1] = ewm.drvWS_Tage;
       content[i][2] = ewm.drvWS_Km;
     }
-    table = new JTable(content,title);
+    table = new JTable(content, title);
     table.getColumnModel().getColumn(0).setPreferredWidth(350);
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     scrollPane.getViewport().add(table, null);
     table.addMouseListener(new java.awt.event.MouseAdapter() {
+      @Override
       public void mouseClicked(MouseEvent e) {
         table_mouseClicked(e);
       }
     });
     table.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+      @Override
       public void propertyChange(PropertyChangeEvent e) {
         table_propertyChange(e);
       }
@@ -147,14 +170,14 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
 
   // Edit bei Doppelklick
   void table_mouseClicked(MouseEvent e) {
-    firstclick=true;
+    firstclick = true;
   }
 
   // komisch, manchmal scheine diese Methode irgendwie nicht zu ziehen.....
   void table_propertyChange(PropertyChangeEvent e) {
     if (table.isEditing()) {
       if (firstclick) {
-        firstclick=false;
+        firstclick = false;
         editButton_actionPerformed(null);
       }
     }
@@ -176,6 +199,5 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
   public int getResult() {
     return result;
   }
-
 
 }

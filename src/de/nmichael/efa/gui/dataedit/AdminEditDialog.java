@@ -10,42 +10,52 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JDialog;
+
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.ex.InvalidValueException;
-import de.nmichael.efa.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import de.nmichael.efa.util.International;
 
 // @i18n complete
 public class AdminEditDialog extends UnversionizedDataEditDialog {
 
-    public AdminEditDialog(Frame parent, AdminRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent, International.getString("Administrator"), r, newRecord, admin);
-    }
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    public AdminEditDialog(JDialog parent, AdminRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent, International.getString("Administrator"), r, newRecord, admin);
-    }
+  public AdminEditDialog(Frame parent, AdminRecord r, boolean newRecord, AdminRecord admin) {
+    super(parent, International.getString("Administrator"), r, newRecord, admin);
+  }
 
-    public void keyAction(ActionEvent evt) {
-        _keyAction(evt);
-    }
+  public AdminEditDialog(JDialog parent, AdminRecord r, boolean newRecord, AdminRecord admin) {
+    super(parent, International.getString("Administrator"), r, newRecord, admin);
+  }
 
-    protected boolean saveRecord() throws InvalidValueException {
-        String password = null;
-        for (IItemType item : getItems()) {
-            if (item.isVisible() && item.getName().startsWith(AdminRecord.PASSWORD)) {
-                if (password == null) {
-                    password = item.toString(); // first password
-                } else {
-                    if (!password.equals(item.toString())) {
-                        throw new InvalidValueException(item, International.getMessage("Paßwort in Feld '{field}' nicht identisch.", item.getDescription()));
-                    }
-                }
-            }
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
+
+  @Override
+  protected boolean saveRecord() throws InvalidValueException {
+    String password = null;
+    for (IItemType item : getItems()) {
+      if (item.isVisible() && item.getName().startsWith(AdminRecord.PASSWORD)) {
+        if (password == null) {
+          password = item.toString(); // first password
+        } else {
+          if (!password.equals(item.toString())) {
+            throw new InvalidValueException(item, International.getMessage(
+                "Paßwort in Feld '{field}' nicht identisch.", item.getDescription()));
+          }
         }
-        return super.saveRecord();
+      }
     }
+    return super.saveRecord();
+  }
 }

@@ -10,54 +10,50 @@
 
 package de.nmichael.efa.gui.widgets;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.gui.util.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
+import de.nmichael.efa.util.EfaUtil;
 
 public class ClockMiniWidget {
 
-    private JLabel label = new JLabel();
-    private ClockUpdater clockUpdater;
+  private JLabel label = new JLabel();
+  private ClockUpdater clockUpdater;
 
-    public ClockMiniWidget() {
-        label.setText("12:34");
-        clockUpdater = new ClockUpdater();
-        clockUpdater.start();
+  public ClockMiniWidget() {
+    label.setText("12:34");
+    clockUpdater = new ClockUpdater();
+    clockUpdater.start();
+  }
+
+  public void stopClock() {
+    clockUpdater.stopClock();
+  }
+
+  public JComponent getGuiComponent() {
+    return label;
+  }
+
+  class ClockUpdater extends Thread {
+
+    volatile boolean keepRunning = true;
+
+    @Override
+    public void run() {
+      while (keepRunning) {
+        try {
+          label.setText(EfaUtil.getCurrentTimeStampHHMM());
+          Thread.sleep(60000);
+        } catch (Exception e) {
+          EfaUtil.foo();
+        }
+      }
     }
 
     public void stopClock() {
-        clockUpdater.stopClock();
+      keepRunning = false;
     }
 
-    public JComponent getGuiComponent() {
-        return label;
-    }
-
-    class ClockUpdater extends Thread {
-
-        volatile boolean keepRunning = true;
-
-        public void run() {
-            while (keepRunning) {
-                try {
-                    label.setText(EfaUtil.getCurrentTimeStampHHMM());
-                    Thread.sleep(60000);
-                } catch (Exception e) {
-                    EfaUtil.foo();
-                }
-            }
-        }
-
-        public void stopClock() {
-            keepRunning = false;
-        }
-
-    }
+  }
 
 }

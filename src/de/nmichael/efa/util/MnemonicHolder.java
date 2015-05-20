@@ -10,34 +10,33 @@
 
 package de.nmichael.efa.util;
 
-import java.awt.*;
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.JLabel;
 
 // @i18n complete
 
 class MnemonicHolder {
 
-    private AbstractButton b;
-    private JLabel l;
-    private boolean explicit;
+  private AbstractButton b;
+  private JLabel l;
+  private boolean explicit;
 
-    public MnemonicHolder(AbstractButton b, JLabel l, boolean explicit) {
-        this.b = b;
-        this.l = l;
-        this.explicit = explicit;
-    }
+  public MnemonicHolder(AbstractButton b, JLabel l, boolean explicit) {
+    this.b = b;
+    this.l = l;
+    this.explicit = explicit;
+  }
 
-    public boolean clearMnemonics() {
-        if (explicit) {
-            return false;
-        }
-        if (b != null) {
-            b.setMnemonic(0x0);
-        }
-        if (l != null) {
-            l.setDisplayedMnemonic(0x0);
-        }
-        return true;
+  public boolean clearMnemonics() {
+    if (explicit) {
+      return false;
     }
+    if (b != null) {
+      b.setMnemonic(0x0);
+    }
+    if (l != null) {
+      l.setDisplayedMnemonic(0x0);
+    }
+    return true;
+  }
 }
-

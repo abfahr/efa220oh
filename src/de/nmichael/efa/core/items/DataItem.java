@@ -14,16 +14,15 @@ import de.nmichael.efa.data.storage.DataKey;
 
 public class DataItem {
 
-    public DataKey key = null;      // the key of the record
-    public IItemType item = null;   // the item itself: a "column" within that record
-    public boolean changed = false;
+  public DataKey key = null; // the key of the record
+  public IItemType item = null; // the item itself: a "column" within that record
+  public boolean changed = false;
 
-    public DataItem() {
-    }
+  public DataItem() {}
 
-    public DataItem(DataKey key, IItemType item) {
-        this.key = key;
-        this.item = item;
-    }
+  public DataItem(DataKey key, IItemType item) {
+    this.key = key;
+    this.item = item;
+  }
 
 }

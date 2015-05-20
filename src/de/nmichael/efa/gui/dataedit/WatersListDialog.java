@@ -10,71 +10,87 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.util.UUID;
 
+import javax.swing.JDialog;
+
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.data.Waters;
+import de.nmichael.efa.data.WatersRecord;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.International;
 
 // @i18n complete
 public class WatersListDialog extends DataListDialog {
 
-    public static final int ACTION_CREATEFROMTEMPLATE = 901; // negative actions will not be shown as popup actions
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
+  public static final int ACTION_CREATEFROMTEMPLATE = 901; // negative actions will not be shown as
+  // popup actions
 
-    public WatersListDialog(Frame parent, AdminRecord admin) {
-        super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
-        addCreateWatersButton();
-        intelligentColumnWidth = false;
-    }
+  public WatersListDialog(Frame parent, AdminRecord admin) {
+    super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
+    addCreateWatersButton();
+    intelligentColumnWidth = false;
+  }
 
-    public WatersListDialog(JDialog parent, AdminRecord admin) {
-        super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
-        addCreateWatersButton();
-        intelligentColumnWidth = false;
-    }
+  public WatersListDialog(JDialog parent, AdminRecord admin) {
+    super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
+    addCreateWatersButton();
+    intelligentColumnWidth = false;
+  }
 
-    private void addCreateWatersButton() {
-        try {
-            if (Daten.project.getWaters(false).getResourceTemplate(International.getLanguageID()) != null) {
-                addAction(International.getString("Gewässerliste erstellen"),
-                        ACTION_CREATEFROMTEMPLATE,
-                        BaseDialog.IMAGE_SPECIAL);
-            }
-        } catch(Exception eignore) {
+  private void addCreateWatersButton() {
+    try {
+      Daten.project.getWaters(false);
+      if (Waters.getResourceTemplate(International.getLanguageID()) != null) {
+        addAction(International.getString("Gewässerliste erstellen"),
+            ACTION_CREATEFROMTEMPLATE,
+            BaseDialog.IMAGE_SPECIAL);
+      }
+    } catch (Exception eignore) {}
+  }
+
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
+
+  @Override
+  public void itemListenerActionTable(int actionId, DataRecord[] records) {
+    super.itemListenerActionTable(actionId, records);
+    switch (actionId) {
+      case ACTION_CREATEFROMTEMPLATE:
+        int count = Daten.project.getWaters(false).addAllWatersFromTemplate(
+            International.getLanguageID());
+        if (count > 0) {
+          Dialog.infoDialog(International.getMessage(
+              "{count} Gewässer aus Gewässerkatalog erfolgreich hinzugefügt.",
+              count));
+        } else {
+          Dialog
+          .infoDialog(International
+              .getString("Alle Gewässer aus dem Gewässerkatalog sind bereits vorhanden (keine neuen hinzugefügt)."));
         }
+        break;
     }
+  }
 
-    public void keyAction(ActionEvent evt) {
-        _keyAction(evt);
+  @Override
+  public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence,
+      DataRecord record) {
+    boolean newRecord = (record == null);
+    if (record == null) {
+      record = Daten.project.getWaters(false).createWatersRecord(UUID.randomUUID());
     }
-
-    public void itemListenerActionTable(int actionId, DataRecord[] records) {
-        super.itemListenerActionTable(actionId, records);
-        switch(actionId) {
-            case ACTION_CREATEFROMTEMPLATE:
-                int count = Daten.project.getWaters(false).addAllWatersFromTemplate(International.getLanguageID());
-                if (count > 0) {
-                    Dialog.infoDialog(International.getMessage("{count} Gewässer aus Gewässerkatalog erfolgreich hinzugefügt.",
-                            count));
-                } else {
-                    Dialog.infoDialog(International.getString("Alle Gewässer aus dem Gewässerkatalog sind bereits vorhanden (keine neuen hinzugefügt)."));
-                }
-                break;
-        }
-    }
-
-    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
-        boolean newRecord = (record == null);
-        if (record == null) {
-            record = Daten.project.getWaters(false).createWatersRecord(UUID.randomUUID());
-        }
-        return new WatersEditDialog(parent, (WatersRecord)record, newRecord, admin);
-    }
+    return new WatersEditDialog(parent, (WatersRecord) record, newRecord, admin);
+  }
 }

@@ -10,48 +10,53 @@
 
 package de.nmichael.efa.core.items;
 
+import javax.swing.JComponent;
+import javax.swing.JPasswordField;
+
 import de.nmichael.efa.data.types.DataTypePasswordCrypted;
-import javax.swing.*;
 
 public class ItemTypePassword extends ItemTypeString {
 
-    private boolean encrypted = false;
+  private boolean encrypted = false;
 
-    public ItemTypePassword(String name, String value, int type,
-            String category, String description) {
-        super(name, value, type, category, description);
-    }
-    
-    public ItemTypePassword(String name, String value, boolean encrypted, int type,
-            String category, String description) {
-        super(name, value, type, category, description);
-        this.encrypted = encrypted;
-    }
+  public ItemTypePassword(String name, String value, int type,
+      String category, String description) {
+    super(name, value, type, category, description);
+  }
 
-    public IItemType copyOf() {
-        return new ItemTypePassword(name, value, encrypted, type, category, description);
-    }
+  public ItemTypePassword(String name, String value, boolean encrypted, int type,
+      String category, String description) {
+    super(name, value, type, category, description);
+    this.encrypted = encrypted;
+  }
 
-    protected JComponent initializeField() {
-        JPasswordField f = new JPasswordField();
-        return f;
-    }
+  @Override
+  public IItemType copyOf() {
+    return new ItemTypePassword(name, value, encrypted, type, category, description);
+  }
 
-    public void parseValue(String value) {
-        if (encrypted) {
-            value = DataTypePasswordCrypted.parsePassword(value).getPassword();
-        }
-        super.parseValue(value);
-    }
+  @Override
+  protected JComponent initializeField() {
+    JPasswordField f = new JPasswordField();
+    return f;
+  }
 
-    // called from EfaConfig for external storage;
-    // we need a special solution here because EfaConfig ist not DataType-aware
-    public String getCryptedPassword() {
-        if (value != null && value.length() > 0) {
-            DataTypePasswordCrypted pwd = new DataTypePasswordCrypted(value);
-            return pwd.toString();
-        }
-        return value;
+  @Override
+  public void parseValue(String value) {
+    if (encrypted) {
+      value = DataTypePasswordCrypted.parsePassword(value).getPassword();
     }
+    super.parseValue(value);
+  }
+
+  // called from EfaConfig for external storage;
+  // we need a special solution here because EfaConfig ist not DataType-aware
+  public String getCryptedPassword() {
+    if (value != null && value.length() > 0) {
+      DataTypePasswordCrypted pwd = new DataTypePasswordCrypted(value);
+      return pwd.toString();
+    }
+    return value;
+  }
 
 }

@@ -10,12 +10,9 @@
 
 package de.nmichael.efa.efa1;
 
-import de.nmichael.efa.efa1.SortedList;
-import de.nmichael.efa.efa1.DatenListe;
-import java.io.*;
-import java.util.Hashtable;
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
+import java.io.IOException;
+
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete
 
@@ -31,41 +28,46 @@ public class Synonyme extends DatenListe {
 
   // Konstruktor
   public Synonyme(String pdat) {
-    super(pdat,_FELDERANZAHL,1,false);
+    super(pdat, _FELDERANZAHL, 1, false);
     kennung = KENNUNG190;
   }
-
 
   // alle Einträge löschen
   public void removeAllSyns() {
     this.l = new SortedList(false);
   }
 
+  @Override
   public boolean checkFileFormat() {
     String s;
     try {
       s = freadLine();
-      if ( s == null || !s.trim().startsWith(kennung) ) {
+      if (s == null || !s.trim().startsWith(kennung)) {
         // KONVERTIEREN: 091 -> 190
         if (s != null && s.trim().startsWith(KENNUNG091)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"091");
-          iniList(this.dat,2,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          iniList(this.dat, 2, 1, false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               add(constructFields(s));
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG190;
           if (closeFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // FERTIG MIT KONVERTIEREN
@@ -75,8 +77,8 @@ public class Synonyme extends DatenListe {
           return false;
         }
       }
-    } catch(IOException e) {
-      errReadingFile(dat,e.getMessage());
+    } catch (IOException e) {
+      errReadingFile(dat, e.getMessage());
       return false;
     }
     return true;

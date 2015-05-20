@@ -10,26 +10,28 @@
 
 package de.nmichael.efa.cli;
 
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.util.Logger;
 import java.util.Stack;
+
+import de.nmichael.efa.data.Project;
+import de.nmichael.efa.data.Waters;
 
 public class MenuWaters extends MenuData {
 
-    public MenuWaters(CLI cli) {
-        super(cli);
-        this.storageObject = cli.getPersistence(Waters.class, Project.STORAGEOBJECT_WATERS, Waters.DATATYPE);
-        this.storageObjectDescription = "waters";
-    }
+  public MenuWaters(CLI cli) {
+    super(cli);
+    this.storageObject = cli.getPersistence(Waters.class, Project.STORAGEOBJECT_WATERS,
+        Waters.DATATYPE);
+    this.storageObjectDescription = "waters";
+  }
 
-    public int runCommand(Stack<String> menuStack, String cmd, String args) {
-        int ret = super.runCommand(menuStack, cmd, args);
-        if (ret < 0) {
-            return CLI.RC_UNKNOWN_COMMAND;
-        } else {
-            return ret;
-        }
+  @Override
+  public int runCommand(Stack<String> menuStack, String cmd, String args) {
+    int ret = super.runCommand(menuStack, cmd, args);
+    if (ret < 0) {
+      return CLI.RC_UNKNOWN_COMMAND;
+    } else {
+      return ret;
     }
+  }
 
 }

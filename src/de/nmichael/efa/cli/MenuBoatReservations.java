@@ -10,26 +10,28 @@
 
 package de.nmichael.efa.cli;
 
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.util.Logger;
 import java.util.Stack;
+
+import de.nmichael.efa.data.BoatReservations;
+import de.nmichael.efa.data.Project;
 
 public class MenuBoatReservations extends MenuData {
 
-    public MenuBoatReservations(CLI cli) {
-        super(cli);
-        this.storageObject = cli.getPersistence(BoatReservations.class, Project.STORAGEOBJECT_BOATRESERVATIONS, BoatReservations.DATATYPE);
-        this.storageObjectDescription = "boat reservations";
-    }
+  public MenuBoatReservations(CLI cli) {
+    super(cli);
+    this.storageObject = cli.getPersistence(BoatReservations.class,
+        Project.STORAGEOBJECT_BOATRESERVATIONS, BoatReservations.DATATYPE);
+    this.storageObjectDescription = "boat reservations";
+  }
 
-    public int runCommand(Stack<String> menuStack, String cmd, String args) {
-        int ret = super.runCommand(menuStack, cmd, args);
-        if (ret < 0) {
-            return CLI.RC_UNKNOWN_COMMAND;
-        } else {
-            return ret;
-        }
+  @Override
+  public int runCommand(Stack<String> menuStack, String cmd, String args) {
+    int ret = super.runCommand(menuStack, cmd, args);
+    if (ret < 0) {
+      return CLI.RC_UNKNOWN_COMMAND;
+    } else {
+      return ret;
     }
+  }
 
 }

@@ -16,7 +16,7 @@ import java.util.GregorianCalendar;
 
 public class TMJ implements Cloneable {
 
-  public int tag,monat,jahr;
+  public int tag, monat, jahr;
 
   public TMJ(int t, int m, int j) {
     tag = t;
@@ -25,17 +25,16 @@ public class TMJ implements Cloneable {
   }
 
   public GregorianCalendar toCalendar() {
-    return new GregorianCalendar(jahr,monat-1,tag);
+    return new GregorianCalendar(jahr, monat - 1, tag);
   }
-  
+
   public static TMJ parseTMJ(String s) {
-      return EfaUtil.string2date(s, -1, -1, -1);
+    return EfaUtil.string2date(s, -1, -1, -1);
   }
 
+  @Override
   public String toString() {
-      return tag + "." + monat + "." + jahr;
+    return tag + "." + monat + "." + jahr;
   }
-
-
 
 }

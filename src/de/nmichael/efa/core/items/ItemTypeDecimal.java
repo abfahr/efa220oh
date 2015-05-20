@@ -10,85 +10,94 @@
 
 package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.data.types.DataTypeDecimal;
-import de.nmichael.efa.util.*;
 import javax.swing.JTextField;
+
+import de.nmichael.efa.data.types.DataTypeDecimal;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 
 public class ItemTypeDecimal extends ItemTypeLabelTextfield {
 
-    private DataTypeDecimal value;
-    private int decimalPlaces;
-    private boolean onlyPositiveOrNull;
+  private DataTypeDecimal value;
+  private int decimalPlaces;
+  private boolean onlyPositiveOrNull;
 
-    public ItemTypeDecimal(String name, DataTypeDecimal value, int decimalPlaces, boolean onlyPositiveOrNull,
-            int type, String category, String description) {
-        this.name = name;
-        this.value = (value != null ? value : new DataTypeDecimal());
-        this.decimalPlaces = decimalPlaces;
-        this.onlyPositiveOrNull = onlyPositiveOrNull;
-        this.type = type;
-        this.category = category;
-        this.description = description;
+  public ItemTypeDecimal(String name, DataTypeDecimal value, int decimalPlaces,
+      boolean onlyPositiveOrNull,
+      int type, String category, String description) {
+    this.name = name;
+    this.value = (value != null ? value : new DataTypeDecimal());
+    this.decimalPlaces = decimalPlaces;
+    this.onlyPositiveOrNull = onlyPositiveOrNull;
+    this.type = type;
+    this.category = category;
+    this.description = description;
+  }
+
+  @Override
+  public IItemType copyOf() {
+    return new ItemTypeDecimal(name, new DataTypeDecimal(value), decimalPlaces, onlyPositiveOrNull,
+        type, category, description);
+  }
+
+  @Override
+  public void parseValue(String value) {
+    if (value != null) {
+      value = value.trim();
     }
-
-    public IItemType copyOf() {
-        return new ItemTypeDecimal(name, new DataTypeDecimal(value), decimalPlaces, onlyPositiveOrNull, type, category, description);
-    }
-
-    public void parseValue(String value) {
-        if (value != null) {
-            value = value.trim();
+    try {
+      if (value.length() == 0 && !isNotNullSet()) {
+        this.value.unset();
+      } else {
+        this.value = DataTypeDecimal.parseDecimal(value);
+        if (onlyPositiveOrNull && this.value.getValue(decimalPlaces) < 0) {
+          this.value.setDecimal(0, decimalPlaces);
         }
-        try {
-            if (value.length() == 0 && !isNotNullSet()) {
-                this.value.unset();
-            } else {
-                this.value = DataTypeDecimal.parseDecimal(value);
-                if (onlyPositiveOrNull && this.value.getValue(decimalPlaces) < 0) {
-                    this.value.setDecimal(0, decimalPlaces);
-                }
-            }
-        } catch (Exception e) {
-            if (dlg == null) {
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
-                           "Invalid value for parameter "+name+": "+value);
-            }
-        }
+      }
+    } catch (Exception e) {
+      if (dlg == null) {
+        Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+            "Invalid value for parameter " + name + ": " + value);
+      }
     }
+  }
 
-    public void showValue() {
-        super.showValue();
-        if (field != null) {
-            ((JTextField)field).setText(value.getAsFormattedString(decimalPlaces, decimalPlaces));
-        }
+  @Override
+  public void showValue() {
+    super.showValue();
+    if (field != null) {
+      ((JTextField) field).setText(value.getAsFormattedString(decimalPlaces, decimalPlaces));
     }
-    public String toString() {
-        if (!isNotNullSet() && !value.isSet()) {
-            return "";
-        }
-        return value.toString();
-    }
+  }
 
-    public long getValue() {
-        return value.getValue(decimalPlaces);
+  @Override
+  public String toString() {
+    if (!isNotNullSet() && !value.isSet()) {
+      return "";
     }
+    return value.toString();
+  }
 
-    public void setValue(long value) {
-        this.value.setDecimal(value, decimalPlaces);
-        showValue();
-    }
+  public long getValue() {
+    return value.getValue(decimalPlaces);
+  }
 
-    public boolean isSet() {
-        return (isNotNullSet()) || value.isSet();
-    }
+  public void setValue(long value) {
+    this.value.setDecimal(value, decimalPlaces);
+    showValue();
+  }
 
-    public boolean isValidInput() {
-        if (isNotNullSet()) {
-            return isSet();
-        }
-        return true;
+  public boolean isSet() {
+    return (isNotNullSet()) || value.isSet();
+  }
+
+  @Override
+  public boolean isValidInput() {
+    if (isNotNullSet()) {
+      return isSet();
     }
+    return true;
+  }
 
 }

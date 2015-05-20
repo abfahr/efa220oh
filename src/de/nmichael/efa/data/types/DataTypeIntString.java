@@ -7,86 +7,89 @@
  * @author Nicolas Michael
  * @version 2
  */
+
 package de.nmichael.efa.data.types;
 
-import java.util.*;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.EfaUtil;
 
 public class DataTypeIntString implements Cloneable, Comparable<DataTypeIntString> {
 
-    private String value;
+  private String value;
 
-    // Default Constructor
-    public DataTypeIntString() {
+  // Default Constructor
+  public DataTypeIntString() {}
+
+  // Regular Constructor
+  public DataTypeIntString(String value) {
+    this.value = value;
+  }
+
+  // Copy Constructor
+  public DataTypeIntString(DataTypeIntString string) {
+    this.value = string.value;
+  }
+
+  public static DataTypeIntString parseString(String s) {
+    return new DataTypeIntString(s);
+  }
+
+  @Override
+  public String toString() {
+    if (value != null) {
+      return value;
     }
+    return "";
+  }
 
-    // Regular Constructor
-    public DataTypeIntString(String value) {
-        this.value = value;
+  public int length() {
+    if (value != null) {
+      return value.length();
     }
+    return 0;
+  }
 
-    // Copy Constructor
-    public DataTypeIntString(DataTypeIntString string) {
-        this.value = string.value;
+  @Override
+  public boolean equals(Object o) {
+    try {
+      return compareTo((DataTypeIntString) o) == 0;
+    } catch (Exception e) {
+      return false;
     }
+  }
 
-    public static DataTypeIntString parseString(String s) {
-        return new DataTypeIntString(s);
-    }
+  public boolean isSet() {
+    return value != null;
+  }
 
-    public String toString() {
-        if (value != null) {
-            return value;
-        }
-        return "";
-    }
+  public int intValue() {
+    return EfaUtil.stringFindInt(value, Integer.MIN_VALUE);
+  }
 
-    public int length() {
-        if (value != null) {
-            return value.length();
-        }
+  @Override
+  public int compareTo(DataTypeIntString o) {
+    if (value == null) {
+      if (o.value == null) {
         return 0;
+      }
+      return -1;
     }
+    if (o.value == null) {
+      return 1;
+    }
+    int i1 = intValue();
+    int i2 = o.intValue();
+    if (i1 < i2) {
+      return -1;
+    }
+    if (i1 > i2) {
+      return 1;
+    }
+    return value.compareTo(o.value);
+  }
 
-    public boolean equals(Object o) {
-        try {
-            return compareTo((DataTypeIntString)o) == 0;
-        } catch(Exception e) {
-            return false;
-        }
-    }
-
-    public boolean isSet() {
-        return value != null;
-    }
-
-    public int intValue() {
-        return EfaUtil.stringFindInt(value, Integer.MIN_VALUE);
-    }
-
-    public int compareTo(DataTypeIntString o) {
-        if (value == null) {
-            if (o.value == null) {
-                return 0;
-            }
-            return -1;
-        }
-        if (o.value == null) {
-            return 1;
-        }
-        int i1 = intValue();
-        int i2 = o.intValue();
-        if (i1 < i2) {
-            return -1;
-        }
-        if (i1 > i2) {
-            return 1;
-        }
-        return value.compareTo(o.value);
-    }
-
-    public int hashCode() {
-        return (value != null ? value.hashCode() : -1);
-    }
+  @Override
+  public int hashCode() {
+    return (value != null ? value.hashCode() : -1);
+  }
 
 }

@@ -10,51 +10,49 @@
 
 package de.nmichael.efa.elwiz;
 
-import javax.swing.UIManager;
-import java.awt.*;
-import java.io.*;
-import de.nmichael.efa.*;
+import java.awt.Dimension;
+
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.Program;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.DownloadMultipleFilesDialog;
 
 // @i18n complete
 public class Main extends Program {
 
-    public final static String ELWIZ_VERSION = Daten.VERSION; // Version
+  public final static String ELWIZ_VERSION = Daten.VERSION; // Version
 
-    public Main(String[] args) {
-        super(Daten.APPL_ELWIZ, args);
+  public Main(String[] args) {
+    super(Daten.APPL_ELWIZ, args);
 
-        ElwizFrame frame = new ElwizFrame();
-        frame.validate();
-        //Center the window
-        Dimension frameSize = frame.getSize();
-        if (frameSize.height > Dialog.screenSize.height) {
-            frameSize.height = Dialog.screenSize.height;
-        }
-        if (frameSize.width > Dialog.screenSize.width) {
-            frameSize.width = Dialog.screenSize.width;
-        }
-        Dialog.setDlgLocation(frame);
-        frame.setVisible(true);
-        Daten.iniSplashScreen(false);
+    ElwizFrame frame = new ElwizFrame();
+    frame.validate();
+    // Center the window
+    Dimension frameSize = frame.getSize();
+    if (frameSize.height > Dialog.screenSize.height) {
+      frameSize.height = Dialog.screenSize.height;
     }
-
-    public void printUsage(String wrongArgument) {
-        super.printUsage(wrongArgument);
-        System.exit(0);
+    if (frameSize.width > Dialog.screenSize.width) {
+      frameSize.width = Dialog.screenSize.width;
     }
+    Dialog.setDlgLocation(frame);
+    frame.setVisible(true);
+    Daten.iniSplashScreen(false);
+  }
 
-    public void checkArgs(String[] args) {
-        super.checkArgs(args);
-        checkRemainingArgs(args);
-    }
+  @Override
+  public void printUsage(String wrongArgument) {
+    super.printUsage(wrongArgument);
+    System.exit(0);
+  }
 
-    public static void main(String[] args) {
-        new Main(args);
-    }
+  @Override
+  public void checkArgs(String[] args) {
+    super.checkArgs(args);
+    checkRemainingArgs(args);
+  }
+
+  public static void main(String[] args) {
+    new Main(args);
+  }
 
 }
-

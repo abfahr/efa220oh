@@ -10,12 +10,10 @@
 
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.efa1.Efa1Backup;
+import java.io.IOException;
+
 import de.nmichael.efa.efa1.DatenListe;
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.core.*;
-import java.io.*;
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
@@ -50,7 +48,6 @@ public class Meldestatistik extends DatenListe {
   public static final int WS_AKT18W = 24;
   public static final int WS_AKT19W = 25;
 
-
   public static final String KENNUNG151 = "##EFA.151.MELDESTATISTIK##";
   public static final String KENNUNG160 = "##EFA.160.MELDESTATISTIK##";
   public static final String KENNUNG183 = "##EFA.183.MELDESTATISTIK##";
@@ -58,81 +55,96 @@ public class Meldestatistik extends DatenListe {
 
   // Konstruktor
   public Meldestatistik(String pdat) {
-    super(pdat,_ANZFELDER,1,false);
+    super(pdat, _ANZFELDER, 1, false);
     kennung = KENNUNG190;
   }
 
-
   // Dateiformat überprüfen, ggf. konvertieren
+  @Override
   public boolean checkFileFormat() {
     String s;
     try {
       s = freadLine();
-      if ( s == null || !s.trim().startsWith(kennung) ) {
+      if (s == null || !s.trim().startsWith(kennung)) {
 
         // KONVERTIEREN: 151 -> 160
         if (s != null && s.trim().startsWith(KENNUNG151)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"151");
-          iniList(this.dat,22,1,true); // Rahmenbedingungen von v160 schaffen
+          iniList(this.dat, 22, 1, true); // Rahmenbedingungen von v160 schaffen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               s += "|||||||||";
               add(s);
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG160;
           if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // KONVERTIEREN: 160 -> 183
         if (s != null && s.trim().startsWith(KENNUNG160)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"160");
-          iniList(this.dat,26,1,true); // Rahmenbedingungen von v183 schaffen
+          iniList(this.dat, 26, 1, true); // Rahmenbedingungen von v183 schaffen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               s += "||||";
               add(s);
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG183;
           if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // KONVERTIEREN: 182 -> 190
         if (s != null && s.trim().startsWith(KENNUNG183)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"183");
-          iniList(this.dat,26,1,true); // Rahmenbedingungen von v190 schaffen
+          iniList(this.dat, 26, 1, true); // Rahmenbedingungen von v190 schaffen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               add(constructFields(s));
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // FERTIG MIT KONVERTIEREN
@@ -142,14 +154,11 @@ public class Meldestatistik extends DatenListe {
           return false;
         }
       }
-    } catch(IOException e) {
-      errReadingFile(dat,e.getMessage());
+    } catch (IOException e) {
+      errReadingFile(dat, e.getMessage());
       return false;
     }
     return true;
   }
-
-
-
 
 }

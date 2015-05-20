@@ -10,9 +10,8 @@
 
 package de.nmichael.efa.efa1;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete
@@ -27,7 +26,8 @@ public class Mehrtagesfahrt {
   public String gewaesser;
   public boolean isEtappen;
 
-  public Mehrtagesfahrt(String name, String start, String ende, int rudertage, String gewaesser, boolean isEtappen) {
+  public Mehrtagesfahrt(String name, String start, String ende, int rudertage, String gewaesser,
+      boolean isEtappen) {
     this.name = EfaUtil.removeSepFromString(name);
     this.start = EfaUtil.removeSepFromString(start);
     this.ende = EfaUtil.removeSepFromString(ende);
@@ -45,17 +45,19 @@ public class Mehrtagesfahrt {
     return displayName; // zur Zeit derselbe Name wie der wirkliche
   }
 
-  // prüft, ob es sich bei "s" um eine vordefinierte Fahrtart handelt, d.h. eine, die in dem Daten.fahrtart-Array steht
+  // prüft, ob es sich bei "s" um eine vordefinierte Fahrtart handelt, d.h. eine, die in dem
+  // Daten.fahrtart-Array steht
   public static boolean isVordefinierteFahrtart(String s) {
-    if (Daten.efaTypes == null) return false;
+    if (Daten.efaTypes == null) {
+      return false;
+    }
     String[] types = Daten.efaTypes.getTypesArray(EfaTypes.CATEGORY_SESSION);
-    for (int i=0; i<types.length; i++) {
-        if (types[i].equals(s)) {
-            return true;
-        }
+    for (String type : types) {
+      if (type.equals(s)) {
+        return true;
+      }
     }
     return false;
   }
-
 
 }

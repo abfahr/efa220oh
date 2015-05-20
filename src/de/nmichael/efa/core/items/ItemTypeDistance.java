@@ -10,87 +10,93 @@
 
 package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.*;
+import javax.swing.JTextField;
+
 import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.util.*;
-import javax.swing.*;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 
 public class ItemTypeDistance extends ItemTypeLabelTextfield {
 
-    private DataTypeDistance value;
+  private DataTypeDistance value;
 
-    public ItemTypeDistance(String name, DataTypeDistance value,
-            int type, String category, String description) {
-        this.name = name;
-        this.value = (value == null ? new DataTypeDistance() : value);
-        this.type = type;
-        this.category = category;
-        this.description = description;
-    }
+  public ItemTypeDistance(String name, DataTypeDistance value,
+      int type, String category, String description) {
+    this.name = name;
+    this.value = (value == null ? new DataTypeDistance() : value);
+    this.type = type;
+    this.category = category;
+    this.description = description;
+  }
 
-    public IItemType copyOf() {
-        return new ItemTypeDistance(name, new  DataTypeDistance(value), type, category, description);
-    }
+  @Override
+  public IItemType copyOf() {
+    return new ItemTypeDistance(name, new DataTypeDistance(value), type, category, description);
+  }
 
-    public void parseValue(String value) {
-        if (value != null) {
-            value = value.trim();
-        }
-        try {
-            if (value.length() == 0 && !isNotNullSet()) {
-                this.value.unset();
-            } else {
-                this.value = DataTypeDistance.parseDistance(value);
-            }
-        } catch (Exception e) {
-            if (dlg == null) {
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
-                           "Invalid value for parameter "+name+": "+value);
-            }
-        }
+  @Override
+  public void parseValue(String value) {
+    if (value != null) {
+      value = value.trim();
     }
+    try {
+      if (value.length() == 0 && !isNotNullSet()) {
+        this.value.unset();
+      } else {
+        this.value = DataTypeDistance.parseDistance(value);
+      }
+    } catch (Exception e) {
+      if (dlg == null) {
+        Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+            "Invalid value for parameter " + name + ": " + value);
+      }
+    }
+  }
 
-    public String toString() {
-        if (!isNotNullSet() && !value.isSet()) {
-            return "";
-        }
-        return value.toString();
+  @Override
+  public String toString() {
+    if (!isNotNullSet() && !value.isSet()) {
+      return "";
     }
+    return value.toString();
+  }
 
-    public DataTypeDistance getValue() {
-        return new DataTypeDistance(value);
-    }
+  public DataTypeDistance getValue() {
+    return new DataTypeDistance(value);
+  }
 
-    public void setValue(DataTypeDistance value) {
-        this.value = new DataTypeDistance(value);
-        showValue();
-    }
+  public void setValue(DataTypeDistance value) {
+    this.value = new DataTypeDistance(value);
+    showValue();
+  }
 
-    public boolean isSet() {
-        return (isNotNullSet()) || value.isSet();
-    }
+  public boolean isSet() {
+    return (isNotNullSet()) || value.isSet();
+  }
 
-    public boolean isValidInput() {
-        if (isNotNullSet()) {
-            return isSet();
-        }
-        return true;
+  @Override
+  public boolean isValidInput() {
+    if (isNotNullSet()) {
+      return isSet();
     }
+    return true;
+  }
 
-    // @Override
-    public void showValue() {
-        if (field != null) {
-            String s = toString();
-            char decsep = International.getDecimalSeparator();
-            char othsep = (decsep == ',' ? '.' : ',');
-            int idx = s.indexOf(othsep);
-            if (idx >= 0) {
-                s = s.substring(0, idx) + decsep + s.substring(idx + 1);
-            }
-            ((JTextField)field).setText(s);
-        }
+  // @Override
+  @Override
+  public void showValue() {
+    if (field != null) {
+      String s = toString();
+      char decsep = International.getDecimalSeparator();
+      char othsep = (decsep == ',' ? '.' : ',');
+      int idx = s.indexOf(othsep);
+      if (idx >= 0) {
+        s = s.substring(0, idx) + decsep + s.substring(idx + 1);
+      }
+      ((JTextField) field).setText(s);
     }
+  }
 
 }

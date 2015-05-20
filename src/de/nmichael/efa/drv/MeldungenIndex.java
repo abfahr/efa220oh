@@ -10,14 +10,11 @@
 
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.efa1.Efa1Backup;
-import de.nmichael.efa.efa1.DatenListe;
+import java.io.IOException;
+
 import de.nmichael.efa.efa1.DatenFelder;
-import de.nmichael.efa.core.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.*;
-import java.io.*;
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
@@ -38,7 +35,8 @@ public class MeldungenIndex extends DatenListe {
   public static final int ST_BEARBEITET = 2;
   public static final int ST_ZURUECKGEWIESEN = 3;
   public static final int ST_GELOESCHT = 4;
-  public static final String[] ST_NAMES = { "unbekannt" , "unbearbeitet" , "bearbeitet" , "zurückgewiesen" , "gelöscht" };
+  public static final String[] ST_NAMES = { "unbekannt", "unbearbeitet", "bearbeitet",
+    "zurückgewiesen", "gelöscht" };
 
   public static final int FH_UNBEKANNT = 0;
   public static final int FH_KEINE = 1;
@@ -52,62 +50,76 @@ public class MeldungenIndex extends DatenListe {
 
   // Konstruktor
   public MeldungenIndex(String pdat) {
-    super(pdat,_ANZFELDER,1,false);
+    super(pdat, _ANZFELDER, 1, false);
     kennung = KENNUNG190;
   }
 
   // Dateiformat überprüfen, ggf. konvertieren
+  @Override
   public boolean checkFileFormat() {
     String s;
     try {
       s = freadLine();
-      if ( s == null || !s.trim().startsWith(kennung) ) {
+      if (s == null || !s.trim().startsWith(kennung)) {
 
         // KONVERTIEREN: 150 -> 160
         if (s != null && s.trim().startsWith(KENNUNG150)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"150");
-          iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.5.0 schaffen
+          iniList(this.dat, 7, 1, false); // Rahmenbedingungen von v1.5.0 schaffen
           // Datei lesen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               DatenFelder d = constructFields(s);
-              if (d.get(FAHRTENHEFTE).equals("+")) d.set(FAHRTENHEFTE,Integer.toString(FH_PAPIER));
-              else d.set(FAHRTENHEFTE,Integer.toString(FH_UNBEKANNT));
+              if (d.get(FAHRTENHEFTE).equals("+")) {
+                d.set(FAHRTENHEFTE, Integer.toString(FH_PAPIER));
+              } else {
+                d.set(FAHRTENHEFTE, Integer.toString(FH_UNBEKANNT));
+              }
               add(d);
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG160;
           if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // KONVERTIEREN: 160 -> 190
         if (s != null && s.trim().startsWith(KENNUNG160)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"160");
-          iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          iniList(this.dat, 7, 1, false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               add(constructFields(s));
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // FERTIG MIT KONVERTIEREN
@@ -117,14 +129,11 @@ public class MeldungenIndex extends DatenListe {
           return false;
         }
       }
-    } catch(IOException e) {
-      errReadingFile(dat,e.getMessage());
+    } catch (IOException e) {
+      errReadingFile(dat, e.getMessage());
       return false;
     }
     return true;
   }
-
-
-
 
 }

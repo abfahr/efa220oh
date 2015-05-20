@@ -7,18 +7,24 @@
  * @author Nicolas Michael
  * @version 2
  */
+
 package de.nmichael.efa.ex;
 
 import de.nmichael.efa.util.Dialog;
 
 public class EfaModifyException extends EfaException {
 
-    public EfaModifyException(String key, String msg, StackTraceElement[] stack) {
-        super(key, msg, stack);
-    }
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    public void displayMessage() {
-        Dialog.error(msg);
-    }
+  public EfaModifyException(String key, String msg, StackTraceElement[] stack) {
+    super(key, msg, stack);
+  }
+
+  public void displayMessage() {
+    Dialog.error(msg);
+  }
 
 }

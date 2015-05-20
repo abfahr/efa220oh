@@ -10,51 +10,65 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.util.*;
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.util.UUID;
 
+import javax.swing.JDialog;
+
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.ProgressTask;
 
 // @i18n complete
 public class PersonListDialog extends DataListDialog {
 
-    public PersonListDialog(Frame parent, long validAt, AdminRecord admin) {
-        super(parent, International.getString("Personen"), 
-                Daten.project.getPersons(false), validAt, admin);
-        if (admin != null && admin.isAllowedEditPersons()) {
-            addMergeAction();
-        }
-    }
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    public PersonListDialog(JDialog parent, long validAt, AdminRecord admin) {
-        super(parent, International.getString("Personen"), 
-                Daten.project.getPersons(false), validAt, admin);
-        if (admin != null && admin.isAllowedEditPersons()) {
-            addMergeAction();
-        }
+  public PersonListDialog(Frame parent, long validAt, AdminRecord admin) {
+    super(parent, International.getString("Personen"),
+        Daten.project.getPersons(false), validAt, admin);
+    if (admin != null && admin.isAllowedEditPersons()) {
+      addMergeAction();
     }
+  }
 
-    public void keyAction(ActionEvent evt) {
-        _keyAction(evt);
+  public PersonListDialog(JDialog parent, long validAt, AdminRecord admin) {
+    super(parent, International.getString("Personen"),
+        Daten.project.getPersons(false), validAt, admin);
+    if (admin != null && admin.isAllowedEditPersons()) {
+      addMergeAction();
     }
+  }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
-        boolean newRecord = (record == null);
-        if (record == null) {
-            record = Daten.project.getPersons(false).createPersonRecord(UUID.randomUUID());
-        }
-        return new PersonEditDialog(parent, (PersonRecord)record, newRecord, admin);
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
+
+  @Override
+  public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence,
+      DataRecord record) {
+    boolean newRecord = (record == null);
+    if (record == null) {
+      record = Daten.project.getPersons(false).createPersonRecord(UUID.randomUUID());
     }
-    
-    protected ProgressTask getMergeProgressTask(DataKey mainKey, DataKey[] mergeKeys) {
-        Persons persons = (Persons)persistence;
-        return persons.getMergePersonsProgressTask(mainKey, mergeKeys);
-    }
+    return new PersonEditDialog(parent, (PersonRecord) record, newRecord, admin);
+  }
+
+  @Override
+  protected ProgressTask getMergeProgressTask(DataKey mainKey, DataKey[] mergeKeys) {
+    Persons persons = (Persons) persistence;
+    return persons.getMergePersonsProgressTask(mainKey, mergeKeys);
+  }
 
 }

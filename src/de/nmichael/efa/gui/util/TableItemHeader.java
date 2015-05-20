@@ -7,42 +7,36 @@
  * @author Nicolas Michael
  * @version 2
  */
-package de.nmichael.efa.gui.util;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
-import java.util.Vector;
+package de.nmichael.efa.gui.util;
 
 public class TableItemHeader {
 
-    private String txt;
-    private int maxColumnWidth = -1;
+  private String txt;
+  private int maxColumnWidth = -1;
 
-    public TableItemHeader(String txt) {
-        this.txt = txt;
-        setMaxColumnWidth(txt.length());
-    }
+  public TableItemHeader(String txt) {
+    this.txt = txt;
+    setMaxColumnWidth(txt.length());
+  }
 
-    public String toString() {
-        return txt;
-    }
+  @Override
+  public String toString() {
+    return txt;
+  }
 
-    public void updateColumnWidth(String cellContent) {
-        if (cellContent != null && cellContent.length() > maxColumnWidth) {
-            maxColumnWidth = cellContent.length();
-        }
+  public void updateColumnWidth(String cellContent) {
+    if (cellContent != null && cellContent.length() > maxColumnWidth) {
+      maxColumnWidth = cellContent.length();
     }
+  }
 
-    public void setMaxColumnWidth(int width) {
-        maxColumnWidth = width;
-    }
+  public void setMaxColumnWidth(int width) {
+    maxColumnWidth = width;
+  }
 
-    public int getMaxColumnWidth() {
-        return maxColumnWidth;
-    }
+  public int getMaxColumnWidth() {
+    return maxColumnWidth;
+  }
 
 }

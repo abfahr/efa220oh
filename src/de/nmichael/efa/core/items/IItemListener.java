@@ -12,11 +12,10 @@ package de.nmichael.efa.core.items;
 
 // @i18n complete
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.AWTEvent;
 
 public interface IItemListener {
 
-    public void itemListenerAction(IItemType itemType, AWTEvent event);
+  public void itemListenerAction(IItemType itemType, AWTEvent event);
 
 }

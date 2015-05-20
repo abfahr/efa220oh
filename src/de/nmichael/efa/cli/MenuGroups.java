@@ -10,26 +10,28 @@
 
 package de.nmichael.efa.cli;
 
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.util.Logger;
 import java.util.Stack;
+
+import de.nmichael.efa.data.Groups;
+import de.nmichael.efa.data.Project;
 
 public class MenuGroups extends MenuData {
 
-    public MenuGroups(CLI cli) {
-        super(cli);
-        this.storageObject = cli.getPersistence(Groups.class, Project.STORAGEOBJECT_GROUPS, Groups.DATATYPE);
-        this.storageObjectDescription = "groups";
-    }
+  public MenuGroups(CLI cli) {
+    super(cli);
+    this.storageObject = cli.getPersistence(Groups.class, Project.STORAGEOBJECT_GROUPS,
+        Groups.DATATYPE);
+    this.storageObjectDescription = "groups";
+  }
 
-    public int runCommand(Stack<String> menuStack, String cmd, String args) {
-        int ret = super.runCommand(menuStack, cmd, args);
-        if (ret < 0) {
-            return CLI.RC_UNKNOWN_COMMAND;
-        } else {
-            return ret;
-        }
+  @Override
+  public int runCommand(Stack<String> menuStack, String cmd, String args) {
+    int ret = super.runCommand(menuStack, cmd, args);
+    if (ret < 0) {
+      return CLI.RC_UNKNOWN_COMMAND;
+    } else {
+      return ret;
     }
+  }
 
 }

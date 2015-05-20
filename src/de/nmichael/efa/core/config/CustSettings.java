@@ -10,39 +10,36 @@
 
 package de.nmichael.efa.core.config;
 
-import de.nmichael.efa.core.config.*;
-
 // @i18n complete
 
 public class CustSettings {
 
-    public boolean activateRowingOptions = true;
-    public boolean activateGermanRowingOptions = true;
-    public boolean activateBerlinRowingOptions = false;
-    public boolean activateCanoeingOptions = false;
-    public boolean activateGermanCanoeingOptions = false;
+  public boolean activateRowingOptions = true;
+  public boolean activateGermanRowingOptions = true;
+  public boolean activateBerlinRowingOptions = false;
+  public boolean activateCanoeingOptions = false;
+  public boolean activateGermanCanoeingOptions = false;
 
-    public CustSettings() {
-    }
+  public CustSettings() {}
 
-    public CustSettings(EfaConfig efaConfig) {
-        activateRowingOptions = efaConfig.getValueUseFunctionalityRowing();
-        activateGermanRowingOptions = efaConfig.getValueUseFunctionalityRowingGermany();
-        activateBerlinRowingOptions = efaConfig.getValueUseFunctionalityRowingBerlin();
-        activateCanoeingOptions = efaConfig.getValueUseFunctionalityCanoeing();
-        activateGermanCanoeingOptions = efaConfig.getValueUseFunctionalityCanoeingGermany();
-    }
+  public CustSettings(EfaConfig efaConfig) {
+    activateRowingOptions = efaConfig.getValueUseFunctionalityRowing();
+    activateGermanRowingOptions = efaConfig.getValueUseFunctionalityRowingGermany();
+    activateBerlinRowingOptions = efaConfig.getValueUseFunctionalityRowingBerlin();
+    activateCanoeingOptions = efaConfig.getValueUseFunctionalityCanoeing();
+    activateGermanCanoeingOptions = efaConfig.getValueUseFunctionalityCanoeingGermany();
+  }
 
-    public CustSettings(boolean activateRowingOptions,
-                        boolean activateGermanRowingOptions,
-                        boolean activateBerlinRowingOptions,
-                        boolean activateCanoeingOptions,
-                        boolean activateGermanCanoeingOptions) {
-        this.activateRowingOptions = activateRowingOptions;
-        this.activateGermanRowingOptions = activateGermanRowingOptions;
-        this.activateBerlinRowingOptions = activateBerlinRowingOptions;
-        this.activateCanoeingOptions = activateCanoeingOptions;
-        this.activateGermanCanoeingOptions = activateGermanCanoeingOptions;
-    }
+  public CustSettings(boolean activateRowingOptions,
+      boolean activateGermanRowingOptions,
+      boolean activateBerlinRowingOptions,
+      boolean activateCanoeingOptions,
+      boolean activateGermanCanoeingOptions) {
+    this.activateRowingOptions = activateRowingOptions;
+    this.activateGermanRowingOptions = activateGermanRowingOptions;
+    this.activateBerlinRowingOptions = activateBerlinRowingOptions;
+    this.activateCanoeingOptions = activateCanoeingOptions;
+    this.activateGermanCanoeingOptions = activateGermanCanoeingOptions;
+  }
 
 }

@@ -10,96 +10,103 @@
 
 package de.nmichael.efa.gui;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
+import java.awt.Frame;
+import java.awt.GridBagLayout;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
-import de.nmichael.efa.gui.BaseDialog;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
+import de.nmichael.efa.util.International;
 
 // @i18n complete
 public class MultiInputDialog extends BaseDialog {
 
-    private String KEYACTION_ENTER;
-    protected IItemType[] items;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
+  private String KEYACTION_ENTER;
+  protected IItemType[] items;
 
-    public MultiInputDialog(Frame parent, String title, IItemType[] items) {
-        super(parent, title, International.getStringWithMnemonic("OK"));
-        this.items = items;
+  public MultiInputDialog(Frame parent, String title, IItemType[] items) {
+    super(parent, title, International.getStringWithMnemonic("OK"));
+    this.items = items;
+  }
+
+  public MultiInputDialog(JDialog parent, String title, IItemType[] items) {
+    super(parent, title, International.getStringWithMnemonic("OK"));
+    this.items = items;
+  }
+
+  @Override
+  public void _keyAction(ActionEvent evt) {
+    if (evt.getActionCommand().equals(KEYACTION_ENTER)) {
+      closeButton_actionPerformed(evt);
     }
+    super._keyAction(evt);
+  }
 
-    public MultiInputDialog(JDialog parent, String title, IItemType[] items) {
-        super(parent, title, International.getStringWithMnemonic("OK"));
-        this.items = items;
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
+
+  @Override
+  protected void iniDialog() throws Exception {
+    KEYACTION_ENTER = addKeyAction("ENTER");
+
+    // create GUI items
+    mainPanel.setLayout(new GridBagLayout());
+
+    int y = 0;
+    for (IItemType item : items) {
+      y += item.displayOnGui(this, mainPanel, 0, y);
     }
+    this.setRequestFocus(items[0]);
+    items[0].requestFocus();
 
-    public void _keyAction(ActionEvent evt) {
-        if (evt.getActionCommand().equals(KEYACTION_ENTER)) {
-            closeButton_actionPerformed(evt);
-        }
-        super._keyAction(evt);
+    if (closeButton != null) {
+      closeButton.setIcon(getIcon("button_accept.png"));
     }
+  }
 
-    public void keyAction(ActionEvent evt) {
-        _keyAction(evt);
+  @Override
+  public void closeButton_actionPerformed(ActionEvent e) {
+    for (int i = 0; i < items.length; i++) {
+      items[i].getValueFromGui();
+      if (!items[i].isValidInput()) {
+        Dialog.error(International.getMessage("Ungültige Eingabe im Feld '{field}'",
+            items[i].getDescription()));
+        items[i].requestFocus();
+        return;
+      }
     }
+    setDialogResult(true);
+    super.closeButton_actionPerformed(e);
+  }
 
-    protected void iniDialog() throws Exception {
-        KEYACTION_ENTER = addKeyAction("ENTER");
+  public static boolean showInputDialog(JDialog parent, String title, IItemType[] items) {
+    MultiInputDialog dlg = new MultiInputDialog(parent, title, items);
+    dlg.showDialog();
+    return dlg.resultSuccess;
+  }
 
-        // create GUI items
-        mainPanel.setLayout(new GridBagLayout());
+  public static boolean showInputDialog(JFrame parent, String title, IItemType[] items) {
+    MultiInputDialog dlg = new MultiInputDialog(parent, title, items);
+    dlg.showDialog();
+    return dlg.resultSuccess;
+  }
 
-        int y=0;
-        for (int i=0; i<items.length; i++) {
-            y += items[i].displayOnGui(this, mainPanel, 0, y);
-        }
-        this.setRequestFocus(items[0]);
-        items[0].requestFocus();
-
-        if (closeButton != null) {
-            closeButton.setIcon(getIcon("button_accept.png"));
-        }
+  public static boolean showInputDialog(Window parent, String title, IItemType[] items) {
+    if (parent instanceof JDialog) {
+      return showInputDialog((JDialog) parent, title, items);
+    } else {
+      return showInputDialog((JFrame) parent, title, items);
     }
-
-    public void closeButton_actionPerformed(ActionEvent e) {
-        for (int i = 0; i < items.length; i++) {
-            items[i].getValueFromGui();
-            if (!items[i].isValidInput()) {
-                Dialog.error(International.getMessage("Ungültige Eingabe im Feld '{field}'", items[i].getDescription()));
-                items[i].requestFocus();
-                return;
-            }
-        }
-        setDialogResult(true);
-        super.closeButton_actionPerformed(e);
-    }
-
-    public static boolean showInputDialog(JDialog parent, String title, IItemType[] items) {
-        MultiInputDialog dlg = new MultiInputDialog(parent, title, items);
-        dlg.showDialog();
-        return dlg.resultSuccess;
-    }
-
-    public static boolean showInputDialog(JFrame parent, String title, IItemType[] items) {
-        MultiInputDialog dlg = new MultiInputDialog(parent, title, items);
-        dlg.showDialog();
-        return dlg.resultSuccess;
-    }
-
-    public static boolean showInputDialog(Window parent, String title, IItemType[] items) {
-        if (parent instanceof JDialog) {
-            return showInputDialog((JDialog)parent, title, items);
-        } else {
-            return showInputDialog((JFrame)parent, title, items);
-        }
-    }
+  }
 
 }

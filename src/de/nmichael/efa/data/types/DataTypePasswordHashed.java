@@ -10,79 +10,80 @@
 
 package de.nmichael.efa.data.types;
 
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.EfaUtil;
 
 public class DataTypePasswordHashed {
 
-    private static final String CRYPTED = "*~c:";
+  private static final String CRYPTED = "*~c:";
 
-    private String password;
+  private String password;
 
-    // Default Constructor
-    public DataTypePasswordHashed() {
-        unset();
+  // Default Constructor
+  public DataTypePasswordHashed() {
+    unset();
+  }
+
+  // Regular Constructor
+  public DataTypePasswordHashed(String password) {
+    setPassword(password);
+  }
+
+  // Copy Constructor
+  public DataTypePasswordHashed(DataTypePasswordHashed pwd) {
+    this.password = pwd.password;
+  }
+
+  public static DataTypePasswordHashed parsePassword(String s) {
+    return new DataTypePasswordHashed(s);
+  }
+
+  public static String encrypt(String s) {
+    return EfaUtil.getSHA(s);
+  }
+
+  public static String decrypt(String s) {
+    return s;
+  }
+
+  public void setPassword(String s) {
+    if (s != null) {
+      s = s.trim();
+      if (s.startsWith(CRYPTED)) {
+        password = s.substring(CRYPTED.length());
+      } else {
+        password = encrypt(s);
+      }
+    } else {
+      password = null;
     }
+  }
 
-    // Regular Constructor
-    public DataTypePasswordHashed(String password) {
-        setPassword(password);
+  public String getPassword() {
+    if (isSet()) {
+      return password;
+    } else {
+      return null;
     }
+  }
 
-    // Copy Constructor
-    public DataTypePasswordHashed(DataTypePasswordHashed pwd) {
-        this.password = pwd.password;
+  @Override
+  public String toString() {
+    if (isSet()) {
+      return CRYPTED + password;
     }
+    return "";
+  }
 
-    public static DataTypePasswordHashed parsePassword(String s) {
-        return new DataTypePasswordHashed(s);
-    }
+  public boolean isSet() {
+    return password != null && password.length() > 0;
+  }
 
-    public static String encrypt(String s) {
-        return EfaUtil.getSHA(s);
-    }
+  public void unset() {
+    password = null;
+  }
 
-    public static String decrypt(String s) {
-        return s;
-    }
+  public boolean equals(DataTypePasswordHashed pwd) {
+    return this.isSet() && pwd.isSet() && this.password.equals(pwd.password);
+  }
 
-    public void setPassword(String s) {
-        if (s != null) {
-            s = s.trim();
-            if (s.startsWith(CRYPTED)) {
-                password = s.substring(CRYPTED.length());
-            } else {
-                password = encrypt(s);
-            }
-        } else {
-            password = null;
-        }
-    }
-
-    public String getPassword() {
-        if (isSet()) {
-            return password;
-        } else {
-            return null;
-        }
-    }
-
-    public String toString() {
-        if (isSet()) {
-            return CRYPTED + password;
-        }
-        return "";
-    }
-
-    public boolean isSet() {
-        return password != null && password.length() > 0;
-    }
-
-    public void unset() {
-        password = null;
-    }
-
-    public boolean equals(DataTypePasswordHashed pwd) {
-        return this.isSet() && pwd.isSet() && this.password.equals(pwd.password);
-    }
-
- }
+}

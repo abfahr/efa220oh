@@ -10,267 +10,300 @@
 
 package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.util.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.BaseDialog;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import de.nmichael.efa.util.Mnemonics;
 
 // @i18n complete
 
 public abstract class ItemTypeLabelValue extends ItemType {
 
-    public static final int ACTIONID_FIELD_EXPANDED = 38341;
-    public static final int ACTIONID_FIELD_COLLAPSED = 38342;
+  public static final int ACTIONID_FIELD_EXPANDED = 38341;
+  public static final int ACTIONID_FIELD_COLLAPSED = 38342;
 
-    protected JLabel label;
-    protected int labelGridWidth = 1;
-    protected int labelGridAnchor = GridBagConstraints.WEST;
-    protected int labelGridFill = GridBagConstraints.NONE;
-    protected Font labelFont;
-    protected Font fieldFont;
-    protected Color fieldColor = null;
-    protected Color savedFieldColor = null;
-    protected boolean isShowOptional = false;
-    protected String optionalButtonText = "+";
-    protected JButton expandButton;
-    protected boolean itemOnNewRow = false;
-    protected int xOffset = 0;
-    protected int yOffset = 0;
+  protected JLabel label;
+  protected int labelGridWidth = 1;
+  protected int labelGridAnchor = GridBagConstraints.WEST;
+  protected int labelGridFill = GridBagConstraints.NONE;
+  protected Font labelFont;
+  protected Font fieldFont;
+  protected Color fieldColor = null;
+  protected Color savedFieldColor = null;
+  protected boolean isShowOptional = false;
+  protected String optionalButtonText = "+";
+  protected JButton expandButton;
+  protected boolean itemOnNewRow = false;
+  protected int xOffset = 0;
+  protected int yOffset = 0;
 
-    protected abstract JComponent initializeField();
+  protected abstract JComponent initializeField();
 
-    protected void iniDisplay() {
-        if (getDescription() != null) {
-            label = new JLabel();
-            Mnemonics.setLabel(dlg, label, getDescription() + ": ");
-            label.setLabelFor(field);
-            if (type == IItemType.TYPE_EXPERT) {
-                label.setForeground(Color.red);
-            }
-            if (color != null) {
-                label.setForeground(color);
-            }
-            labelFont = label.getFont();
-            label.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked(MouseEvent e) { actionEvent(e); }
-            });
-        } else {
-            labelGridWidth = 0;
+  @Override
+  protected void iniDisplay() {
+    if (getDescription() != null) {
+      label = new JLabel();
+      Mnemonics.setLabel(dlg, label, getDescription() + ": ");
+      label.setLabelFor(field);
+      if (type == IItemType.TYPE_EXPERT) {
+        label.setForeground(Color.red);
+      }
+      if (color != null) {
+        label.setForeground(color);
+      }
+      labelFont = label.getFont();
+      label.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          actionEvent(e);
         }
-        field = initializeField();
-        Dialog.setPreferredSize(field, fieldWidth, fieldHeight);
-        if (fieldColor != null) {
-            field.setForeground(fieldColor);
-        }
-        if (backgroundColor != null) {
-            field.setBackground(backgroundColor);
-        }
-        fieldFont = field.getFont();
-        field.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(FocusEvent e) { field_focusGained(e); }
-            public void focusLost(FocusEvent e) { field_focusLost(e); }
-        });
-        if (isShowOptional) {
-            expandButton = new JButton();
-            if (optionalButtonText.length() == 1) {
-                Dialog.setPreferredSize(expandButton, 15, 15);
-                expandButton.setFont(expandButton.getFont().deriveFont(Font.PLAIN, 8));
-                expandButton.setMargin(new Insets(0, 0, 0, 0));
-            } else {
-                expandButton.setMargin(new Insets(0, 10, 0, 10));
-            }
-            expandButton.setText(optionalButtonText);
-            expandButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) { expandButton_actionEvent(e); }
-            });
-        }
-        showValue();
+      });
+    } else {
+      labelGridWidth = 0;
     }
+    field = initializeField();
+    Dialog.setPreferredSize(field, fieldWidth, fieldHeight);
+    if (fieldColor != null) {
+      field.setForeground(fieldColor);
+    }
+    if (backgroundColor != null) {
+      field.setBackground(backgroundColor);
+    }
+    fieldFont = field.getFont();
+    field.addFocusListener(new java.awt.event.FocusAdapter() {
+      @Override
+      public void focusGained(FocusEvent e) {
+        field_focusGained(e);
+      }
 
-    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
-        this.dlg = dlg;
-        iniDisplay();
-        x += xOffset;
-        y += yOffset;
-        if (label != null) {
-            panel.add(label, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
-                    labelGridAnchor, labelGridFill, 
-                    new Insets(padYbefore, padXbefore, (itemOnNewRow ? 0 : padYafter), (itemOnNewRow ? padXafter : 0)), 0, 0));
+      @Override
+      public void focusLost(FocusEvent e) {
+        field_focusLost(e);
+      }
+    });
+    if (isShowOptional) {
+      expandButton = new JButton();
+      if (optionalButtonText.length() == 1) {
+        Dialog.setPreferredSize(expandButton, 15, 15);
+        expandButton.setFont(expandButton.getFont().deriveFont(Font.PLAIN, 8));
+        expandButton.setMargin(new Insets(0, 0, 0, 0));
+      } else {
+        expandButton.setMargin(new Insets(0, 10, 0, 10));
+      }
+      expandButton.setText(optionalButtonText);
+      expandButton.addActionListener(new java.awt.event.ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          expandButton_actionEvent(e);
         }
-        if (expandButton != null) {
-            int gridWidth = labelGridWidth + (optionalButtonText.length() > 1 ? fieldGridWidth : 0);
-            panel.add(expandButton, new GridBagConstraints(x, y, gridWidth, fieldGridHeight, 0.0, 0.0,
-                    labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
-        }
-        if (itemOnNewRow) {
-            y++;
-        } else {
-            x += labelGridWidth;
-        }
-        panel.add(field, new GridBagConstraints(x, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
-                fieldGridAnchor, fieldGridFill, 
-                new Insets((itemOnNewRow ? 0 : padYbefore), (itemOnNewRow ? padXbefore : 0), padYafter, padXafter), 0, 0));
-        if (!isEnabled) {
-            setEnabled(isEnabled);
-        }
-        return (itemOnNewRow ? 2 : 1);
+      });
     }
+    showValue();
+  }
 
-    public void getValueFromGui() {
-        if (field != null) {
-            String s = getValueFromField();
-            if (s != null) {
-                parseValue(s);
-            }
-        }
+  @Override
+  public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
+    this.dlg = dlg;
+    iniDisplay();
+    x += xOffset;
+    y += yOffset;
+    if (label != null) {
+      panel.add(label, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
+          labelGridAnchor, labelGridFill,
+          new Insets(padYbefore, padXbefore, (itemOnNewRow ? 0 : padYafter),
+              (itemOnNewRow ? padXafter : 0)), 0, 0));
     }
+    if (expandButton != null) {
+      int gridWidth = labelGridWidth + (optionalButtonText.length() > 1 ? fieldGridWidth : 0);
+      panel.add(expandButton, new GridBagConstraints(x, y, gridWidth, fieldGridHeight, 0.0, 0.0,
+          labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
+    }
+    if (itemOnNewRow) {
+      y++;
+    } else {
+      x += labelGridWidth;
+    }
+    panel.add(field, new GridBagConstraints(x, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
+        fieldGridAnchor, fieldGridFill,
+        new Insets((itemOnNewRow ? 0 : padYbefore), (itemOnNewRow ? padXbefore : 0), padYafter,
+            padXafter), 0, 0));
+    if (!isEnabled) {
+      setEnabled(isEnabled);
+    }
+    return (itemOnNewRow ? 2 : 1);
+  }
 
-    protected void field_focusLost(FocusEvent e) {
-        getValueFromGui();
-        showValue();
-        super.field_focusLost(e);
+  @Override
+  public void getValueFromGui() {
+    if (field != null) {
+      String s = getValueFromField();
+      if (s != null) {
+        parseValue(s);
+      }
     }
+  }
 
-    public void setLabelGrid(int gridWidth, int gridAnchor, int gridFill) {
-        if (gridWidth != -1) {
-            labelGridWidth = gridWidth;
-        }
-        if (gridAnchor != -1) {
-            labelGridAnchor = gridAnchor;
-        }
-        if (gridFill != -1) {
-            labelGridFill = gridFill;
-        }
-    }
+  @Override
+  protected void field_focusLost(FocusEvent e) {
+    getValueFromGui();
+    showValue();
+    super.field_focusLost(e);
+  }
 
-    public Font getLabelFont() {
-        return (label != null ? label.getFont() : null);
+  public void setLabelGrid(int gridWidth, int gridAnchor, int gridFill) {
+    if (gridWidth != -1) {
+      labelGridWidth = gridWidth;
     }
+    if (gridAnchor != -1) {
+      labelGridAnchor = gridAnchor;
+    }
+    if (gridFill != -1) {
+      labelGridFill = gridFill;
+    }
+  }
 
-    public void setLabelFont(Font font) {
-        if (label != null) {
-            label.setFont(font);
-        }
-    }
+  public Font getLabelFont() {
+    return (label != null ? label.getFont() : null);
+  }
 
-    public void restoreLabelFont() {
-        if (label != null) {
-            label.setFont(labelFont);
-        }
+  public void setLabelFont(Font font) {
+    if (label != null) {
+      label.setFont(font);
     }
+  }
 
-    public void setDescription(String s) {
-        super.setDescription(s);
-        Mnemonics.setLabel(dlg, label, getDescription() + ": ");
+  public void restoreLabelFont() {
+    if (label != null) {
+      label.setFont(labelFont);
     }
+  }
 
-    public Font getFieldFont() {
-        return field.getFont();
-    }
+  @Override
+  public void setDescription(String s) {
+    super.setDescription(s);
+    Mnemonics.setLabel(dlg, label, getDescription() + ": ");
+  }
 
-    public void setFieldFont(Font font) {
-        field.setFont(font);
-    }
+  public Font getFieldFont() {
+    return field.getFont();
+  }
 
-    public void restoreFieldFont() {
-        field.setFont(fieldFont);
-    }
+  public void setFieldFont(Font font) {
+    field.setFont(font);
+  }
 
-    public void setFieldColor(Color c) {
-        this.fieldColor = c;
-        if (field != null) {
-            field.setForeground(c);
-        }
-    }
+  public void restoreFieldFont() {
+    field.setFont(fieldFont);
+  }
 
-    public void saveFieldColor(boolean force) {
-        if (field != null && (savedFieldColor == null || force)) {
-            savedFieldColor = field.getForeground();
-        }
+  public void setFieldColor(Color c) {
+    this.fieldColor = c;
+    if (field != null) {
+      field.setForeground(c);
     }
+  }
 
-    public void restoreFieldColor() {
-        if (field != null && savedFieldColor != null) {
-            field.setForeground(savedFieldColor);
-        }
+  public void saveFieldColor(boolean force) {
+    if (field != null && (savedFieldColor == null || force)) {
+      savedFieldColor = field.getForeground();
     }
+  }
 
-    private boolean showExpandButton(boolean isExpandButtonHit, boolean calledForExpandButton) {
-        if (isShowOptional && toString().length() == 0 && !isExpandButtonHit) {
-            if (isShowOptional) {
-                actionEvent(new ActionEvent(this, ACTIONID_FIELD_COLLAPSED, "collapsed"));
-            }
-            return (calledForExpandButton); // show expandButton
-        } else {
-            if (isShowOptional) {
-                actionEvent(new ActionEvent(this, ACTIONID_FIELD_EXPANDED, "expanded"));
-            }
-            return (!calledForExpandButton); // show label
-        }
+  public void restoreFieldColor() {
+    if (field != null && savedFieldColor != null) {
+      field.setForeground(savedFieldColor);
     }
+  }
 
-    public void showValue() {
-        setVisibleInternal(false);
+  private boolean showExpandButton(boolean isExpandButtonHit, boolean calledForExpandButton) {
+    if (isShowOptional && toString().length() == 0 && !isExpandButtonHit) {
+      if (isShowOptional) {
+        actionEvent(new ActionEvent(this, ACTIONID_FIELD_COLLAPSED, "collapsed"));
+      }
+      return (calledForExpandButton); // show expandButton
+    } else {
+      if (isShowOptional) {
+        actionEvent(new ActionEvent(this, ACTIONID_FIELD_EXPANDED, "expanded"));
+      }
+      return (!calledForExpandButton); // show label
     }
+  }
 
-    private void setVisibleInternal(boolean isExpandButtonHit) {
-        if (label != null) {
-            label.setVisible(isVisible && showExpandButton(isExpandButtonHit, false));
-        }
-        if (expandButton != null) {
-            expandButton.setVisible(isVisible && showExpandButton(isExpandButtonHit, true));
-        }
-        if (field != null) {
-            field.setVisible(isVisible && showExpandButton(isExpandButtonHit, false));
-        }
-    }
-    
-    public void setVisible(boolean visible) {
-        super.setVisible(visible);
-        setVisibleInternal(false);
-    }
+  @Override
+  public void showValue() {
+    setVisibleInternal(false);
+  }
 
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        if (label != null) {
-            label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
-        }
-        if (expandButton != null) {
-            expandButton.setEnabled(enabled);
-        }
-        if (field != null) {
-            field.setEnabled(enabled);
-        }
+  private void setVisibleInternal(boolean isExpandButtonHit) {
+    if (label != null) {
+      label.setVisible(isVisible && showExpandButton(isExpandButtonHit, false));
     }
+    if (expandButton != null) {
+      expandButton.setVisible(isVisible && showExpandButton(isExpandButtonHit, true));
+    }
+    if (field != null) {
+      field.setVisible(isVisible && showExpandButton(isExpandButtonHit, false));
+    }
+  }
 
-    public void showOptional(boolean optional) {
-        isShowOptional = optional;
-    }
+  @Override
+  public void setVisible(boolean visible) {
+    super.setVisible(visible);
+    setVisibleInternal(false);
+  }
 
-    public void setOptionalButtonText(String text) {
-        this.optionalButtonText = text;
+  @Override
+  public void setEnabled(boolean enabled) {
+    super.setEnabled(enabled);
+    if (label != null) {
+      label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
     }
+    if (expandButton != null) {
+      expandButton.setEnabled(enabled);
+    }
+    if (field != null) {
+      field.setEnabled(enabled);
+    }
+  }
 
-    private void expandButton_actionEvent(ActionEvent e) {
-        expandToField();
-    }
+  public void showOptional(boolean optional) {
+    isShowOptional = optional;
+  }
 
-    public void expandToField() {
-        setVisibleInternal(true);
-        if (field != null) {
-            field.requestFocus();
-        }
-    }
+  public void setOptionalButtonText(String text) {
+    this.optionalButtonText = text;
+  }
 
-    public void setItemOnNewRow(boolean newRow) {
-        itemOnNewRow = newRow;
-    }
+  private void expandButton_actionEvent(ActionEvent e) {
+    expandToField();
+  }
 
-    public void setOffsetXY(int x, int y) {
-        this.xOffset = x;
-        this.yOffset = y;
+  public void expandToField() {
+    setVisibleInternal(true);
+    if (field != null) {
+      field.requestFocus();
     }
-    
+  }
+
+  public void setItemOnNewRow(boolean newRow) {
+    itemOnNewRow = newRow;
+  }
+
+  public void setOffsetXY(int x, int y) {
+    this.xOffset = x;
+    this.yOffset = y;
+  }
+
 }

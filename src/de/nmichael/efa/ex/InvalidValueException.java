@@ -10,36 +10,40 @@
 
 package de.nmichael.efa.ex;
 
-import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.Logger;
-import java.util.*;
 
 public class InvalidValueException extends Exception {
 
-    IItemType item;
-    String msg;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
+  IItemType item;
+  String msg;
 
-    public InvalidValueException(IItemType item, String msg) {
-        this.item = item;
-        this.msg = msg;
-    }
+  public InvalidValueException(IItemType item, String msg) {
+    this.item = item;
+    this.msg = msg;
+  }
 
-    public String toString() {
-        return msg;
-    }
+  @Override
+  public String toString() {
+    return msg;
+  }
 
-    public String getMessage() {
-        return msg;
-    }
+  @Override
+  public String getMessage() {
+    return msg;
+  }
 
-    public void displayMessage() {
-        if (msg != null) {
-            Dialog.error(msg);
-        }
-        if (item != null) {
-            item.requestFocus();
-        }
+  public void displayMessage() {
+    if (msg != null) {
+      Dialog.error(msg);
     }
+    if (item != null) {
+      item.requestFocus();
+    }
+  }
 
 }

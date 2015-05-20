@@ -10,249 +10,277 @@
 
 package de.nmichael.efa.gui;
 
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import java.util.Hashtable;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.Credentials;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypePassword;
+import de.nmichael.efa.core.items.ItemTypeString;
+import de.nmichael.efa.core.items.ItemTypeStringList;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.storage.IDataAccess;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Arrays;
-import java.util.Hashtable;
-import javax.swing.*;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
 public class AdminLoginDialog extends BaseDialog {
 
-    private static String NO_PROJECT;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    private String KEYACTION_ENTER;
-    private String reason;
-    private boolean showSelectProject;
-    private ItemTypeString name;
-    private ItemTypePassword password;
-    private ItemTypeStringList projectList;
-    private AdminRecord adminRecord;
-    private String project;
-    private static String selectedProject;
+  private static String NO_PROJECT;
 
-    public AdminLoginDialog(Frame parent, String reason) {
-        super(parent, International.getStringWithMnemonic("Admin-Login"), International.getStringWithMnemonic("Login"));
-        this.reason = reason;
+  private String KEYACTION_ENTER;
+  private String reason;
+  private boolean showSelectProject;
+  private ItemTypeString name;
+  private ItemTypePassword password;
+  private ItemTypeStringList projectList;
+  private AdminRecord adminRecord;
+  private String project;
+  private static String selectedProject;
+
+  public AdminLoginDialog(Frame parent, String reason) {
+    super(parent, International.getStringWithMnemonic("Admin-Login"), International
+        .getStringWithMnemonic("Login"));
+    this.reason = reason;
+  }
+
+  public AdminLoginDialog(JDialog parent, String reason) {
+    super(parent, International.getStringWithMnemonic("Admin-Login"), International
+        .getStringWithMnemonic("Login"));
+    this.reason = reason;
+  }
+
+  private void setShowSelectProject(String defaultProject) {
+    this.showSelectProject = true;
+    this.project = defaultProject;
+    NO_PROJECT = "<" + International.getString("kein Projekt") + ">";
+  }
+
+  @Override
+  protected void iniDialog() throws Exception {
+    KEYACTION_ENTER = addKeyAction("ENTER");
+
+    mainPanel.setLayout(new GridBagLayout());
+
+    JLabel reasonLabel = new JLabel();
+    reasonLabel.setText(reason);
+    reasonLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    JLabel infoLabel = new JLabel();
+    infoLabel.setText(International.getString("Admin-Login erforderlich."));
+    infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+    int width = (showSelectProject ? 200 : 120);
+
+    if (reason != null && reason.length() > 0) {
+      mainPanel.add(reasonLabel,
+          new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10),
+              0, 0));
+    }
+    mainPanel
+    .add(infoLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 10, 10),
+        0, 0));
+
+    name = new ItemTypeString("NAME", "", IItemType.TYPE_PUBLIC, "",
+        International.getStringWithMnemonic("Admin-Name"));
+    name.setToLowerCase(true);
+    name.setAllowedCharacters("abcdefghijklmnopqrstuvwxyz0123456789_");
+    name.setFieldSize(width, -1);
+    password = new ItemTypePassword("PASSWORD", "", IItemType.TYPE_PUBLIC, "",
+        International.getStringWithMnemonic("Paßwort"));
+    password.setFieldSize(width, -1);
+
+    name.displayOnGui(this, mainPanel, 0, 2);
+    password.displayOnGui(this, mainPanel, 0, 3);
+
+    if (showSelectProject) {
+      Hashtable<String, String> projects = Project.getProjects();
+      projects.put(NO_PROJECT, "foobar");
+      if (projects != null && projects.size() > 0) {
+        String[] projectArray = projects.keySet().toArray(new String[0]);
+        Arrays.sort(projectArray);
+        projectList = new ItemTypeStringList("PROJECT",
+            (project != null && project.length() > 0 ? project : NO_PROJECT),
+            projectArray, projectArray,
+            IItemType.TYPE_PUBLIC, "",
+            International.getString("Projekt"));
+        projectList.setFieldSize(width, -1);
+        projectList.displayOnGui(this, mainPanel, 0, 4);
+      }
+
+    }
+    closeButton.setIcon(getIcon(IMAGE_ACCEPT));
+  }
+
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
+
+  @Override
+  public void _keyAction(ActionEvent evt) {
+    if (evt.getActionCommand().equals(KEYACTION_ENTER)) {
+      closeButton_actionPerformed(evt);
+    }
+    super._keyAction(evt);
+  }
+
+  public void setLoginOnlyAdmin(String adminName) {
+    name.parseAndShowValue(adminName);
+    name.setEnabled(false);
+    password.requestFocus();
+  }
+
+  @Override
+  public void closeButton_actionPerformed(ActionEvent e) {
+    name.getValueFromGui();
+    password.getValueFromGui();
+    if (projectList != null) {
+      projectList.getValueFromGui();
     }
 
-    public AdminLoginDialog(JDialog parent, String reason) {
-        super(parent, International.getStringWithMnemonic("Admin-Login"), International.getStringWithMnemonic("Login"));
-        this.reason = reason;
+    if (!name.isValidInput()) {
+      Dialog.error(International.getString("Kein Admin-Name eingegeben!"));
+      name.requestFocus();
+      return;
+    }
+    if (!password.isValidInput()) {
+      Dialog.error(International.getString("Kein Paßwort eingegeben!"));
+      password.requestFocus();
+      return;
     }
 
-    private void setShowSelectProject(String defaultProject) {
-        this.showSelectProject = true;
-        this.project = defaultProject;
-        NO_PROJECT = "<" + International.getString("kein Projekt") + ">";
+    String adminName = name.getValue();
+    String adminPassword = password.getValue();
+    Admins myAdmins = Daten.admins;
+    if (Daten.project != null &&
+        Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE &&
+        !adminName.equals(Admins.SUPERADMIN)) {
+      myAdmins = new Admins(Daten.project.getProjectStorageType(),
+          Daten.project.getProjectStorageLocation(),
+          Daten.project.getProjectStorageUsername(),
+          Daten.project.getProjectStoragePassword());
     }
 
-    protected void iniDialog() throws Exception {
-        KEYACTION_ENTER      = addKeyAction("ENTER");
-
-        mainPanel.setLayout(new GridBagLayout());
-
-        JLabel reasonLabel = new JLabel();
-        reasonLabel.setText(reason);
-        reasonLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel infoLabel = new JLabel();
-        infoLabel.setText(International.getString("Admin-Login erforderlich."));
-        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        int width = (showSelectProject ? 200 : 120);
-
-        if (reason != null && reason.length() > 0) {
-            mainPanel.add(reasonLabel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10), 0, 0));
-        }
-        mainPanel.add(infoLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 10, 10), 0, 0));
-
-        name = new ItemTypeString("NAME", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Admin-Name"));
-        name.setToLowerCase(true);
-        name.setAllowedCharacters("abcdefghijklmnopqrstuvwxyz0123456789_");
-        name.setFieldSize(width, -1);
-        password = new ItemTypePassword("PASSWORD", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Paßwort"));
-        password.setFieldSize(width, -1);
-        
-        name.displayOnGui(this, mainPanel, 0, 2);
-        password.displayOnGui(this, mainPanel, 0, 3);
-
-        if (showSelectProject) {
-            Hashtable<String,String> projects = Project.getProjects();
-            projects.put(NO_PROJECT, "foobar");
-            if (projects != null && projects.size() > 0) {
-                String[] projectArray = projects.keySet().toArray(new String[0]);
-                Arrays.sort(projectArray);
-                projectList = new ItemTypeStringList("PROJECT",
-                        (project != null && project.length() > 0 ? project : NO_PROJECT),
-                        projectArray, projectArray,
-                        IItemType.TYPE_PUBLIC, "",
-                        International.getString("Projekt"));
-                projectList.setFieldSize(width, -1);
-                projectList.displayOnGui(this, mainPanel, 0, 4);
-            }
-
-        }
-        closeButton.setIcon(getIcon(IMAGE_ACCEPT));
+    if ((adminRecord = myAdmins.login(adminName, adminPassword)) == null) {
+      Dialog.error(International.getString("Admin-Name oder Paßwort ungültig!"));
+      Logger.log(Logger.WARNING, Logger.MSG_ADMIN_LOGINFAILURE,
+          International.getString("Admin-Login") + ": "
+              + International.getMessage("Name {name} oder Paßwort ungültig!", adminName));
+      password.parseAndShowValue("");
+      password.requestFocus();
+      adminRecord = null;
+      return;
     }
-
-    public void keyAction(ActionEvent evt) {
-        _keyAction(evt);
+    if (adminRecord != null) {
+      Logger.log(Logger.INFO, Logger.MSG_ADMIN_LOGIN, International.getString("Admin-Login") + ": "
+          + International.getString("Name") + ": " + adminRecord.getName());
+    } else {
+      return;
     }
+    super.closeButton_actionPerformed(e);
+  }
 
-    public void _keyAction(ActionEvent evt) {
-        if (evt.getActionCommand().equals(KEYACTION_ENTER)) {
-            closeButton_actionPerformed(evt);
-        }
-        super._keyAction(evt);
+  public AdminRecord getResult() {
+    return adminRecord;
+  }
+
+  public String getSelectedProject() {
+    if (projectList == null) {
+      return null;
     }
+    String p = projectList.getValue();
+    return (NO_PROJECT.equals(p) ? null : p);
+  }
 
-    public void setLoginOnlyAdmin(String adminName) {
-        name.parseAndShowValue(adminName);
-        name.setEnabled(false);
-        password.requestFocus();
-    }
+  public static AdminRecord login(Window parent, String reason) {
+    return login(parent, reason, null, false, null);
+  }
 
-    public void closeButton_actionPerformed(ActionEvent e) {
-        name.getValueFromGui();
-        password.getValueFromGui();
-        if (projectList != null) {
-            projectList.getValueFromGui();
-        }
+  public static AdminRecord login(Window parent, String reason,
+      boolean showSelectProject, String defaultProject) {
+    return login(parent, reason, null,
+        showSelectProject, defaultProject);
+  }
 
-        if (!name.isValidInput()) {
-            Dialog.error(International.getString("Kein Admin-Name eingegeben!"));
-            name.requestFocus();
-            return;
-        }
-        if (!password.isValidInput()) {
-            Dialog.error(International.getString("Kein Paßwort eingegeben!"));
-            password.requestFocus();
-            return;
-        }
+  public static AdminRecord login(Window parent, String reason, String admin,
+      boolean showSelectProject, String defaultProject) {
 
-        String adminName = name.getValue();
-        String adminPassword = password.getValue();
-        Admins myAdmins = Daten.admins;
-        if (Daten.project != null &&
-            Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE &&
-            !adminName.equals(Admins.SUPERADMIN)) {
-            myAdmins = new Admins(Daten.project.getProjectStorageType(),
-                    Daten.project.getProjectStorageLocation(),
-                    Daten.project.getProjectStorageUsername(),
-                    Daten.project.getProjectStoragePassword());
-        }
-        
-        if ((adminRecord = myAdmins.login(adminName, adminPassword)) == null) {
-            Dialog.error(International.getString("Admin-Name oder Paßwort ungültig!"));
-            Logger.log(Logger.WARNING, Logger.MSG_ADMIN_LOGINFAILURE, International.getString("Admin-Login") + ": "
-                    + International.getMessage("Name {name} oder Paßwort ungültig!", adminName));
-            password.parseAndShowValue("");
-            password.requestFocus();
-            adminRecord = null;
-            return;
-        }
-        if (adminRecord != null) {
-            Logger.log(Logger.INFO, Logger.MSG_ADMIN_LOGIN, International.getString("Admin-Login") + ": "
-                    + International.getString("Name") + ": " + adminRecord.getName());
-        } else {
-            return;
-        }
-        super.closeButton_actionPerformed(e);
-    }
-
-    public AdminRecord getResult() {
+    AdminRecord adminRecord = null;
+    try {
+      Credentials cred = new Credentials();
+      cred.readCredentials();
+      if (cred.getDefaultAdmin() != null) {
+        adminRecord = Daten.admins.login(cred.getDefaultAdmin(),
+            cred.getPassword(cred.getDefaultAdmin()));
+      }
+      if (adminRecord != null) {
         return adminRecord;
+      }
+    } catch (Exception e) {
+      Logger.logdebug(e);
     }
 
-    public String getSelectedProject() {
-        if (projectList == null) {
-            return null;
-        }
-        String p = projectList.getValue();
-        return (NO_PROJECT.equals(p) ? null : p);
+    AdminLoginDialog dlg = null;
+    if (parent == null) {
+      dlg = new AdminLoginDialog((JDialog) null, reason);
+    } else {
+      try {
+        dlg = new AdminLoginDialog((JDialog) parent, reason);
+      } catch (ClassCastException e) {
+        dlg = new AdminLoginDialog((JFrame) parent, reason);
+      }
     }
+    return login(dlg, reason, admin, showSelectProject, defaultProject);
+  }
 
-    public static AdminRecord login(Window parent, String reason) {
-        return login(parent, reason, null, false, null);
+  public static AdminRecord login(Frame parent, String grund, String admin,
+      boolean showSelectProject, String defaultProject) {
+    AdminLoginDialog dlg = null;
+    if (parent != null) {
+      dlg = new AdminLoginDialog(parent, grund);
+    } else {
+      dlg = new AdminLoginDialog((JFrame) null, grund);
     }
+    return login(dlg, grund, admin, showSelectProject, defaultProject);
+  }
 
-    public static AdminRecord login(Window parent, String reason,
-            boolean showSelectProject, String defaultProject) {
-        return login(parent, reason, null,
-                showSelectProject, defaultProject);
+  public static AdminRecord login(AdminLoginDialog dlg, String grund, String adminName,
+      boolean showSelectProject, String defaultProject) {
+    // dlg.setModal(true);
+    if (adminName != null) {
+      dlg.setLoginOnlyAdmin(adminName);
     }
-
-    public static AdminRecord login(Window parent, String reason, String admin,
-            boolean showSelectProject, String defaultProject) {
-
-        AdminRecord adminRecord = null;
-        try {
-            Credentials cred = new Credentials();
-            cred.readCredentials();
-            if (cred.getDefaultAdmin() != null) {
-                adminRecord = Daten.admins.login(cred.getDefaultAdmin(),
-                        cred.getPassword(cred.getDefaultAdmin()));
-            }
-            if (adminRecord != null) {
-                return adminRecord;
-            }
-        } catch(Exception e) {
-            Logger.logdebug(e);
-        }
-
-        AdminLoginDialog dlg = null;
-        if (parent == null) {
-            dlg = new AdminLoginDialog((JDialog)null, reason);
-        } else {
-            try {
-                dlg = new AdminLoginDialog((JDialog) parent, reason);
-            } catch (ClassCastException e) {
-                dlg = new AdminLoginDialog((JFrame) parent, reason);
-            }
-        }
-        return login(dlg, reason, admin, showSelectProject, defaultProject);
+    if (showSelectProject) {
+      dlg.setShowSelectProject(defaultProject);
     }
+    dlg.showDialog();
+    selectedProject = (showSelectProject ? dlg.getSelectedProject() : null);
+    return dlg.getResult();
+  }
 
-    public static AdminRecord login(Frame parent, String grund, String admin,
-            boolean showSelectProject, String defaultProject) {
-        AdminLoginDialog dlg = null;
-        if (parent != null) {
-            dlg = new AdminLoginDialog(parent, grund);
-        } else {
-            dlg = new AdminLoginDialog((JFrame)null, grund);
-        }
-        return login(dlg, grund, admin, showSelectProject, defaultProject);
-    }
-
-    public static AdminRecord login(AdminLoginDialog dlg, String grund, String adminName,
-            boolean showSelectProject, String defaultProject) {
-        //dlg.setModal(true);
-        if (adminName != null) {
-            dlg.setLoginOnlyAdmin(adminName);
-        }
-        if (showSelectProject) {
-            dlg.setShowSelectProject(defaultProject);
-        }
-        dlg.showDialog();
-        selectedProject = (showSelectProject ? dlg.getSelectedProject() : null);
-        return dlg.getResult();
-    }
-
-    public static String getLastSelectedProject() {
-        return selectedProject;
-    }
-
-
-
+  public static String getLastSelectedProject() {
+    return selectedProject;
+  }
 
 }

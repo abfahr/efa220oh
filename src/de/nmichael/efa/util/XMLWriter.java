@@ -10,47 +10,48 @@
 
 package de.nmichael.efa.util;
 
-import de.nmichael.efa.Daten;
 import java.io.OutputStream;
+
+import de.nmichael.efa.Daten;
 
 public abstract class XMLWriter {
 
-    private OutputStream out;
-    private int indent;
+  private OutputStream out;
+  private int indent;
 
-    protected void writeHeader(OutputStream out) throws Exception {
-        this.out = out;
-        this.indent = 0;
-        write("<?xml version=\"1.0\" encoding=\"" + Daten.ENCODING_UTF + "\"?>\n");
-    }
+  protected void writeHeader(OutputStream out) throws Exception {
+    this.out = out;
+    this.indent = 0;
+    write("<?xml version=\"1.0\" encoding=\"" + Daten.ENCODING_UTF + "\"?>\n");
+  }
 
-    private String space() {
-        StringBuilder space = new StringBuilder();
-        for (int i=0; i<indent; i++) {
-            space.append("  ");
-        }
-        return space.toString();
+  private String space() {
+    StringBuilder space = new StringBuilder();
+    for (int i = 0; i < indent; i++) {
+      space.append("  ");
     }
+    return space.toString();
+  }
 
-    protected void write(String s) throws Exception {
-        out.write(s.getBytes(Daten.ENCODING_UTF));
-    }
+  protected void write(String s) throws Exception {
+    out.write(s.getBytes(Daten.ENCODING_UTF));
+  }
 
-    protected void xmltagStart(String tag) throws Exception {
-        write(space() + "<" + tag + ">\n");
-        indent++;
-    }
+  protected void xmltagStart(String tag) throws Exception {
+    write(space() + "<" + tag + ">\n");
+    indent++;
+  }
 
-    protected void xmltagEnd(String tag) throws Exception {
-        indent--;
-        write(space() + "</" + tag + ">\n");
-    }
+  protected void xmltagEnd(String tag) throws Exception {
+    indent--;
+    write(space() + "</" + tag + ">\n");
+  }
 
-    protected void xmltag(String tag, String value) throws Exception {
-        write(space() +
-                "<" + tag + ">" +
-                EfaUtil.escapeXml(value) +
-                "</" + tag + ">\n");
-    }
+  protected void xmltag(String tag, String value) throws Exception {
+    write(space() +
+        "<" + tag + ">" +
+        EfaUtil.escapeXml(value) +
+        "</" + tag + ">\n");
+  }
 
 }

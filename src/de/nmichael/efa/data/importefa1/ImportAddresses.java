@@ -10,59 +10,62 @@
 
 package de.nmichael.efa.data.importefa1;
 
-import de.nmichael.efa.Daten;
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
-import de.nmichael.efa.efa1.*;
-import de.nmichael.efa.util.*;
-import java.util.*;
+import java.util.Hashtable;
+
+import de.nmichael.efa.efa1.Adressen;
+import de.nmichael.efa.efa1.DatenFelder;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
 
 public class ImportAddresses extends ImportBase {
 
-    private ImportMetadata meta;
-    private String efa1fname;
+  private ImportMetadata meta;
+  private String efa1fname;
 
-    public ImportAddresses(ImportTask task, String efa1fname, ImportMetadata meta) {
-        super(task);
-        this.meta = meta;
-        this.efa1fname = efa1fname;
-    }
+  public ImportAddresses(ImportTask task, String efa1fname, ImportMetadata meta) {
+    super(task);
+    this.meta = meta;
+    this.efa1fname = efa1fname;
+  }
 
-    public String getDescription() {
-        return International.getString("Adressen");
-    }
+  @Override
+  public String getDescription() {
+    return International.getString("Adressen");
+  }
 
-    public boolean runImport() {
-        Adressen adr = new Adressen(efa1fname);
-        adr.dontEverWrite();
-        try {
-            Hashtable<String,String> h = new Hashtable<String,String>();
-            logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
-            if (!adr.readFile()) {
-                logError(LogString.fileOpenFailed(efa1fname, getDescription()));
-                return false;
-            }
+  @Override
+  public boolean runImport() {
+    Adressen adr = new Adressen(efa1fname);
+    adr.dontEverWrite();
+    try {
+      Hashtable<String, String> h = new Hashtable<String, String>();
+      logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(),
+          efa1fname));
+      if (!adr.readFile()) {
+        logError(LogString.fileOpenFailed(efa1fname, getDescription()));
+        return false;
+      }
 
-            DatenFelder d = adr.getCompleteFirst();
-            while (d != null) {
-                String name = d.get(Adressen.NAME).trim();
-                String adresse = d.get(Adressen.ADRESSE).trim();
-                if (name.length() > 0 && adresse.length() > 0) {
-                    h.put(name, adresse);
-                    logDetail(International.getMessage("Importiere Eintrag: {entry}", name + ": " + adresse));
-                }
-                d = adr.getCompleteNext();
-            }
-            task.setAddresses(h);
-
-        } catch(Exception e) {
-            logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), adr.getFileName()));
-            logError(e.toString());
-            e.printStackTrace();
-            return false;
+      DatenFelder d = adr.getCompleteFirst();
+      while (d != null) {
+        String name = d.get(Adressen.NAME).trim();
+        String adresse = d.get(Adressen.ADRESSE).trim();
+        if (name.length() > 0 && adresse.length() > 0) {
+          h.put(name, adresse);
+          logDetail(International.getMessage("Importiere Eintrag: {entry}", name + ": " + adresse));
         }
-        return true;
+        d = adr.getCompleteNext();
+      }
+      task.setAddresses(h);
+
+    } catch (Exception e) {
+      logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.",
+          getDescription(), adr.getFileName()));
+      logError(e.toString());
+      e.printStackTrace();
+      return false;
     }
+    return true;
+  }
 
 }

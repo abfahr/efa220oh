@@ -10,114 +10,141 @@
 
 package de.nmichael.efa.core.items;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
 import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.International;
 
 // @i18n complete
 
 public class ItemTypeColor extends ItemTypeLabelValue {
 
-    private Color origButtonColor;
-    private JButton butdel;
-    
-    private String color;
+  private Color origButtonColor;
+  private JButton butdel;
 
-    public ItemTypeColor(String name, String color,
-            int type, String category, String description) {
-        this.name = name;
-        this.color = color;
-        this.type = type;
-        this.category = category;
-        this.description = description;
-    }
+  private String color;
 
-    public IItemType copyOf() {
-        return new ItemTypeColor(name, color, type, category, description);
-    }
+  public ItemTypeColor(String name, String color,
+      int type, String category, String description) {
+    this.name = name;
+    this.color = color;
+    this.type = type;
+    this.category = category;
+    this.description = description;
+  }
 
-    public void parseValue(String value) {
-        this.color = value;
-    }
+  @Override
+  public IItemType copyOf() {
+    return new ItemTypeColor(name, color, type, category, description);
+  }
 
-    public String toString() {
-        return color;
-    }
+  @Override
+  public void parseValue(String value) {
+    this.color = value;
+  }
 
-    protected JComponent initializeField() {
-        JButton f = new JButton();
-        return f;
-    }
-    protected void iniDisplay() {
-        super.iniDisplay();
-        JButton f = (JButton)field;
-        origButtonColor = f.getBackground();
-        f.setEnabled(isEnabled);
-        Dialog.setPreferredSize(f, fieldWidth, fieldHeight);
-        f.setText(International.getMessage("{item} auswählen",
-                International.getString("Farbe")));
-        f.setBackground(EfaUtil.getColorOrGray(color));
-        f.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) { buttonHit(e); }
-        });
+  @Override
+  public String toString() {
+    return color;
+  }
 
-        butdel = new JButton();
-        butdel.setEnabled(isEnabled);
-        Dialog.setPreferredSize(butdel, fieldHeight, fieldHeight);
-        butdel.setIcon(BaseDialog.getIcon(BaseDialog.IMAGE_DELETE));
-        butdel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) { buttonDel(e); }
-        });
-    }
+  @Override
+  protected JComponent initializeField() {
+    JButton f = new JButton();
+    return f;
+  }
 
-    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
-        int count = super.displayOnGui(dlg, panel, x, y);
-        panel.add(butdel, new GridBagConstraints(x+fieldGridWidth+1, y, 1, fieldGridHeight, 0.0, 0.0,
-                fieldGridAnchor, fieldGridFill,
-                new Insets((itemOnNewRow ? 0 : padYbefore), (itemOnNewRow ? padXbefore : 0), padYafter, padXafter), 0, 0));
-        return count;
-    }
+  @Override
+  protected void iniDisplay() {
+    super.iniDisplay();
+    JButton f = (JButton) field;
+    origButtonColor = f.getBackground();
+    f.setEnabled(isEnabled);
+    Dialog.setPreferredSize(f, fieldWidth, fieldHeight);
+    f.setText(International.getMessage("{item} auswählen",
+        International.getString("Farbe")));
+    f.setBackground(EfaUtil.getColorOrGray(color));
+    f.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        buttonHit(e);
+      }
+    });
 
-    public void getValueFromGui() {
-        if (field != null) {
-            color = EfaUtil.getColor(field.getBackground());
-        }
-    }
+    butdel = new JButton();
+    butdel.setEnabled(isEnabled);
+    Dialog.setPreferredSize(butdel, fieldHeight, fieldHeight);
+    butdel.setIcon(BaseDialog.getIcon(BaseDialog.IMAGE_DELETE));
+    butdel.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        buttonDel(e);
+      }
+    });
+  }
 
-    public Color getColor() {
-        return EfaUtil.getColor(color);
-    }
+  @Override
+  public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
+    int count = super.displayOnGui(dlg, panel, x, y);
+    panel.add(butdel, new GridBagConstraints(x + fieldGridWidth + 1, y, 1, fieldGridHeight, 0.0,
+        0.0,
+        fieldGridAnchor, fieldGridFill,
+        new Insets((itemOnNewRow ? 0 : padYbefore), (itemOnNewRow ? padXbefore : 0), padYafter,
+            padXafter), 0, 0));
+    return count;
+  }
 
-    public String getValueFromField() {
-        if (field != null) {
-            return EfaUtil.getColor(field.getBackground());
-        }
-        return color;
+  @Override
+  public void getValueFromGui() {
+    if (field != null) {
+      color = EfaUtil.getColor(field.getBackground());
     }
+  }
 
-    public void showValue() {
-    }
+  public Color getColor() {
+    return EfaUtil.getColor(color);
+  }
 
-    private void buttonHit(ActionEvent e) {
-        Color color = JColorChooser.showDialog(dlg,
-                International.getMessage("{item} auswählen",
-                International.getString("Farbe")),
-                field.getBackground());
-        if (color != null) {
-            field.setBackground(color);
-        }
+  @Override
+  public String getValueFromField() {
+    if (field != null) {
+      return EfaUtil.getColor(field.getBackground());
     }
+    return color;
+  }
 
-    private void buttonDel(ActionEvent e) {
-        this.color = null;
-        field.setBackground(origButtonColor);
-    }
+  @Override
+  public void showValue() {}
 
-    public boolean isValidInput() {
-        return true;
+  private void buttonHit(ActionEvent e) {
+    Color color = JColorChooser.showDialog(dlg,
+        International.getMessage("{item} auswählen",
+            International.getString("Farbe")),
+            field.getBackground());
+    if (color != null) {
+      field.setBackground(color);
     }
-    
+  }
+
+  private void buttonDel(ActionEvent e) {
+    this.color = null;
+    field.setBackground(origButtonColor);
+  }
+
+  @Override
+  public boolean isValidInput() {
+    return true;
+  }
+
 }

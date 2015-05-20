@@ -10,12 +10,10 @@
 
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.efa1.Efa1Backup;
+import java.io.IOException;
+
 import de.nmichael.efa.efa1.DatenListe;
-import java.io.*;
-import java.util.Hashtable;
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
@@ -34,35 +32,41 @@ public class Teilnehmer extends DatenListe {
 
   // Konstruktor
   public Teilnehmer(String pdat) {
-    super(pdat,_ANZFELDER,1,false);
+    super(pdat, _ANZFELDER, 1, false);
     kennung = KENNUNG190;
   }
 
+  @Override
   public boolean checkFileFormat() {
     String s;
     try {
       s = freadLine();
-      if ( s == null || !s.trim().startsWith(kennung) ) {
+      if (s == null || !s.trim().startsWith(kennung)) {
         // KONVERTIEREN: 151 -> 190
         if (s != null && s.trim().startsWith(KENNUNG151)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"151");
-          iniList(this.dat,5,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          iniList(this.dat, 5, 1, false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               add(constructFields(s));
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // FERTIG MIT KONVERTIEREN
@@ -72,8 +76,8 @@ public class Teilnehmer extends DatenListe {
           return false;
         }
       }
-    } catch(IOException e) {
-      errReadingFile(dat,e.getMessage());
+    } catch (IOException e) {
+      errReadingFile(dat, e.getMessage());
       return false;
     }
     return true;

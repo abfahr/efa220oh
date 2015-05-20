@@ -10,43 +10,55 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JDialog;
+
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.BoatRecord;
+import de.nmichael.efa.data.BoatStatus;
 import de.nmichael.efa.ex.InvalidValueException;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 public class BoatEditDialog extends VersionizedDataEditDialog {
 
-    public BoatEditDialog(Frame parent, BoatRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent, International.getString("Boot"), r, newRecord, admin);
-    }
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    public BoatEditDialog(JDialog parent, BoatRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent, International.getString("Boot"), r, newRecord, admin);
-    }
+  public BoatEditDialog(Frame parent, BoatRecord r, boolean newRecord, AdminRecord admin) {
+    super(parent, International.getString("Boot"), r, newRecord, admin);
+  }
 
-    public void keyAction(ActionEvent evt) {
-        _keyAction(evt);
-    }
+  public BoatEditDialog(JDialog parent, BoatRecord r, boolean newRecord, AdminRecord admin) {
+    super(parent, International.getString("Boot"), r, newRecord, admin);
+  }
 
-    protected boolean saveRecord() throws InvalidValueException {
-        boolean success = super.saveRecord();
-        if (success) {
-            if (newRecord && dataRecord != null) {
-                BoatStatus boatStatus = dataRecord.getPersistence().getProject().getBoatStatus(false);
-                if (boatStatus != null) {
-                    try {
-                        boatStatus.data().add(boatStatus.createBoatStatusRecord(((BoatRecord)dataRecord).getId(), null));
-                    } catch(Exception e) {
-                        Logger.log(e);
-                    }
-                }
-            }
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
+
+  @Override
+  protected boolean saveRecord() throws InvalidValueException {
+    boolean success = super.saveRecord();
+    if (success) {
+      if (newRecord && dataRecord != null) {
+        BoatStatus boatStatus = dataRecord.getPersistence().getProject().getBoatStatus(false);
+        if (boatStatus != null) {
+          try {
+            boatStatus.data().add(
+                boatStatus.createBoatStatusRecord(((BoatRecord) dataRecord).getId(), null));
+          } catch (Exception e) {
+            Logger.log(e);
+          }
         }
-        return success;
+      }
     }
+    return success;
+  }
 }

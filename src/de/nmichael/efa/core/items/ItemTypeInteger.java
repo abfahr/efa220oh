@@ -11,93 +11,97 @@
 package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.data.storage.IDataAccess;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 
 public class ItemTypeInteger extends ItemTypeLabelTextfield {
 
-    public static int UNSET = IDataAccess.UNDEFINED_INT;
+  public static int UNSET = IDataAccess.UNDEFINED_INT;
 
-    private int value;
-    private int min;
-    private int max;
+  private int value;
+  private int min;
+  private int max;
 
-    public ItemTypeInteger(String name, int value, int min, int max, 
-            int type, String category, String description) {
-        this.name = name;
-        this.value = value;
-        this.min = min;
-        this.max = max;
-        this.type = type;
-        this.category = category;
-        this.description = description;
+  public ItemTypeInteger(String name, int value, int min, int max,
+      int type, String category, String description) {
+    this.name = name;
+    this.value = value;
+    this.min = min;
+    this.max = max;
+    this.type = type;
+    this.category = category;
+    this.description = description;
+  }
+
+  public ItemTypeInteger(String name, int value, int min, int max, boolean allowUnset,
+      int type, String category, String description) {
+    this.name = name;
+    this.value = value;
+    this.min = min;
+    this.max = max;
+    this.type = type;
+    this.category = category;
+    this.description = description;
+    this.setNotNull(!allowUnset);
+  }
+
+  @Override
+  public IItemType copyOf() {
+    return new ItemTypeInteger(name, value, min, max, !isNotNullSet(), type, category, description);
+  }
+
+  @Override
+  public void parseValue(String value) {
+    if (value != null) {
+      value = value.trim();
     }
-
-    public ItemTypeInteger(String name, int value, int min, int max, boolean allowUnset,
-            int type, String category, String description) {
-        this.name = name;
-        this.value = value;
-        this.min = min;
-        this.max = max;
-        this.type = type;
-        this.category = category;
-        this.description = description;
-        this.setNotNull(!allowUnset);
-    }
-
-    public IItemType copyOf() {
-        return new ItemTypeInteger(name, value, min, max, !isNotNullSet(), type, category, description);
-    }
-
-    public void parseValue(String value) {
-        if (value != null) {
-            value = value.trim();
+    try {
+      if (value.length() == 0 && !isNotNullSet()) {
+        this.value = UNSET;
+      } else {
+        this.value = Integer.parseInt(value);
+        if (this.value < min) {
+          this.value = min;
         }
-        try {
-            if (value.length() == 0 && !isNotNullSet()) {
-                this.value = UNSET;
-            } else {
-                this.value = Integer.parseInt(value);
-                if (this.value < min) {
-                    this.value = min;
-                }
-                if (this.value > max) {
-                    this.value = max;
-                }
-            }
-        } catch (Exception e) {
-            if (dlg == null) {
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
-                           "Invalid value for parameter "+name+": "+value);
-            }
+        if (this.value > max) {
+          this.value = max;
         }
+      }
+    } catch (Exception e) {
+      if (dlg == null) {
+        Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+            "Invalid value for parameter " + name + ": " + value);
+      }
     }
+  }
 
-    public String toString() {
-        if (!isNotNullSet() && value == UNSET) {
-            return "";
-        }
-        return Integer.toString(value);
+  @Override
+  public String toString() {
+    if (!isNotNullSet() && value == UNSET) {
+      return "";
     }
+    return Integer.toString(value);
+  }
 
-    public int getValue() {
-        return value;
-    }
+  public int getValue() {
+    return value;
+  }
 
-    public void setValue(int value) {
-        this.value = value;
-    }
+  public void setValue(int value) {
+    this.value = value;
+  }
 
-    public boolean isSet() {
-        return (isNotNullSet()) || value != UNSET;
-    }
+  public boolean isSet() {
+    return (isNotNullSet()) || value != UNSET;
+  }
 
-    public boolean isValidInput() {
-        if (isNotNullSet()) {
-            return isSet();
-        }
-        return true;
+  @Override
+  public boolean isValidInput() {
+    if (isNotNullSet()) {
+      return isSet();
     }
+    return true;
+  }
 
 }

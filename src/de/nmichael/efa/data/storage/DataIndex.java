@@ -10,127 +10,127 @@
 
 package de.nmichael.efa.data.storage;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.ex.EfaException;
-import java.util.*;
-import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
 
 // @i18n complete
 
 public class DataIndex {
 
-    class IndexKey {
-        private Object[] data;
-        int hash;
+  class IndexKey {
+    private Object[] data;
+    int hash;
 
-        public IndexKey(Object[] data) {
-            this.data = data;
-            hash = 0;
-            for (int i=0; i<data.length; i++) {
-                hash += (data[i] != null ? data[i].hashCode() : 0);
-            }
-        }
-
-        public boolean equals(Object o) {
-            IndexKey other = (IndexKey)o;
-            if (data.length != other.data.length) {
-                return false;
-            }
-            for (int i=0; i<data.length; i++) {
-                if (data[i] != null && other.data[i] != null && !data[i].equals(other.data[i])) {
-                    return false;
-                }
-                if (data[i] == null && other.data[i] != null) {
-                    return false;
-                }
-                if (data[i] != null && other.data[i] == null) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public int hashCode() {
-            return hash;
-        }
-
+    public IndexKey(Object[] data) {
+      this.data = data;
+      hash = 0;
+      for (Object element : data) {
+        hash += (element != null ? element.hashCode() : 0);
+      }
     }
 
-    private int[] indexFields;
-    private Hashtable<IndexKey,ArrayList<DataKey>> index = new Hashtable<IndexKey,ArrayList<DataKey>>();
-
-    public DataIndex(int[] indexFields) {
-        this.indexFields = Arrays.copyOf(indexFields, indexFields.length);
+    @Override
+    public boolean equals(Object o) {
+      IndexKey other = (IndexKey) o;
+      if (data.length != other.data.length) {
+        return false;
+      }
+      for (int i = 0; i < data.length; i++) {
+        if (data[i] != null && other.data[i] != null && !data[i].equals(other.data[i])) {
+          return false;
+        }
+        if (data[i] == null && other.data[i] != null) {
+          return false;
+        }
+        if (data[i] != null && other.data[i] == null) {
+          return false;
+        }
+      }
+      return true;
     }
 
-    public void clear() {
-        synchronized(index) {
-            index.clear();
-        }
+    @Override
+    public int hashCode() {
+      return hash;
     }
 
-    public void add(DataRecord r) {
-        Object[] values = new Object[indexFields.length];
-        for (int i=0; i<values.length; i++) {
-            values[i] = r.get(indexFields[i]);
-        }
-        DataKey key = r.getKey();
-        IndexKey entry = new IndexKey(values);
+  }
 
-        synchronized (index) {
-            ArrayList<DataKey> list = index.get(entry);
-            if (list == null) {
-                list = new ArrayList<DataKey>();
-            }
+  private int[] indexFields;
+  private Hashtable<IndexKey, ArrayList<DataKey>> index = new Hashtable<IndexKey, ArrayList<DataKey>>();
 
-            if (!list.contains(key)) {
-                list.add(key);
-            }
+  public DataIndex(int[] indexFields) {
+    this.indexFields = Arrays.copyOf(indexFields, indexFields.length);
+  }
 
-            index.put(entry, list);
-        }
+  public void clear() {
+    synchronized (index) {
+      index.clear();
     }
+  }
 
-    public void delete(DataRecord r) {
-        Object[] values = new Object[indexFields.length];
-        for (int i=0; i<values.length; i++) {
-            values[i] = r.get(indexFields[i]);
-        }
-        DataKey key = r.getKey();
-        IndexKey entry = new IndexKey(values);
-
-        synchronized (index) {
-            ArrayList<DataKey> list = index.get(entry);
-            if (list == null) {
-                return;
-            }
-
-            list.remove(key);
-            if (list.size() == 0) {
-                index.remove(entry);
-            }
-        }
+  public void add(DataRecord r) {
+    Object[] values = new Object[indexFields.length];
+    for (int i = 0; i < values.length; i++) {
+      values[i] = r.get(indexFields[i]);
     }
+    DataKey key = r.getKey();
+    IndexKey entry = new IndexKey(values);
 
-    public DataKey[] search(Object[] values) {
-        IndexKey entry = new IndexKey(values);
-        synchronized (index) {
-            ArrayList<DataKey> list = index.get(entry);
-            if (list == null || list.size() == 0) {
-                return null;
-            }
+    synchronized (index) {
+      ArrayList<DataKey> list = index.get(entry);
+      if (list == null) {
+        list = new ArrayList<DataKey>();
+      }
 
-           DataKey[] keys = new DataKey[list.size()];
-            for (int i = 0; i < keys.length; i++) {
-                keys[i] = list.get(i);
-            }
-            return keys;
-        }
+      if (!list.contains(key)) {
+        list.add(key);
+      }
+
+      index.put(entry, list);
     }
+  }
 
-    public int[] getIndexFields() {
-        return indexFields;
+  public void delete(DataRecord r) {
+    Object[] values = new Object[indexFields.length];
+    for (int i = 0; i < values.length; i++) {
+      values[i] = r.get(indexFields[i]);
     }
+    DataKey key = r.getKey();
+    IndexKey entry = new IndexKey(values);
+
+    synchronized (index) {
+      ArrayList<DataKey> list = index.get(entry);
+      if (list == null) {
+        return;
+      }
+
+      list.remove(key);
+      if (list.size() == 0) {
+        index.remove(entry);
+      }
+    }
+  }
+
+  public DataKey[] search(Object[] values) {
+    IndexKey entry = new IndexKey(values);
+    synchronized (index) {
+      ArrayList<DataKey> list = index.get(entry);
+      if (list == null || list.size() == 0) {
+        return null;
+      }
+
+      DataKey[] keys = new DataKey[list.size()];
+      for (int i = 0; i < keys.length; i++) {
+        keys[i] = list.get(i);
+      }
+      return keys;
+    }
+  }
+
+  public int[] getIndexFields() {
+    return indexFields;
+  }
 
 }

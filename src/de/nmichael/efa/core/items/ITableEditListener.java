@@ -16,6 +16,6 @@ import de.nmichael.efa.gui.util.TableItem;
 
 public interface ITableEditListener {
 
-    public void tableEditListenerAction(IItemType itemType, TableItem[] items, int row, int col);
+  public void tableEditListenerAction(IItemType itemType, TableItem[] items, int row, int col);
 
 }

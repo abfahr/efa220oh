@@ -7,13 +7,14 @@
  * @author Nicolas Michael
  * @version 2
  */
+
 package de.nmichael.efa.util;
 
 // @i18n complete
 public interface ExecuteAfterDownload {
 
-    public void success();
+  public void success();
 
-    public void failure(String text);
+  public void failure(String text);
 
 }

@@ -10,9 +10,17 @@
 
 package de.nmichael.efa;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JWindow;
+
 import de.nmichael.efa.util.Logger;
-import java.awt.*;
-import javax.swing.*;
 
 // @i18n complete
 
@@ -30,13 +38,13 @@ public class StartLogo {
     try {
       JLabel l = new JLabel();
       try {
-          ImageIcon i = new ImageIcon(StartLogo.class.getResource(logoFile));
-          l.setIcon(i);
-      } catch(Exception e) {
-          Logger.logdebug(e);
+        ImageIcon i = new ImageIcon(StartLogo.class.getResource(logoFile));
+        l.setIcon(i);
+      } catch (Exception e) {
+        Logger.logdebug(e);
       }
       JPanel p = new JPanel();
-      p.setBackground(new Color(0,0,150));
+      p.setBackground(new Color(0, 0, 150));
       p.setBorder(BorderFactory.createEtchedBorder());
       p.add(l);
 
@@ -46,7 +54,8 @@ public class StartLogo {
 
       Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
       Dimension frameSize = w.getSize();
-      w.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+      w.setLocation((screenSize.width - frameSize.width) / 2,
+          (screenSize.height - frameSize.height) / 2);
       w.setVisible(true);
       if (Daten.javaVersion.startsWith("1.4")) {
         w.toFront(); // bei Java 1.4 im Vordergrund, da es sonst nicht sichtbar ist
@@ -55,12 +64,13 @@ public class StartLogo {
       }
 
       this.window = w;
-    } catch(Exception e) {
-    }
+    } catch (Exception e) {}
   }
 
   public void remove() {
-    if (window == null) return;
+    if (window == null) {
+      return;
+    }
     window.setVisible(false);
     window.dispose();
     window = null;

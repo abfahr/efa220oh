@@ -10,15 +10,9 @@
 
 package de.nmichael.efa.data;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.data.storage.*;
-import java.util.*;
-
 // @i18n complete
 public class Test {
 
-    public static void main(String[] args) {
-    }
+  public static void main(String[] args) {}
 
 }

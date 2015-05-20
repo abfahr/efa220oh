@@ -10,34 +10,50 @@
 
 package de.nmichael.efa.gui.widgets;
 
-import de.nmichael.efa.core.items.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.data.LogbookRecord;
-import javax.swing.*;
 
 public interface IWidget {
 
-    public static final String POSITION_TOP = "TOP";
-    public static final String POSITION_BOTTOM = "BOTTOM";
-    public static final String POSITION_LEFT = "LEFT";
-    public static final String POSITION_RIGHT = "RIGHT";
-    public static final String POSITION_CENTER = "CENTER";
+  public static final String POSITION_TOP = "TOP";
+  public static final String POSITION_BOTTOM = "BOTTOM";
+  public static final String POSITION_LEFT = "LEFT";
+  public static final String POSITION_RIGHT = "RIGHT";
+  public static final String POSITION_CENTER = "CENTER";
 
-    public String getName();
-    public String getDescription();
-    public String getParameterName(String internalName);
-    public IItemType[] getParameters();
-    public void setParameter(IItemType param);
-    public void setEnabled(boolean enabled);
-    public boolean isEnabled();
-    public void setPosition(String p);
-    public String getPosition();
-    public void setUpdateInterval(int seconds);
-    public int getUpdateInterval();
-    public JComponent getComponent();
-    public void runWidgetWarnings(int mode, boolean actionBegin, LogbookRecord r);
+  public String getName();
 
-    public void show(JPanel panel, int x, int y);
-    public void show(JPanel panel, String orientation);
-    public void stop();
+  public String getDescription();
+
+  public String getParameterName(String internalName);
+
+  public IItemType[] getParameters();
+
+  public void setParameter(IItemType param);
+
+  public void setEnabled(boolean enabled);
+
+  public boolean isEnabled();
+
+  public void setPosition(String p);
+
+  public String getPosition();
+
+  public void setUpdateInterval(int seconds);
+
+  public int getUpdateInterval();
+
+  public JComponent getComponent();
+
+  public void runWidgetWarnings(int mode, boolean actionBegin, LogbookRecord r);
+
+  public void show(JPanel panel, int x, int y);
+
+  public void show(JPanel panel, String orientation);
+
+  public void stop();
 
 }

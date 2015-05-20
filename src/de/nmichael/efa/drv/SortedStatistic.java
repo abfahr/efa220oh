@@ -10,7 +10,8 @@
 
 package de.nmichael.efa.drv;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Vector;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
@@ -25,20 +26,22 @@ public class SortedStatistic {
   }
 
   public void add(int sortkrit_i, String sortkrit_s, String field1, String field2, String field3) {
-    data.add(new SortedItem(sortkrit_i,sortkrit_s,field1,field2,field3));
+    data.add(new SortedItem(sortkrit_i, sortkrit_s, field1, field2, field3));
   }
 
   public void sort(boolean ascending) {
     arr = new SortedItem[data.size()];
-    for (int i=0; i<data.size(); i++) {
-      arr[i] = (SortedItem)data.get(i);
+    for (int i = 0; i < data.size(); i++) {
+      arr[i] = (SortedItem) data.get(i);
     }
     ASCENDING = ascending;
     Arrays.sort(arr);
   }
 
   public int sortedSize() {
-    if (arr != null) return arr.length;
+    if (arr != null) {
+      return arr.length;
+    }
     return -1;
   }
 
@@ -62,17 +65,21 @@ class SortedItem implements Comparable {
     data[2] = field3;
   }
 
+  @Override
   public int compareTo(Object o) throws ClassCastException {
-    SortedItem b = (SortedItem)o;
+    SortedItem b = (SortedItem) o;
 
     if (SortedStatistic.ASCENDING) {
-      if (this.sortkrit_i != -1 && b.sortkrit_i != -1) return this.sortkrit_i - b.sortkrit_i;
+      if (this.sortkrit_i != -1 && b.sortkrit_i != -1) {
+        return this.sortkrit_i - b.sortkrit_i;
+      }
       return (this.sortkrit_s.compareTo(b.sortkrit_s));
     } else {
-      if (this.sortkrit_i != -1 && b.sortkrit_i != -1) return b.sortkrit_i - this.sortkrit_i;
+      if (this.sortkrit_i != -1 && b.sortkrit_i != -1) {
+        return b.sortkrit_i - this.sortkrit_i;
+      }
       return (b.sortkrit_s.compareTo(this.sortkrit_s));
     }
   }
-
 
 }

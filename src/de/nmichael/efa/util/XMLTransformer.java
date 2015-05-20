@@ -10,19 +10,26 @@
 
 package de.nmichael.efa.util;
 
-import de.nmichael.efa.*;
-import javax.xml.transform.*;
-import javax.xml.transform.stream.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import de.nmichael.efa.Daten;
 
 // @i18n complete
 
 public class XMLTransformer {
 
   static void printHelp() {
-    System.out.println("XMLTransformer "+Daten.VERSION+", (c) 2002-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael ("+Daten.EFAURL+")");
-    System.out.println("XMLTransformer is based on the Xerces XML parser and the Xalan XSLT processor.");
-    System.out.println("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).");
-    System.out.println("The DOM bindings are published under the W3C Software Copyright Notice and License (http://www.w3.org).\n");
+    System.out.println("XMLTransformer " + Daten.VERSION + ", (c) 2002-" + Daten.COPYRIGHTYEAR
+        + " by Nicolas Michael (" + Daten.EFAURL + ")");
+    System.out
+    .println("XMLTransformer is based on the Xerces XML parser and the Xalan XSLT processor.");
+    System.out
+    .println("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).");
+    System.out
+    .println("The DOM bindings are published under the W3C Software Copyright Notice and License (http://www.w3.org).\n");
     System.out.println("XMLTransformer [options]");
     System.out.println("    [options] are");
     System.out.println("      -in filename     name of XML source file (stdin, if not specified)");
@@ -36,12 +43,19 @@ public class XMLTransformer {
     String transform = null;
     String quelle = null;
     String ziel = null;
-    if (args.length == 0) printHelp();
-    for (int i=0; i<args.length; i++) {
-      if (args[i].equals("-in") && i+1<args.length) quelle=args[++i];
-      else if (args[i].equals("-out") && i+1<args.length) ziel=args[++i];
-      else if (args[i].equals("-trans") && i+1<args.length) transform=args[++i];
-      else printHelp();
+    if (args.length == 0) {
+      printHelp();
+    }
+    for (int i = 0; i < args.length; i++) {
+      if (args[i].equals("-in") && i + 1 < args.length) {
+        quelle = args[++i];
+      } else if (args[i].equals("-out") && i + 1 < args.length) {
+        ziel = args[++i];
+      } else if (args[i].equals("-trans") && i + 1 < args.length) {
+        transform = args[++i];
+      } else {
+        printHelp();
+      }
     }
     StreamSource in;
     StreamResult out;
@@ -55,13 +69,16 @@ public class XMLTransformer {
     } else {
       out = new StreamResult(ziel);
     }
-    if (transform == null) { System.out.println("no transformation file specified!\n"); printHelp(); }
+    if (transform == null) {
+      System.out.println("no transformation file specified!\n");
+      printHelp();
+    }
 
     try {
       TransformerFactory f = TransformerFactory.newInstance();
       Transformer t = f.newTransformer(new StreamSource(transform));
       t.transform(in, out);
-    } catch(Exception e) {
+    } catch (Exception e) {
       System.err.println(e.toString());
     }
   }

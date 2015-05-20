@@ -10,84 +10,98 @@
 
 package de.nmichael.efa.core.config;
 
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
-import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.gui.util.*;
-import de.nmichael.efa.util.*;
-import java.util.*;
+import java.util.Vector;
+
+import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.data.storage.MetaData;
+import de.nmichael.efa.gui.util.TableItem;
+import de.nmichael.efa.gui.util.TableItemHeader;
 
 // @i18n complete
 
 public class EfaConfigRecord extends DataRecord {
 
-    // =========================================================================
-    // Field Names
-    // =========================================================================
+  // =========================================================================
+  // Field Names
+  // =========================================================================
 
-    public static final String NAME                = "Name";
-    public static final String VALUE               = "Value";
+  public static final String NAME = "Name";
+  public static final String VALUE = "Value";
 
-    public static void initialize() {
-        Vector<String> f = new Vector<String>();
-        Vector<Integer> t = new Vector<Integer>();
+  public static void initialize() {
+    Vector<String> f = new Vector<String>();
+    Vector<Integer> t = new Vector<Integer>();
 
-        f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
-        f.add(VALUE);                             t.add(IDataAccess.DATA_STRING);
-        MetaData metaData = constructMetaData(EfaConfig.DATATYPE, f, t, false);
-        metaData.setKey(new String[] { NAME });
-    }
+    f.add(NAME);
+    t.add(IDataAccess.DATA_STRING);
+    f.add(VALUE);
+    t.add(IDataAccess.DATA_STRING);
+    MetaData metaData = constructMetaData(EfaConfig.DATATYPE, f, t, false);
+    metaData.setKey(new String[] { NAME });
+  }
 
-    public EfaConfigRecord(EfaConfig efaConfig, MetaData metaData) {
-        super(efaConfig, metaData);
-    }
+  public EfaConfigRecord(EfaConfig efaConfig, MetaData metaData) {
+    super(efaConfig, metaData);
+  }
 
-    public DataRecord createDataRecord() { // used for cloning
-        return getPersistence().createNewRecord();
-    }
+  @Override
+  public DataRecord createDataRecord() { // used for cloning
+    return getPersistence().createNewRecord();
+  }
 
-    public DataKey getKey() {
-        return new DataKey<String,String,String>(getName(),null,null);
-    }
+  @Override
+  public DataKey getKey() {
+    return new DataKey<String, String, String>(getName(), null, null);
+  }
 
-    public static DataKey getKey(String name) {
-        return new DataKey<String,String,String>(name,null,null);
-    }
+  public static DataKey getKey(String name) {
+    return new DataKey<String, String, String>(name, null, null);
+  }
 
-    public void setName(String name) {
-        setString(NAME, name);
-    }
-    public String getName() {
-        return getString(NAME);
-    }
+  public void setName(String name) {
+    setString(NAME, name);
+  }
 
-    public void setValue(String value) {
-        setString(VALUE, value);
-    }
-    public String getValue() {
-        String s = getString(VALUE);
-        return (s == null ? "" : s);
-    }
+  public String getName() {
+    return getString(NAME);
+  }
 
-    public String[] getQualifiedNameFields() {
-        return new String[] { NAME };
-    }
+  public void setValue(String value) {
+    setString(VALUE, value);
+  }
 
-    public String getQualifiedName() {
-        String name = getName();
-        return (name != null ? name : "");
-    }
+  public String getValue() {
+    String s = getString(VALUE);
+    return (s == null ? "" : s);
+  }
 
-    public Vector<IItemType> getGuiItems(AdminRecord admin) {
-        return null;
-    }
+  @Override
+  public String[] getQualifiedNameFields() {
+    return new String[] { NAME };
+  }
 
-    public TableItemHeader[] getGuiTableHeader() {
-        return null;
-    }
+  @Override
+  public String getQualifiedName() {
+    String name = getName();
+    return (name != null ? name : "");
+  }
 
-    public TableItem[] getGuiTableItems() {
-        return null;
-    }
+  @Override
+  public Vector<IItemType> getGuiItems(AdminRecord admin) {
+    return null;
+  }
+
+  @Override
+  public TableItemHeader[] getGuiTableHeader() {
+    return null;
+  }
+
+  @Override
+  public TableItem[] getGuiTableItems() {
+    return null;
+  }
 
 }

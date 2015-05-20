@@ -10,41 +10,51 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JDialog;
+
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.data.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import de.nmichael.efa.data.DestinationRecord;
+import de.nmichael.efa.util.International;
 
 // @i18n complete
 public class DestinationEditDialog extends VersionizedDataEditDialog {
 
-    public DestinationEditDialog(Frame parent, DestinationRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent, 
-                International.getString("Ziel") + " / " +
-                International.getString("Strecke"),
-                r, newRecord, admin);
-    }
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    public DestinationEditDialog(JDialog parent, DestinationRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent,
-                International.getString("Ziel") + " / " +
-                International.getString("Strecke"),
-                r, newRecord, admin);
-    }
+  public DestinationEditDialog(Frame parent, DestinationRecord r, boolean newRecord,
+      AdminRecord admin) {
+    super(parent,
+        International.getString("Ziel") + " / " +
+            International.getString("Strecke"),
+            r, newRecord, admin);
+  }
 
-    public void keyAction(ActionEvent evt) {
-        _keyAction(evt);
-    }
+  public DestinationEditDialog(JDialog parent, DestinationRecord r, boolean newRecord,
+      AdminRecord admin) {
+    super(parent,
+        International.getString("Ziel") + " / " +
+            International.getString("Strecke"),
+            r, newRecord, admin);
+  }
 
-    protected void iniDefaults() {
-        if (newRecord) {
-            ((DestinationRecord)dataRecord).setStartIsBoathouse(true);
-            ((DestinationRecord)dataRecord).setRoundtrip(true);
-            
-        }
-    }
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
 
+  @Override
+  protected void iniDefaults() {
+    if (newRecord) {
+      ((DestinationRecord) dataRecord).setStartIsBoathouse(true);
+      ((DestinationRecord) dataRecord).setRoundtrip(true);
+
+    }
+  }
 
 }

@@ -10,17 +10,14 @@
 
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.efa1.Efa1Backup;
-import java.io.*;
-import java.util.Hashtable;
+import java.io.IOException;
+
 import de.nmichael.efa.efa1.DatenListe;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.*;
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class DRVConfig extends DatenListe {
-
 
   public static final String KENNUNG150 = "##EFA.150.DRVKONFIGURATION##";
   public static final String KENNUNG190 = "##EFA.190.DRVKONFIGURATION##";
@@ -38,7 +35,7 @@ public class DRVConfig extends DatenListe {
   public static final String TEILNEHMER_FILE = "teilnehmer.efh";
   public static final String MELDESTATISTIK_FA_FILE = "meldestatistik.ems";
   public static final String MELDESTATISTIK_WS_FILE = "meldestatistik_ws.ems";
-  public static final String KEYSTORE_FILE  = "keystore.dat";
+  public static final String KEYSTORE_FILE = "keystore.dat";
 
   // Daten, die gespeichert werden
   public int aktJahr;
@@ -69,7 +66,7 @@ public class DRVConfig extends DatenListe {
 
   // Konstruktor
   public DRVConfig(String pdat) {
-    super(pdat,0,0,false);
+    super(pdat, 0, 0, false);
     kennung = KENNUNG190;
     reset();
     this.backupEnabled = true;
@@ -98,22 +95,29 @@ public class DRVConfig extends DatenListe {
     readOnlyMode = false;
   }
 
-
   // Konfigurationsdatei einlesen
+  @Override
   public synchronized boolean readFile() {
-    if (openFile() && readEinstellungen() && closeFile()) return true;
+    if (openFile() && readEinstellungen() && closeFile()) {
+      return true;
+    }
     return false;
   }
 
+  @Override
   public synchronized boolean writeFile(boolean fuerKonvertieren) {
-    if (openWFile(fuerKonvertieren) && writeEinstellungen() && closeWFile()) return true;
+    if (openWFile(fuerKonvertieren) && writeEinstellungen() && closeWFile()) {
+      return true;
+    }
     return false;
   }
+
+  @Override
   public boolean writeFile() {
     return writeFile(false);
   }
 
-
+  @Override
   public boolean readEinstellungen() {
     reset();
 
@@ -123,57 +127,76 @@ public class DRVConfig extends DatenListe {
       while ((s = freadLine()) != null) {
         s = s.trim();
 
-        if (s.startsWith("AKTJAHR="))
-            aktJahr=EfaUtil.string2int(s.substring(8,s.length()).trim(),0);
-        if (s.startsWith("SCHLUESSEL="))
-            schluessel=s.substring(11,s.length()).trim();
-        if (s.startsWith("EFW_SCRIPT="))
-            efw_script=s.substring(11,s.length()).trim();
-        if (s.startsWith("EFW_USER="))
-            efw_user=s.substring(9,s.length()).trim();
-        if (s.startsWith("EFW_PASSWORD="))
-            efw_password=s.substring(13,s.length()).trim();
-        if (s.startsWith("ACROBAT="))
-            acrobat=s.substring(8,s.length()).trim();
-        if (s.startsWith("OPENSSL="))
-            openssl=s.substring(8,s.length()).trim();
-        if (s.startsWith("FA_BEARBEITEN="))
-            darfFAbearbeiten=s.substring(14,s.length()).trim().equals("+");
-        if (s.startsWith("WS_BEARBEITEN="))
-            darfWSbearbeiten=s.substring(14,s.length()).trim().equals("+");
-        if (s.startsWith("EUR_MELD_ERW="))
-            eur_meld_erw=EfaUtil.string2int(s.substring(13,s.length()).trim(),200);
-        if (s.startsWith("EUR_MELD_JUG="))
-            eur_meld_jug=EfaUtil.string2int(s.substring(13,s.length()).trim(),150);
-        if (s.startsWith("EUR_NADEL_ERW_SILBER="))
-            eur_nadel_erw_silber=EfaUtil.string2int(s.substring(21,s.length()).trim(),360);
-        if (s.startsWith("EUR_NADEL_ERW_GOLD="))
-            eur_nadel_erw_gold=EfaUtil.string2int(s.substring(19,s.length()).trim(),475);
-        if (s.startsWith("EUR_NADEL_JUG_SILBER="))
-            eur_nadel_jug_silber=EfaUtil.string2int(s.substring(21,s.length()).trim(),300);
-        if (s.startsWith("EUR_NADEL_JUG_GOLD="))
-            eur_nadel_jug_gold=EfaUtil.string2int(s.substring(19,s.length()).trim(),300);
-        if (s.startsWith("EUR_STOFF_ERW="))
-            eur_stoff_erw=EfaUtil.string2int(s.substring(14,s.length()).trim(),481);
-        if (s.startsWith("EUR_STOFF_JUG="))
-            eur_stoff_jug=EfaUtil.string2int(s.substring(14,s.length()).trim(),348);
-        if (s.startsWith("TESTMODE="))
-            testmode=s.substring(9,s.length()).equals("+");
-        if (s.startsWith("READONLYMODE="))
-            readOnlyMode=s.substring(13,s.length()).equals("+");
+        if (s.startsWith("AKTJAHR=")) {
+          aktJahr = EfaUtil.string2int(s.substring(8, s.length()).trim(), 0);
+        }
+        if (s.startsWith("SCHLUESSEL=")) {
+          schluessel = s.substring(11, s.length()).trim();
+        }
+        if (s.startsWith("EFW_SCRIPT=")) {
+          efw_script = s.substring(11, s.length()).trim();
+        }
+        if (s.startsWith("EFW_USER=")) {
+          efw_user = s.substring(9, s.length()).trim();
+        }
+        if (s.startsWith("EFW_PASSWORD=")) {
+          efw_password = s.substring(13, s.length()).trim();
+        }
+        if (s.startsWith("ACROBAT=")) {
+          acrobat = s.substring(8, s.length()).trim();
+        }
+        if (s.startsWith("OPENSSL=")) {
+          openssl = s.substring(8, s.length()).trim();
+        }
+        if (s.startsWith("FA_BEARBEITEN=")) {
+          darfFAbearbeiten = s.substring(14, s.length()).trim().equals("+");
+        }
+        if (s.startsWith("WS_BEARBEITEN=")) {
+          darfWSbearbeiten = s.substring(14, s.length()).trim().equals("+");
+        }
+        if (s.startsWith("EUR_MELD_ERW=")) {
+          eur_meld_erw = EfaUtil.string2int(s.substring(13, s.length()).trim(), 200);
+        }
+        if (s.startsWith("EUR_MELD_JUG=")) {
+          eur_meld_jug = EfaUtil.string2int(s.substring(13, s.length()).trim(), 150);
+        }
+        if (s.startsWith("EUR_NADEL_ERW_SILBER=")) {
+          eur_nadel_erw_silber = EfaUtil.string2int(s.substring(21, s.length()).trim(), 360);
+        }
+        if (s.startsWith("EUR_NADEL_ERW_GOLD=")) {
+          eur_nadel_erw_gold = EfaUtil.string2int(s.substring(19, s.length()).trim(), 475);
+        }
+        if (s.startsWith("EUR_NADEL_JUG_SILBER=")) {
+          eur_nadel_jug_silber = EfaUtil.string2int(s.substring(21, s.length()).trim(), 300);
+        }
+        if (s.startsWith("EUR_NADEL_JUG_GOLD=")) {
+          eur_nadel_jug_gold = EfaUtil.string2int(s.substring(19, s.length()).trim(), 300);
+        }
+        if (s.startsWith("EUR_STOFF_ERW=")) {
+          eur_stoff_erw = EfaUtil.string2int(s.substring(14, s.length()).trim(), 481);
+        }
+        if (s.startsWith("EUR_STOFF_JUG=")) {
+          eur_stoff_jug = EfaUtil.string2int(s.substring(14, s.length()).trim(), 348);
+        }
+        if (s.startsWith("TESTMODE=")) {
+          testmode = s.substring(9, s.length()).equals("+");
+        }
+        if (s.startsWith("READONLYMODE=")) {
+          readOnlyMode = s.substring(13, s.length()).equals("+");
+        }
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       try {
         fclose(false);
-      } catch(Exception ee) {
+      } catch (Exception ee) {
         return false;
       }
     }
     return true;
   }
 
-
   // Konfigurationsdatei speichern
+  @Override
   public boolean writeEinstellungen() {
     // Datei schreiben
     try {
@@ -196,10 +219,10 @@ public class DRVConfig extends DatenListe {
       fwrite("EUR_STOFF_JUG=" + Integer.toString(eur_stoff_jug) + "\n");
       fwrite("TESTMODE=" + (testmode ? "+" : "-") + "\n");
       fwrite("READONLYMODE=" + (readOnlyMode ? "+" : "-") + "\n");
-    } catch(Exception e) {
+    } catch (Exception e) {
       try {
         fcloseW();
-      } catch(Exception ee) {
+      } catch (Exception ee) {
         return false;
       }
       return false;
@@ -207,42 +230,68 @@ public class DRVConfig extends DatenListe {
     return true;
   }
 
-
-  public String makeScriptRequestString(int action, String param1, String param2, String param3, String param4) {
+  public String makeScriptRequestString(int action, String param1, String param2, String param3,
+      String param4) {
     String saction = null;
-    switch(action) {
-      case ACTION_LIST   : saction = "efa_listMeldungen"; break;
-      case ACTION_GET    : saction = "efa_getMeldung"; break;
-      case ACTION_UPLOAD : saction = "efa_bestaetigeMeldung"; break;
-      case ACTION_REJECT : saction = "efa_rejectMeldung"; break;
-      case ACTION_UPLCERT: saction = "efa_uploadCert"; break;
+    switch (action) {
+      case ACTION_LIST:
+        saction = "efa_listMeldungen";
+        break;
+      case ACTION_GET:
+        saction = "efa_getMeldung";
+        break;
+      case ACTION_UPLOAD:
+        saction = "efa_bestaetigeMeldung";
+        break;
+      case ACTION_REJECT:
+        saction = "efa_rejectMeldung";
+        break;
+      case ACTION_UPLCERT:
+        saction = "efa_uploadCert";
+        break;
     }
-    if (saction == null) return null;
-    String s = efw_script+"?verband=drv&agent=efa&name="+efw_user+"&password="+efw_password+"&action="+saction;
-    if (param1 != null) s += "&"+param1;
-    if (param2 != null) s += "&"+param2;
-    if (param3 != null) s += "&"+param3;
-    if (param4 != null) s += "&"+param4;
-    if (testmode) s+= "&testmode=true";
+    if (saction == null) {
+      return null;
+    }
+    String s = efw_script + "?verband=drv&agent=efa&name=" + efw_user + "&password=" + efw_password
+        + "&action=" + saction;
+    if (param1 != null) {
+      s += "&" + param1;
+    }
+    if (param2 != null) {
+      s += "&" + param2;
+    }
+    if (param3 != null) {
+      s += "&" + param3;
+    }
+    if (param4 != null) {
+      s += "&" + param4;
+    }
+    if (testmode) {
+      s += "&testmode=true";
+    }
     return s;
   }
 
+  @Override
   public boolean checkFileFormat() {
     String s;
     try {
       s = freadLine();
-      if ( s == null || !s.trim().startsWith(kennung) ) {
+      if (s == null || !s.trim().startsWith(kennung)) {
         // KONVERTIEREN: 150 -> 190
         if (s != null && s.trim().startsWith(KENNUNG150)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"150");
-          iniList(this.dat,0,0,false); // Rahmenbedingungen von v1.9.0 schaffen
+          iniList(this.dat, 0, 0, false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           readEinstellungen();
           kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // FERTIG MIT KONVERTIEREN
@@ -252,8 +301,8 @@ public class DRVConfig extends DatenListe {
           return false;
         }
       }
-    } catch(IOException e) {
-      errReadingFile(dat,e.getMessage());
+    } catch (IOException e) {
+      errReadingFile(dat, e.getMessage());
       return false;
     }
     return true;

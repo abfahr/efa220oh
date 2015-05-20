@@ -10,31 +10,36 @@
 
 package de.nmichael.efa.statistics;
 
-import java.io.*;
-import de.nmichael.efa.data.*;
+import java.io.File;
+
+import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.gui.statistics.StatisticsTableDialog;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
 
 public class StatisticInternalTxtWriter extends StatisticCSVWriter {
 
-    public static final int WINDOW_CLOSE_TIMEOUT = 300; // 300 seconds
+  public static final int WINDOW_CLOSE_TIMEOUT = 300; // 300 seconds
 
-    public StatisticInternalTxtWriter(StatisticsRecord sr, StatisticsData[] sd) {
-        super(sr, sd);
-    }
+  public StatisticInternalTxtWriter(StatisticsRecord sr, StatisticsData[] sd) {
+    super(sr, sd);
+  }
 
-    public boolean write() {
-        boolean result = super.write();
-        if (result) {
-            if (!new File(sr.sOutputFile).isFile()) {
-                Dialog.error(LogString.fileNotFound(sr.sOutputFile, International.getString("Ausgabedatei")));
-            } else {
-                StatisticsTableDialog dlg = new StatisticsTableDialog(sr.pParentDialog, sr);
-                dlg.showDialog();
-            }
-        }
-        resultMessage = null;
-        return result;
+  @Override
+  public boolean write() {
+    boolean result = super.write();
+    if (result) {
+      if (!new File(sr.sOutputFile).isFile()) {
+        Dialog
+        .error(LogString.fileNotFound(sr.sOutputFile, International.getString("Ausgabedatei")));
+      } else {
+        StatisticsTableDialog dlg = new StatisticsTableDialog(sr.pParentDialog, sr);
+        dlg.showDialog();
+      }
     }
+    resultMessage = null;
+    return result;
+  }
 
 }

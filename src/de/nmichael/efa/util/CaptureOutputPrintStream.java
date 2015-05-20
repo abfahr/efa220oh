@@ -10,8 +10,9 @@
 
 package de.nmichael.efa.util;
 
-import java.util.*;
-import java.io.*;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Vector;
 
 // @i18n complete
 
@@ -24,10 +25,12 @@ public class CaptureOutputPrintStream extends PrintStream {
     lines = new Vector();
   }
 
+  @Override
   public void print(Object o) {
     lines.add(o);
   }
 
+  @Override
   public void print(String s) {
     lines.add(s);
   }
@@ -35,6 +38,5 @@ public class CaptureOutputPrintStream extends PrintStream {
   public Vector getLines() {
     return lines;
   }
-
 
 }

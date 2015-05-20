@@ -11,39 +11,45 @@
 package de.nmichael.efa.ex;
 
 import de.nmichael.efa.util.Logger;
-import java.util.*;
 
 public class EfaException extends Exception {
 
-    String key;
-    String msg;
-    StackTraceElement[] stack;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
+  String key;
+  String msg;
+  StackTraceElement[] stack;
 
-    public EfaException(String key, String msg, StackTraceElement[] stack) {
-        this.key = key;
-        this.msg = msg;
-        this.stack = stack;
-    }
+  public EfaException(String key, String msg, StackTraceElement[] stack) {
+    this.key = key;
+    this.msg = msg;
+    this.stack = stack;
+  }
 
-    public void log() {
-        Logger.log(Logger.ERROR, key, msg);
-    }
+  public void log() {
+    Logger.log(Logger.ERROR, key, msg);
+  }
 
-    public String getStackTraceAsString() {
-        StringBuilder s = new StringBuilder();
-        for (int i = 0; stack != null && i < stack.length; i++) {
-            s.append(" -> " + stack[i].toString());
-        }
-        return s.toString();
+  public String getStackTraceAsString() {
+    StringBuilder s = new StringBuilder();
+    for (int i = 0; stack != null && i < stack.length; i++) {
+      s.append(" -> " + stack[i].toString());
     }
+    return s.toString();
+  }
 
-    public String toString() {
-        return getClass().getCanonicalName()+": " + key + " (" + msg + ")";
-        //return getClass().getCanonicalName()+": " + key + " (" + msg + ") at " + getStackTraceAsString();
-    }
+  @Override
+  public String toString() {
+    return getClass().getCanonicalName() + ": " + key + " (" + msg + ")";
+    // return getClass().getCanonicalName()+": " + key + " (" + msg + ") at " +
+    // getStackTraceAsString();
+  }
 
-    public String getMessage() {
-        return msg;
-    }
+  @Override
+  public String getMessage() {
+    return msg;
+  }
 
 }

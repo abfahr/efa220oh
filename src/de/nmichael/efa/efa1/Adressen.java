@@ -10,15 +10,13 @@
 
 package de.nmichael.efa.efa1;
 
-import java.io.*;
-import java.util.Hashtable;
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
+import java.io.IOException;
+
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete
 
 public class Adressen extends DatenListe {
-
 
   public static final int NAME = 0;
   public static final int ADRESSE = 1;
@@ -26,44 +24,49 @@ public class Adressen extends DatenListe {
   public static final String KENNUNG091 = "##EFA.091.ADRESSEN##";
   public static final String KENNUNG190 = "##EFA.190.ADRESSEN##";
 
-
   // Konstruktor
   public Adressen(String pdat) {
-    super(pdat,2,1,false);
+    super(pdat, 2, 1, false);
     kennung = KENNUNG190;
   }
 
-
   // Key-Wert ermitteln
+  @Override
   public String constructKey(DatenFelder d) {
     return d.get(NAME);
   }
 
+  @Override
   public boolean checkFileFormat() {
     String s;
     try {
       s = freadLine();
-      if ( s == null || !s.trim().startsWith(kennung) ) {
+      if (s == null || !s.trim().startsWith(kennung)) {
         // KONVERTIEREN: 091 -> 190
         if (s != null && s.trim().startsWith(KENNUNG091)) {
           // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"091");
-          iniList(this.dat,2,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          iniList(this.dat, 2, 1, false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              if (s.equals("") || s.startsWith("#"))
+              {
+                continue; // Kommentare ignorieren
+              }
               add(constructFields(s));
             }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
+          } catch (IOException e) {
+            errReadingFile(dat, e.getMessage());
+            return false;
           }
           kennung = KENNUNG190;
           if (closeFile()) {
-            infSuccessfullyConverted(dat,kennung);
+            infSuccessfullyConverted(dat, kennung);
             s = kennung;
-          } else errConvertingFile(dat,kennung);
+          } else {
+            errConvertingFile(dat, kennung);
+          }
         }
 
         // FERTIG MIT KONVERTIEREN
@@ -73,12 +76,11 @@ public class Adressen extends DatenListe {
           return false;
         }
       }
-    } catch(IOException e) {
-      errReadingFile(dat,e.getMessage());
+    } catch (IOException e) {
+      errReadingFile(dat, e.getMessage());
       return false;
     }
     return true;
   }
-
 
 }

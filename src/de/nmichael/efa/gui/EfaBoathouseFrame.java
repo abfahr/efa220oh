@@ -514,7 +514,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         boatsAvailableList.setFieldSize(width, 400);
         personsAvailableList.setFieldSize(width, 400);
         boatsOnTheWaterList.setFieldSize(width, 200);
-        boatsNotAvailableList.setFieldSize(width, 100); // (int) (newsize.getHeight() / 4));
+        boatsNotAvailableList.setFieldSize(width, 300); // (int) (newsize.getHeight() / 4));
         int height = (int) (20.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog
             .getDefaultFontSize());
         toggleAvailableBoatsToBoats.setPreferredSize(new Dimension(width / 2, height));

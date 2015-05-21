@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.Stack;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -36,6 +37,7 @@ import javax.swing.UIManager;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.ExceptionFrame;
 import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.gui.BaseDialog;
 
 // @i18n complete
 public class Dialog {
@@ -343,7 +345,11 @@ public class Dialog {
     if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
       Window frame = frameCurrent();
       prepareWindow(frame);
-      JOptionPane.showConfirmDialog(frame, chopDialogString(s), title, -1);
+      // ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efa_large.png");
+      // ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
+      ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "notification_closedoors.png");
+      JOptionPane.showConfirmDialog(frame, chopDialogString(s), title, -1,
+          JOptionPane.QUESTION_MESSAGE, icon);
     } else {
       System.out.println("INFO" + ": " + s);
     }

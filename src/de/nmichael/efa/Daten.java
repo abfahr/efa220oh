@@ -1180,11 +1180,14 @@ public class Daten {
   }
 
   private static boolean istSchluesselGedrehtIntern() {
-    String x = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep;
-    File file1 = new File(x + "value");
-    File file2 = new File(x + "value.gut.txt");
+    String gpio = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep;
+    File fileGpio = new File(gpio + "value");
+    File fileGut = new File(gpio + "value.gut.txt");
     try {
-      return FileUtils.contentEquals(file1, file2);
+      String contentsGpio = FileUtils.readFileToString(fileGpio);
+      String contentsGut = FileUtils.readFileToString(fileGut);
+      return contentsGut.equals(contentsGpio);
+      // return FileUtils.contentEquals(file1, file2);
     } catch (IOException e) {
       Logger.log(e);
       Dialog.exceptionError(e.getMessage(), e.fillInStackTrace().toString());

@@ -10,8 +10,19 @@ check_online_update()
     echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] found updated JAR file: $fnew"
     forg=`echo "$fnew" | sed "s/.jar.new/.jar/"`
     echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] copying $fnew to $forg"
+    mv -i -- "${forg}" $forg.until.$(date +%Y%m%d.%H%M%S).jar
     cp ${fnew:?} ${forg:?}
     rm ${fnew:?}
+  done
+
+  for fnew in `find program -name '*.new.jar'`
+  do
+    echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] found updated JAR file: $fnew"
+    forg=`echo "$fnew" | sed "s/.new.jar/.jar/"`
+    echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] moving $fnew to $forg"
+    mv -i -- "${forg}" $forg.until.$(date +%Y%m%d.%H%M%S).jar
+    mv ${fnew:?} ${forg:?}
+    #rm ${fnew:?}
   done
 }
 

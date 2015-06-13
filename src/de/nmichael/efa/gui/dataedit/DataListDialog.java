@@ -85,7 +85,7 @@ IItemListenerDataRecordTable {
   protected ItemTypeDataRecordTable table;
   protected int sortByColumn = 0;
   protected boolean sortAscending = true;
-  protected int tableFontSize = -1;
+  protected int tableFontSize = 10; // 12; // -1;
   protected boolean intelligentColumnWidth = true;
   protected int minColumnWidth = -1;
   protected int[] minColumnWidths = null;

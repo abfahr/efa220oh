@@ -22,6 +22,7 @@ import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JPanel;
@@ -32,6 +33,11 @@ import javax.swing.table.TableModel;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.data.BoatRecord;
+import de.nmichael.efa.data.BoatReservationRecord;
+import de.nmichael.efa.data.BoatReservations;
+import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.ClubworkRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
@@ -39,8 +45,11 @@ import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.MultiInputDialog;
+import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
@@ -357,6 +366,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               return;
             }
             dlg.showDialog();
+            if (admin != null && dlg instanceof BoatReservationEditDialog) {
+              try {
+                uebertragenAufAndereBoote(((BoatReservationEditDialog) dlg).getDataRecord());
+              } catch (EfaException e1) {
+                Logger.logdebug(e1);
+              }
+            }
             break;
           case ACTION_EDIT:
             for (int i = 0; records != null && i < records.length; i++) {
@@ -568,6 +584,139 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         || (event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED && itemType == filterBySearch)) {
       updateFilter();
     }
+  }
+
+  /**
+   * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppen
+   *
+   * @param dataRecord
+   * @throws EfaException
+   */
+  private void uebertragenAufAndereBoote(BoatReservationRecord dataRecord) throws EfaException {
+    String[] boatSeatsValuesArray = EfaTypes
+        .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES);
+    String[] boatSeatsDisplayArray = EfaTypes
+        .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY);
+
+    int header = 2;
+    IItemType[] items = new IItemType[header + boatSeatsValuesArray.length];
+    BoatRecord originalBoat = dataRecord.getBoat();
+    String originalTypeSeats = originalBoat.getTypeSeats(0);
+
+    String originalBoatType = "";
+    for (int i = 0; i < boatSeatsValuesArray.length; i++) {
+      boolean checkMe = originalTypeSeats.equals(boatSeatsValuesArray[i]);
+      items[header + i] = new ItemTypeBoolean(boatSeatsValuesArray[i], checkMe,
+          IItemType.TYPE_INTERNAL, "", International.getString(boatSeatsDisplayArray[i]));
+      if (checkMe) {
+        originalBoatType = boatSeatsDisplayArray[i];
+      }
+    }
+    items[0] = new ItemTypeLabel("L0", IItemType.TYPE_INTERNAL, "",
+        "Sollen andere Boote genauso reserviert werden?");
+    items[1] = new ItemTypeLabel("L1", IItemType.TYPE_INTERNAL, "",
+        "Welche Bootstypen? (" + originalBoat.getName() + " = " + originalBoatType + ")");
+    boolean success = MultiInputDialog.showInputDialog(getParentDialog(),
+        International.getString("Übertragen auf ganze Gruppen"), items);
+    if (success) {
+
+      // join items
+      Map<Integer, String> mapBootsTypen = new HashMap<Integer, String>();
+      for (int i = 0; i < boatSeatsValuesArray.length; i++) {
+        boolean selectedGui = ((ItemTypeBoolean) items[header + i]).getValue();
+        if (selectedGui) {
+          mapBootsTypen.put(i, boatSeatsValuesArray[i]);
+        }
+      }
+
+      // persistence.
+      BoatReservations reservations = Daten.project.getBoatReservations(true);
+
+      // boats.
+      Boats boats = Daten.project.getBoats(false);
+      IDataAccess data2 = boats.data();
+      // for-schleife
+      for (DataKey dataKey : data2.getAllKeys()) {
+        BoatRecord boatRecord = (BoatRecord) data2.get(dataKey);
+        if (originalBoat.getId().equals(boatRecord.getId())) {
+          // aber nicht das eine Boot selber
+          // dieses Boot haben wir schon reserviert
+          continue;
+        }
+
+        String typeSeats = boatRecord.getTypeSeats(0);
+        // get alle Boote von dieser Kategorie (Seats)
+        if (mapBootsTypen.containsValue(typeSeats)) {
+          // dieser typeSeat war gewünscht
+
+          // alle parameter einzeln eintragen
+          BoatReservationRecord newReservationsRecord = reservations
+              .createBoatReservationsRecordFromClone(boatRecord.getId(), dataRecord);
+
+          // check for conflicts TODO
+          // newReservationsRecord.checkValidValues();
+          if (!versionizedRecordOfThatNameAlreadyExists(newReservationsRecord)) {
+
+            // newReservationsRecord.saveRecord();
+            reservations.data().add(newReservationsRecord);
+            Logger.log(
+                Logger.INFO,
+                Logger.MSG_DATAADM_RECORDADDED,
+                newReservationsRecord.getPersistence().getDescription()
+                    + ": "
+                    +
+                    International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                        (admin != null ? International.getString("Admin") + " '" + admin.getName()
+                            + "'" :
+                            International.getString("Normaler Benutzer")),
+                        newReservationsRecord.getQualifiedName()));
+          }
+        }
+      }
+    }
+  }
+
+  private boolean versionizedRecordOfThatNameAlreadyExists(BoatReservationRecord dataRecord) {
+    boolean allowConflicts = true; // TODO
+    String conflict = null;
+    boolean identical = true;
+    try {
+      if (!dataRecord.getPersistence().data().getMetaData().isVersionized()) {
+        return false;
+      }
+      DataKey[] keys = dataRecord.getPersistence().data()
+          .getByFields(dataRecord.getQualifiedNameFields(),
+              dataRecord.getQualifiedNameValues(dataRecord.getQualifiedName()));
+      for (int i = 0; keys != null && i < keys.length; i++) {
+        DataRecord r = dataRecord.getPersistence().data().get(keys[i]);
+        if (!r.getDeleted()) {
+          conflict = r.getQualifiedName() + " (" + r.getValidRangeString() + ")";
+        }
+      }
+      if (conflict == null) {
+        // TODO conflict = findSimilarRecordsOfThisName();
+        identical = false;
+      }
+    } catch (Exception e) {
+      Logger.logdebug(e);
+    }
+    if (conflict != null) {
+      if (allowConflicts) {
+        String warn = (identical ?
+            International.getString("Es existiert bereits ein gleichnamiger Datensatz!") :
+              International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
+        if (Dialog.yesNoDialog(International.getString("Warnung"),
+            warn + "\n"
+                + conflict + "\n"
+                + International.getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
+          return true;
+        }
+      } else {
+        Dialog.error(International.getString("Es existiert bereits ein gleichnamiger Datensatz!"));
+        return true;
+      }
+    }
+    return false;
   }
 
   protected void updateFilter() {

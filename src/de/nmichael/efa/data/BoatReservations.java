@@ -45,7 +45,27 @@ public class BoatReservations extends StorageObject {
     return new BoatReservationRecord(this, MetaData.getMetaData(DATATYPE));
   }
 
+  public BoatReservationRecord createBoatReservationsRecordFromClone(UUID id,
+      BoatReservationRecord original) {
+    int reservation = getNextReservation(id);
+    if (reservation > 0) {
+      BoatReservationRecord r = (BoatReservationRecord) original.cloneRecord();
+      r.setBoatId(id);
+      r.setReservation(reservation);
+      return r;
+    }
+    return null;
+  }
+
   public BoatReservationRecord createBoatReservationsRecord(UUID id) {
+    int val = getNextReservation(id);
+    if (val > 0) {
+      return createBoatReservationsRecord(id, val);
+    }
+    return null;
+  }
+
+  private int getNextReservation(UUID id) {
     AutoIncrement autoIncrement = getProject().getAutoIncrement(false);
 
     int tries = 0;
@@ -66,10 +86,7 @@ public class BoatReservations extends StorageObject {
     } catch (Exception e) {
       Logger.logdebug(e);
     }
-    if (val > 0) {
-      return createBoatReservationsRecord(id, val);
-    }
-    return null;
+    return val;
   }
 
   public BoatReservationRecord createBoatReservationsRecord(UUID id, int reservation) {
@@ -165,7 +182,7 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                .getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
+                    .getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
                 Thread.currentThread().getStackTrace());
 
           }
@@ -186,7 +203,7 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                .getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
+                    .getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
                 Thread.currentThread().getStackTrace());
 
           }

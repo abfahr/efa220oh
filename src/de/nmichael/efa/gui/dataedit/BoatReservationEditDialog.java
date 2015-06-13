@@ -101,4 +101,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     }
   }
 
+  public BoatReservationRecord getDataRecord() {
+    return (BoatReservationRecord) dataRecord;
+  }
 }

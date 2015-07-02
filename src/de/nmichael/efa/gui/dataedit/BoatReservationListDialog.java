@@ -132,6 +132,12 @@ public class BoatReservationListDialog extends DataListDialog {
   }
 
   @Override
+  protected void iniDialog() throws Exception {
+    sortByColumn = 1;
+    super.iniDialog();
+  }
+
+  @Override
   public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence,
       DataRecord record) {
     boolean newRecord = (record == null);

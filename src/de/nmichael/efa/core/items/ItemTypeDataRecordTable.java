@@ -16,22 +16,42 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Vector;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.CalendarString;
+import de.nmichael.efa.calendar.CalendarTableModel;
+import de.nmichael.efa.calendar.TblCalendarRenderer;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatRecord;
@@ -63,6 +83,8 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListener {
 
+  private static final UUID BOOTSHAUS = new UUID(-7033734156567033637L, -8676639372818108974L);
+  public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
   public static final int ACTION_NEW = 0;
   public static final int ACTION_EDIT = 1;
   public static final int ACTION_DELETE = 2;
@@ -72,9 +94,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   public static final String ACTIONTEXT_DELETE = International.getString("Löschen");
   public static final String BUTTON_IMAGE_CENTERED_PREFIX = "%";
   private static final String[] DEFAULT_ACTIONS = new String[] {
-    ACTIONTEXT_NEW,
-    ACTIONTEXT_EDIT,
-    ACTIONTEXT_DELETE
+      ACTIONTEXT_NEW,
+      ACTIONTEXT_EDIT,
+      ACTIONTEXT_DELETE
   };
   protected StorageObject persistence;
   protected long validAt = -1; // configured validAt
@@ -88,12 +110,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected String buttonPanelPosition = BorderLayout.EAST;
   protected Vector<DataRecord> data;
   protected Hashtable<String, DataRecord> mappingKeyToRecord;
+  protected Hashtable<DataTypeDate, String> mappingDateToReservations;
   protected IItemListenerDataRecordTable itemListenerActionTable;
   protected ItemTypeString searchField;
   protected ItemTypeBoolean filterBySearch;
   protected JTable aggregationTable = null;
   protected JPanel myPanel;
   protected JPanel tablePanel;
+  protected JPanel rightSidePanel;
+  protected JPanel pnlCalendarPanel;
   protected JPanel buttonPanel;
   protected JPanel searchPanel;
   protected Hashtable<ItemTypeButton, String> actionButtons;
@@ -104,6 +129,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected int defaultActionForDoubleclick = ACTION_EDIT;
   protected Color markedCellColor = Color.red;
   protected boolean markedCellBold = false;
+
+  int realYear, realMonth, realDay, currentYear, currentMonth;
+  JButton lblMonth;
+  JButton btnPrev, btnNext;
+  DefaultTableModel mtblCalendar; // Table model
+  JTable tblCalendar;
+  int xr320 = 400;
+  int yu335 = 410;
 
   public ItemTypeDataRecordTable(String name,
       TableItemHeader[] tableHeader,
@@ -202,13 +235,23 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     buttonPanel = new JPanel();
     buttonPanel.setLayout(new GridBagLayout());
     buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+    rightSidePanel = new JPanel(new BorderLayout());
+    rightSidePanel.setBorder(new EmptyBorder(40, 0, 15, 10));
+    // rightSidePanel.setAlignmentY(Component.TOP_ALIGNMENT);
     searchPanel = new JPanel();
     searchPanel.setLayout(new GridBagLayout());
     myPanel.add(tablePanel, BorderLayout.CENTER);
-    myPanel.add(buttonPanel, buttonPanelPosition);
+    myPanel.add(rightSidePanel, buttonPanelPosition);
     tablePanel.add(searchPanel, new GridBagConstraints(0, 10, 0, 0, 0.0, 0.0,
         GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     actionButtons = new Hashtable<ItemTypeButton, String>();
+
+    if (persistence.getName().equals("boatreservations")) {
+      rightSidePanel.add(buttonPanel, BorderLayout.SOUTH);
+      drawCalendar();
+    } else {
+      rightSidePanel.add(buttonPanel, BorderLayout.CENTER);
+    }
 
     JPanel smallButtonPanel = null;
     for (int i = 0; actionText != null && i < actionText.length; i++) {
@@ -253,6 +296,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
       actionButtons.put(button, action);
     }
+
     searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, "SEARCH_CAT",
         International.getString("Suche"));
     searchField.setFieldSize(300, -1);
@@ -283,7 +327,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   public void setVisibleButtonPanel(boolean visible) {
-    buttonPanel.setVisible(visible);
+    rightSidePanel.setVisible(visible);
   }
 
   public void setVisibleSearchPanel(boolean visible) {
@@ -321,6 +365,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
     keys = items.keySet().toArray(new String[0]);
     Arrays.sort(keys);
+    // refreshCalendar(0, currentMonth, currentYear);
     super.showValue();
   }
 
@@ -382,25 +427,25 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       .yesNoCancelDialog(
                           International.getString("Datensatz wiederherstellen"),
                           International
-                          .getMessage(
-                              "Der Datensatz '{record}' wurde gelöscht. Möchtest Du ihn wiederherstellen?",
-                              records[i].getQualifiedName()))) {
-                                case Dialog.YES:
-                                  try {
-                                    DataRecord[] rall = persistence.data().getValidAny(records[i].getKey());
-                                    for (int j = 0; rall != null && j < rall.length; j++) {
-                                      rall[j].setDeleted(false);
-                                      persistence.data().update(rall[j]);
-                                    }
-                                  } catch (Exception exr) {
-                                    Dialog.error(exr.toString());
-                                    return;
-                                  }
-                                  break;
-                                case Dialog.NO:
-                                  continue;
-                                case Dialog.CANCEL:
-                                  return;
+                              .getMessage(
+                                  "Der Datensatz '{record}' wurde gelöscht. Möchtest Du ihn wiederherstellen?",
+                                  records[i].getQualifiedName()))) {
+                    case Dialog.YES:
+                      try {
+                        DataRecord[] rall = persistence.data().getValidAny(records[i].getKey());
+                        for (int j = 0; rall != null && j < rall.length; j++) {
+                          rall[j].setDeleted(false);
+                          persistence.data().update(rall[j]);
+                        }
+                      } catch (Exception exr) {
+                        Dialog.error(exr.toString());
+                        return;
+                      }
+                      break;
+                    case Dialog.NO:
+                      continue;
+                    case Dialog.CANCEL:
+                      return;
                   }
                 }
                 dlg = itemListenerActionTable.createNewDataEditDialog(getParentDialog(),
@@ -463,28 +508,28 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                           Logger.INFO,
                           Logger.MSG_DATAADM_RECORDDELETEDAT,
                           records[i].getPersistence().getDescription()
-                          + ": "
-                          + International.getMessage(
-                              "{name} hat Datensatz '{record}' ab {date} gelöscht.",
-                              (admin != null ? International.getString("Admin") + " '"
-                                  + admin.getName() + "'"
-                                  : International.getString("Normaler Benutzer")),
+                              + ": "
+                              + International.getMessage(
+                                  "{name} hat Datensatz '{record}' ab {date} gelöscht.",
+                                  (admin != null ? International.getString("Admin") + " '"
+                                      + admin.getName() + "'"
+                                      : International.getString("Normaler Benutzer")),
                                   records[i].getQualifiedName(),
                                   EfaUtil.getTimeStampDDMMYYYY(deleteAt)));
                     } else {
                       Logger
-                      .log(
-                          Logger.INFO,
-                          Logger.MSG_DATAADM_RECORDDELETED,
-                          records[i].getPersistence().getDescription()
-                          + ": "
-                          + International
-                          .getMessage(
-                              "{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
-                              (admin != null ? International.getString("Admin") + " '"
-                                  + admin.getName() + "'"
-                                  : International.getString("Normaler Benutzer")),
-                                  records[i].getQualifiedName()));
+                          .log(
+                              Logger.INFO,
+                              Logger.MSG_DATAADM_RECORDDELETED,
+                              records[i].getPersistence().getDescription()
+                                  + ": "
+                                  + International
+                                      .getMessage(
+                                          "{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
+                                          (admin != null ? International.getString("Admin") + " '"
+                                              + admin.getName() + "'"
+                                              : International.getString("Normaler Benutzer")),
+                                          records[i].getQualifiedName()));
                     }
                   } else {
                     persistence.data().delete(records[i].getKey());
@@ -492,12 +537,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                         Logger.INFO,
                         Logger.MSG_DATAADM_RECORDDELETED,
                         records[i].getPersistence().getDescription()
-                        + ": "
-                        + International.getMessage(
-                            "{name} hat Datensatz '{record}' gelöscht.",
-                            (admin != null ? International.getString("Admin") + " '"
-                                + admin.getName() + "'"
-                                : International.getString("Normaler Benutzer")),
+                            + ": "
+                            + International.getMessage(
+                                "{name} hat Datensatz '{record}' gelöscht.",
+                                (admin != null ? International.getString("Admin") + " '"
+                                    + admin.getName() + "'"
+                                    : International.getString("Normaler Benutzer")),
                                 records[i].getQualifiedName()));
                   }
                 }
@@ -554,7 +599,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
 
             if (sv != null && rowFound < 0) {
-              // match column agains substrings
+              // match column against substrings
               for (int k = 0; k < sv.size(); k++) {
                 if (t.indexOf(sv.get(k)) >= 0) {
                   sb[k] = true;
@@ -636,7 +681,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       Boats boats = Daten.project.getBoats(false);
       IDataAccess data2 = boats.data();
       // for-schleife
-      for (DataKey dataKey : data2.getAllKeys()) {
+      for (DataKey<?, ?, ?> dataKey : data2.getAllKeys()) {
         BoatRecord boatRecord = (BoatRecord) data2.get(dataKey);
         if (originalBoat.getId().equals(boatRecord.getId())) {
           // aber nicht das eine Boot selber
@@ -704,7 +749,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (allowConflicts) {
         String warn = (identical ?
             International.getString("Es existiert bereits ein gleichnamiger Datensatz!") :
-              International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
+            International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
         if (Dialog.yesNoDialog(International.getString("Warnung"),
             warn + "\n"
                 + conflict + "\n"
@@ -799,12 +844,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       IDataAccess dataAccess = persistence.data();
       boolean isVersionized = dataAccess.getMetaData().isVersionized();
       DataKeyIterator it = dataAccess.getStaticIterator();
-      DataKey key = it.getFirst();
+      DataKey<?, ?, ?> key = it.getFirst();
       Hashtable<DataKey, String> uniqueHash = new Hashtable<DataKey, String>();
+      mappingDateToReservations = new Hashtable<DataTypeDate, String>();
       while (key != null) {
         // avoid duplicate versionized keys for the same record
         if (isVersionized) {
-          DataKey ukey = dataAccess.getUnversionizedKey(key);
+          DataKey<?, ?, ?> ukey = dataAccess.getUnversionizedKey(key);
           if (uniqueHash.get(ukey) != null) {
             key = it.getNext();
             continue;
@@ -841,6 +887,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               }
             }
           }
+          mappingDateToName(r);
         }
         key = it.getNext();
       }
@@ -898,4 +945,286 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     filterBySearch.getValueFromGui();
     return filterBySearch.getValue();
   }
+
+  private void drawCalendar() {
+    // Container pane;
+
+    lblMonth = new JButton("heute");
+    btnPrev = new JButton("<<");
+    btnNext = new JButton(">>");
+    mtblCalendar = new CalendarTableModel();
+    tblCalendar = new JTable(mtblCalendar);
+    JScrollPane stblCalendar = new JScrollPane(tblCalendar);
+    // JPanel stblCalendarNeu = new JPanel();
+    // stblCalendarNeu.add(tblCalendar);
+
+    // Register action listeners
+    btnPrev.addActionListener(new btnPrev_Action());
+    btnNext.addActionListener(new btnNext_Action());
+    lblMonth.addActionListener(new lblMonth_Action());
+
+    pnlCalendarPanel = new JPanel(new BorderLayout()); // BorderLayout
+    // pnlCalendarPanel.setSize(xr320 + 10, yu335 + 40); // Set size to 400x400 pixels
+    pnlCalendarPanel.add(btnPrev);
+    pnlCalendarPanel.add(lblMonth);
+    pnlCalendarPanel.add(btnNext);
+    pnlCalendarPanel.add(stblCalendar);
+
+    // Set bounds
+    // pnlCalendarPanel.setBounds(0, 0, xr320, yu335);
+    btnPrev.setBounds(50, yu335 - 25, 70, 25);
+    lblMonth.setBounds((xr320 - 170) / 2, yu335 - 25, 220, 25);
+    btnNext.setBounds(xr320 - 70, yu335 - 25, 70, 25);
+    // stblCalendar.setBounds(10, 50, xr320 - 20, yu335 - 85);
+    // tblCalendar.setBounds(10, 50, xr320 - 10, yu335 - 85);
+
+    rightSidePanel.add(pnlCalendarPanel, BorderLayout.NORTH);
+
+    // Add headers
+    String[] headers = { "Mon", "Die", "Mit", "Don", "Fre", "Sam", "Son" }; // All headers
+    for (int i = 0; i < 7; i++) {
+      mtblCalendar.addColumn(headers[i]);
+    }
+
+    // tblCalendar.getParent().setBackground(tblCalendar.getBackground()); // Set background
+
+    // No resize/reorder
+    tblCalendar.getTableHeader().setResizingAllowed(false);
+    tblCalendar.getTableHeader().setReorderingAllowed(false);
+
+    // Single cell selection
+    tblCalendar.setColumnSelectionAllowed(true);
+    tblCalendar.setRowSelectionAllowed(true);
+    tblCalendar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    tblCalendar.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        int day = getDay(e.getPoint());
+        refreshCalendar(day, currentMonth, currentYear);
+        DataTypeDate selectedDate = new DataTypeDate(day, currentMonth + 1, currentYear);
+        searchField.setValue(selectedDate.toString().replace('/', '.'));
+        updateFilter();
+      }
+    });
+
+    // Set row/column count
+    tblCalendar.setRowHeight(58);
+    mtblCalendar.setColumnCount(7);
+    mtblCalendar.setRowCount(6);
+
+    // Get real month/year
+    GregorianCalendar cal = new GregorianCalendar(); // Create calendar
+    realDay = cal.get(GregorianCalendar.DAY_OF_MONTH); // Get day
+    realMonth = cal.get(GregorianCalendar.MONTH); // Get month
+    realYear = cal.get(GregorianCalendar.YEAR); // Get year
+    currentMonth = realMonth; // Match month and year
+    currentYear = realYear;
+
+    // Refresh calendar
+    refreshCalendar(0, realMonth, realYear); // Refresh calendar
+  }
+
+  protected int getDay(Point point) {
+    int row = tblCalendar.rowAtPoint(point);
+    int col = tblCalendar.columnAtPoint(point);
+
+    Object valueAt = mtblCalendar.getValueAt(row, col);
+    if (valueAt instanceof CalendarString) {
+      CalendarString value = (CalendarString) valueAt;
+      return value.getDay();
+    }
+    return 0;
+  }
+
+  public void refreshCalendar(int day, int month, int year) {
+    // Variables
+    String[] months = { "Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
+        "September", "Oktober", "November", "Dezember" };
+
+    // Allow/disallow buttons
+    btnPrev.setEnabled(true);
+    btnNext.setEnabled(true);
+    if (month == 0 && year <= realYear - 10) {
+      btnPrev.setEnabled(false);
+    } // Too early
+    if (month == 11 && year >= realYear + 10) {
+      btnNext.setEnabled(false);
+    } // Too late
+    lblMonth.setText(months[month] + " " + year); // Refresh the month label (at the top)
+    // Re-align label with calendar
+    // lblMonth.setBounds((xr320 + 40 - lblMonth.getPreferredSize().width) / 2, yu335 - 25, 190,
+    // 25);
+
+    // Clear table
+    for (int i = 0; i < 6; i++) {
+      for (int j = 0; j < 7; j++) {
+        mtblCalendar.setValueAt(null, i, j);
+      }
+    }
+
+    // Get first day of month and number of days
+    GregorianCalendar cal = new GregorianCalendar(year, month, 1);
+    // cal.setFirstDayOfWeek(GregorianCalendar.MONDAY);
+    int numberOfDays = cal.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+    int startOfMonth = cal.get(GregorianCalendar.DAY_OF_WEEK);
+    if (startOfMonth < 2) {
+      startOfMonth += 7;
+    }
+
+    // Draw calendar
+    for (int i = 1; i <= numberOfDays; i++) {
+      int aktuell = i + startOfMonth - 3;
+      int row = new Integer(aktuell / 7);
+      int column = aktuell % 7;
+      String buchungStand = getBuchungString(new DataTypeDate(i, month + 1, year));
+      CalendarString aValue = new CalendarString(i, buchungStand);
+      mtblCalendar.setValueAt(aValue, row, column);
+    }
+
+    // Apply renderer
+    TblCalendarRenderer tblCalendarRenderer = new TblCalendarRenderer(realYear, realMonth, realDay,
+        currentYear, currentMonth, day);
+    tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), tblCalendarRenderer);
+  }
+
+  public String getBuchungString(DataTypeDate date) {
+    if (mappingDateToReservations == null) {
+      // updateData();
+      if (mappingDateToReservations == null) {
+        return "";
+      }
+    }
+    String myValue = mappingDateToReservations.get(date);
+    if (myValue == null) {
+      return "";
+    }
+    return myValue;
+  }
+
+  class btnPrev_Action implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if (currentMonth == 0) { // Back one year
+        currentMonth = 11;
+        currentYear -= 1;
+      }
+      else { // Back one month
+        currentMonth -= 1;
+      }
+      refreshCalendar(0, currentMonth, currentYear);
+    }
+  }
+
+  class btnNext_Action implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if (currentMonth == 11) { // Foward one year
+        currentMonth = 0;
+        currentYear += 1;
+      }
+      else { // Foward one month
+        currentMonth += 1;
+      }
+      refreshCalendar(0, currentMonth, currentYear);
+    }
+  }
+
+  class lblMonth_Action implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      currentMonth = realMonth;
+      currentYear = realYear;
+      refreshCalendar(0, currentMonth, currentYear);
+    }
+  }
+
+  private void mappingDateToName(DataRecord r) {
+    if (r instanceof BoatReservationRecord) {
+      BoatReservationRecord brr = (BoatReservationRecord) r;
+      UUID boatId = brr.getBoatId();
+      String bootshausKuerzel = "BH";
+      List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo(),
+          brr.getDayOfWeek());
+      for (DataTypeDate dataTypeDate : dates) {
+        // alten Wert auslesen
+        String myValue = mappingDateToReservations.get(dataTypeDate);
+        if (myValue == null) {
+          myValue = "";
+        }
+        boolean containsBootshaus = false;
+        if (myValue.contains(bootshausKuerzel)) {
+          containsBootshaus = true;
+          myValue = myValue.replace(bootshausKuerzel, "");
+        }
+        myValue = myValue.replace("+", "");
+        int myCount = 0;
+        // myCount=Integer.parseInt("0" + myValue);
+
+        if (boatId.equals(BOOTSHAUS)) {
+          containsBootshaus = true;
+        } else {
+          myCount++;
+        }
+        myValue = "";
+        if (containsBootshaus) {
+          myValue += bootshausKuerzel;
+        }
+        if (myCount > 0) {
+          // myValue += "+" + myCount;
+          myValue += "+";
+        }
+        mappingDateToReservations.put(dataTypeDate, myValue);
+      }
+    }
+  }
+
+  private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo,
+      String dayOfWeek) {
+    DataTypeDate myDateFrom = dateFrom;
+    DataTypeDate myDateTo = dateTo;
+    if (myDateTo == null) {
+      myDateTo = new DataTypeDate(myDateFrom);
+    }
+
+    int wochentag = -1;
+    if (dayOfWeek != null) {
+      wochentag = getWochentag(dayOfWeek);
+      myDateFrom = DataTypeDate.today();
+      int fromWochentag = myDateFrom.toCalendar().get(Calendar.DAY_OF_WEEK);
+      myDateFrom.addDays(wochentag - fromWochentag);
+      myDateTo = new DataTypeDate(myDateFrom);
+      myDateTo.addDays(365);
+    }
+
+    List<DataTypeDate> retVal = new ArrayList<DataTypeDate>();
+    DataTypeDate myDate = new DataTypeDate(myDateFrom);
+    while (myDate.isBeforeOrEqual(myDateTo)) {
+      retVal.add(new DataTypeDate(myDate));
+      if (wochentag == myDate.toCalendar().get(Calendar.DAY_OF_WEEK)) {
+        myDate.addDays(7);
+      } else {
+        myDate.addDays(1);
+      }
+    }
+    return retVal;
+  }
+
+  private int getWochentag(String dayName) {
+    SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.US);
+    Date date;
+    try {
+      date = dayFormat.parse(dayName);
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return 0;
+    }
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+    return dayOfWeek;
+
+  }
+
 }

@@ -302,7 +302,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     searchField.setFieldSize(300, -1);
     searchField.registerItemListener(this);
     searchField.displayOnGui(dlg, searchPanel, 0, 0);
-    filterBySearch = new ItemTypeBoolean("FILTERBYSEARCH", false, IItemType.TYPE_PUBLIC,
+    filterBySearch = new ItemTypeBoolean("FILTERBYSEARCH", true, IItemType.TYPE_PUBLIC,
         "SEARCH_CAT", International.getString("filtern"));
     filterBySearch.registerItemListener(this);
     filterBySearch.displayOnGui(dlg, searchPanel, 10, 0);

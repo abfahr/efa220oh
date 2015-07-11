@@ -10,17 +10,12 @@
 
 package de.nmichael.efa.gui.util;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
-import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.ValidationException;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.OnlineUpdate;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.Admins;
@@ -31,7 +26,6 @@ import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.RemoteCommand;
 import de.nmichael.efa.data.sync.KanuEfbSyncTask;
-import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.AdminDialog;
 import de.nmichael.efa.gui.AdminPasswordChangeDialog;
 import de.nmichael.efa.gui.BackupDialog;
@@ -879,25 +873,9 @@ public class EfaMenuButton {
         return false;
       }
 
-      try {
-        new ICalendarExport().saveAllReservationToCalendarFile();
-        new ICalendarExport().saveAllClubworkToCalendarFile();
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (ValidationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (ParserException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (EfaException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (ParseException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      // TODO abf
+      // new ICalendarExport().saveAllReservationToCalendarFile();
+      // new ICalendarExport().saveAllClubworkToCalendarFile();
 
       if (Daten.project.getCurrentClubwork() == null) {
         Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet."));

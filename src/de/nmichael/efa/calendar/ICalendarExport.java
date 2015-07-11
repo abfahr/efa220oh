@@ -41,7 +41,43 @@ public class ICalendarExport {
   private static final String EFA = "efa";
   private static final String ABFX_DE = "@abfx.de";
 
-  public void saveAllReservationToCalendarFile() throws IOException, ValidationException,
+  public void saveAllReservationToCalendarFile() {
+    try {
+      saveAllReservationToCalendarFileIntern();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ValidationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ParserException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (EfaException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  public void saveAllClubworkToCalendarFile() {
+    try {
+      saveAllClubworkToCalendarFileIntern();
+    } catch (EfaException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ValidationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  private void saveAllReservationToCalendarFileIntern() throws IOException, ValidationException,
   ParserException, EfaException, ParseException {
 
     // Creating a new calendar
@@ -67,8 +103,8 @@ public class ICalendarExport {
       String personAsName = boatReservationRecord.getPersonAsName();
       String reason = boatReservationRecord.getReason();
       String reservationTimeDescription = boatReservationRecord.getReservationTimeDescription();
-      DateTime dateTimeLastModified = new DateTime(boatReservationRecord.getLastModified());
-      String dateTimeLastModifiedStr = dateTimeLastModified.toString().replace('T', '.');
+      long lastModified = boatReservationRecord.getLastModified();
+      String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
       int reservationOrder = boatReservationRecord.getReservation();
       String efaId = EFA + reservationOrder + personAsName.substring(0, 1).toUpperCase();
       String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
@@ -86,9 +122,16 @@ public class ICalendarExport {
       String descriptionBhnutzung = reservationTimeDescription + CRLF + modif;
 
       if (BoatReservationRecord.TYPE_WEEKLY.equals(type)) {
-        dateFrom = DataTypeDate.today();
-        dateFrom.addDays(-7); // TODO next THursday
-        dateTo = dateFrom;
+        // dateFrom = DataTypeDate.today();
+        // dateFrom.addDays(-7); // next THursday
+        if (dateFrom == null) {
+          dateFrom = new DataTypeDate(lastModified);
+        }
+        if (dateTo == null) {
+          dateTo = dateFrom;
+        }
+        // } else if (personAsName.contains("Kinder")) {
+        // System.out.println("xyxc");
       }
       DateTime startDateTime = new DateTime(dateFrom.getTimestamp(timeFrom));
       DateTime endDateTime = new DateTime(dateTo.getTimestamp(timeTo));
@@ -123,7 +166,8 @@ public class ICalendarExport {
     saveCalendarToFile(bootshausCalendar, "OH-Bootshaus");
   }
 
-  public void saveAllClubworkToCalendarFile() throws EfaException, IOException, ValidationException {
+  private void saveAllClubworkToCalendarFileIntern() throws EfaException, IOException,
+      ValidationException {
     // Creating a new calendar
     net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 

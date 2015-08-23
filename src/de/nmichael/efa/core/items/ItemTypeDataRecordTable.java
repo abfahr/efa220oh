@@ -1182,6 +1182,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo,
       String dayOfWeek) {
+    List<DataTypeDate> retVal = new ArrayList<DataTypeDate>();
+    // GregorianCalendar cal = dateFrom.toCalendar();
+    // retVal.add(dateFrom);
+    return retVal;
+  }
+
+  private List<DataTypeDate> getListOfDatesOld(DataTypeDate dateFrom, DataTypeDate dateTo,
+      String dayOfWeek) {
     DataTypeDate myDateFrom = dateFrom;
     DataTypeDate myDateTo = dateTo;
     if (myDateTo == null) {

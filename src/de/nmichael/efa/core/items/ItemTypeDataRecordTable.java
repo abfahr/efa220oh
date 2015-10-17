@@ -401,7 +401,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
       }
       if (!Daten.isWriteModeMitSchluessel()) {
-        Dialog.meldung("Nur für Vereinsmitglieder", "Bitte erst Schlüssel nach rechts drehen!");
+        Dialog.meldung("Nur für Vereinsmitglieder",
+            "Bitte erst Bootshausschlüssel nach rechts drehen!");
       } else if (persistence != null && itemListenerActionTable != null) {
         DataEditDialog dlg;
         switch (actionId) {
@@ -1148,6 +1149,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo(),
           brr.getDayOfWeek());
       for (DataTypeDate dataTypeDate : dates) {
+        // DataTypeDate dataTypeDate = brr.getDateFrom();
         // alten Wert auslesen
         String myValue = mappingDateToReservations.get(dataTypeDate);
         if (myValue == null) {

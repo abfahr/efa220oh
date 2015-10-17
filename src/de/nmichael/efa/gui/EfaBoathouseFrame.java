@@ -2210,7 +2210,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   void showEfaBaseFrame(int mode, ItemTypeBoatstatusList.BoatListItem action) {
     if (!Daten.isWriteModeMitSchluessel()) {
-      Dialog.meldung("Nur für Vereinsmitglieder", "Bitte erst Schlüssel nach rechts drehen.");
+      Dialog.meldung("Nur für Vereinsmitglieder",
+          "Bitte erst Bootshausschlüssel nach rechts drehen.");
       return;
     }
     for (IWidget w : widgets) {
@@ -2454,7 +2455,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     if (!Daten.isWriteModeMitSchluessel()) {
-      Dialog.meldung("Nur für Vereinsmitglieder", "Bitte erst Schlüssel nach rechts drehen.");
+      Dialog.meldung("Nur für Vereinsmitglieder",
+          "Bitte erst Bootshausschlüssel nach rechts drehen.");
       return;
     }
 

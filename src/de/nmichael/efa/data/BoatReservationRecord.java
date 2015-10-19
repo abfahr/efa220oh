@@ -45,11 +45,11 @@ public class BoatReservationRecord extends DataRecord {
   // =========================================================================
   public static final String TYPE_ONETIME = "ONETIME";
   public static final String TYPE_WEEKLY = "WEEKLY";
+  private static final UUID BOOTSHAUS = new UUID(-7033734156567033637L, -8676639372818108974L);
 
   // =========================================================================
   // Field Names
   // =========================================================================
-
   public static final String VBOAT = "VirtualBoat";
   public static final String BOATID = "BoatId";
   public static final String RESERVATION = "Reservation";
@@ -412,6 +412,9 @@ public class BoatReservationRecord extends DataRecord {
   public boolean isObsolete(long now) {
     try {
       if (this.getType().equals(TYPE_WEEKLY)) {
+        return false;
+      }
+      if (this.getBoatId().equals(BOOTSHAUS)) { // Bootshaus stehen lassen
         return false;
       }
       if (this.getType().equals(TYPE_ONETIME)) {

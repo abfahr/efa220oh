@@ -113,6 +113,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected Hashtable<DataTypeDate, String> mappingDateToReservations;
   protected IItemListenerDataRecordTable itemListenerActionTable;
   protected ItemTypeString searchField;
+  protected String wochentagFilter;
   protected ItemTypeBoolean filterBySearch;
   protected JTable aggregationTable = null;
   protected JPanel myPanel;
@@ -766,6 +767,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     return false;
   }
 
+  private void updateFilterWithDate(int day) {
+    DataTypeDate selectedDate = new DataTypeDate(day, currentMonth + 1, currentYear);
+    searchField.setValue(selectedDate.toString().replace('/', '.'));
+    if (day != 0) {
+      wochentagFilter = selectedDate.getWeekdayAsString().toLowerCase(); // "donnerstag";
+    }
+    updateFilter();
+  }
+
   protected void updateFilter() {
     searchField.getValueFromGui();
     filterBySearch.getValueFromGui();
@@ -776,6 +786,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
     filterBySearch.setUnchanged();
     searchField.setUnchanged();
+    wochentagFilter = null;
   }
 
   protected void updateAggregations(boolean create) {
@@ -881,8 +892,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         if (r != null && (!r.getDeleted() || showDeleted)) {
           if (filterFieldName == null || filterFieldValue == null
               || filterFieldValue.equals(r.getAsString(filterFieldName))) {
+            String allFieldsAsLowerText = r.getAllFieldsAsSeparatedText().toLowerCase();
             if (filterByAnyText == null
-                || r.getAllFieldsAsSeparatedText().toLowerCase().indexOf(filterByAnyText) >= 0) {
+                || (filterByAnyText != null && allFieldsAsLowerText.indexOf(filterByAnyText) >= 0)
+                || (wochentagFilter != null && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0)) {
               if (!(r instanceof ClubworkRecord) || Daten.isAdminMode()
                   || isToday(r.getLastModified())) {
                 data.add(r);
@@ -1004,9 +1017,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       public void mousePressed(MouseEvent e) {
         int day = getDay(e.getPoint());
         refreshCalendar(day, currentMonth, currentYear);
-        DataTypeDate selectedDate = new DataTypeDate(day, currentMonth + 1, currentYear);
-        searchField.setValue(selectedDate.toString().replace('/', '.'));
-        updateFilter();
+        updateFilterWithDate(day); // after clicking
       }
     });
 
@@ -1025,6 +1036,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
     // Refresh calendar
     refreshCalendar(0, realMonth, realYear); // Refresh calendar
+    // don't filter at startup
   }
 
   protected int getDay(Point point) {
@@ -1115,6 +1127,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         currentMonth -= 1;
       }
       refreshCalendar(0, currentMonth, currentYear);
+      updateFilterWithDate(0); // button Previous
     }
   }
 
@@ -1129,6 +1142,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         currentMonth += 1;
       }
       refreshCalendar(0, currentMonth, currentYear);
+      updateFilterWithDate(0); // button Next
     }
   }
 
@@ -1138,6 +1152,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       currentMonth = realMonth;
       currentYear = realYear;
       refreshCalendar(0, currentMonth, currentYear);
+      updateFilterWithDate(0); // button Month
     }
   }
 

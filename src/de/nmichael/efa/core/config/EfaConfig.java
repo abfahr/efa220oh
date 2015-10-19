@@ -2483,7 +2483,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     Daten.trySetEfaBackupDirectory(newBakDir);
   }
 
-  public boolean setToLanguate(String lang) {
+  public boolean setToLanguage(String lang) {
     ResourceBundle bundle = null;
     if (lang != null) {
       try {

@@ -731,7 +731,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (!dataRecord.getPersistence().data().getMetaData().isVersionized()) {
         return false;
       }
-      DataKey[] keys = dataRecord.getPersistence().data()
+      DataKey<?, ?, ?>[] keys = dataRecord.getPersistence().data()
           .getByFields(dataRecord.getQualifiedNameFields(),
               dataRecord.getQualifiedNameValues(dataRecord.getQualifiedName()));
       for (int i = 0; keys != null && i < keys.length; i++) {
@@ -847,7 +847,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       boolean isVersionized = dataAccess.getMetaData().isVersionized();
       DataKeyIterator it = dataAccess.getStaticIterator();
       DataKey<?, ?, ?> key = it.getFirst();
-      Hashtable<DataKey, String> uniqueHash = new Hashtable<DataKey, String>();
+      Hashtable<DataKey<?, ?, ?>, String> uniqueHash = new Hashtable<DataKey<?, ?, ?>, String>();
       mappingDateToReservations = new Hashtable<DataTypeDate, String>();
       while (key != null) {
         // avoid duplicate versionized keys for the same record
@@ -1149,7 +1149,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo(),
           brr.getDayOfWeek());
       for (DataTypeDate dataTypeDate : dates) {
-        // DataTypeDate dataTypeDate = brr.getDateFrom();
         // alten Wert auslesen
         String myValue = mappingDateToReservations.get(dataTypeDate);
         if (myValue == null) {
@@ -1190,7 +1189,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     return retVal;
   }
 
-  private List<DataTypeDate> getListOfDatesOld(DataTypeDate dateFrom, DataTypeDate dateTo,
+  @SuppressWarnings("unused")
+  private List<DataTypeDate> getListOfDatesKaputt(DataTypeDate dateFrom, DataTypeDate dateTo,
       String dayOfWeek) {
     DataTypeDate myDateFrom = dateFrom;
     DataTypeDate myDateTo = dateTo;

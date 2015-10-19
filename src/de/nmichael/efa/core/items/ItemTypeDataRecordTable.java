@@ -1018,6 +1018,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         int day = getDay(e.getPoint());
         refreshCalendar(day, currentMonth, currentYear);
         updateFilterWithDate(day); // after clicking
+        repaintCalendarButtons();
       }
     });
 
@@ -1037,6 +1038,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     // Refresh calendar
     refreshCalendar(0, realMonth, realYear); // Refresh calendar
     // don't filter at startup
+  }
+
+  private void repaintCalendarButtons() {
+    btnPrev.repaint();
+    lblMonth.repaint();
+    btnNext.repaint();
   }
 
   protected int getDay(Point point) {
@@ -1128,6 +1135,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
       refreshCalendar(0, currentMonth, currentYear);
       updateFilterWithDate(0); // button Previous
+      repaintCalendarButtons();
     }
   }
 
@@ -1143,6 +1151,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
       refreshCalendar(0, currentMonth, currentYear);
       updateFilterWithDate(0); // button Next
+      repaintCalendarButtons();
     }
   }
 
@@ -1153,6 +1162,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       currentYear = realYear;
       refreshCalendar(0, currentMonth, currentYear);
       updateFilterWithDate(0); // button Month
+      repaintCalendarButtons();
     }
   }
 

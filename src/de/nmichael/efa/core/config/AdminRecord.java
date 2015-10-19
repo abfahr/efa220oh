@@ -549,8 +549,9 @@ public class AdminRecord extends DataRecord implements IItemListener {
       }
     } else {
       if (isAllowedEditAdmins()) {
-        setAllowedEditAdmins(false);
-        changed = true;
+        /* auskommentiert, damit mehrere Leute die Admins verwalten können. */
+        // setAllowedEditAdmins(false);
+        // changed = true;
       }
     }
     if (changed && getPersistence() != null && getPersistence().data() != null) {

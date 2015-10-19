@@ -288,7 +288,6 @@ public class Daten {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "initialize()");
       printEfaInfos(false, false, true, false, false);
     }
-    AdminRecord newlyCreatedAdminRecord = null;
     iniScreenSize();
     iniMainDirectory();
     iniEfaBaseConfig();

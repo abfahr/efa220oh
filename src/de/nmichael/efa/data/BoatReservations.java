@@ -98,7 +98,7 @@ public class BoatReservations extends StorageObject {
 
   public BoatReservationRecord[] getBoatReservations(UUID boatId) {
     try {
-      DataKey[] keys = data()
+      DataKey<?, ?, ?>[] keys = data()
           .getByFields(BoatReservationRecord.IDX_BOATID, new Object[] { boatId });
       if (keys == null || keys.length == 0) {
         return null;
@@ -162,6 +162,33 @@ public class BoatReservations extends StorageObject {
       assertFieldNotEmpty(record, BoatReservationRecord.TYPE);
 
       BoatReservationRecord r = ((BoatReservationRecord) record);
+      if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+        DataTypeDate today = DataTypeDate.today();
+
+        if (r.getDateFrom().isSet() && r.getDateFrom().isBefore(today)) {
+          throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+              International.getString("Das Startdatum muss in der Zukunft liegen."),
+              Thread.currentThread().getStackTrace());
+        }
+        if (r.getDateTo().isSet() && r.getDateTo().isBefore(today)) {
+          throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+              International.getString("Das Enddatum muss in der Zukunft liegen."),
+              Thread.currentThread().getStackTrace());
+        }
+        DataTypeDate ferneZukunft = today;
+        ferneZukunft.addDays(4 * 365); // vier Jahre vertippt
+        if (r.getDateFrom().isSet() && r.getDateFrom().isAfter(ferneZukunft)) {
+          throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+              International.getString("Das Startdatum liegt zu weit in der Zukunft."),
+              Thread.currentThread().getStackTrace());
+        }
+        if (r.getDateTo().isSet() && r.getDateTo().isAfter(ferneZukunft)) {
+          throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+              International.getString("Das Enddatum liegt zu weit in der Zukunft."),
+              Thread.currentThread().getStackTrace());
+        }
+      }
+
       BoatReservationRecord[] br = this.getBoatReservations(r.getBoatId());
       for (int i = 0; br != null && i < br.length; i++) {
         if (br[i].getReservation() == r.getReservation()) {

@@ -375,7 +375,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             continue;
           }
 
-          // delete any obsolete revervations
+          // delete any obsolete reservations
           int purgedRes = boatReservations.purgeObsoleteReservations(boatStatusRecord.getBoatId(),
               now);
 

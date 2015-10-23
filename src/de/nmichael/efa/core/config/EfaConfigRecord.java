@@ -53,11 +53,11 @@ public class EfaConfigRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<String, ?, ?> getKey() {
     return new DataKey<String, String, String>(getName(), null, null);
   }
 
-  public static DataKey getKey(String name) {
+  public static DataKey<String, ?, ?> getKey(String name) {
     return new DataKey<String, String, String>(name, null, null);
   }
 

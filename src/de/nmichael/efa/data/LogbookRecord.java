@@ -334,11 +334,11 @@ public class LogbookRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<DataTypeIntString, ?, ?> getKey() {
     return new DataKey<DataTypeIntString, String, String>(getEntryId(), null, null);
   }
 
-  public static DataKey getKey(DataTypeIntString entryNo) {
+  public static DataKey<DataTypeIntString, ?, ?> getKey(DataTypeIntString entryNo) {
     return new DataKey<DataTypeIntString, String, String>(entryNo, null, null);
   }
 
@@ -609,7 +609,7 @@ public class LogbookRecord extends DataRecord {
     String stype = getSessionType();
     return stype == null ||
         (!stype.equals(EfaTypes.TYPE_SESSION_ERG) &&
-            !stype.equals(EfaTypes.TYPE_SESSION_MOTORBOAT));
+        !stype.equals(EfaTypes.TYPE_SESSION_MOTORBOAT));
   }
 
   @Override
@@ -1105,7 +1105,7 @@ public class LogbookRecord extends DataRecord {
 
     AutoCompleteList autoBoats = new AutoCompleteList();
     autoBoats
-    .setDataAccess(getPersistence().getProject().getBoats(false).data(), 0, Long.MAX_VALUE);
+        .setDataAccess(getPersistence().getProject().getBoats(false).data(), 0, Long.MAX_VALUE);
     AutoCompleteList autoPersons = new AutoCompleteList();
     autoPersons.setDataAccess(getPersistence().getProject().getPersons(false).data(), 0,
         Long.MAX_VALUE);
@@ -1168,7 +1168,7 @@ public class LogbookRecord extends DataRecord {
         International.getStringWithMnemonic("Bemerkungen")));
     v.add(item = new ItemTypeStringList(LogbookRecord.SESSIONTYPE, EfaTypes.TYPE_SESSION_NORMAL,
         EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, null, International.getString("Fahrtart")));
     v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_SESSIONGROUP,
         "", IItemType.TYPE_PUBLIC, null,
@@ -1252,7 +1252,7 @@ public class LogbookRecord extends DataRecord {
     _bcNames[0] = International.getString("keine Angabe");
     for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
       _bcNames[i + 1] = (i == 0 ? International.getString("Steuermann") :
-        International.getString("Nummer") + " " + Integer.toString(i));
+          International.getString("Nummer") + " " + Integer.toString(i));
     }
     return _bcNames;
   }

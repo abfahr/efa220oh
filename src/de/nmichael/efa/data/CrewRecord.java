@@ -139,11 +139,11 @@ public class CrewRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, ?, ?> getKey() {
     return new DataKey<UUID, String, String>(getId(), null, null);
   }
 
-  public static DataKey getDataKey(UUID id) {
+  public static DataKey<UUID, ?, ?> getDataKey(UUID id) {
     return new DataKey<UUID, String, String>(id, null, null);
   }
 
@@ -278,16 +278,15 @@ public class CrewRecord extends DataRecord {
 
     Persons persons = getPersistence().getProject().getPersons(false);
 
-    IItemType item;
     Vector<IItemType> v = new Vector<IItemType>();
-    v.add(item = new ItemTypeString(CrewRecord.NAME, getName(),
+    v.add(new ItemTypeString(CrewRecord.NAME, getName(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Mannschaftsname")));
-    v.add(item = getGuiItemTypeStringAutoComplete(CrewRecord.COXID, getCoxId(),
+    v.add(getGuiItemTypeStringAutoComplete(CrewRecord.COXID, getCoxId(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         persons, getPreferredValidFrom(), getPreferredInvalidFrom() - 1,
         International.getString("Steuermann")));
     for (int i = 1; i <= LogbookRecord.CREW_MAX; i++) {
-      v.add(item = getGuiItemTypeStringAutoComplete(getCrewFieldNameId(i), getCrewId(i),
+      v.add(getGuiItemTypeStringAutoComplete(getCrewFieldNameId(i), getCrewId(i),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA,
           persons, getPreferredValidFrom(), getPreferredInvalidFrom() - 1,
           International.getString("Mannschaft") + " " + i));
@@ -298,11 +297,11 @@ public class CrewRecord extends DataRecord {
     for (int i = 0; i < cptType.length; i++) {
       cptType[i] = (i == 0 ? "" : Integer.toString(i - 1));
       cptValue[i] = (i == 0 ? "- " + International.getString("keine Auswahl") + " -" :
-        (i == 1 ? International.getString("Steuermann") :
-          International.getString("Mannschaft") + " " + (i - 1)));
+          (i == 1 ? International.getString("Steuermann") :
+              International.getString("Mannschaft") + " " + (i - 1)));
     }
     String cpt = (getBoatCaptainPosition() >= 0 ? Integer.toString(getBoatCaptainPosition()) : "");
-    v.add(item = new ItemTypeStringList(CrewRecord.BOATCAPTAIN, cpt,
+    v.add(new ItemTypeStringList(CrewRecord.BOATCAPTAIN, cpt,
         cptType, cptValue,
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Standard-Obmann")));

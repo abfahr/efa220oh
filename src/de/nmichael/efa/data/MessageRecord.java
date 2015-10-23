@@ -94,11 +94,11 @@ public class MessageRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<Long, ?, ?> getKey() {
     return new DataKey<Long, String, String>(getMessageId(), null, null);
   }
 
-  public static DataKey getKey(long messageId) {
+  public static DataKey<Long, ?, ?> getKey(long messageId) {
     return new DataKey<Long, String, String>(messageId, null, null);
   }
 

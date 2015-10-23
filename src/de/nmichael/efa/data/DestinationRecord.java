@@ -108,11 +108,11 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, Long, ?> getKey() {
     return new DataKey<UUID, Long, String>(getId(), getValidFrom(), null);
   }
 
-  public static DataKey getKey(UUID id, long validFrom) {
+  public static DataKey<UUID, Long, ?> getKey(UUID id, long validFrom) {
     return new DataKey<UUID, Long, String>(id, validFrom, null);
   }
 

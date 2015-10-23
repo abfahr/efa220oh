@@ -187,14 +187,14 @@ public abstract class DataRecord implements Cloneable, Comparable {
     return metaData.isKeyField(fieldName);
   }
 
-  public abstract DataKey getKey();
+  public abstract DataKey<?, ?, ?> getKey();
 
   public String getKeyAsTextDescription() {
     int keyFieldCnt = metaData.getKeyFields().length;
     if (metaData.versionized) {
       keyFieldCnt--;
     }
-    DataKey k = getKey();
+    DataKey<?, ?, ?> k = getKey();
     StringBuffer s = new StringBuffer();
     for (int i = 0; i < keyFieldCnt; i++) {
       Object kp = k.getKeyPart(i);

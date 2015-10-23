@@ -267,13 +267,13 @@ public class ProjectRecord extends DataRecord {
     return getPersistence().createNewRecord();
   }
 
-  public static DataKey getDataKey(String type, String name) {
-    return new DataKey<String, String, String>(type, name, null);
+  @Override
+  public DataKey<String, String, ?> getKey() {
+    return new DataKey<String, String, String>(getType(), getName(), null);
   }
 
-  @Override
-  public DataKey getKey() {
-    return new DataKey<String, String, String>(getType(), getName(), null);
+  public static DataKey<String, String, ?> getDataKey(String type, String name) {
+    return new DataKey<String, String, String>(type, name, null);
   }
 
   public void setType(String type) {

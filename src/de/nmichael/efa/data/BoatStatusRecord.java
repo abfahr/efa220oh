@@ -110,11 +110,11 @@ public class BoatStatusRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, ?, ?> getKey() {
     return new DataKey<UUID, String, String>(getBoatId(), null, null);
   }
 
-  public static DataKey getKey(UUID id) {
+  public static DataKey<UUID, ?, ?> getKey(UUID id) {
     return new DataKey<UUID, String, String>(id, null, null);
   }
 

@@ -60,11 +60,11 @@ public class EfaTypeRecord extends DataRecord implements Comparable {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<String, String, ?> getKey() {
     return new DataKey<String, String, String>(getCategory(), getType(), null);
   }
 
-  public static DataKey getKey(String category, String type) {
+  public static DataKey<String, String, ?> getKey(String category, String type) {
     return new DataKey<String, String, String>(category, type, null);
   }
 

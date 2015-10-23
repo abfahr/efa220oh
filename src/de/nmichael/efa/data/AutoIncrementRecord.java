@@ -57,11 +57,11 @@ public class AutoIncrementRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<String, ?, ?> getKey() {
     return new DataKey<String, String, String>(getSequence(), null, null);
   }
 
-  public static DataKey getKey(String sequence) {
+  public static DataKey<String, ?, ?> getKey(String sequence) {
     return new DataKey<String, String, String>(sequence, null, null);
   }
 

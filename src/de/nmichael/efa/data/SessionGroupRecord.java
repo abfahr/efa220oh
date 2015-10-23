@@ -88,11 +88,11 @@ public class SessionGroupRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, ?, ?> getKey() {
     return new DataKey<UUID, String, String>(getId(), null, null);
   }
 
-  public static DataKey getKey(UUID id) {
+  public static DataKey<UUID, ?, ?> getKey(UUID id) {
     return new DataKey<UUID, String, String>(id, null, null);
   }
 
@@ -121,7 +121,7 @@ public class SessionGroupRecord extends DataRecord {
       try {
         Vector<LogbookRecord> records = new Vector<LogbookRecord>();
         DataKeyIterator it = logbook.data().getStaticIterator();
-        DataKey k = it.getFirst();
+        DataKey<?, ?, ?> k = it.getFirst();
         while (k != null) {
           LogbookRecord r = logbook.getLogbookRecord(k);
           if (r != null && r.getSessionGroupId() != null && id.equals(r.getSessionGroupId())) {

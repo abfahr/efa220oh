@@ -76,11 +76,11 @@ public class StatusRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, ?, ?> getKey() {
     return new DataKey<UUID, String, String>(getId(), null, null);
   }
 
-  public static DataKey getKey(UUID id) {
+  public static DataKey<UUID, ?, ?> getKey(UUID id) {
     return new DataKey<UUID, String, String>(id, null, null);
   }
 
@@ -220,15 +220,14 @@ public class StatusRecord extends DataRecord {
   @Override
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     String CAT_BASEDATA = "%01%" + International.getString("Status");
-    IItemType item;
     Vector<IItemType> v = new Vector<IItemType>();
-    v.add(item = new ItemTypeLabel("LABEL",
+    v.add(new ItemTypeLabel("LABEL",
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Typ") + ": "
             + getTypeDescription()));
-    v.add(item = new ItemTypeString(StatusRecord.NAME, getStatusName(),
+    v.add(new ItemTypeString(StatusRecord.NAME, getStatusName(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
     if (isTypeUser()) {
-      v.add(item = new ItemTypeBoolean(StatusRecord.GUIITEM_MEMBERSHIP, isMember(),
+      v.add(new ItemTypeBoolean(StatusRecord.GUIITEM_MEMBERSHIP, isMember(),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Mitglied")));
     }
     return v;

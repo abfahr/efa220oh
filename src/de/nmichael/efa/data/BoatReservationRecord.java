@@ -117,11 +117,11 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, Integer, ?> getKey() {
     return new DataKey<UUID, Integer, String>(getBoatId(), getReservation(), null);
   }
 
-  public static DataKey getKey(UUID id, int res) {
+  public static DataKey<UUID, Integer, ?> getKey(UUID id, int res) {
     return new DataKey<UUID, Integer, String>(id, res, null);
   }
 

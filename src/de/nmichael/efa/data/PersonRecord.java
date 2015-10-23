@@ -37,6 +37,7 @@ import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.International;
 
 // @i18n complete
+
 public class PersonRecord extends DataRecord implements IItemFactory {
 
   // =========================================================================
@@ -160,11 +161,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, Long, ?> getKey() {
     return new DataKey<UUID, Long, String>(getId(), getValidFrom(), null);
   }
 
-  public static DataKey getKey(UUID id, long validFrom) {
+  public static DataKey<UUID, Long, ?> getKey(UUID id, long validFrom) {
     return new DataKey<UUID, Long, String>(id, validFrom, null);
   }
 
@@ -738,7 +739,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     ((ItemTypeString) item).setNotAllowedCharacters(",");
     v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
         EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
     v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geburtstag")));

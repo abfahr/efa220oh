@@ -803,11 +803,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, ?, ?> getKey() {
     return new DataKey<UUID, String, String>(getId(), null, null);
   }
 
-  public static DataKey getKey(UUID id) {
+  public static DataKey<UUID, ?, ?> getKey(UUID id) {
     return new DataKey<UUID, String, String>(id, null, null);
   }
 

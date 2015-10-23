@@ -124,11 +124,11 @@ public class BoatDamageRecord extends DataRecord {
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, Integer, ?> getKey() {
     return new DataKey<UUID, Integer, String>(getBoatId(), getDamage(), null);
   }
 
-  public static DataKey getKey(UUID id, int res) {
+  public static DataKey<UUID, Integer, ?> getKey(UUID id, int res) {
     return new DataKey<UUID, Integer, String>(id, res, null);
   }
 
@@ -443,7 +443,6 @@ public class BoatDamageRecord extends DataRecord {
   @Override
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     String CAT_BASEDATA = "%01%" + International.getString("Bootsschaden");
-    String CAT_DETAILS = "%02%" + International.getString("Details");
     IItemType item;
     Vector<IItemType> v = new Vector<IItemType>();
     v.add(item = new ItemTypeLabel("GUI_BOAT_NAME",

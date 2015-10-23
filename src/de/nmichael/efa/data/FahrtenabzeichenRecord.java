@@ -131,11 +131,11 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
   }
 
   @Override
-  public DataKey getKey() {
+  public DataKey<UUID, ?, ?> getKey() {
     return new DataKey<UUID, String, String>(getPersonId(), null, null);
   }
 
-  public static DataKey getKey(UUID personId) {
+  public static DataKey<UUID, ?, ?> getKey(UUID personId) {
     return new DataKey<UUID, String, String>(personId, null, null);
   }
 

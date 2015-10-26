@@ -52,6 +52,11 @@ SET CP=%CP%;program/plugins/javax.mail.jar
 REM Classpath: JSUNTIMES-Plugin
 SET CP=%CP%;program/plugins/jsuntimes.jar
 
+REM Classpath: ICalendarExport
+SET CP=%CP%;program/plugins/ical4j.jar
+SET CP=%CP%;program/plugins/commons-lang.jar
+SET CP=%CP%;program/plugins/backport-util-concurrent.jar
+
 REM Classpath: FOP-Plugin
 SET CP=%CP%;program/plugins/avalon-framework.jar
 SET CP=%CP%;program/plugins/batik-all.jar

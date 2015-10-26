@@ -46,6 +46,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.CrontabThread;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.Admins;
@@ -2440,8 +2441,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
     if (Daten.project != null) {
       // TODO abf
-      // new ICalendarExport().saveAllReservationToCalendarFile();
-      // new ICalendarExport().saveAllClubworkToCalendarFile();
+      ICalendarExport cal = new ICalendarExport();
+      cal.saveAllReservationToCalendarFile();
+      cal.saveAllClubworkToCalendarFile();
     }
     ClubworkListDialog dlg = new ClubworkListDialog(this, null);
     dlg.showDialog();

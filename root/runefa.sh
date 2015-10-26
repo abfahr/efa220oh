@@ -62,6 +62,11 @@ CP=$CP:program/plugins/javax.mail.jar
 # JSUNTIMES Plugin
 CP=$CP:program/plugins/jsuntimes.jar
 
+# ICalendarExport
+CP=$CP:program/plugins/ical4j.jar
+CP=$CP:program/plugins/commons-lang.jar
+CP=$CP:program/plugins/backport-util-concurrent.jar
+
 # PDF Plugin
 CP=$CP:program/plugins/avalon-framework.jar
 CP=$CP:program/plugins/batik-all.jar

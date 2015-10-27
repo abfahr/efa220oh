@@ -1171,6 +1171,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       BoatReservationRecord brr = (BoatReservationRecord) r;
       UUID boatId = brr.getBoatId();
       String bootshausKuerzel = "BH";
+      String trennzeichen = "'";
       List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo(),
           brr.getDayOfWeek());
       for (DataTypeDate dataTypeDate : dates) {
@@ -1184,9 +1185,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           containsBootshaus = true;
           myValue = myValue.replace(bootshausKuerzel, "");
         }
-        myValue = myValue.replace("+", "");
-        int myCount = 0;
-        // myCount=Integer.parseInt("0" + myValue);
+        myValue = myValue.replace(trennzeichen, "");
+        int myCount = Integer.parseInt("0" + myValue);
 
         if (boatId.equals(BOOTSHAUS)) {
           containsBootshaus = true;
@@ -1198,8 +1198,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           myValue += bootshausKuerzel;
         }
         if (myCount > 0) {
-          // myValue += "+" + myCount;
-          myValue += "+";
+          myValue += trennzeichen + myCount;
         }
         mappingDateToReservations.put(dataTypeDate, myValue);
       }
@@ -1208,20 +1207,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo,
       String dayOfWeek) {
-    List<DataTypeDate> retVal = new ArrayList<DataTypeDate>();
-    // GregorianCalendar cal = dateFrom.toCalendar();
-    // retVal.add(dateFrom);
-    return retVal;
-  }
-
-  @SuppressWarnings("unused")
-  private List<DataTypeDate> getListOfDatesKaputt(DataTypeDate dateFrom, DataTypeDate dateTo,
-      String dayOfWeek) {
     DataTypeDate myDateFrom = dateFrom;
     DataTypeDate myDateTo = dateTo;
-    if (myDateTo == null) {
-      myDateTo = new DataTypeDate(myDateFrom);
-    }
 
     int wochentag = -1;
     if (dayOfWeek != null) {
@@ -1233,17 +1220,17 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       myDateTo.addDays(365);
     }
 
-    List<DataTypeDate> retVal = new ArrayList<DataTypeDate>();
+    List<DataTypeDate> datumListe = new ArrayList<DataTypeDate>();
     DataTypeDate myDate = new DataTypeDate(myDateFrom);
     while (myDate.isBeforeOrEqual(myDateTo)) {
-      retVal.add(new DataTypeDate(myDate));
+      datumListe.add(new DataTypeDate(myDate));
       if (wochentag == myDate.toCalendar().get(Calendar.DAY_OF_WEEK)) {
         myDate.addDays(7);
       } else {
         myDate.addDays(1);
       }
     }
-    return retVal;
+    return datumListe;
   }
 
   private int getWochentag(String dayName) {

@@ -467,6 +467,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             if (records == null || records.length == 0) {
               return;
             }
+            // löschen alter Termine verhindern
             if (itemListenerActionTable != null) {
               if (!itemListenerActionTable.deleteCallback(records)) {
                 updateData();
@@ -906,6 +907,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
         key = it.getNext();
       }
+      filterBySearch.setDescription("gefiltert " + data.size());
     } catch (Exception e) {
       Logger.logdebug(e);
     }

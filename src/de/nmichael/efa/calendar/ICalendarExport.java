@@ -45,19 +45,14 @@ public class ICalendarExport {
     try {
       saveAllReservationToCalendarFileIntern();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ValidationException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ParserException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (EfaException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ParseException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -66,23 +61,32 @@ public class ICalendarExport {
     try {
       saveAllClubworkToCalendarFileIntern();
     } catch (EfaException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ValidationException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
   private void saveAllReservationToCalendarFileIntern() throws IOException, ValidationException,
-  ParserException, EfaException, ParseException {
+      ParserException, EfaException, ParseException {
+
+    // [x] Bootshaus (nur das vertragspflichtige Haus)
+    // [x] Boote (alles ohne Bootshaus)
+    // [x] Regeltermine (viele Boote an Mo/Do-Terminen)
+    // [ ] mit Klarnamen
+    // [ ] mit Telefonnummer
+    // [ ] mit Anlass/Infotext
+    boolean saveBootshaus = true;
+    boolean saveBoote = true;
+    boolean saveWeekly = true;
+    boolean saveName = false;
+    boolean savePhone = false;
+    boolean saveInfo = false;
 
     // Creating a new calendar
-    net.fortuna.ical4j.model.Calendar alleCalendar = new net.fortuna.ical4j.model.Calendar();
-    net.fortuna.ical4j.model.Calendar bootshausCalendar = new net.fortuna.ical4j.model.Calendar();
+    net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
     for (DataKey<?, ?, ?> dataKey : boatReservations.data().getAllKeys()) {
@@ -108,66 +112,67 @@ public class ICalendarExport {
       int reservationOrder = boatReservationRecord.getReservation();
       String efaId = EFA + reservationOrder + personAsName.substring(0, 1).toUpperCase();
       String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
-
-      String descriptionAlle = reservationTimeDescription + CRLF;
-      if (!"k.A.".equals(reason)) {
-        descriptionAlle += "Anlass: " + reason + CRLF;
-      }
-      descriptionAlle += "Mitglied: " + personAsName + CRLF;
-      if (!"".equals(contactPhone)) {
-        descriptionAlle += "Fon: " + contactPhone + CRLF;
-      }
       String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
-      descriptionAlle += modif;
-      String descriptionBhnutzung = reservationTimeDescription + CRLF + modif;
+
+      String description = reservationTimeDescription + CRLF;
+
+      if (saveInfo && !"k.A.".equals(reason)) {
+        description += "Anlass: " + reason + CRLF;
+      }
+      if (saveName) {
+        description += "Mitglied: " + personAsName + CRLF;
+      }
+      if (savePhone && !"".equals(contactPhone)) {
+        description += "Fon: " + contactPhone + CRLF;
+      }
+      description += modif;
 
       if (BoatReservationRecord.TYPE_WEEKLY.equals(type)) {
-        // dateFrom = DataTypeDate.today();
-        // dateFrom.addDays(-7); // next THursday
         if (dateFrom == null) {
           dateFrom = new DataTypeDate(lastModified);
         }
         if (dateTo == null) {
           dateTo = dateFrom;
         }
-        // } else if (personAsName.contains("Kinder")) {
-        // System.out.println("xyxc");
       }
       DateTime startDateTime = new DateTime(dateFrom.getTimestamp(timeFrom));
       DateTime endDateTime = new DateTime(dateTo.getTimestamp(timeTo));
 
       // Creating an event
-      VEvent buchungAlle = new VEvent(startDateTime, endDateTime, boatName + " - " + personAsName);
-      VEvent nurBootshaus = new VEvent(startDateTime, endDateTime, boatName + " - " + efaId);
+      String eventSummary = boatName + " - " + (saveName ? personAsName : efaId);
+      VEvent termin = new VEvent(startDateTime, endDateTime, eventSummary);
+      termin.getProperties().add(new Description(description));
+      termin.getProperties().add(new Location("Isekai 10 Hamburg"));
+      termin.getProperties().add(new Uid(uid));
 
       if (BoatReservationRecord.TYPE_WEEKLY.equals(type)) {
+        if (!saveWeekly) {
+          continue;
+        }
         // String recur3 = "RRULE:FREQ=" + type + ";BYDAY=" + dayOfWeek.substring(0, 2);
         Recur recur = new Recur();
         recur.setFrequency(Recur.WEEKLY);
         recur.getDayList().add(new WeekDay(dayOfWeek.substring(0, 2)));
-        buchungAlle.getProperties().add(new RRule(recur));
-        nurBootshaus.getProperties().add(new RRule(recur));
+        termin.getProperties().add(new RRule(recur));
       }
-      buchungAlle.getProperties().add(new Description(descriptionAlle));
-      buchungAlle.getProperties().add(new Location("Isekai 10 Hamburg"));
-      buchungAlle.getProperties().add(new Uid(uid));
-      nurBootshaus.getProperties().add(new Description(descriptionBhnutzung));
-      nurBootshaus.getProperties().add(new Location("Isekai 10 Hamburg"));
-      nurBootshaus.getProperties().add(new Uid(uid));
 
-      alleCalendar.getComponents().add(buchungAlle);
       if (boatId.equals(BOOTSHAUS)) {
-        bootshausCalendar.getComponents().add(nurBootshaus);
+        if (saveBootshaus) {
+          calendar.getComponents().add(termin);
+        }
+      } else {
+        if (saveBoote) {
+          calendar.getComponents().add(termin);
+        }
       }
     }
 
     // Saving as iCalendar file
-    saveCalendarToFile(alleCalendar, "OH-Reservierungen");
-    saveCalendarToFile(bootshausCalendar, "OH-Bootshaus");
+    saveCalendarToFile(calendar, "OH-Bootshaus");
   }
 
   private void saveAllClubworkToCalendarFileIntern() throws EfaException, IOException,
-      ValidationException {
+  ValidationException {
     // Creating a new calendar
     net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 
@@ -207,7 +212,6 @@ public class ICalendarExport {
   private void saveCalendarToFile(net.fortuna.ical4j.model.Calendar iCalendar,
       String title) throws FileNotFoundException, IOException, ValidationException {
 
-    String path = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep + "backup" + Daten.fileSep;
     String dateTimeStamp = new DateTime().toString().replace('T', '.');
     String extension = ".ics";
     String description = title + " vom " + dateTimeStamp;
@@ -216,16 +220,20 @@ public class ICalendarExport {
     iCalendar.getProperties().add(Version.VERSION_2_0);
     iCalendar.getProperties().add(CalScale.GREGORIAN);
     iCalendar.getProperties().add(new XProperty("X-WR-CALNAME", title));
-    iCalendar.getProperties().add(new XProperty("X-WR-TIMEZONE", "Europe/Berlin"));
-    iCalendar.getProperties().add(new XProperty("X-LIC-LOCATION", "Europe/Berlin"));
+    iCalendar.getProperties().add(new XProperty("X-WR-TIMEZONE", "Europe/Copenhagen"));
+    iCalendar.getProperties().add(new XProperty("X-LIC-LOCATION", "Europe/Copenhagen"));
     iCalendar.getProperties().add(new XProperty("X-WR-CALDESC", description));
 
     // Saving as iCalendar file
     CalendarOutputter outputter = new CalendarOutputter();
     outputter.setValidating(true);
+
+    String path = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep;
     FileOutputStream foutohne = new FileOutputStream(path + title + extension);
-    FileOutputStream foutdat = new FileOutputStream(path + dateTimeStamp + "." + title + extension);
     outputter.output(iCalendar, foutohne);
+
+    path += "backup" + Daten.fileSep;
+    FileOutputStream foutdat = new FileOutputStream(path + dateTimeStamp + "." + title + extension);
     outputter.output(iCalendar, foutdat);
   }
 }

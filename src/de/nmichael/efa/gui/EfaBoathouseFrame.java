@@ -46,7 +46,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.CrontabThread;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.Admins;
@@ -385,6 +384,13 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     centerPanel.add(widgetCenterPanel, new GridBagConstraints(1, 100, 1, 1, 0.0, 0.0,
         GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 10, 10, 10), 0, 0));
 
+    // Color bg = new Color(0, 170, 0);
+    // northPanel.setBackground(bg);
+    // southPanel.setBackground(bg);
+    // westPanel.setBackground(bg);
+    // eastPanel.setBackground(bg);
+    // centerPanel.setBackground(bg);
+
     mainPanel.add(westPanel, BorderLayout.WEST);
     mainPanel.add(eastPanel, BorderLayout.EAST);
     mainPanel.add(northPanel, BorderLayout.NORTH);
@@ -585,6 +591,13 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     personsAvailableList.setFieldSize(200, 400);
     boatsOnTheWaterList.setFieldSize(200, 300);
     boatsNotAvailableList.setFieldSize(200, 100);
+
+    // Color bg = new Color(0, 170, 0);
+    // boatsAvailableList.setBackgroundColor(bg);
+    // personsAvailableList.setBackgroundColor(bg);
+    // boatsOnTheWaterList.setBackgroundColor(bg);
+    // boatsNotAvailableList.setBackgroundColor(bg);
+
     boatsAvailableList.setPopupActions(getListActions(1, null));
     personsAvailableList.setPopupActions(getListActions(101, null));
     boatsOnTheWaterList.setPopupActions(getListActions(2, null));
@@ -1492,7 +1505,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           return true;
         } else {
           Dialog
-              .error(LogString.fileOpenFailed(logbookName, International.getString("Fahrtenbuch")));
+          .error(LogString.fileOpenFailed(logbookName, International.getString("Fahrtenbuch")));
         }
       }
       return false;
@@ -2347,15 +2360,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             " (" + International.getString("Bootsschaden") + ")",
         International.getString("Nichts")
         )) {
-      case 0:
-        break;
-      case 1:
-        if (boat != null) {
-          BoatDamageEditDialog.newBoatDamage(this, boat);
-        }
-        break;
-      case 2:
-        return;
+          case 0:
+            break;
+          case 1:
+            if (boat != null) {
+              BoatDamageEditDialog.newBoatDamage(this, boat);
+            }
+            break;
+          case 2:
+            return;
     }
 
     showEfaBaseFrame(EfaBaseFrame.MODE_BOATHOUSE_ABORT, item);
@@ -2438,12 +2451,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     clearAllPopups();
     if (Daten.project == null) {
       return;
-    }
-    if (Daten.project != null) {
-      // TODO abf
-      ICalendarExport cal = new ICalendarExport();
-      cal.saveAllReservationToCalendarFile();
-      cal.saveAllClubworkToCalendarFile();
     }
     ClubworkListDialog dlg = new ClubworkListDialog(this, null);
     dlg.showDialog();
@@ -2707,7 +2714,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                   + "\" align=\"center\" width=\"256\" height=\"256\"></p>\n");
               f.write("<p align=\"center\">"
                   + International
-                      .getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")
+                  .getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")
                   + "</p>\n");
               if (endeDerSperrung.length() > 0) {
                 f.write("<p align=\"center\">" + endeDerSperrung + "</p>\n");
@@ -2731,12 +2738,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           Dialog.setDlgLocation(browser, frame);
           browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
           Logger
-              .log(
-                  Logger.INFO,
-                  Logger.MSG_EVT_LOCKED,
-                  International
-                      .getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")
-                      + endeDerSperrung);
+          .log(
+              Logger.INFO,
+              Logger.MSG_EVT_LOCKED,
+              International
+              .getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")
+              + endeDerSperrung);
           browser.showDialog();
         }
       }.start();

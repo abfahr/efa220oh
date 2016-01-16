@@ -22,6 +22,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
@@ -182,5 +183,12 @@ public class ClubworkListDialog extends DataListDialog {
     else {
       super.itemListenerActionTable(actionId, records);
     }
+  }
+
+  @Override
+  public void closeButton_actionPerformed(ActionEvent e) {
+    ICalendarExport cal = new ICalendarExport();
+    cal.saveAllClubworkToCalendarFile();
+    super.closeButton_actionPerformed(e);
   }
 }

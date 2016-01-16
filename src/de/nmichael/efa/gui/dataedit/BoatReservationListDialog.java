@@ -17,6 +17,7 @@ import java.util.UUID;
 import javax.swing.JDialog;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
@@ -36,9 +37,6 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class BoatReservationListDialog extends DataListDialog {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   boolean allowNewReservationsWeekly = true;
 
@@ -194,4 +192,12 @@ public class BoatReservationListDialog extends DataListDialog {
       return null;
     }
   }
+
+  @Override
+  public void closeButton_actionPerformed(ActionEvent e) {
+    ICalendarExport cal = new ICalendarExport();
+    cal.saveAllReservationToCalendarFile();
+    super.closeButton_actionPerformed(e);
+  }
+
 }

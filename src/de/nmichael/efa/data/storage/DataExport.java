@@ -25,6 +25,7 @@ public class DataExport {
   public static final String EXPORT_TYPE = "type";
   public static final String EXPORT_TYPE_TEXT = "text";
   public static final String EXPORT_TYPE_ID = "id";
+  public static final String OUTPUTCSVSEPARATOR = "OutputCsvSeparator";
 
   public enum Format {
     xml,
@@ -41,6 +42,7 @@ public class DataExport {
   private String exportType;
   private boolean versionized;
   private String lastError;
+  private String csvSeparator;
 
   public DataExport(StorageObject storageObject, long validAt, Vector<DataRecord> selection,
       String[] fields, Format format, String encoding, String filename, String exportType) {
@@ -53,6 +55,7 @@ public class DataExport {
     this.filename = filename;
     this.exportType = exportType;
     this.versionized = storageObject.data().getMetaData().isVersionized();
+    csvSeparator = ";"; // "|" "|" "|"
   }
 
   public int runExport() {
@@ -66,14 +69,14 @@ public class DataExport {
       }
       if (format == Format.csv) {
         for (int i = 0; i < fields.length; i++) {
-          fw.write((i > 0 ? "|" : "") + fields[i]);
+          fw.write((i > 0 ? csvSeparator : "") + fields[i]);
         }
         fw.write("\n");
       }
 
       if (selection == null) {
         DataKeyIterator it = storageObject.data().getStaticIterator();
-        DataKey k = it.getFirst();
+        DataKey<?, ?, ?> k = it.getFirst();
         while (k != null) {
           DataRecord r = storageObject.data().get(k);
           if (writeRecord(fw, r)) {
@@ -114,8 +117,8 @@ public class DataExport {
             }
           }
           if (format == Format.csv) {
-            fw.write((i > 0 ? "|" : "")
-                + (value != null ? EfaUtil.replace(value, "|", "", true) : ""));
+            fw.write((i > 0 ? csvSeparator : "")
+                + (value != null ? EfaUtil.replace(value, csvSeparator, "", true) : ""));
           }
         }
         if (format == Format.xml) {

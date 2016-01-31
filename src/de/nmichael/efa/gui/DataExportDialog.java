@@ -200,9 +200,9 @@ public class DataExportDialog extends BaseDialog {
     Mnemonics.setLabel(this, fileTypeLabel, International.getString("Export als"));
     fileTypeXml = new JRadioButton();
     Mnemonics.setButton(this, fileTypeXml, International.getStringWithMnemonic("XML-Datei"));
-    fileTypeXml.setSelected(true);
     fileTypeCsv = new JRadioButton();
     Mnemonics.setButton(this, fileTypeCsv, International.getStringWithMnemonic("CSV-Datei"));
+    fileTypeCsv.setSelected(true);
     fileTypeGroup = new ButtonGroup();
     fileTypeGroup.add(fileTypeXml);
     fileTypeGroup.add(fileTypeCsv);
@@ -227,7 +227,7 @@ public class DataExportDialog extends BaseDialog {
     filePanel.add(fileTypeCsv, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
         GridBagConstraints.WEST, GridBagConstraints.NONE,
         new Insets(0, 0, 0, 0), 0, 0));
-    encoding = new ItemTypeStringList("ENCODING", Daten.ENCODING_UTF,
+    encoding = new ItemTypeStringList("ENCODING", Daten.ENCODING_ISO,
         new String[] { Daten.ENCODING_UTF, Daten.ENCODING_ISO },
         new String[] { Daten.ENCODING_UTF, Daten.ENCODING_ISO },
         IItemType.TYPE_PUBLIC, "",
@@ -242,7 +242,7 @@ public class DataExportDialog extends BaseDialog {
 
     file = new ItemTypeFile("FILE",
         dir + (Daten.fileSep != null && !dir.endsWith(Daten.fileSep) ? Daten.fileSep : "") +
-        persistence.data().getStorageObjectName() + ".xml",
+            persistence.data().getStorageObjectName() + ".xml",
         International.getString("Datei"),
         International.getString("Datei") + " (*.*)",
         null, ItemTypeFile.MODE_SAVE, ItemTypeFile.TYPE_FILE,
@@ -332,7 +332,7 @@ public class DataExportDialog extends BaseDialog {
     int cnt = export.runExport();
     if (cnt >= 0) {
       Dialog
-      .infoDialog(International.getMessage("{count} Datensätze erfolgreich exportiert.", cnt));
+          .infoDialog(International.getMessage("{count} Datensätze erfolgreich exportiert.", cnt));
     } else {
       Dialog.error(export.getLastError());
     }

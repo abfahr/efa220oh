@@ -414,7 +414,7 @@ public class BoatReservationRecord extends DataRecord {
       if (this.getType().equals(TYPE_WEEKLY)) {
         return false;
       }
-      if (this.getBoatId().equals(BOOTSHAUS)) { // Bootshaus stehen lassen
+      if (isBootshausOH()) { // Bootshaus stehen lassen
         // this.setDeleted(true);
         // return false;
         now = now + 30 * 24 * 60 * 60 * 1000; // 30 Tage später
@@ -429,6 +429,13 @@ public class BoatReservationRecord extends DataRecord {
       Logger.logdebug(e);
     }
     return false;
+  }
+
+  /**
+   * @return true, falls diese Reservierung das Bootshaus betrifft
+   */
+  public boolean isBootshausOH() {
+    return this.getBoatId().equals(BOOTSHAUS);
   }
 
   @Override
@@ -483,17 +490,17 @@ public class BoatReservationRecord extends DataRecord {
     v.add(item = new ItemTypeRadioButtons(BoatReservationRecord.TYPE, (getType() != null
         && getType().length() > 0 ? getType() : TYPE_ONETIME),
         new String[] {
-      TYPE_ONETIME,
-      TYPE_WEEKLY
-    },
-    new String[] {
-      International.getString("einmalig"),
-      International.getString("wöchentlich"),
-    },
-    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Art der Reservierung")));
+            TYPE_ONETIME,
+            TYPE_WEEKLY
+        },
+        new String[] {
+            International.getString("einmalig"),
+            International.getString("wöchentlich"),
+        },
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Art der Reservierung")));
     v.add(item = new ItemTypeStringList(BoatReservationRecord.DAYOFWEEK, getDayOfWeek(),
         EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Wochentag")));
     item.setNotNull(true);
@@ -527,7 +534,7 @@ public class BoatReservationRecord extends DataRecord {
         System.currentTimeMillis(),
         International.getString("Reserviert für")));
     ((ItemTypeStringAutoComplete) item)
-    .setAlternateFieldNameForPlainText(BoatReservationRecord.PERSONNAME);
+        .setAlternateFieldNameForPlainText(BoatReservationRecord.PERSONNAME);
     if (getPersonId() != null) {
       ((ItemTypeStringAutoComplete) item).setId(getPersonId());
     } else {

@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.UUID;
 
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
@@ -38,7 +37,6 @@ import de.nmichael.efa.ex.EfaException;
 public class ICalendarExport {
 
   public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
-  private static final UUID BOOTSHAUS = new UUID(-7033734156567033637L, -8676639372818108974L);
   private static final String EFA = "efa";
   private static final String ABFX_DE = "@abfx.de";
 
@@ -71,7 +69,7 @@ public class ICalendarExport {
   }
 
   private void saveAllReservationToCalendarFileIntern() throws IOException, ValidationException,
-  ParserException, EfaException, ParseException {
+      ParserException, EfaException, ParseException {
 
     // [x] Bootshaus (nur das vertragspflichtige Haus)
     // [x] Boote (alles ohne Bootshaus)
@@ -102,7 +100,7 @@ public class ICalendarExport {
       String type = boatReservationRecord.getType();
       String dayOfWeek = boatReservationRecord.getDayOfWeek();
       String boatName = boatReservationRecord.getBoatName();
-      UUID boatId = boatReservationRecord.getBoatId();
+      boolean isBootshausReservierung = boatReservationRecord.isBootshausOH();
       DataTypeDate dateFrom = boatReservationRecord.getDateFrom();
       DataTypeTime timeFrom = boatReservationRecord.getTimeFrom();
       DataTypeDate dateTo = boatReservationRecord.getDateTo();
@@ -152,7 +150,7 @@ public class ICalendarExport {
       termin.getProperties().add(new Uid(uid));
 
       if (BoatReservationRecord.TYPE_WEEKLY.equals(type)) {
-        if (saveWeeklyAsSingleEvent && !boatId.equals(BOOTSHAUS)) {
+        if (saveWeeklyAsSingleEvent && !isBootshausReservierung) {
           if (wochentermine.contains(reservationTimeDescription)) {
             continue;
           }
@@ -166,7 +164,7 @@ public class ICalendarExport {
         termin.getProperties().add(new RRule(recur));
       }
 
-      if (boatId.equals(BOOTSHAUS)) {
+      if (isBootshausReservierung) {
         if (saveBootshaus) {
           calendar.getComponents().add(termin);
         }
@@ -182,7 +180,7 @@ public class ICalendarExport {
   }
 
   private void saveAllClubworkToCalendarFileIntern() throws EfaException, IOException,
-      ValidationException {
+  ValidationException {
     // Creating a new calendar
     net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 

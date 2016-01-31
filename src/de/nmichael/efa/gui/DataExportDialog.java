@@ -242,7 +242,7 @@ public class DataExportDialog extends BaseDialog {
 
     file = new ItemTypeFile("FILE",
         dir + (Daten.fileSep != null && !dir.endsWith(Daten.fileSep) ? Daten.fileSep : "") +
-            persistence.data().getStorageObjectName() + ".xml",
+            persistence.data().getStorageObjectName() + ".csv",
         International.getString("Datei"),
         International.getString("Datei") + " (*.*)",
         null, ItemTypeFile.MODE_SAVE, ItemTypeFile.TYPE_FILE,

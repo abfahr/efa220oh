@@ -435,7 +435,7 @@ public class BoatReservationRecord extends DataRecord {
    * @return true, falls diese Reservierung das Bootshaus betrifft
    */
   public boolean isBootshausOH() {
-    return this.getBoatId().equals(BOOTSHAUS);
+    return BOOTSHAUS.equals(getBoatId());
   }
 
   @Override

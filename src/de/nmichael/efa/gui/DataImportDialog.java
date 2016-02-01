@@ -49,9 +49,8 @@ import de.nmichael.efa.util.Mnemonics;
 
 public class DataImportDialog extends BaseDialog implements IItemListener {
 
-  /**
-   *
-   */
+  private static final String CSV_SEPARATOR = ";"; // "|";
+
   private static final long serialVersionUID = 1L;
   private ItemTypeFile file;
   private ItemTypeStringList encoding;
@@ -137,7 +136,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
         GridBagConstraints.WEST, GridBagConstraints.NONE,
         new Insets(0, 0, 0, 0), 0, 0));
 
-    encoding = new ItemTypeStringList("ENCODING", Daten.ENCODING_UTF,
+    encoding = new ItemTypeStringList("ENCODING", Daten.ENCODING_ISO,
         new String[] { Daten.ENCODING_UTF, Daten.ENCODING_ISO },
         new String[] { Daten.ENCODING_UTF, Daten.ENCODING_ISO },
         IItemType.TYPE_PUBLIC, "",
@@ -146,7 +145,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
     encoding.setFieldSize(100, -1);
     encoding.displayOnGui(this, mainPanel, 1, 2);
 
-    csvSeparator = new ItemTypeString("CSVSEPARATOR", "|",
+    csvSeparator = new ItemTypeString("CSVSEPARATOR", CSV_SEPARATOR,
         IItemType.TYPE_PUBLIC, "", International.getString("Feldtrenner"));
     csvSeparator.setAllowedRegex("."); // exact one character
     csvSeparator.setFieldSize(100, -1);

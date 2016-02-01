@@ -12,7 +12,10 @@ package de.nmichael.efa.gui.dataedit;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.Vector;
 
 import javax.swing.JDialog;
 
@@ -26,8 +29,11 @@ import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.Boats;
+import de.nmichael.efa.data.storage.DataExport;
+import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.AutoCompleteList;
 import de.nmichael.efa.util.Dialog;
@@ -197,7 +203,59 @@ public class BoatReservationListDialog extends DataListDialog {
   public void closeButton_actionPerformed(ActionEvent e) {
     ICalendarExport cal = new ICalendarExport();
     cal.saveAllReservationToCalendarFile();
+
+    saveBootshausReservierungenToCsvFile();
+
     super.closeButton_actionPerformed(e);
   }
 
+  private void saveBootshausReservierungenToCsvFile() {
+    Vector<DataRecord> selection = getAlleBoothausReservierungen();
+    DataExport export = new DataExport(persistence, -1 /* validAt */,
+        selection, getWollesFieldNames(),
+        DataExport.Format.csv, Daten.ENCODING_ISO,
+        getFilenameCSV(), DataExport.EXPORT_TYPE_TEXT);
+    export.runExport();
+  }
+
+  private String getFilenameCSV() {
+    String dir = Daten.userHomeDir;
+    String fname = dir
+        + (Daten.fileSep != null && !dir.endsWith(Daten.fileSep) ? Daten.fileSep : "")
+        + persistence.data().getStorageObjectName() + ".csv";
+    return fname;
+  }
+
+  private String[] getWollesFieldNames() {
+    List<String> retVal = new ArrayList<String>();
+    String[] fields = persistence.createNewRecord().getFieldNamesForTextExport(false);
+    for (String field : fields) {
+      if (!field.equals(DataRecord.LASTMODIFIED) &&
+          !field.equals(DataRecord.CHANGECOUNT) &&
+          !field.equals(DataRecord.VALIDFROM) &&
+          !field.equals(DataRecord.INVALIDFROM) &&
+          !field.equals(DataRecord.INVISIBLE) &&
+          !field.equals(DataRecord.DELETED) &&
+          !field.equals("Id")) {
+        retVal.add("" + field);
+      }
+    }
+    return retVal.toArray(new String[retVal.size()]);
+  }
+
+  private Vector<DataRecord> getAlleBoothausReservierungen() {
+    Vector<DataRecord> retVal = new Vector<DataRecord>();
+    try {
+      for (DataKey<?, ?, ?> k : persistence.data().getAllKeys()) {
+        BoatReservationRecord r = (BoatReservationRecord) persistence.data().get(k);
+        if (r.isBootshausOH()) {
+          retVal.add(r);
+        }
+      }
+    } catch (EfaException e) {
+      // TODO Auto-generated catch block
+      retVal = null;
+    }
+    return retVal;
+  }
 }

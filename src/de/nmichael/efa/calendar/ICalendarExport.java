@@ -156,6 +156,11 @@ public class ICalendarExport {
           }
           wochentermine.add(reservationTimeDescription);
           termin.getSummary().setValue("OH-Regeltermin");
+          // TODO fahr 2016-02-01 Hier noch den Text erweitern:
+          // keine Ausleihe möglich
+          // nur nach Rücksprache mit den Fachwarten
+          // Es gibt keine Boote in der Zeit
+
         }
         // String recur3 = "RRULE:FREQ=" + type + ";BYDAY=" + dayOfWeek.substring(0, 2);
         Recur recur = new Recur();

@@ -68,6 +68,7 @@ public class DataExport {
         fw.write("<" + FIELD_EXPORT + " " + EXPORT_TYPE + "=\"" + exportType + "\">\n");
       }
       if (format == Format.csv) {
+        fw.write("sep=" + csvSeparator + "\n");
         for (int i = 0; i < fields.length; i++) {
           fw.write((i > 0 ? csvSeparator : "") + fields[i]);
         }

@@ -69,13 +69,13 @@ AutoCompletePopupWindowCallback {
     super(name, value, type, category, description);
     this.showButton = showButton;
     this.popupComplete = Daten.efaConfig == null || Daten.efaConfig.getValuePopupComplete();
-    if (isPerson(name)) {
+    if (isPersonListHidden(name)) {
       this.showButton = false;
       this.popupComplete = false;
     }
   }
 
-  private boolean isPerson(String fieldname) {
+  private boolean isPersonListHidden(String fieldname) {
     if (fieldname == null) {
       return false;
     }
@@ -88,14 +88,15 @@ AutoCompletePopupWindowCallback {
         || fieldname.matches("Crew..Name")
         || fieldname.matches("PersonList_._PersonId")
         || fieldname.matches("PersonList_.._PersonId")
-        || name == "ReportedByPersonId"
-        || name == "FixedByPersonId") {
+        || fieldname == "ReportedByPersonId"
+        || fieldname == "FixedByPersonId"
+        || fieldname == "From" /* Emails */) {
       return true;
     } else if (fieldname == "BOAT"
-        || name == "BoatName"
-        || name == "DestinationName"
-        || name == "GUIITEM_ADDITIONALWATERS"
-        || name == "SessionGroupId") {
+        || fieldname == "BoatName"
+        || fieldname == "DestinationName"
+        || fieldname == "GUIITEM_ADDITIONALWATERS"
+        || fieldname == "SessionGroupId") {
       return false;
     }
     return false; // fuer Breakpoint
@@ -275,8 +276,11 @@ AutoCompletePopupWindowCallback {
     if (field == null) {
       return;
     }
+    if (isPersonListHidden(getName())) {
+      return;
+    }
+
     JTextField field = (JTextField) this.field;
-    // System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"'");
 
     AutoCompleteList list = getAutoCompleteList();
     if (list == null) {
@@ -284,10 +288,6 @@ AutoCompletePopupWindowCallback {
       return;
     } else {
       list.update();
-    }
-
-    if (isPerson(getName())) {
-      return;
     }
 
     if (e != null && e.getKeyCode() == -23) {

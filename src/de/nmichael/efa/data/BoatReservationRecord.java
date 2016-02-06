@@ -178,11 +178,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public DataTypeDate getDateTo() {
-    DataTypeDate dateTo = getDate(DATETO);
-    if (dateTo != null) {
-      return dateTo;
-    }
-    return getDateFrom();
+    return getDate(DATETO);
   }
 
   public void setDayOfWeek(String dayOfWeek) {

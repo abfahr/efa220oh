@@ -566,12 +566,12 @@ public class BoatReservationRecord extends DataRecord {
     }
     v.add(personId);
 
-    item = new ItemTypeString(BoatReservationRecord.REASON,
+    ItemTypeString reason = new ItemTypeString(BoatReservationRecord.REASON,
         getReason(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Reservierungsgrund"));
-    item.setNotNull(true);
-    v.add(item);
+    reason.setMinCharacters(5);
+    v.add(reason);
 
     item = new ItemTypeString(BoatReservationRecord.CONTACT,
         getContact(),

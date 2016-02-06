@@ -95,8 +95,14 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
           it.setVisible(false);
           it.setEditable(false);
           itemListenerAction(it, null);
-          break;
+          continue;
         }
+        if (it.getName().equals(BoatReservationRecord.DAYOFWEEK)) {
+          // sonst verhindert ein Dirty das Abbrechen:
+          it.parseValue("SUNDAY");
+          it.setUnchanged();
+        }
+
       }
     }
   }

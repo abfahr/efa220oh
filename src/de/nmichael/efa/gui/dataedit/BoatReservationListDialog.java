@@ -200,13 +200,11 @@ public class BoatReservationListDialog extends DataListDialog {
   }
 
   @Override
-  public void closeButton_actionPerformed(ActionEvent e) {
-    ICalendarExport cal = new ICalendarExport();
-    cal.saveAllReservationToCalendarFile();
-
+  public boolean cancel() {
+    new ICalendarExport().saveAllReservationToCalendarFile();
     saveBootshausReservierungenToCsvFile();
 
-    super.closeButton_actionPerformed(e);
+    return super.cancel();
   }
 
   private void saveBootshausReservierungenToCsvFile() {

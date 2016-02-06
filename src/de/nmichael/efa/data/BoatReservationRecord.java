@@ -166,7 +166,11 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public DataTypeDate getDateFrom() {
-    return getDate(DATEFROM);
+    DataTypeDate dateFrom = getDate(DATEFROM);
+    if (dateFrom != null) {
+      return dateFrom;
+    }
+    return DataTypeDate.today();
   }
 
   public void setDateTo(DataTypeDate date) {
@@ -174,7 +178,11 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public DataTypeDate getDateTo() {
-    return getDate(DATETO);
+    DataTypeDate dateTo = getDate(DATETO);
+    if (dateTo != null) {
+      return dateTo;
+    }
+    return getDateFrom();
   }
 
   public void setDayOfWeek(String dayOfWeek) {
@@ -475,85 +483,121 @@ public class BoatReservationRecord extends DataRecord {
 
   @Override
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
-    String CAT_BASEDATA = "%01%" + International.getString("Reservierung");
+    final String CAT_BASEDATA = "%01%" + International.getString("Reservierung");
     IItemType item;
     Vector<IItemType> v = new Vector<IItemType>();
-    String boatName = getBoatName();
 
-    ItemTypeDate dateFrom;
-    ItemTypeTime timeFrom;
-
-    v.add(item = new ItemTypeLabel("GUI_BOAT_NAME",
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getMessage("Reservierung für {boat}",
-            boatName)));
+    item = new ItemTypeLabel("GUI_BOAT_NAME",
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getMessage("Reservierung für {boat}", getBoatName()));
     item.setPadding(0, 0, 0, 10);
-    v.add(item = new ItemTypeRadioButtons(BoatReservationRecord.TYPE, (getType() != null
-        && getType().length() > 0 ? getType() : TYPE_ONETIME),
-        new String[] {
-            TYPE_ONETIME,
-            TYPE_WEEKLY
-        },
+    v.add(item);
+
+    item = new ItemTypeRadioButtons(BoatReservationRecord.TYPE,
+        (getType() != null && getType().length() > 0 ? getType() : TYPE_ONETIME),
+        new String[] { TYPE_ONETIME, TYPE_WEEKLY },
         new String[] {
             International.getString("einmalig"),
             International.getString("wöchentlich"),
         },
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Art der Reservierung")));
-    v.add(item = new ItemTypeStringList(BoatReservationRecord.DAYOFWEEK, getDayOfWeek(),
-        EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-        International.getString("Wochentag")));
-    item.setNotNull(true);
-    v.add(item = new ItemTypeDate(BoatReservationRecord.DATEFROM, getDateFrom(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Von") + " (" +
-            International.getString("Tag") + ")"));
-    item.setNotNull(true);
-    dateFrom = (ItemTypeDate) item;
-    v.add(item = new ItemTypeTime(BoatReservationRecord.TIMEFROM, getTimeFrom(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Von") + " (" +
-            International.getString("Zeit") + ")"));
-    ((ItemTypeTime) item).enableSeconds(false);
-    item.setNotNull(true);
-    timeFrom = (ItemTypeTime) item;
-    v.add(item = new ItemTypeDate(BoatReservationRecord.DATETO, getDateTo(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bis") + " (" +
-            International.getString("Tag") + ")"));
-    item.setNotNull(true);
-    ((ItemTypeDate) item).setMustBeAfter(dateFrom, true);
-    ItemTypeDate dateTo = (ItemTypeDate) item;
-    v.add(item = new ItemTypeTime(BoatReservationRecord.TIMETO, getTimeTo(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bis") + " (" +
-            International.getString("Zeit") + ")"));
-    ((ItemTypeTime) item).enableSeconds(false);
-    ((ItemTypeTime) item).setReferenceTime(DataTypeTime.time235959());
-    item.setNotNull(true);
-    ((ItemTypeTime) item).setMustBeAfter(dateFrom, timeFrom, dateTo, false);
-    v.add(item = getGuiItemTypeStringAutoComplete(BoatReservationRecord.PERSONID, null,
+        International.getString("Art der Reservierung"));
+    v.add(item);
+
+    item = new ItemTypeStringList(BoatReservationRecord.DAYOFWEEK,
+        getDayOfWeek(),
+        EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
+        EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-        getPersistence().getProject().getPersons(false), System.currentTimeMillis(),
+        International.getString("Wochentag"));
+    item.setNotNull(true);
+    v.add(item);
+
+    ItemTypeDate dateFrom = new ItemTypeDate(BoatReservationRecord.DATEFROM,
+        getDateFrom(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Von") + " (" +
+            International.getString("Tag") + ")");
+    dateFrom.setNotNull(true);
+    v.add(dateFrom);
+
+    ItemTypeTime timeFrom = new ItemTypeTime(BoatReservationRecord.TIMEFROM,
+        getTimeFrom(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Von") + " (" +
+            International.getString("Zeit") + ")");
+    timeFrom.setNotNull(true);
+    timeFrom.enableSeconds(false);
+    v.add(timeFrom);
+
+    ItemTypeDate dateTo = new ItemTypeDate(BoatReservationRecord.DATETO,
+        getDateTo(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Bis") + " (" +
+            International.getString("Tag") + ")");
+    dateTo.setNotNull(true);
+    dateTo.setMustBeAfter(dateFrom, true);
+    v.add(dateTo);
+
+    ItemTypeTime timeto = new ItemTypeTime(BoatReservationRecord.TIMETO,
+        getTimeTo(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Bis") + " (" +
+            International.getString("Zeit") + ")");
+    timeto.setNotNull(true);
+    timeto.enableSeconds(false);
+    timeto.setReferenceTime(DataTypeTime.time235959());
+    timeto.setMustBeAfter(dateFrom, timeFrom, dateTo, false);
+    v.add(timeto);
+
+    ItemTypeStringAutoComplete personId = getGuiItemTypeStringAutoComplete(
+        BoatReservationRecord.PERSONID, null,
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        getPersistence().getProject().getPersons(false),
         System.currentTimeMillis(),
-        International.getString("Reserviert für")));
-    ((ItemTypeStringAutoComplete) item)
-        .setAlternateFieldNameForPlainText(BoatReservationRecord.PERSONNAME);
+        System.currentTimeMillis(),
+        International.getString("Reserviert für"));
+    personId.setNotNull(true);
+    personId.setAlternateFieldNameForPlainText(BoatReservationRecord.PERSONNAME);
     if (getPersonId() != null) {
-      ((ItemTypeStringAutoComplete) item).setId(getPersonId());
+      personId.setId(getPersonId());
     } else {
-      ((ItemTypeStringAutoComplete) item).parseAndShowValue(getPersonName());
+      personId.parseAndShowValue(getPersonName());
     }
+    v.add(personId);
+
+    item = new ItemTypeString(BoatReservationRecord.REASON,
+        getReason(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Reservierungsgrund"));
     item.setNotNull(true);
-    v.add(item = new ItemTypeString(BoatReservationRecord.REASON, getReason(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Reservierungsgrund")));
-    v.add(item = new ItemTypeString(BoatReservationRecord.CONTACT, getContact(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon für Rückfragen")));
+    v.add(item);
+
+    item = new ItemTypeString(BoatReservationRecord.CONTACT,
+        getContact(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Telefon für Rückfragen"));
+    item.setNotNull(true);
+    v.add(item);
 
     // Virtual Fields hidden internal, only for list output and export/import
-    v.add(item = new ItemTypeString(BoatReservationRecord.VBOAT, getBoatName(),
-        IItemType.TYPE_INTERNAL, "", International.getString("Boot")));
-    v.add(item = new ItemTypeString(BoatReservationRecord.VRESERVATIONDATE,
+    item = new ItemTypeString(BoatReservationRecord.VBOAT,
+        getBoatName(),
+        IItemType.TYPE_INTERNAL, "",
+        International.getString("Boot"));
+    v.add(item);
+
+    item = new ItemTypeString(BoatReservationRecord.VRESERVATIONDATE,
         getReservationTimeDescription(),
-        IItemType.TYPE_INTERNAL, "", International.getString("Zeitraum")));
-    v.add(item = new ItemTypeString(BoatReservationRecord.VPERSON, getPersonAsName(),
-        IItemType.TYPE_INTERNAL, "", International.getString("Person")));
+        IItemType.TYPE_INTERNAL, "",
+        International.getString("Zeitraum"));
+    v.add(item);
+
+    item = new ItemTypeString(BoatReservationRecord.VPERSON,
+        getPersonAsName(),
+        IItemType.TYPE_INTERNAL, "",
+        International.getString("Person"));
+    v.add(item);
     return v;
   }
 

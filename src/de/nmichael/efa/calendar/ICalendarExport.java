@@ -135,6 +135,9 @@ public class ICalendarExport {
         if (dateFrom == null) {
           dateFrom = new DataTypeDate(lastModified);
         }
+        if (dateFrom.equals(DataTypeDate.today())) {
+          dateFrom = new DataTypeDate(lastModified);
+        }
         if (dateTo == null) {
           dateTo = dateFrom;
         }

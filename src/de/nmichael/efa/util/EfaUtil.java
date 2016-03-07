@@ -477,7 +477,7 @@ public class EfaUtil {
     if (s == null) {
       return null;
     }
-    Vector v = new Vector<String>();
+    Vector<String> v = new Vector<String>();
     while (s.length() != 0) {
       int pos = s.indexOf(sep);
       if (pos >= 0) {
@@ -528,15 +528,13 @@ public class EfaUtil {
     if (s == null) {
       return null;
     }
-    Vector v;
+    Vector<String> v = new Vector<String>();
     if (s.length() > 0) {
       v = split(s, sep);
-    } else {
-      v = new Vector();
     }
     String[] aa = new String[v.size()];
     for (int ii = 0; ii < v.size(); ii++) {
-      aa[ii] = (String) v.get(ii);
+      aa[ii] = v.get(ii);
     }
     return aa;
   }
@@ -552,14 +550,14 @@ public class EfaUtil {
         || !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER)) {
       return stati;
     }
-    Vector stati2 = new Vector();
+    Vector<String> stati2 = new Vector<String>();
     for (int i = 0; i < stati.length; i++) {
       if (!stati[i].toLowerCase().equals(
           Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST)
-          .toLowerCase())
+              .toLowerCase())
           && !stati[i].toLowerCase().equals(
               Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER)
-              .toLowerCase())) {
+                  .toLowerCase())) {
         stati2.add(stati[i]);
       }
     }
@@ -567,7 +565,7 @@ public class EfaUtil {
     stati2.add(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER));
     String[] a = new String[stati2.size()];
     for (int i = 0; i < stati2.size(); i++) {
-      a[i] = (String) stati2.get(i);
+      a[i] = stati2.get(i);
     }
     return a;
   }
@@ -577,15 +575,13 @@ public class EfaUtil {
     if (s == null) {
       return null;
     }
-    Vector v;
+    Vector<String> v = new Vector<String>();
     if (s.length() > 0) {
       v = split(s, sep);
-    } else {
-      v = new Vector();
     }
     int[] aa = new int[v.size()];
     for (int ii = 0; ii < v.size(); ii++) {
-      aa[ii] = string2int((String) v.get(ii), 0);
+      aa[ii] = string2int(v.get(ii), 0);
     }
     return aa;
   }
@@ -991,12 +987,7 @@ public class EfaUtil {
     int wo = t.indexOf(s);
     int l = s.length();
     if (wo >= 0 && wo + l < t.length() && t.charAt(wo + l) >= 'A' && t.charAt(wo + l) <= 'Z') // auch
-      // Buchstaben
-      // als
-      // Ergänzung
-      // zur
-      // LfdNr
-      // zulassen
+    // Buchstaben als Ergänzung zur LfdNr zulassen
     {
       s = s + t.charAt(wo + l);
     }
@@ -1024,11 +1015,11 @@ public class EfaUtil {
 
   // zu einem gegebenen OriginalNamen s aus einer Datenliste l alle passenden Synonymnamen
   // heraussuchen
-  public static Vector org2syn(Synonyme l, String s) {
+  public static Vector<String> org2syn(Synonyme l, String s) {
     if (l == null || s == null) {
       return null;
     }
-    Vector v = new Vector();
+    Vector<String> v = new Vector<String>();
     for (DatenFelder d = l.getCompleteFirst(); d != null; d = l.getCompleteNext()) {
       if (d.get(Synonyme.ORIGINAL).equals(s)) {
         v.add(d.get(Synonyme.SYNONYM));
@@ -1194,43 +1185,43 @@ public class EfaUtil {
   public static String getCurrentTimeStamp() {
     Calendar cal = new GregorianCalendar();
     return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
-    + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
-    + makeTimeString(cal.get(Calendar.YEAR), 4) + " "
-    + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
-    + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
-    + makeTimeString(cal.get(Calendar.SECOND), 2);
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+        + makeTimeString(cal.get(Calendar.YEAR), 4) + " "
+        + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
+        + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
+        + makeTimeString(cal.get(Calendar.SECOND), 2);
   }
 
   public static String getCurrentTimeStampHHMMSS() {
     Calendar cal = new GregorianCalendar();
     return makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
-    + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
-    + makeTimeString(cal.get(Calendar.SECOND), 2);
+        + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
+        + makeTimeString(cal.get(Calendar.SECOND), 2);
   }
 
   public static String getCurrentTimeStampHHMM() {
     Calendar cal = new GregorianCalendar();
     return makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
-    + makeTimeString(cal.get(Calendar.MINUTE), 2);
+        + makeTimeString(cal.get(Calendar.MINUTE), 2);
   }
 
   public static String getTimeStamp(long l) {
     Calendar cal = new GregorianCalendar();
     cal.setTimeInMillis(l);
     return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
-    + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
-    + makeTimeString(cal.get(Calendar.YEAR), 4) + " "
-    + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
-    + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
-    + makeTimeString(cal.get(Calendar.SECOND), 2);
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+        + makeTimeString(cal.get(Calendar.YEAR), 4) + " "
+        + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
+        + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
+        + makeTimeString(cal.get(Calendar.SECOND), 2);
   }
 
   public static String getTimeStampDDMMYYYY(long l) {
     Calendar cal = new GregorianCalendar();
     cal.setTimeInMillis(l);
     return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
-    + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
-    + makeTimeString(cal.get(Calendar.YEAR), 4);
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+        + makeTimeString(cal.get(Calendar.YEAR), 4);
   }
 
   public static String getCurrentTimeStampYYYYMMDD_HHMMSS() {
@@ -1262,16 +1253,25 @@ public class EfaUtil {
   public static String getCurrentTimeStampDD_MM_HH_MM() {
     Calendar cal = new GregorianCalendar();
     return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
-    + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + ". "
-    + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
-    + makeTimeString(cal.get(Calendar.MINUTE), 2);
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + ". "
+        + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
+        + makeTimeString(cal.get(Calendar.MINUTE), 2);
+  }
+
+  public static String getCurrentTimeStampDD_MM_YYYY_HH_MM() {
+    Calendar cal = new GregorianCalendar();
+    return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+        + makeTimeString(cal.get(Calendar.YEAR), 4) + " "
+        + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
+        + makeTimeString(cal.get(Calendar.MINUTE), 2);
   }
 
   public static String getCurrentTimeStampDD_MM_YYYY() {
     Calendar cal = new GregorianCalendar();
     return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
-    + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
-    + makeTimeString(cal.get(Calendar.YEAR), 4);
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+        + makeTimeString(cal.get(Calendar.YEAR), 4);
   }
 
   public static String getCurrentTimeStampYYYY() {
@@ -1290,14 +1290,14 @@ public class EfaUtil {
       return "---";
     }
     return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
-    + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
-    + makeTimeString(cal.get(Calendar.YEAR), 4)
-    + (printTime
-        ? " "
-        + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
-        + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
-        + makeTimeString(cal.get(Calendar.SECOND), 2)
-        : "");
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+        + makeTimeString(cal.get(Calendar.YEAR), 4)
+        + (printTime
+            ? " "
+                + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
+                + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
+                + makeTimeString(cal.get(Calendar.SECOND), 2)
+            : "");
   }
 
   public static String getWoTag(String datum) {
@@ -1434,7 +1434,7 @@ public class EfaUtil {
 
     try {
       ZipFile zip = new ZipFile(zipFile);
-      Enumeration files = zip.entries();
+      Enumeration<?> files = zip.entries();
       ZipEntry file = (ZipEntry) files.nextElement();
       while (file != null) {
         String filename = file.getName();
@@ -1512,17 +1512,18 @@ public class EfaUtil {
     return result;
   }
 
-  public static String createZipArchive(Vector sourceDirs, Vector inclSubdirs, String zipFile) {
+  public static String createZipArchive(Vector<String> sourceDirs, Vector<Boolean> inclSubdirs,
+      String zipFile) {
     try {
       String warnings = "";
       BufferedInputStream origin = null;
       FileOutputStream dest = new FileOutputStream(zipFile);
       ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
-      Hashtable processedDirectories = new Hashtable();
+      Hashtable<String, String> processedDirectories = new Hashtable<String, String>();
       byte data[] = new byte[ZIP_BUFFER];
       for (int j = 0; j < sourceDirs.size(); j++) {
         // get a list of files from current directory
-        String dir = (String) sourceDirs.get(j);
+        String dir = sourceDirs.get(j);
         if (!dir.endsWith(Daten.fileSep)) {
           dir += Daten.fileSep;
         }
@@ -1556,7 +1557,7 @@ public class EfaUtil {
           if ((new File(dir + file)).isDirectory()) {
             if (j >= inclSubdirs.size() || // j >= inclSubdirs.size() == true, wenn das Verzeichnis
                 // zuvor durch folgende Zeile dynamisch hinzugefügt wurde
-                ((Boolean) inclSubdirs.get(j)).booleanValue()) {
+                inclSubdirs.get(j).booleanValue()) {
               sourceDirs.add(dir + file);
             }
           } else {
@@ -1690,7 +1691,7 @@ public class EfaUtil {
     return sum;
   }
 
-  public static String vector2string(Vector v, String sep) {
+  public static String vector2string(Vector<String> v, String sep) {
     if (v == null) {
       return null;
     }
@@ -1708,11 +1709,11 @@ public class EfaUtil {
     Calendar cal = new GregorianCalendar();
     boolean birthday = cal.get(Calendar.MONTH) + 1 == 7
         && cal.get(Calendar.DAY_OF_MONTH) >= 15;
-        if (birthday) {
-          return cal.get(Calendar.YEAR) - 2001;
-        } else {
-          return -1;
-        }
+    if (birthday) {
+      return cal.get(Calendar.YEAR) - 2001;
+    } else {
+      return -1;
+    }
   }
 
   public static void pack(Window frame) {

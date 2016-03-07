@@ -49,8 +49,8 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
    *
    */
   private static final long serialVersionUID = 1L;
-  Vector directories;
-  Vector inclSubdirs;
+  Vector<String> directories;
+  Vector<Boolean> inclSubdirs;
   Vector selected;
 
   JPanel jPanel1 = new JPanel();
@@ -68,17 +68,19 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
   ButtonGroup buttonGroup = new ButtonGroup();
   JButton dirSelectButton = new JButton();
 
-  public DatensicherungFrame(JDialog parent, Vector directories, Vector inclSubdirs, Vector selected) {
+  public DatensicherungFrame(JDialog parent, Vector<String> directories,
+      Vector<Boolean> inclSubdirs, Vector selected) {
     super(parent);
     constructor(directories, inclSubdirs, selected);
   }
 
-  public DatensicherungFrame(JFrame parent, Vector directories, Vector inclSubdirs, Vector selected) {
+  public DatensicherungFrame(JFrame parent, Vector<String> directories,
+      Vector<Boolean> inclSubdirs, Vector selected) {
     super(parent);
     constructor(directories, inclSubdirs, selected);
   }
 
-  private void constructor(Vector directories, Vector inclSubdirs, Vector selected) {
+  private void constructor(Vector<String> directories, Vector<Boolean> inclSubdirs, Vector selected) {
     this.directories = directories;
     this.inclSubdirs = inclSubdirs;
     this.selected = selected;
@@ -153,9 +155,9 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
       jPanel2.add(jLabel1, new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
           , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2
-      .add(scrollPane, new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0),
-          0, 0));
+          .add(scrollPane, new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0
+              , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0),
+              0, 0));
       jPanel2.add(jLabel2, new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0
           , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 0, 0, 0), 0, 0));
       jPanel2.add(efaBackupRadioButton, new GridBagConstraints(0, 3, 3, 1, 0.0, 0.0
@@ -163,9 +165,9 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
       jPanel2.add(belVerzRadioButton, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
           , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2
-      .add(backupVerzeichnis, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0),
-          0, 0));
+          .add(backupVerzeichnis, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
+              , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0),
+              0, 0));
       jPanel2.add(dirSelectButton, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0
           , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       dirSelectButton.setIcon(new ImageIcon(DatensicherungFrame.class
@@ -192,7 +194,7 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
 
       JCheckBox subdirCheck = new JCheckBox();
       subdirCheck.setText("mit Unterverzeichnissen");
-      subdirCheck.setSelected(((Boolean) inclSubdirs.get(i)).booleanValue());
+      subdirCheck.setSelected(inclSubdirs.get(i).booleanValue());
       verzeichnisse[i][2] = subdirCheck;
     }
 
@@ -240,8 +242,8 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
   }
 
   void startButton_actionPerformed(ActionEvent e) {
-    Vector dirs = new Vector();
-    Vector inclSubdirs = new Vector();
+    Vector<String> dirs = new Vector<String>();
+    Vector<Boolean> inclSubdirs = new Vector<Boolean>();
     for (int i = 0; i < directories.size(); i++) {
       if (((JCheckBox) directoryTable.getValueAt(i, 0)).isSelected()) {
         dirs.add(directories.get(i));

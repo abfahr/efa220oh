@@ -811,7 +811,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     searchField.getValueFromGui();
     filterBySearch.getValueFromGui();
     if (filterBySearch.isChanged() || (filterBySearch.getValue() && searchField.isChanged())) {
-      updateData();
+      updateDataMitRightSideRefresh(false);
       updateAggregations(filterBySearch.getValue());
       showValue();
     }
@@ -870,6 +870,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   protected void updateData() {
+    updateDataMitRightSideRefresh(true);
+  }
+
+  private void updateDataMitRightSideRefresh(boolean updateDataRightSideCalendar) {
     if (persistence == null) {
       return;
     }
@@ -890,7 +894,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       DataKeyIterator it = dataAccess.getStaticIterator();
       DataKey<?, ?, ?> key = it.getFirst();
       Hashtable<DataKey<?, ?, ?>, String> uniqueHash = new Hashtable<DataKey<?, ?, ?>, String>();
-      mappingDateToReservations = new Hashtable<DataTypeDate, String>();
+      if (updateDataRightSideCalendar) {
+        mappingDateToReservations = new Hashtable<DataTypeDate, String>();
+      }
       while (key != null) {
         // avoid duplicate versionized keys for the same record
         if (isVersionized) {
@@ -933,7 +939,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               }
             }
           }
-          mappingDateToName(r);
+          if (updateDataRightSideCalendar) {
+            mappingDateToName(r);
+          }
         }
         key = it.getNext();
       }

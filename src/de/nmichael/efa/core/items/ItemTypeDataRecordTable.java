@@ -35,7 +35,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -83,7 +82,6 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListener {
 
-  private static final UUID BOOTSHAUS = new UUID(-7033734156567033637L, -8676639372818108974L);
   public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
   public static final int ACTION_NEW = 0;
   public static final int ACTION_EDIT = 1;
@@ -421,6 +419,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 Logger.logdebug(e1);
               }
             }
+            if (dlg instanceof BoatReservationEditDialog) {
+              BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg).getDataRecord();
+              if (reservation.isBootshausOH()) {
+                sendEmail("wolle", "INSERT", reservation);
+              }
+            }
             break;
           case ACTION_EDIT:
             for (int i = 0; records != null && i < records.length; i++) {
@@ -459,6 +463,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 dlg.showDialog();
                 if (!dlg.getDialogResult()) {
                   break;
+                }
+                if (dlg instanceof BoatReservationEditDialog) {
+                  BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg)
+                      .getDataRecord();
+                  if (reservation.isBootshausOH()) {
+                    sendEmail("wolle", "UPDATE", reservation);
+                  }
                 }
               }
             }
@@ -506,6 +517,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               for (int i = 0; records != null && i < records.length; i++) {
                 if (records[i] != null) {
                   if (persistence.data().getMetaData().isVersionized()) {
+                    if (records[i] instanceof BoatReservationRecord) {
+                      BoatReservationRecord reservation = (BoatReservationRecord) records[i];
+                      if (reservation.isBootshausOH()) {
+                        sendEmail("wolle", "DELETE", reservation);
+                      }
+                    }
                     persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
                     if (deleteAt >= 0) {
                       Logger.log(
@@ -536,6 +553,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                                           records[i].getQualifiedName()));
                     }
                   } else {
+                    if (records[i] instanceof BoatReservationRecord) {
+                      BoatReservationRecord reservation = (BoatReservationRecord) records[i];
+                      if (reservation.isBootshausOH()) {
+                        sendEmail("wolle", "DELETE", reservation);
+                      }
+                    }
                     persistence.data().delete(records[i].getKey());
                     Logger.log(
                         Logger.INFO,
@@ -680,6 +703,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
       // persistence.
       BoatReservations reservations = Daten.project.getBoatReservations(true);
+      // reservations = persistence.data().getAllKeys();
+      // reservations = (BoatReservations) dataRecord.getPersistence(); // TODO
 
       // boats.
       Boats boats = Daten.project.getBoats(false);
@@ -723,6 +748,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
       }
     }
+  }
+
+  private void sendEmail(String empfaenger, String aktion, BoatReservationRecord reservierung) {
+    // TODO Auto-generated method stub
+    System.out.println(empfaenger + aktion);
   }
 
   private boolean versionizedRecordOfThatNameAlreadyExists(BoatReservationRecord dataRecord) {
@@ -1171,7 +1201,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   private void mappingDateToName(DataRecord r) {
     if (r instanceof BoatReservationRecord) {
       BoatReservationRecord brr = (BoatReservationRecord) r;
-      UUID boatId = brr.getBoatId();
+      boolean isBootshausReservierung = brr.isBootshausOH();
       String bootshausKuerzel = "BH";
       String trennzeichen = "'";
       List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo(),
@@ -1190,7 +1220,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         myValue = myValue.replace(trennzeichen, "");
         int myCount = Integer.parseInt("0" + myValue);
 
-        if (boatId.equals(BOOTSHAUS)) {
+        if (isBootshausReservierung) {
           containsBootshaus = true;
         } else {
           myCount++;

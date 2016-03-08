@@ -103,10 +103,10 @@ public class Daten {
   public final static String EFAWETTURL = "http://efa.rudern.de";
   public final static String NICOLASURL = "http://www.nmichael.de";
   public final static String EFAEMAILNAME = "efa";
-  public final static String EMAILINFO = "info@efa.nmichael.de";
-  public final static String EMAILBUGS = "bugs@efa.nmichael.de";
-  public final static String EMAILHELP = "help@efa.nmichael.de";
-  public final static String EMAILDEV = "dev@efa.nmichael.de";
+  public final static String EMAILINFO = "info.efa@abfx.de";
+  public final static String EMAILBUGS = "bugs.efa@abfx.de";
+  public final static String EMAILHELP = "help.efa@abfx.de";
+  public final static String EMAILDEV = "dev.efa@abfx.de";
   public static final String EFA_USERDATA_DIR = "efa2"; // <efauser> = ~/efa2/ Directory for efauser
   // data (if not efa program directory)
   public static final String EFA_RUNNING = "efa.run"; // <efauser>/efa.run Indiz, daß efaDirekt
@@ -339,11 +339,11 @@ public class Daten {
           project.closeAllStorageObjects();
         } catch (Exception e) {
           Logger
-          .log(
-              Logger.ERROR,
-              Logger.MSG_DATA_CLOSEFAILED,
-              LogString.fileCloseFailed(project.toString(), project.getDescription(),
-                  e.toString()));
+              .log(
+                  Logger.ERROR,
+                  Logger.MSG_DATA_CLOSEFAILED,
+                  LogString.fileCloseFailed(project.toString(), project.getDescription(),
+                      e.toString()));
         }
       }
       if (admins != null && admins.isOpen()) {
@@ -559,7 +559,7 @@ public class Daten {
             null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
             IItemType.TYPE_PUBLIC, "",
             International
-            .getString("In welchem Verzeichnis soll efa sämtliche Benutzerdaten ablegen?"));
+                .getString("In welchem Verzeichnis soll efa sämtliche Benutzerdaten ablegen?"));
         dir.setFieldSize(600, 19);
         if (SimpleInputDialog.showInputDialog((Frame) null,
             International.getString("Verzeichnis für Nutzerdaten"), dir)) {
@@ -1008,7 +1008,7 @@ public class Daten {
     iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
     Daten.keyStore = (applID != APPL_DRV ?
         new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray()) :
-          new EfaKeyStore(Daten.efaDataDirectory + Daten.DRVKEYSTORE, "efa".toCharArray()));
+        new EfaKeyStore(Daten.efaDataDirectory + Daten.DRVKEYSTORE, "efa".toCharArray()));
   }
 
   public static void iniRemoteEfaServer() {
@@ -1035,14 +1035,14 @@ public class Daten {
             Logger.WARNING,
             Logger.MSG_CORE_MISSINGPLUGIN,
             International.getString("Fehlendes Plugin")
-            + ": "
-            + Plugins.PLUGIN_MAIL
-            + " - "
-            + International.getString("Kein email-Versand möglich!")
-            + " "
-            + International.getMessage(
-                "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
-                Daten.pluginWebpage));
+                + ": "
+                + Plugins.PLUGIN_MAIL
+                + " - "
+                + International.getString("Kein email-Versand möglich!")
+                + " "
+                + International.getMessage(
+                    "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
+                    Daten.pluginWebpage));
       }
     }
   }

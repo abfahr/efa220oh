@@ -739,7 +739,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     ((ItemTypeString) item).setNotAllowedCharacters(",");
     v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
         EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+        .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
     v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geburtstag")));
@@ -749,9 +749,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       v.add(item = new ItemTypeStringList(PersonRecord.STATUSID,
           (getStatusId() != null ? getStatusId().toString() : status.getStatusOther().getId()
               .toString()),
-              status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status
+          status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status
               .makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
-              IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
 
       v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verein")));
@@ -764,14 +764,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-          .getString("von allgemein verfügbaren Statistiken ausnehmen")));
+              .getString("von allgemein verfügbaren Statistiken ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE,
           getExcludeFromCompetition(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-          .getString("von Wettbewerbsmeldungen ausnehmen")));
+              .getString("von Wettbewerbsmeldungen ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-          .getString("von Vereinsarbeit ausnehmen")));
+              .getString("von Vereinsarbeit ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
       v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
@@ -864,35 +864,33 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   @Override
   public TableItemHeader[] getGuiTableHeader() {
-    TableItemHeader[] header = new TableItemHeader[4];
+    TableItemHeader[] header = new TableItemHeader[5];
     if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
       header[0] = new TableItemHeader(International.getString("Vorname"));
       header[1] = new TableItemHeader(International.getString("Nachname"));
-      header[2] = new TableItemHeader(International.getString("Geburtstag"));
-      header[3] = new TableItemHeader(International.getString("Status"));
     } else {
       header[0] = new TableItemHeader(International.getString("Nachname"));
       header[1] = new TableItemHeader(International.getString("Vorname"));
-      header[2] = new TableItemHeader(International.getString("Geburtstag"));
-      header[3] = new TableItemHeader(International.getString("Status"));
     }
+    header[2] = new TableItemHeader(International.getString("Geburtstag"));
+    header[3] = new TableItemHeader(International.getString("Status"));
+    header[4] = new TableItemHeader(International.getString("Status"));
     return header;
   }
 
   @Override
   public TableItem[] getGuiTableItems() {
-    TableItem[] items = new TableItem[4];
+    TableItem[] items = new TableItem[5];
     if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
       items[0] = new TableItem(getFirstName());
       items[1] = new TableItem(getLastName());
-      items[2] = new TableItem(getBirthday());
-      items[3] = new TableItem(getStatusName());
     } else {
       items[0] = new TableItem(getLastName());
       items[1] = new TableItem(getFirstName());
-      items[2] = new TableItem(getBirthday());
-      items[3] = new TableItem(getStatusName());
     }
+    items[2] = new TableItem(getBirthday());
+    items[3] = new TableItem(getStatusName());
+    items[4] = new TableItem(getBoatUsageBan());
     return items;
   }
 }

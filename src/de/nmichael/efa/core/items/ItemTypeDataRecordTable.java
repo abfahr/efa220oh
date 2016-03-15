@@ -364,8 +364,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
     keys = items.keySet().toArray(new String[0]);
     Arrays.sort(keys);
-    // TODO
-    // refreshCalendar(0, currentMonth, currentYear);
     super.showValue();
   }
 

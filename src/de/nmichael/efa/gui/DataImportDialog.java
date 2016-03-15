@@ -172,13 +172,13 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
     keyFields.setPadding(0, 0, 20, 0);
     keyFields.displayOnGui(this, mainPanel, 0, 5);
 
-    importMode = new ItemTypeStringList("IMPORTMODE", DataImport.IMPORTMODE_ADD,
+    importMode = new ItemTypeStringList("IMPORTMODE", DataImport.IMPORTMODE_ADDUPD,
         new String[] { DataImport.IMPORTMODE_ADD,
-        DataImport.IMPORTMODE_UPD,
-        DataImport.IMPORTMODE_ADDUPD },
+            DataImport.IMPORTMODE_UPD,
+            DataImport.IMPORTMODE_ADDUPD },
         new String[] { International.getString("Datensätze neu hinzufügen"),
-        International.getString("Vorhandene Datensätze aktualisieren"),
-        International.getString("Datensätze hinzufügen oder aktualisieren") },
+            International.getString("Vorhandene Datensätze aktualisieren"),
+            International.getString("Datensätze hinzufügen oder aktualisieren") },
         IItemType.TYPE_PUBLIC, "",
         International.getStringWithMnemonic("Import-Modus"));
     importMode.registerItemListener(this);
@@ -198,14 +198,14 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
       validAtDateTime.displayOnGui(this, mainPanel, 0, 11);
       importModeUpd = new ItemTypeStringList(
           "IMPORTMODEUPD",
-          DataImport.UPPMODE_CREATENEWVERSION,
+          DataImport.UPDMODE_UPDATEVALIDVERSION,
           new String[] { DataImport.UPDMODE_UPDATEVALIDVERSION, DataImport.UPPMODE_CREATENEWVERSION },
           new String[] {
               International.getString("aktualisiere die zum angegebenen Zeitpunkt gültige Version"),
               International
-              .getString("erstelle eine neue Version mit angegebenem Gültigkeitsbeginn") },
-              IItemType.TYPE_PUBLIC, "",
-              International.getStringWithMnemonic("beim Aktualisieren eines Datensatzes"));
+                  .getString("erstelle eine neue Version mit angegebenem Gültigkeitsbeginn") },
+          IItemType.TYPE_PUBLIC, "",
+          International.getStringWithMnemonic("beim Aktualisieren eines Datensatzes"));
       importModeUpd.setFieldGrid(2, -1, -1);
       importModeUpd.setFieldSize(450, -1);
       importModeUpd.displayOnGui(this, mainPanel, 0, 12);
@@ -215,19 +215,19 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
       logbookEntryNoHandling = new ItemTypeStringList("LOGBOOKENTRYNOHANDLING",
           DataImport.ENTRYNO_DUPLICATE_SKIP,
           new String[] {
-          DataImport.ENTRYNO_DUPLICATE_SKIP,
-          DataImport.ENTRYNO_DUPLICATE_ADDEND,
-          DataImport.ENTRYNO_ALWAYS_ADDEND
-      },
-      new String[] {
-          International.getString("wenn LfdNr. bereits vorhanden") + ": " +
-              International.getString("Eintrag nicht importieren"),
+              DataImport.ENTRYNO_DUPLICATE_SKIP,
+              DataImport.ENTRYNO_DUPLICATE_ADDEND,
+              DataImport.ENTRYNO_ALWAYS_ADDEND
+          },
+          new String[] {
+              International.getString("wenn LfdNr. bereits vorhanden") + ": " +
+                  International.getString("Eintrag nicht importieren"),
               International.getString("wenn LfdNr. bereits vorhanden") + ": " +
                   International.getString("Eintrag mit neuer LfdNr am Ende importieren"),
-                  International.getString("alle Einträge mit neuer LfdNr am Ende importieren"),
-      },
-      IItemType.TYPE_PUBLIC, "",
-      International.getStringWithMnemonic("LfdNr bei Importdaten"));
+              International.getString("alle Einträge mit neuer LfdNr am Ende importieren"),
+          },
+          IItemType.TYPE_PUBLIC, "",
+          International.getStringWithMnemonic("LfdNr bei Importdaten"));
       logbookEntryNoHandling.setFieldGrid(2, -1, -1);
       logbookEntryNoHandling.setFieldSize(450, -1);
       logbookEntryNoHandling.displayOnGui(this, mainPanel, 0, 12);

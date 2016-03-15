@@ -25,6 +25,8 @@ import org.xml.sax.XMLReader;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
+import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.EfaUtil;
@@ -184,7 +186,7 @@ public class DataImport extends ProgressTask {
     try {
       DataRecord rorig = (versionized
           ? dataAccess.getValidAt(r.getKey(), validAt)
-              : dataAccess.get(r.getKey()));
+          : dataAccess.get(r.getKey()));
       if (rorig == null) {
         logImportFailed(r,
             International.getString("Keine gültige Version des Datensatzes gefunden."), null);
@@ -241,7 +243,7 @@ public class DataImport extends ProgressTask {
     }
   }
 
-  private boolean importRecord(DataRecord r, ArrayList<String> fieldsInInport) {
+  private boolean importRecord(DataRecord r, ArrayList<String> fieldsInImport) {
     try {
       if (Logger.isDebugLogging()) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA,
@@ -264,10 +266,10 @@ public class DataImport extends ProgressTask {
         }
       }
 
-      DataKey key = r.getKey();
+      DataKey<?, ?, ?> key = r.getKey();
       if (key.getKeyPart1() == null || overrideKeyField != null) {
         // first key field is *not* set, or we're overriding the default key field
-        DataKey[] keys = null;
+        DataKey<?, ?, ?>[] keys = null;
         if (overrideKeyField == null) {
           // -> search for record by QualifiedName
           keys = dataAccess.getByFields(r.getQualifiedNameFields(),
@@ -330,13 +332,13 @@ public class DataImport extends ProgressTask {
           logImportFailed(r, International.getString("Datensatz nicht gefunden"), null);
           return false;
         } else {
-          updateRecord(r, fieldsInInport);
+          updateRecord(r, fieldsInImport);
           return true;
         }
       }
       if (importMode.equals(IMPORTMODE_ADDUPD)) {
         if (otherVersions != null && otherVersions.length > 0) {
-          updateRecord(r, fieldsInInport);
+          updateRecord(r, fieldsInImport);
         } else {
           addRecord(r);
         }
@@ -376,6 +378,7 @@ public class DataImport extends ProgressTask {
           encoding));
       String s;
       DataRecord dummyRecord = storageObject.createNewRecord();
+      boolean isPersons = (storageObject instanceof Persons);
       while ((s = f.readLine()) != null) {
         s = s.trim();
         if (s.length() == 0) {
@@ -387,7 +390,11 @@ public class DataImport extends ProgressTask {
             // header
             header = new String[fields.size()];
             for (int i = 0; i < fields.size(); i++) {
-              header[i] = fields.get(i);
+              if (isPersons) {
+                header[i] = korrigiereHeader(fields.get(i));
+              } else {
+                header[i] = fields.get(i);
+              }
               if (header[i].startsWith("#") && header[i].endsWith("#") && header.length > 2) {
                 header[i] = header[i].substring(1, header[i].length() - 1).trim();
                 overrideKeyField = header[i];
@@ -403,16 +410,28 @@ public class DataImport extends ProgressTask {
             for (int i = 0; i < header.length; i++) {
               String value = (fields.size() > i ? fields.get(i) : null);
               if (value != null && value.length() > 0) {
+                String headerField = header[i];
                 try {
-                  if (!r.setFromText(header[i], value.trim())) {
-                    logImportWarning(r, "Value '" + value + "' for Field '" + header[i]
-                        + "' corrected to '" + r.getAsText(header[i]) + "'");
+                  value = value.trim();
+                  if (isPersons) {
+                    value = korrigiereFelder(headerField, value);
+                  }
+                  boolean isSameValue = r.setFromText(headerField, value);
+                  if (!isSameValue) {
+                    String asText = r.getAsText(headerField);
+                    if (!(asText == null && value.equals("null"))) {
+                      logImportWarning(r, "Value '" + value + "' for Field '" + headerField
+                          + "' corrected to '" + asText + "'");
+                    }
                   }
                 } catch (Exception esetvalue) {
-                  logImportWarning(r, "Cannot set value '" + value + "' for Field '" + header[i]
+                  logImportWarning(r, "Cannot set value '" + value + "' for Field '" + headerField
                       + "': " + esetvalue.toString());
                 }
               }
+            }
+            if (isPersons && sollMitgliedskandidatIgnoriertWerden((PersonRecord) r)) {
+              continue;
             }
             if (importRecord(r, fieldsInImport)) {
               count++;
@@ -431,6 +450,49 @@ public class DataImport extends ProgressTask {
       }
     }
     return count;
+  }
+
+  private String korrigiereHeader(String candidate) {
+    String header = candidate;
+    if ("VornameAnsprechpartner".equals(header)) {
+      header = PersonRecord.FIRSTNAME;
+    } else if ("NachnameAnsprechpartner".equals(header)) {
+      header = PersonRecord.LASTNAME;
+    }
+    return header;
+  }
+
+  private String korrigiereFelder(String type, String candidate) {
+    String korrigiert = candidate;
+    if (type.equals(PersonRecord.GENDER)) { // "Gender"
+      korrigiert = candidate.toLowerCase();
+      if ("nicht bekannt".equals(candidate)) {
+        korrigiert = "null"; // Firmenkontakte
+      }
+    } else if (type.equals(PersonRecord.BOATUSAGEBAN)) { // "BoatUsageBan"
+      if ("Nein".equals(candidate)) { // hat Schlüssel NEIN
+        korrigiert = "true"; // von Booten verbannt
+      } else if ("Ja".equals(candidate)) { // hat Schlüssel JA
+        korrigiert = "false"; // von Booten nicht verbannt
+      }
+    } else if (type.equals("Eintrittsdatum")) {
+      korrigiert = "null"; // wichtig
+    } else if (type.equals("Bootshausschlüssel")) {
+      korrigiert = "null"; // wichtig
+    } else if (type.equals("SchlüsselvergabeAm")) {
+      korrigiert = "null"; // wichtig
+    } else if (type.equals("Schlüsselrückgabe")) {
+      korrigiert = "null"; // wichtig
+    }
+    return korrigiert;
+  }
+
+  private boolean sollMitgliedskandidatIgnoriertWerden(PersonRecord r) {
+    String hauptkategorie = r.getStatusName();
+    if ("Externe Adressen".equals(hauptkategorie)) {
+      return true;
+    }
+    return false;
   }
 
   @Override

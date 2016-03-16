@@ -166,8 +166,6 @@ public class BoatReservationListDialog extends DataListDialog {
             Boats boats = Daten.project.getBoats(false);
             record = ((BoatReservations) persistence).createBoatReservationsRecord(boats.getBoat(s,
                 now).getId());
-            DataTypeDate dateFilter = table.getSelectedDateFilter();
-            ((BoatReservationRecord) record).setDateFrom(dateFilter);
           }
         } catch (Exception e) {
           Logger.logdebug(e);
@@ -176,6 +174,13 @@ public class BoatReservationListDialog extends DataListDialog {
     }
     if (record == null) {
       return null;
+    }
+    if (newRecord) {
+      DataTypeDate dateFilter = table.getSelectedDateFilter();
+      if (dateFilter == null) {
+        dateFilter = DataTypeDate.today();
+      }
+      ((BoatReservationRecord) record).setDateFrom(dateFilter);
     }
     if (admin == null) {
       try {

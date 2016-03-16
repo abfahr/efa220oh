@@ -166,11 +166,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public DataTypeDate getDateFrom() {
-    DataTypeDate dateFrom = getDate(DATEFROM);
-    if (dateFrom != null) {
-      return dateFrom;
-    }
-    return DataTypeDate.today();
+    return getDate(DATEFROM);
   }
 
   public void setDateTo(DataTypeDate date) {

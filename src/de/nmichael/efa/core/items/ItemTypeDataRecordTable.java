@@ -92,9 +92,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   public static final String ACTIONTEXT_DELETE = International.getString("Löschen");
   public static final String BUTTON_IMAGE_CENTERED_PREFIX = "%";
   private static final String[] DEFAULT_ACTIONS = new String[] {
-      ACTIONTEXT_NEW,
-      ACTIONTEXT_EDIT,
-      ACTIONTEXT_DELETE
+    ACTIONTEXT_NEW,
+    ACTIONTEXT_EDIT,
+    ACTIONTEXT_DELETE
   };
   protected StorageObject persistence;
   protected long validAt = -1; // configured validAt
@@ -112,6 +112,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected IItemListenerDataRecordTable itemListenerActionTable;
   protected ItemTypeString searchField;
   protected String wochentagFilter;
+  protected DataTypeDate selectedDateFilter;
   protected ItemTypeBoolean filterBySearch;
   protected JTable aggregationTable = null;
   protected JPanel myPanel;
@@ -781,7 +782,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (allowConflicts) {
         String warn = (identical ?
             International.getString("Es existiert bereits ein gleichnamiger Datensatz!") :
-            International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
+              International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
         if (Dialog.yesNoDialog(International.getString("Warnung"),
             warn + "\n"
                 + conflict + "\n"
@@ -797,12 +798,16 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void updateFilterWithDate(int day) {
-    DataTypeDate selectedDate = new DataTypeDate(day, currentMonth + 1, currentYear);
-    searchField.setValue(selectedDate.toString().replace('/', '.'));
+    selectedDateFilter = new DataTypeDate(day, currentMonth + 1, currentYear);
+    searchField.setValue(selectedDateFilter.toString().replace('/', '.'));
     if (day != 0) {
-      wochentagFilter = selectedDate.getWeekdayAsString().toLowerCase(); // "donnerstag";
+      wochentagFilter = selectedDateFilter.getWeekdayAsString().toLowerCase(); // "donnerstag";
     }
     updateFilter();
+  }
+
+  public DataTypeDate getSelectedDateFilter() {
+    return selectedDateFilter;
   }
 
   protected void updateFilter() {

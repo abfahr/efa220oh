@@ -33,6 +33,7 @@ import de.nmichael.efa.data.storage.DataExport;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.AutoCompleteList;
@@ -165,6 +166,8 @@ public class BoatReservationListDialog extends DataListDialog {
             Boats boats = Daten.project.getBoats(false);
             record = ((BoatReservations) persistence).createBoatReservationsRecord(boats.getBoat(s,
                 now).getId());
+            DataTypeDate dateFilter = table.getSelectedDateFilter();
+            ((BoatReservationRecord) record).setDateFrom(dateFilter);
           }
         } catch (Exception e) {
           Logger.logdebug(e);

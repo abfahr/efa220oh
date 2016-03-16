@@ -10,6 +10,13 @@
 
 package de.nmichael.efa.data;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -194,10 +201,38 @@ public class BoatReservations extends StorageObject {
         if (br[i].getReservation() == r.getReservation()) {
           continue;
         }
-        if (!r.getType().equals(br[i].getType())) {
-          continue;
+        if (!r.getType().equals(br[i].getType())
+            && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+          assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
+          assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
+          assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
+          assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
+          List<DataTypeDate> liste = getListOfDates(r.getDateFrom(), r.getDateTo());
+          for (DataTypeDate day : liste) {
+            int dayOfWeek = day.toCalendar().get(Calendar.DAY_OF_WEEK);
+            int dayOfWeekBR = getWochentag(br[i].getDayOfWeek());
+            if (dayOfWeek == dayOfWeekBR) {
+              if (DataTypeDate.isRangeOverlap(r.getDateFrom(),
+                  r.getTimeFrom(),
+                  r.getDateTo(),
+                  r.getTimeTo(),
+                  r.getDateFrom(), // Ersatz
+                  br[i].getTimeFrom(),
+                  r.getDateTo(), // Ersatz
+                  br[i].getTimeTo())) {
+                // TODO fahr(16.03.2016) hier reicht eine Warnung, Klärung meist positiv!
+                throw new EfaModifyException(
+                    Logger.MSG_DATA_MODIFYEXCEPTION,
+                    International
+                    .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                        Thread.currentThread().getStackTrace());
+              }
+            }
+          }
         }
-        if (r.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+        if (r.getType().equals(br[i].getType())
+            && r.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
           assertFieldNotEmpty(record, BoatReservationRecord.DAYOFWEEK);
           assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
           assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
@@ -209,12 +244,14 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                    .getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
-                Thread.currentThread().getStackTrace());
+                    .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                    Thread.currentThread().getStackTrace());
 
           }
         }
-        if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+        if (r.getType().equals(br[i].getType())
+            && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
           assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
           assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
           assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
@@ -230,9 +267,9 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                    .getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
+                    .getString("Die Reservierung überschneidet sich mit einer Reservierung \r\n"
+                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
                 Thread.currentThread().getStackTrace());
-
           }
         }
       }
@@ -241,6 +278,36 @@ public class BoatReservations extends StorageObject {
         r.setDayOfWeek(null);
       }
     }
+  }
+
+  private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo) {
+    DataTypeDate myDateFrom = dateFrom;
+    DataTypeDate myDateTo = dateTo;
+
+    List<DataTypeDate> datumListe = new ArrayList<DataTypeDate>();
+    DataTypeDate myDate = new DataTypeDate(myDateFrom);
+    while (myDate.isBeforeOrEqual(myDateTo)) {
+      datumListe.add(new DataTypeDate(myDate));
+      myDate.addDays(1);
+    }
+    return datumListe;
+  }
+
+  private int getWochentag(String dayName) {
+    SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.US);
+    Date date;
+    try {
+      date = dayFormat.parse(dayName);
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return 0;
+    }
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+    return dayOfWeek;
+
   }
 
 }

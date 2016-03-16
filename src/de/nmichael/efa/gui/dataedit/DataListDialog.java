@@ -55,7 +55,7 @@ import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.ProgressTask;
 
 public abstract class DataListDialog extends BaseDialog implements IItemListener,
-IItemListenerDataRecordTable {
+    IItemListenerDataRecordTable {
 
   /**
    *
@@ -323,7 +323,7 @@ IItemListenerDataRecordTable {
     switch (actionId) {
       case ACTION_HIDE:
         if (records == null || records.length == 0 || records[0] == null
-        || !persistence.data().getMetaData().isVersionized()) {
+            || !persistence.data().getMetaData().isVersionized()) {
           return;
         }
         boolean currentlyVisible = !records[0].getInvisible();
@@ -391,18 +391,18 @@ IItemListenerDataRecordTable {
             String s = r.getKeyAsTextDescription();
             keyMapping.put(k.encodeAsString(), k);
             items
-            .put(k.encodeAsString(),
-                "ID: "
-                    + s
-                    + "<br>"
-                    +
-                    International.getString("Name")
-                    + ": "
-                    + r.getQualifiedName()
-                    +
-                    (r.getPersistence().data().getMetaData().isVersionized() ? "<br>" +
-                        International.getString("Gültigkeit") + ": " + r.getValidRangeString()
-                        : ""));
+                .put(k.encodeAsString(),
+                    "ID: "
+                        + s
+                        + "<br>"
+                        +
+                        International.getString("Name")
+                        + ": "
+                        + r.getQualifiedName()
+                        +
+                        (r.getPersistence().data().getMetaData().isVersionized() ? "<br>" +
+                            International.getString("Gültigkeit") + ": " + r.getValidRangeString()
+                            : ""));
           }
         }
         String[] keys = items.keySet().toArray(new String[0]);
@@ -417,8 +417,8 @@ IItemListenerDataRecordTable {
             IItemType.TYPE_PUBLIC,
             "",
             International
-            .getString("Bitte wähle den Hauptdatensatz aus, zu dem alle Datensätze zusammengefügt werden sollen!")
-            + "\n");
+                .getString("Bitte wähle den Hauptdatensatz aus, zu dem alle Datensätze zusammengefügt werden sollen!")
+                + "\n");
         if (!SimpleInputDialog.showInputDialog(this,
             International.getString("Zusammenfügen"),
             list)) {

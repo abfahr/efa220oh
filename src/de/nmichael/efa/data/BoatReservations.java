@@ -224,9 +224,9 @@ public class BoatReservations extends StorageObject {
                 throw new EfaModifyException(
                     Logger.MSG_DATA_MODIFYEXCEPTION,
                     International
-                    .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
-                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
-                        Thread.currentThread().getStackTrace());
+                        .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                            + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                    Thread.currentThread().getStackTrace());
               }
             }
           }
@@ -244,9 +244,9 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                    .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
-                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
-                    Thread.currentThread().getStackTrace());
+                .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                    + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                Thread.currentThread().getStackTrace());
 
           }
         }
@@ -267,9 +267,9 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                    .getString("Die Reservierung überschneidet sich mit einer Reservierung \r\n"
-                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
-                Thread.currentThread().getStackTrace());
+                .getString("Die Reservierung überschneidet sich mit einer Reservierung \r\n"
+                    + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                    Thread.currentThread().getStackTrace());
           }
         }
       }

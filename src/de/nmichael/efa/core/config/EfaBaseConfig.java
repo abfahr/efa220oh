@@ -165,6 +165,9 @@ public class EfaBaseConfig {
         }
         if (s.startsWith(FIELD_LANGUAGE + "=")) {
           language = s.substring(FIELD_LANGUAGE.length() + 1).trim();
+          if (language.isEmpty()) {
+            language = "de";
+          }
         }
         if (s.startsWith(FIELD_VERSION + "=")) {
           version = s.substring(FIELD_VERSION.length() + 1).trim();

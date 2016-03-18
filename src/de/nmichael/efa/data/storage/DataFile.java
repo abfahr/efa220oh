@@ -245,6 +245,9 @@ public abstract class DataFile extends DataAccess {
 
   private boolean shouldWriteMirrorFile() {
     try {
+      if (Daten.efaConfig == null) {
+        return false;
+      }
       String mirrorDir = Daten.efaConfig.getValueDataMirrorDirectory();
       if (mirrorDir != null && mirrorDir.length() > 0 &&
           new File(mirrorDir).exists() &&

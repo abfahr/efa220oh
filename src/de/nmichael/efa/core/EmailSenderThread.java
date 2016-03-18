@@ -346,6 +346,14 @@ public class EmailSenderThread extends Thread {
                         countSuccess++;
                       }
                     }
+                    if (isValidEmailAdress(msg.getTo())) {
+                      Vector<String> emailListe = new Vector<String>();
+                      emailListe.add(msg.getTo());
+                      markDone = sendMail(msg, emailListe);
+                      if (markDone) {
+                        countSuccess++;
+                      }
+                    }
                   } else {
                     Logger.log(Logger.WARNING, Logger.MSG_ERR_SENDMAILFAILED_CFG,
                         International.getString("Kein email-Versand möglich!") + " "
@@ -386,6 +394,19 @@ public class EmailSenderThread extends Thread {
         Logger.logdebug(e);
       }
     }
+  }
+
+  private boolean isValidEmailAdress(String candidate) {
+    if (candidate == null) {
+      return false;
+    }
+    if (candidate.isEmpty()) {
+      return false;
+    }
+    if (!candidate.contains("@")) {
+      return false;
+    }
+    return true;
   }
 
   class MailAuthenticator extends javax.mail.Authenticator {

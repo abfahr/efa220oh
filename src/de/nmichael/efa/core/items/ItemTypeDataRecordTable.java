@@ -750,8 +750,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void sendEmail(String empfaenger, String aktion, BoatReservationRecord reservierung) {
-    // TODO Auto-generated method stub
-    System.out.println(empfaenger + aktion);
+    String msgTitle = "OH EFA " + empfaenger + " " + aktion;
+    String msg = reservierung.toString();
+    Daten.project.getMessages(false).createAndSaveMessageRecord(
+        empfaenger + "@abfx.de", msgTitle, msg);
+
   }
 
   private boolean versionizedRecordOfThatNameAlreadyExists(BoatReservationRecord dataRecord) {
@@ -798,10 +801,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void updateFilterWithDate(int day) {
-    selectedDateFilter = new DataTypeDate(day, currentMonth + 1, currentYear);
-    searchField.setValue(selectedDateFilter.toString().replace('/', '.'));
+    DataTypeDate date = new DataTypeDate(day, currentMonth + 1, currentYear);
+    searchField.setValue(date.toString().replace('/', '.'));
     if (day != 0) {
-      wochentagFilter = selectedDateFilter.getWeekdayAsString().toLowerCase(); // "donnerstag";
+      wochentagFilter = date.getWeekdayAsString().toLowerCase(); // "donnerstag";
+      selectedDateFilter = date;
+    } else {
+      selectedDateFilter = null;
     }
     updateFilter();
   }

@@ -284,8 +284,8 @@ public class BoatReservationRecord extends DataRecord {
       return null;
     }
     try {
-      return getPersistence().getProject().getPersons(false)
-          .getPerson(id, System.currentTimeMillis());
+      Persons persons = getPersistence().getProject().getPersons(false);
+      return persons.getPerson(id, System.currentTimeMillis());
     } catch (Exception e) {
       return null;
     }

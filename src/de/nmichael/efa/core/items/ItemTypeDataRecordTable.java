@@ -50,6 +50,7 @@ import javax.swing.table.TableModel;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.calendar.CalendarString;
 import de.nmichael.efa.calendar.CalendarTableModel;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.calendar.TblCalendarRenderer;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
@@ -58,6 +59,7 @@ import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.ClubworkRecord;
+import de.nmichael.efa.data.Messages;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.DataRecord;
@@ -750,14 +752,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void sendEmail(String empfaenger, String aktion, BoatReservationRecord brr) {
-    String emailAdresse = empfaenger.trim().toLowerCase() + "@abfx.de";
+    String emailAdresse = empfaenger.trim().toLowerCase() + ICalendarExport.ABFX_DE;
     String emailSubject = "OH Reservierung " + aktion;
-    String emailMessage = "Hallo " + capitalize(empfaenger) + "!" + "\n\n"
+    String emailMessage = "Hallo " + capitalize(empfaenger) + "!\n\n"
         + brr.getFormattedEmailtext();
-    ;
 
-        Daten.project.getMessages(false).createAndSaveMessageRecord(
-            emailAdresse, emailSubject, emailMessage);
+    Messages messages = Daten.project.getMessages(false);
+    messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
   }
 
   private String capitalize(final String line) {

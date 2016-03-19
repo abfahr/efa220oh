@@ -38,7 +38,7 @@ public class ICalendarExport {
 
   public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
   private static final String EFA = "efa";
-  private static final String ABFX_DE = "@abfx.de";
+  public static final String ABFX_DE = "@abfx.de";
 
   public void saveAllReservationToCalendarFile() {
     try {
@@ -69,7 +69,7 @@ public class ICalendarExport {
   }
 
   private void saveAllReservationToCalendarFileIntern() throws IOException, ValidationException,
-      ParserException, EfaException, ParseException {
+  ParserException, EfaException, ParseException {
 
     // [x] Bootshaus (nur das vertragspflichtige Haus)
     // [x] Boote (alles ohne Bootshaus)
@@ -188,7 +188,7 @@ public class ICalendarExport {
   }
 
   private void saveAllClubworkToCalendarFileIntern() throws EfaException, IOException,
-  ValidationException {
+      ValidationException {
     // Creating a new calendar
     net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 

@@ -3517,6 +3517,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       showHint(null);
       lastFocusedItem = item;
       if (item == date) {
+        checkStartOnlyToday(date);
         updateTimeInfoFields();
       }
       if (item == enddate) {
@@ -3628,6 +3629,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (id == ItemTypeLabelValue.ACTIONID_FIELD_COLLAPSED && item == enddate) {
       starttimeInfoLabel.setVisible(false);
       endtimeInfoLabel.setVisible(false);
+    }
+  }
+
+  private void checkStartOnlyToday(ItemTypeDate startTag) {
+    // startTag.getValueFromGui();
+    DataTypeDate today = DataTypeDate.today();
+    if (!today.equals(startTag.getDate())) {
+      if (_title.equals(International.getString("Neue Fahrt beginnen"))) {
+        String msg = International
+            .getString("Modus: " + _title + "\n-> aber am " + startTag + " ???\n"
+                + "Fahrtbeginn muss heute sein.\n"
+                + "Andere Tage bitte reservieren.");
+        Dialog.meldung("Kleiner Produkthinweis", msg);
+        date.setValueDate(today);
+        date.showValue();
+        date.requestFocus();
+      }
     }
   }
 

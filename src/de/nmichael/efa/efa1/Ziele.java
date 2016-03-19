@@ -124,31 +124,32 @@ public class Ziele extends DatenListe {
         if (eigenerBereichErreicht) {
           // needs no internationalization (just for Berlin, Germany)
           switch (Dialog.auswahlDialog("Fehlerhafter Zieleintrag",
-              "Name des Ziels: " + d.get(NAME) + " (" + d.get(KM) + " Km)\n" +
-                  "Zielbereiche: " + d.get(BEREICH) + "\n" +
-                  "Steg und Ziel ist eigenes Bootshaus: JA\n\n" +
-                  "Sollte es sich bei dem genannten Ziel tatsächlich um eine Fahrt handeln,\n" +
-                  "deren Start und Zielpunkt das eigene Bootshaus ist, so wird für dieses\n" +
-                  "Ziel der eigene Zielbereich \"" + _heimZb + "\" NICHT gewertet und darf\n" +
-                  "folglich auch NICHT angegeben werden.\n\n" +
-                  "Um den Fehler zu beheben, kann efa nun den Zielbereich \"" + _heimZb + "\"\n" +
-                  "aus der Aufzählung der Zielbereiche entfernen oder die Eigenschaft\n" +
-                  "'Start und Ziel ist eigenes Bootshaus' auf 'Nein' setzen, falls\n" +
-                  "es sich doch nicht um eine Fahrt vom und zum eigenen Bootshaus handelt.\n",
-                  "Zielbereich " + _heimZb + " entfernen", "Start und Ziel ist NICHT Bootshaus",
+              "Name des Ziels: " + d.get(NAME) + " (" + d.get(KM) + " Km)\n"
+                  + "Zielbereiche: " + d.get(BEREICH) + "\n"
+                  + "Steg und Ziel ist eigenes Bootshaus: JA\n\n"
+                  + "Sollte es sich bei dem genannten Ziel tatsächlich um eine Fahrt handeln,\n"
+                  + "deren Start und Zielpunkt das eigene Bootshaus ist, so wird für dieses\n"
+                  + "Ziel der eigene Zielbereich \"" + _heimZb + "\" NICHT gewertet und darf\n"
+                  + "folglich auch NICHT angegeben werden.\n\n"
+                  + "Um den Fehler zu beheben, kann efa nun den Zielbereich \"" + _heimZb + "\"\n"
+                  + "aus der Aufzählung der Zielbereiche entfernen oder die Eigenschaft\n"
+                  + "'Start und Ziel ist eigenes Bootshaus' auf 'Nein' setzen, falls\n"
+                  + "es sich doch nicht um eine Fahrt vom und zum eigenen Bootshaus handelt.\n",
+              "Zielbereich " + _heimZb + " entfernen",
+              "Start und Ziel ist NICHT Bootshaus",
               "Nichts tun")) {
-                case 0:
-                  Zielfahrt zf = new Zielfahrt();
-                  zf.setBereich(d.get(BEREICH));
-                  zf.setBereich(heimZb, false);
-                  d.set(BEREICH, zf.getBereiche());
-                  changes = true;
-                  break;
-                case 1:
-                  d.set(STEGZIEL, "-");
-                  changes = true;
-                  break;
-                default: // nothing to do
+            case 0:
+              Zielfahrt zf = new Zielfahrt();
+              zf.setBereich(d.get(BEREICH));
+              zf.setBereich(heimZb, false);
+              d.set(BEREICH, zf.getBereiche());
+              changes = true;
+              break;
+            case 1:
+              d.set(STEGZIEL, "-");
+              changes = true;
+              break;
+            default: // nothing to do
           }
         }
       }

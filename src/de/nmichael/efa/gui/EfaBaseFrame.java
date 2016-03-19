@@ -106,9 +106,6 @@ import de.nmichael.efa.util.Mnemonics;
 
 public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   public static final int MODE_BASE = 0;
   public static final int MODE_BOATHOUSE = 1;
@@ -2927,10 +2924,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 International.getString("Bootsbenutzungs-Sperre"),
                 International.getMessage(
                     "Für {name} liegt zur Zeit eine Bootsbenutzungs-Sperre vor.",
-                    p.getQualifiedName())
-                    +
-                    "\n" +
-                    International.getString("Was möchtest Du tun?"),
+                    p.getQualifiedName()) + "\n"
+                    + International.getString("Was möchtest Du tun?"),
                 International.getString("Mannschaft ändern"),
                 International.getString("Trotzdem benutzen"),
                 International.getString("Eintrag abbrechen"))) {
@@ -2991,10 +2986,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                       + " \n"
                       + nichtErlaubt + "\n"
                       + International.getString("Was möchtest Du tun?"),
-                  International.getString("Anderes Boot wählen"),
-                  International.getString("Mannschaft ändern"),
-                  International.getString("Trotzdem benutzen"),
-                  International.getString("Eintrag abbrechen"))) {
+                      International.getString("Anderes Boot wählen"),
+                      International.getString("Mannschaft ändern"),
+                      International.getString("Trotzdem benutzen"),
+                      International.getString("Eintrag abbrechen"))) {
             case 0:
               setFieldEnabled(true, true, boat);
               boat.parseAndShowValue("");

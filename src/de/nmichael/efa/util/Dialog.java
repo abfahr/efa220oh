@@ -135,12 +135,12 @@ public class Dialog {
         International.getString("Fehler"),
         LogString.fileNotFound(dat, International.getString("Datei")) + "\n"
             + International.getString("Soll die Datei neu erstellt werden?"))) {
-              case Dialog.YES:
-                return YES;
-              case Dialog.NO:
-                return NO;
-              default:
-                return INVALID;
+      case Dialog.YES:
+        return YES;
+      case Dialog.NO:
+        return NO;
+      default:
+        return INVALID;
     }
   }
 
@@ -265,63 +265,41 @@ public class Dialog {
     prepareWindow(frame);
     switch (JOptionPane.showConfirmDialog(frame, chopDialogString(s), title,
         JOptionPane.YES_NO_CANCEL_OPTION)) {
-          case JOptionPane.YES_OPTION:
-            return YES;
-          case JOptionPane.NO_OPTION:
-            return NO;
-          default:
-            return CANCEL;
+      case JOptionPane.YES_OPTION:
+        return YES;
+      case JOptionPane.NO_OPTION:
+        return NO;
+      default:
+        return CANCEL;
     }
   }
 
-  public static int auswahlDialog(String title, String s, String[] options) {
+  public static int auswahlDialog(String title, String messagebody, String[] options) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    return JOptionPane.showOptionDialog(frame, chopDialogString(s), title, 0,
-        JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+    return JOptionPane.showOptionDialog(frame, chopDialogString(messagebody), title,
+        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
   }
 
-  public static int auswahlDialog(String title, String s, String option1, String option2,
+  public static int auswahlDialog(String title, String messagebody, String option1, String option2,
       String option3) {
-    Object[] auswahl = new String[(option3 != null ? 3 : 2)];
+    String[] auswahl = new String[(option3 != null ? 3 : 2)];
     auswahl[0] = option1;
     auswahl[1] = option2;
     if (option3 != null) {
       auswahl[2] = option3;
     }
-    Window frame = frameCurrent();
-    prepareWindow(frame);
-    return JOptionPane.showOptionDialog(frame, chopDialogString(s), title, 0,
-        JOptionPane.QUESTION_MESSAGE, null, auswahl, option1);
+    return auswahlDialog(title, messagebody, auswahl);
   }
 
-  public static int auswahlDialog(String title, String s, String option1, String option2,
+  public static int auswahlDialog(String title, String messagebody, String option1, String option2,
       String option3, String option4) {
-    Object[] auswahl = new String[(option4 != null ? 4 : 3)];
-    auswahl[0] = option1;
-    auswahl[1] = option2;
-    auswahl[2] = option3;
-    if (option4 != null) {
-      auswahl[3] = option4;
-    }
-    Window frame = frameCurrent();
-    prepareWindow(frame);
-    return JOptionPane.showOptionDialog(frame, chopDialogString(s), title, 0,
-        JOptionPane.QUESTION_MESSAGE, null, auswahl, option1);
-  }
-
-  public static int auswahlDialog(String title, String s, String option1, String option2,
-      String option3, String option4, String option5) {
-    Object[] auswahl = new String[5];
+    String[] auswahl = new String[4];
     auswahl[0] = option1;
     auswahl[1] = option2;
     auswahl[2] = option3;
     auswahl[3] = option4;
-    auswahl[4] = option5;
-    Window frame = frameCurrent();
-    prepareWindow(frame);
-    return JOptionPane.showOptionDialog(frame, chopDialogString(s), title, 0,
-        JOptionPane.QUESTION_MESSAGE, null, auswahl, option1);
+    return auswahlDialog(title, messagebody, auswahl);
   }
 
   public static int auswahlDialog(String title, String s, String option1, String option2) {
@@ -330,8 +308,11 @@ public class Dialog {
 
   public static int auswahlDialog(String title, String s, String option1, String option2,
       boolean abbrButton) {
-    return auswahlDialog(title, s, option1, option2,
-        (abbrButton ? International.getString("Abbruch") : null));
+    if (abbrButton) {
+      return auswahlDialog(title, s, option1, option2, International.getString("Abbruch"));
+    } else {
+      return auswahlDialog(title, s, option1, option2, null);
+    }
   }
 
   public static boolean okAbbrDialog(String title, String s) {
@@ -511,11 +492,11 @@ public class Dialog {
     } catch (Exception e) {
       String input =
           (String) JOptionPane
-          .showInputDialog(frame,
-              International.getMessage("Bitte gib einen Dateinamen für '{types}' ein", typen)
-              + ":",
-              titel, JOptionPane.QUESTION_MESSAGE,
-              null, null, startdir);
+              .showInputDialog(frame,
+                  International.getMessage("Bitte gib einen Dateinamen für '{types}' ein", typen)
+                      + ":",
+                  titel, JOptionPane.QUESTION_MESSAGE,
+                  null, null, startdir);
       if (input != null && input.trim().length() == 0) {
         input = null;
       }
@@ -644,7 +625,7 @@ public class Dialog {
       String font = (key == null ? null : key.toString());
       if (font != null
           && (font.endsWith(".font")
-              || (font.startsWith("OptionPane") && font.endsWith("Font")))) {
+          || (font.startsWith("OptionPane") && font.endsWith("Font")))) {
         if (!font.equals("TableHeader.font") && !font.equals("Table.font")) {
           setFontSize(uid, font, size, style);
         }

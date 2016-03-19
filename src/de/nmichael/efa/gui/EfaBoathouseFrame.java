@@ -2351,13 +2351,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     switch (Dialog.auswahlDialog(International.getString("Fahrt abbrechen"),
         International.getMessage("Die Fahrt des Bootes {boat} sollte nur abgebrochen werden, "
-            + "wenn sie nie stattgefunden hat.",
-            item.boatStatus.getBoatText())
+            + "wenn sie nie stattgefunden hat.", item.boatStatus.getBoatText())
             + "\n"
             + International.getString("Was möchtest Du tun?"),
         International.getString("Fahrt abbrechen"),
-        International.getString("Fahrt abbrechen") +
-            " (" + International.getString("Bootsschaden") + ")",
+        International.getString("Fahrt abbrechen")
+            + " (" + International.getString("Bootsschaden") + ")",
         International.getString("Nichts")
         )) {
           case 0:

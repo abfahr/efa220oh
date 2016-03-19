@@ -714,7 +714,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     crew1defaultText = crew[0].getDescription();
 
-    // Boat Captain
+    // Boat Captain = Obmann
     boatcaptain = new ItemTypeStringList(LogbookRecord.BOATCAPTAIN, "",
         LogbookRecord.getBoatCaptainValues(), LogbookRecord.getBoatCaptainDisplay(),
         IItemType.TYPE_PUBLIC, null, International.getString("Obmann"));

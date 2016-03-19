@@ -152,7 +152,7 @@ public class LogbookRecord extends DataRecord {
   // =========================================================================
 
   // General
-  public static final int CREW_MAX = 24;
+  public static final int CREW_MAX = 4;
   public static final String WATERS_SEPARATORS = ",;+";
 
   // =========================================================================

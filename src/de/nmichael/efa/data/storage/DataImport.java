@@ -430,7 +430,7 @@ public class DataImport extends ProgressTask {
                 }
               }
             }
-            if (isPersons && sollMitgliedskandidatIgnoriertWerden((PersonRecord) r)) {
+            if (isPersons && !((PersonRecord) r).isValidMemberOH()) {
               continue;
             }
             if (importRecord(r, fieldsInImport)) {
@@ -485,14 +485,6 @@ public class DataImport extends ProgressTask {
       korrigiert = "null"; // wichtig
     }
     return korrigiert;
-  }
-
-  private boolean sollMitgliedskandidatIgnoriertWerden(PersonRecord r) {
-    String hauptkategorie = r.getStatusName();
-    if ("Externe Adressen".equals(hauptkategorie)) {
-      return true;
-    }
-    return false;
   }
 
   @Override

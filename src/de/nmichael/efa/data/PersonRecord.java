@@ -715,7 +715,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public IItemType[] getDefaultItems(String itemName) {
     if (itemName.equals(PersonRecord.GUIITEM_GROUPS)) {
       IItemType[] items = new IItemType[1];
-      String CAT_USAGE = "%04%" + International.getString("Gruppen");
       items[0] = getGuiItemTypeStringAutoComplete(PersonRecord.GUIITEM_GROUPS, null,
           IItemType.TYPE_PUBLIC, CAT_GROUPS,
           getPersistence().getProject().getGroups(false), getValidFrom(), getInvalidFrom() - 1,
@@ -900,5 +899,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     items[3] = new TableItem(getStatusName());
     items[4] = new TableItem(getBoatUsageBan());
     return items;
+  }
+
+  public boolean isValidMemberOH() {
+    if (getMembershipNo().isEmpty()) {
+      return false; // Mitgliedsnummer
+    }
+    if ("Externe Adressen".equals(getStatusName())) {
+      return false; // Hauptkategorie
+    }
+    return true;
   }
 }

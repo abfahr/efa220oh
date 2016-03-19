@@ -56,7 +56,7 @@ public class EmailSenderThread extends Thread {
   }
 
   public void enqueueMessage(javax.mail.Multipart message,
-      Vector addresses, String subject,
+      Vector<String> addresses, String subject,
       String[] attachmentFileNames, boolean deleteAttachmentFiles) {
     multipartMessages.add(new MultiPartMessage(message, addresses, subject,
         attachmentFileNames, deleteAttachmentFiles));
@@ -64,7 +64,7 @@ public class EmailSenderThread extends Thread {
   }
 
   public boolean sendMessage(javax.mail.Multipart message,
-      Vector addresses, String subject,
+      Vector<String> addresses, String subject,
       String[] attachmentFileNames, boolean deleteAttachmentFiles) {
     return sendMail(new MultiPartMessage(message, addresses, subject,
         attachmentFileNames, deleteAttachmentFiles));
@@ -150,7 +150,7 @@ public class EmailSenderThread extends Thread {
     }
   }
 
-  private boolean sendMail(MessageRecord msg, Vector addresses) {
+  private boolean sendMail(MessageRecord msg, Vector<String> addresses) {
     try {
       StringBuilder recipients = new StringBuilder();
       for (int i = 0; i < addresses.size(); i++) {

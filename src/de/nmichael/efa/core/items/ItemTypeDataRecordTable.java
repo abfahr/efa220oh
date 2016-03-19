@@ -749,12 +749,19 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
   }
 
-  private void sendEmail(String empfaenger, String aktion, BoatReservationRecord reservierung) {
-    String msgTitle = "OH EFA " + empfaenger + " " + aktion;
-    String msg = reservierung.toString();
-    Daten.project.getMessages(false).createAndSaveMessageRecord(
-        empfaenger + "@abfx.de", msgTitle, msg);
+  private void sendEmail(String empfaenger, String aktion, BoatReservationRecord brr) {
+    String emailAdresse = empfaenger.trim().toLowerCase() + "@abfx.de";
+    String emailSubject = "OH Reservierung " + aktion;
+    String emailMessage = "Hallo " + capitalize(empfaenger) + "!" + "\n\n"
+        + brr.getFormattedEmailtext();
+    ;
 
+        Daten.project.getMessages(false).createAndSaveMessageRecord(
+            emailAdresse, emailSubject, emailMessage);
+  }
+
+  private String capitalize(final String line) {
+    return Character.toUpperCase(line.charAt(0)) + line.substring(1).toLowerCase();
   }
 
   private boolean versionizedRecordOfThatNameAlreadyExists(BoatReservationRecord dataRecord) {

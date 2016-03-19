@@ -477,6 +477,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return groups.getGroupsForPerson(getId(), getValidFrom(), getInvalidFrom() - 1);
   }
 
+  public String getTelefonFestnetz() {
+    return getFreeUse1();
+  }
+
+  public String getTelefonHandy() {
+    return getFreeUse2();
+  }
+
   public void setFreeUse1(String s) {
     setString(FREEUSE1, s);
   }
@@ -739,7 +747,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     ((ItemTypeString) item).setNotAllowedCharacters(",");
     v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
         EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+        .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
     v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geburtstag")));
@@ -751,7 +759,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
               .toString()),
               status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status
               .makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
-              IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
 
       v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verein")));
@@ -764,14 +772,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-          .getString("von allgemein verfügbaren Statistiken ausnehmen")));
+              .getString("von allgemein verfügbaren Statistiken ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE,
           getExcludeFromCompetition(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-          .getString("von Wettbewerbsmeldungen ausnehmen")));
+              .getString("von Wettbewerbsmeldungen ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-          .getString("von Vereinsarbeit ausnehmen")));
+              .getString("von Vereinsarbeit ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
       v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),

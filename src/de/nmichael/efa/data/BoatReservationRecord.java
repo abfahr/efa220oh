@@ -10,11 +10,14 @@
 
 package de.nmichael.efa.data;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
+import net.fortuna.ical4j.model.DateTime;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemType;
@@ -275,16 +278,23 @@ public class BoatReservationRecord extends DataRecord {
     return getDateTimeFromDescription() + " - " + getDateTimeToDescription();
   }
 
-  public String getPersonAsName() {
+  private PersonRecord getPersonRecord() {
     UUID id = getPersonId();
+    if (id == null) {
+      return null;
+    }
     try {
-      PersonRecord p = getPersistence().getProject().getPersons(false)
+      return getPersistence().getProject().getPersons(false)
           .getPerson(id, System.currentTimeMillis());
-      if (p != null) {
-        return p.getQualifiedName();
-      }
     } catch (Exception e) {
-      Logger.logdebug(e);
+      return null;
+    }
+  }
+
+  public String getPersonAsName() {
+    PersonRecord p = getPersonRecord();
+    if (p != null) {
+      return p.getQualifiedName();
     }
     return getPersonName();
   }
@@ -632,4 +642,35 @@ public class BoatReservationRecord extends DataRecord {
     return IDX_BOATID;
   }
 
+  public String getFormattedEmailtext() {
+    PersonRecord p = getPersonRecord();
+
+    List<String> msg = new ArrayList<String>();
+    msg.add("Hier die neueste Reservierung von EFA am Isekai");
+    msg.add("Eingabe durch: " + getPersonAsName() + " "
+        + (p != null ? p.getMembershipNo() + " " + p.getStatusName() : "(wer ist das?)"));
+    msg.add("Eingabe am: " + new DateTime(getLastModified()).toString().replace('T', '.'));
+    msg.add("");
+    msg.add("Reservierung des " + getBoatName());
+    msg.add("für die Periode: " + getReservationTimeDescription());
+    msg.add("Contact: " + getContact());
+    msg.add("Telefon (aus Sewobe): " + (p != null ? p.getTelefonFestnetz() : "..."));
+    msg.add("Handy (aus Sewobe): " + (p != null ? p.getTelefonHandy() : "..."));
+    msg.add("Email (aus Sewobe): " + (p != null ? p.getEmail() : "..."));
+    msg.add("Grund der Reservierung: " + getReason());
+    msg.add("");
+    msg.add("mit freundlichen Grüßen");
+    msg.add("Efa");
+    msg.add("");
+    msg.add(toString());
+    return join(msg);
+  }
+
+  private String join(List<String> list) {
+    StringBuilder sb = new StringBuilder();
+    for (String single : list) {
+      sb.append(single).append("\n");
+    }
+    return sb.toString();
+  }
 }

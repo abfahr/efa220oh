@@ -2765,6 +2765,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             return false;
           }
         }
+      } else {
+        if (distance.getValue().getRoundedValueInKilometers() > 100) {
+          Dialog.meldung(distance.getValue().getRoundedValueInKilometers() + "km???",
+              International.getString("Bitte prüfe die gefahrene Distanz!"));
+          distance.requestFocus();
+          return false;
+        }
       }
 
     }

@@ -201,7 +201,7 @@ public class BoatReservations extends StorageObject {
         if (br[i].getReservation() == r.getReservation()) {
           continue;
         }
-        if (!r.getType().equals(br[i].getType())
+        if (br[i].getType().equals(BoatReservationRecord.TYPE_WEEKLY)
             && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
           assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
           assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
@@ -231,7 +231,7 @@ public class BoatReservations extends StorageObject {
             }
           }
         }
-        if (r.getType().equals(br[i].getType())
+        if (br[i].getType().equals(BoatReservationRecord.TYPE_WEEKLY)
             && r.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
           assertFieldNotEmpty(record, BoatReservationRecord.DAYOFWEEK);
           assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
@@ -250,7 +250,7 @@ public class BoatReservations extends StorageObject {
 
           }
         }
-        if (r.getType().equals(br[i].getType())
+        if (br[i].getType().equals(BoatReservationRecord.TYPE_ONETIME)
             && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
           assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
           assertFieldNotEmpty(record, BoatReservationRecord.DATETO);

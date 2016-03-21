@@ -479,9 +479,10 @@ public class BoatStatusRecord extends DataRecord {
   }
 
   public static String createStatusString(String fahrttype, String ziel,
-      DataTypeDate date, DataTypeTime time, String person, String enddate) {
-    String datum = (date != null ? date.toString() : "");
-    String zeit = (time != null ? time.toString() : "");
+      DataTypeDate startdate, DataTypeTime starttime, String person,
+      DataTypeDate enddate, DataTypeTime endtime) {
+    String datum = (startdate != null ? startdate.toString() : "");
+    String zeit = (starttime != null ? starttime.toString() : "");
     String aufFahrtart = "";
     if (Daten.efaTypes != null && fahrttype != null) {
       if (fahrttype.equals(EfaTypes.TYPE_SESSION_REGATTA)) {
@@ -507,17 +508,25 @@ public class BoatStatusRecord extends DataRecord {
     }
     String nachZiel = "";
     if (aufFahrtart.length() == 0 && ziel.length() > 0) {
-      nachZiel = " " + International.getMessage("nach {destination}", ziel);
+      if (ziel.equals("Alster")) {
+        nachZiel = " " + International.getMessage("auf {trip_type}", ziel);
+      } else {
+        nachZiel = " " + International.getMessage("nach {destination}", ziel);
+      }
     }
-    return International.getString("unterwegs")
+    String comment = ""
+        + (endtime != null
+        ? International.getMessage("bis {timestamp}", endtime.toString()) + " " : "")
+        + International.getString("unterwegs")
         + aufFahrtart
         + nachZiel
         + " "
         + International.getMessage("seit {date}", datum)
         + (zeit.trim().length() > 0 ? " " + International.getMessage("um {time}", zeit) : "")
-        + (enddate != null && enddate.length() > 0 ? " "
-            + International.getMessage("bis {timestamp}", enddate) : "")
-            + " " + International.getMessage("mit {crew}", person);
+        + (enddate != null
+        ? " " + International.getMessage("bis {timestamp}", enddate.toString()) : "")
+        + " " + International.getMessage("mit {crew}", person);
+    return comment;
   }
 
 }

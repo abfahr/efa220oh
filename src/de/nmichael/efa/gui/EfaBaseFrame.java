@@ -4482,7 +4482,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     createNewRecord(false);
     date.parseAndShowValue(EfaUtil.getCurrentTimeStampDD_MM_YYYY());
     setTime(starttime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt(), null);
-    setTime(endtime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt() + 2 * 60,
+    setTime(endtime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt() + 119,
         starttime.getTime());
 
     setFieldEnabled(false, true, entryno);
@@ -4735,7 +4735,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               currentRecord.getDate(),
               currentRecord.getStartTime(),
               currentRecord.getAllCoxAndCrewAsNameString(),
-              (currentRecord.getEndDate() != null ? currentRecord.getEndDate().toString() : null));
+              currentRecord.getEndDate(),
+              currentRecord.getEndTime());
           if (BoatStatusRecord.isOnTheWaterShowNotAvailable(currentRecord.getSessionType(),
               currentRecord.getEndDate())) {
             newShowInList = BoatStatusRecord.STATUS_NOTAVAILABLE;

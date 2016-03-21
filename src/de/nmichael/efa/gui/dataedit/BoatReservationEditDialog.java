@@ -29,6 +29,7 @@ import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeTime;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
+import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 
@@ -115,15 +116,16 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
 
     // Die Uhrzeit übernehmen und 2 Stunden dazuzählen
     if (item != null && item.getName().equals(BoatReservationRecord.TIMEFROM) &&
-        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
-        (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST)
+        || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
       ItemTypeTime timeFrom = (ItemTypeTime) item;
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.TIMETO)) {
           ItemTypeTime timeTo = (ItemTypeTime) it;
           if (!timeTo.isValidInput() || timeTo.getTime().isBefore(timeFrom.getTime())) {
-            timeTo.parseValue(timeFrom.getTime().toString(false));
-            timeTo.setValueHour(timeTo.getValueHour() + 2); // plus 2h
+            DataTypeTime newEndtime = timeFrom.getTime();
+            newEndtime.add(120 * 60); // plus 2h = 119 Minuten
+            timeTo.parseValue(newEndtime.toString(false)); // ohne Sekunden
           }
           timeTo.showValue();
           break;

@@ -2563,13 +2563,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
   private boolean checkTime() {
     if (isModeBoathouse()) {
-      if (starttime.isVisible() && !starttime.isSet()) {
+      if (starttime.isVisible()
+          && !starttime.isSet()) {
         setTime(starttime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt(), null);
       }
       if (endtime.isVisible()
           && !endtime.isSet()
-          &&
-          (getMode() == MODE_BOATHOUSE_FINISH || getMode() == EfaBaseFrame.MODE_BOATHOUSE_LATEENTRY)) {
+          && (getMode() == MODE_BOATHOUSE_FINISH
+          || getMode() == EfaBaseFrame.MODE_BOATHOUSE_LATEENTRY)) {
         setTime(endtime, -Daten.efaConfig.getValueEfaDirekt_minusMinutenAnkunft(),
             starttime.getTime());
       }

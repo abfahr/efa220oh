@@ -1297,7 +1297,7 @@ public class LogbookRecord extends DataRecord {
     if (comments == null || comments.isEmpty()) {
       comments = kommentar;
     } else {
-      comments += " (" + kommentar + ")";
+      comments += " " + kommentar;
     }
     setComments(comments);
   }

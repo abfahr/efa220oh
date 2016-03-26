@@ -16,6 +16,7 @@ import java.io.FileReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
@@ -34,7 +35,9 @@ import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.EfaBaseFrame;
 import de.nmichael.efa.gui.EfaBoathouseFrame;
 import de.nmichael.efa.gui.EfaExitFrame;
@@ -57,7 +60,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private Date date;
   private Calendar cal;
   private Calendar lockEfa;
-  private boolean framePacked;
   private long lastEfaConfigScn = -1;
   private long lastBoatStatusScn = -1;
   private long newBoatStatusScn = -1;
@@ -68,7 +70,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
     this.cal = new GregorianCalendar();
     this.lockEfa = null;
     this.date = new Date();
-    this.framePacked = false;
   }
 
   public void setEfaLockBegin(DataTypeDate datum, DataTypeTime zeit) {
@@ -92,7 +93,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       BufferedReader f = new BufferedReader(new FileReader(Daten.efaLogfile));
       String s;
-      Vector warnings = new Vector();
+      Vector<String> warnings = new Vector<String>();
       while ((s = f.readLine()) != null) {
         if (Logger.isWarningLine(s)
             && Logger.getLineTimestamp(s) > Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime()) {
@@ -115,7 +116,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             EfaUtil.getTimeStamp(Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime())) + "\n"
             + International.getMessage("{n} Warnungen", warnings.size()) + "\n\n";
         for (int i = 0; i < warnings.size(); i++) {
-          txt += ((String) warnings.get(i)) + "\n";
+          txt += warnings.get(i) + "\n";
         }
         if (Daten.project != null && Daten.efaConfig != null) {
           Messages messages = Daten.project.getMessages(false);
@@ -153,6 +154,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         // find out whether a project is open, and whether it's local or remote
         updateProjectInfo();
+
+        // abf
+        checkBoatEndtime();
 
         // Update GUI on Config Changes
         checkUpdateGui();
@@ -313,6 +317,47 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
   }
 
+  private void checkBoatEndtime() {
+    long now = System.currentTimeMillis();
+
+    // get List of Boats "on the water" = boatsOnTheWaterList;
+    BoatStatus boatStatus = Daten.project.getBoatStatus(false);
+    Vector<BoatStatusRecord> boats = boatStatus.getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
+
+    Logbook currentLogbook = Daten.project.getCurrentLogbook();
+
+    for (BoatStatusRecord boatStatusRecord : boats) {
+      DataTypeIntString entryNo = boatStatusRecord.getEntryNo();
+      LogbookRecord logbookRecord = currentLogbook.getLogbookRecord(entryNo);
+      if (logbookRecord == null) {
+        continue;
+      }
+      // check Endtime is set,valid
+      // check Endtime is past
+      if (logbookRecord.isEndtimeSetAndAlreadyPast(now)) {
+        // do "Fahrt Beenden" with this boats
+        logbookRecord.addComments("(efa: Fahrt nach Ablauf automatisch ausgetragen)");
+        logbookRecord.setSessionIsOpen(false);
+        // updateBoatStatus(true, EfaBaseFrame.MODE_BOATHOUSE_FINISH);
+        EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
+            International.getString("Fahrtende"), logbookRecord);
+        boatStatusRecord.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
+        boatStatusRecord.setShowInList(null);
+        boatStatusRecord.setComment("");
+        boatStatusRecord.setEntryNo(null);
+        boatStatusRecord.setLogbook(null);
+        boatStatusRecord.setBoatText(logbookRecord.getBoatAsName());
+        try {
+          boatStatus.data().update(boatStatusRecord);
+          currentLogbook.data().update(logbookRecord); // saveEntry();
+        } catch (EfaException e) {
+          // Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
   private void checkBoatStatus() {
     if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
@@ -376,7 +421,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
           }
 
           // delete any obsolete reservations
-          int purgedRes = boatReservations.purgeObsoleteReservations(boatStatusRecord.getBoatId(),
+          int purgedRes = 0;
+          purgedRes = starteFahrtMitEndtimeLautReservation(boatStatusRecord.getBoatId());
+          purgedRes = boatReservations.purgeObsoleteReservations(boatStatusRecord.getBoatId(),
               now);
 
           // find all currently valid reservations
@@ -498,6 +545,31 @@ public class EfaBoathouseBackgroundTask extends Thread {
     } catch (Exception e) {
       Logger.logdebug(e);
     }
+  }
+
+  private int starteFahrtMitEndtimeLautReservation(UUID boatId) {
+    // // TODO fahr(20.03.2016): Reservierung startet automatisch eine Fahrt
+    //
+    // // if boat is already on_the_water -> return;
+    //
+    // // get reservation for boatId that is valid now.
+    // BoatReservationRecord r;
+    //
+    // EfaBaseFrame efaBaseFrame = new EfaBaseFrame(this.efaBoathouseFrame,
+    // EfaBaseFrame.MODE_BOATHOUSE);
+    // efaBaseFrame.prepareDialog();
+    // efaBaseFrame.setFixedLocationAndSize();
+    //
+    // ItemTypeBoatstatusList.BoatListItem action = new ItemTypeBoatstatusList.BoatListItem();
+    // action.mode = EfaBaseFrame.MODE_BOATHOUSE_START;
+    // boolean success = efaBaseFrame.setDataForBoathouseAction(action,
+    // this.efaBoathouseFrame.getLogbook());
+    //
+    // // set all Fields in efaBaseFrame with data from reservation
+    // efaBaseFrame.setFieldsFromReservation(r);
+    //
+    // efaBaseFrame.saveEntry();
+    return 0;
   }
 
   private void checkForUnreadMessages() {
@@ -752,10 +824,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
       try {
         DataKeyIterator it = boatDamages.data().getStaticIterator();
         for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-          BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
           if (boatDamages == null) {
             continue;
           }
+          BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
           if (!damage.getFixed()) {
             BoatRecord r = damage.getBoatRecord();
             if (r != null && r.isValidAt(System.currentTimeMillis())) {
@@ -778,10 +850,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
           s.append(International.getMessage("Es liegen {count} offene Bootsschäden vor:",
               openDamages.size()) + "\n\n");
           for (DataKey k : openDamages) {
-            BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
             if (boatDamages == null) {
               continue;
             }
+            BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
             s.append(damage.getCompleteDamageInfo() + "\n");
           }
           s.append(International

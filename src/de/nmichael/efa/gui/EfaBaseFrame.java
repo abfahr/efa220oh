@@ -4713,8 +4713,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       long tstmp = currentRecord.getValidAtTimestamp();
       BoatStatus boatStatus = Daten.project.getBoatStatus(false);
       BoatRecord boatRecord = currentRecord.getBoatRecord(tstmp);
-      BoatStatusRecord boatStatusRecord = (boatRecord != null ? boatStatus.getBoatStatus(boatRecord
-          .getId()) : null);
+      BoatStatusRecord boatStatusRecord = (boatRecord != null
+          ? boatStatus.getBoatStatus(boatRecord.getId()) : null);
 
       // figure out new status information
       String newStatus = null;

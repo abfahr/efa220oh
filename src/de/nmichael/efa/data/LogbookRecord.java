@@ -1277,6 +1277,31 @@ public class LogbookRecord extends DataRecord {
     }
   }
 
+  public boolean isEndtimeSetAndAlreadyPast(long now) {
+    DataTypeTime timeTo = getEndTime();
+    if (timeTo == null || !timeTo.isSet()) {
+      return false; // keine Endzeit eingetragen
+    }
+    DataTypeDate dateTo = getEndDate();
+    if (dateTo == null || !dateTo.isSet()) {
+      dateTo = getDate(); // gleicher Tag
+    }
+    if (dateTo == null || !dateTo.isSet()) {
+      return false; // kein Datum eingetragen
+    }
+    return now > dateTo.getTimestamp(timeTo);
+  }
+
+  public void addComments(String kommentar) {
+    String comments = getComments();
+    if (comments == null || comments.isEmpty()) {
+      comments = kommentar;
+    } else {
+      comments += " (" + kommentar + ")";
+    }
+    setComments(comments);
+  }
+
   public boolean saveRecordToXmlFile(String filename) {
     try {
       BufferedWriter out = new BufferedWriter(new OutputStreamWriter(

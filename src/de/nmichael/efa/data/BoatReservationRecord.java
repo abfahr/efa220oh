@@ -48,7 +48,6 @@ public class BoatReservationRecord extends DataRecord {
   // =========================================================================
   public static final String TYPE_ONETIME = "ONETIME";
   public static final String TYPE_WEEKLY = "WEEKLY";
-  private static final UUID BOOTSHAUS = new UUID(-7033734156567033637L, -8676639372818108974L);
 
   // =========================================================================
   // Field Names
@@ -445,7 +444,7 @@ public class BoatReservationRecord extends DataRecord {
    * @return true, falls diese Reservierung das Bootshaus betrifft
    */
   public boolean isBootshausOH() {
-    return BOOTSHAUS.equals(getBoatId());
+    return BoatRecord.BOOTSHAUS.equals(getBoatId());
   }
 
   @Override

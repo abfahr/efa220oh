@@ -27,6 +27,7 @@ import de.nmichael.efa.core.items.ItemTypeDate;
 import de.nmichael.efa.core.items.ItemTypeRadioButtons;
 import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeTime;
+import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.types.DataTypeTime;
@@ -178,7 +179,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     getValuesFromGui();
 
     String boatName = ""; // getItem("BoatName").getValueFromField();
-    UUID boatId = new UUID(-7033734156567033637L, -8676639372818108974L);// getItem("BoatId").getValueFromField();
+    UUID boatId = BoatRecord.BOOTSHAUS;// getItem("BoatId").getValueFromField();
     long startZeit = System.currentTimeMillis(); // abf
     int dauerMinuten = Daten.efaConfig.getValueEfaDirekt_resLookAheadTime();
 

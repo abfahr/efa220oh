@@ -57,6 +57,8 @@ import de.nmichael.efa.util.Logger;
 
 public class BoatRecord extends DataRecord implements IItemFactory, IItemListenerDataRecordTable {
 
+  public static final UUID BOOTSHAUS = new UUID(-7033734156567033637L, -8676639372818108974L);
+
   // =========================================================================
   // Field Names
   // =========================================================================
@@ -922,6 +924,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return null;
   }
 
+  /**
+   * @return true, falls diese Reservierung das Bootshaus betrifft
+   */
+  public boolean isBootshausOH() {
+    return BOOTSHAUS.equals(getId());
+  }
+
   @Override
   public IItemType[] getDefaultItems(String itemName) {
     if (itemName.equals(BoatRecord.GUIITEM_BOATTYPES)) {
@@ -1160,7 +1169,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     ((ItemTypeString) item).setNotAllowedCharacters("()");
     v.add(item = new ItemTypeString(BoatRecord.OWNER, getOwner(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eigentümer") +
-        " (" + International.getString("Fremdboot") + ")"));
+            " (" + International.getString("Fremdboot") + ")"));
     ((ItemTypeString) item).setNotAllowedCharacters("()");
 
     itemList = new Vector<IItemType[]>();
@@ -1188,7 +1197,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     v.add(item = new ItemTypeInteger(BoatRecord.MAXCREWWEIGHT, getMaxCrewWeight(), 0,
         Integer.MAX_VALUE, true,
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-        .getString("Maximales Mannschaftsgewicht")));
+            .getString("Maximales Mannschaftsgewicht")));
     v.add(item = new ItemTypeDate(BoatRecord.MANUFACTIONDATE, getManufactionDate(),
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Herstellungsdatum")));
     ((ItemTypeDate) item).setAllowYearOnly(true);
@@ -1211,7 +1220,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
         getExcludeFromPublicStatistics(),
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-        .getString("von allgemein verfügbaren Statistiken ausnehmen")));
+            .getString("von allgemein verfügbaren Statistiken ausnehmen")));
     if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
       v.add(item = new ItemTypeString(BoatRecord.EFBID, getEfbId(),
           IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID", "de")));
@@ -1227,7 +1236,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
     v.add(item = new ItemTypeItemList(GUIITEM_ALLOWEDGROUPIDLIST, itemList, this,
         IItemType.TYPE_PUBLIC, CAT_USAGE, International
-        .getString("Gruppen, die dieses Boot benutzen dürfen")));
+            .getString("Gruppen, die dieses Boot benutzen dürfen")));
     ((ItemTypeItemList) item).setXForAddDelButtons(3);
     ((ItemTypeItemList) item).setPadYbetween(0);
     ((ItemTypeItemList) item).setRepeatTitle(false);
@@ -1235,7 +1244,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     v.add(item = new ItemTypeInteger(BoatRecord.MAXNOTINGROUP, getMaxNotInGroup(), 0,
         Integer.MAX_VALUE, true,
         IItemType.TYPE_PUBLIC, CAT_USAGE, International
-        .getString("Maxmimale Personenzahl nicht aus erlaubten Gruppen")));
+            .getString("Maxmimale Personenzahl nicht aus erlaubten Gruppen")));
     v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.REQUIREDGROUPID, getRequiredGroupId(),
         IItemType.TYPE_PUBLIC, CAT_USAGE,
         groups, getValidFrom(), getInvalidFrom() - 1,
@@ -1243,7 +1252,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     item.setFieldSize(300, -1);
     v.add(item = new ItemTypeBoolean(BoatRecord.ONLYWITHBOATCAPTAIN, getOnlyWithBoatCaptain(),
         IItemType.TYPE_PUBLIC, CAT_USAGE, International
-        .getString("Boot darf nur mit Obmann genutzt werden")));
+            .getString("Boot darf nur mit Obmann genutzt werden")));
     v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.DEFAULTCREWID, getDefaultCrewId(),
         IItemType.TYPE_PUBLIC, CAT_USAGE,
         crews, getValidFrom(), getInvalidFrom() - 1,
@@ -1251,7 +1260,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     item.setFieldSize(300, -1);
     v.add(item = new ItemTypeStringList(BoatRecord.DEFAULTSESSIONTYPE, getDefaultSessionType(),
         EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES, true), EfaTypes
-        .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY, true),
+            .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY, true),
         IItemType.TYPE_PUBLIC, CAT_USAGE,
         International.getString("Standard-Fahrtart")));
     v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.DEFAULTDESTINATIONID,

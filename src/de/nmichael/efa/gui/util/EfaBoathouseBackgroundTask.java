@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatDamages;
 import de.nmichael.efa.data.BoatRecord;
@@ -31,10 +32,13 @@ import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.Messages;
+import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
@@ -53,6 +57,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private static final int REMOTE_SCN_CHECK_INTERVAL = 5;
   private static final int ONCE_AN_HOUR = 3600 / CHECK_INTERVAL;
   private static final long BOAT_DAMAGE_REMINDER_INTERVAL = 7 * 24 * 60 * 60 * 1000;
+  private static final long BOOTSHAUS_RESERVATION_REMINDER = 7 * 24 * 60 * 60 * 1000;
+  private static final long BOAT_RESERVATION_REMINDER_TIME = 1 * 24 * 60 * 60 * 1000;
   private EfaBoathouseFrame efaBoathouseFrame;
   private boolean isProjectOpen = false;
   private boolean isLocalProject = true;
@@ -317,6 +323,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
   }
 
+  /**
+   * Logbook-Fahrten mit Endtime werden automatisch beendet.
+   */
   private void checkBoatEndtime() {
     long now = System.currentTimeMillis();
 
@@ -328,6 +337,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     for (BoatStatusRecord boatStatusRecord : boats) {
       DataTypeIntString entryNo = boatStatusRecord.getEntryNo();
+      if (entryNo == null) {
+        continue;
+      }
       LogbookRecord logbookRecord = currentLogbook.getLogbookRecord(entryNo);
       if (logbookRecord == null) {
         continue;
@@ -420,11 +432,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
             continue;
           }
 
+          if (boatStatusRecord.getBoatRecord(now).isBootshausOH()) {
+            sendeEmailAlsErinnerungWennZeitpunktErreicht(boatReservations.getBoatReservations(
+                boatStatusRecord.getBoatId(), now + BOOTSHAUS_RESERVATION_REMINDER, 0));
+          } else {
+            sendeEmailAlsErinnerungWennZeitpunktErreicht(boatReservations.getBoatReservations(
+                boatStatusRecord.getBoatId(), now + BOAT_RESERVATION_REMINDER_TIME, 0));
+          }
+
           // delete any obsolete reservations
-          int purgedRes = 0;
-          purgedRes = starteFahrtMitEndtimeLautReservation(boatStatusRecord.getBoatId());
-          purgedRes = boatReservations.purgeObsoleteReservations(boatStatusRecord.getBoatId(),
-              now);
+          int purgedRes = boatReservations.purgeObsoleteReservations(
+              boatStatusRecord.getBoatId(), now);
 
           // find all currently valid reservations
           BoatReservationRecord[] reservations = boatReservations.getBoatReservations(
@@ -458,6 +476,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
           } else {
             // reservations found
             if (!boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+              LogbookRecord newLogbookRecord = starteFahrtMitEndtimeLautReservation(reservations);
+              if (newLogbookRecord != null) {
+                updateBoatstatusRecord(boatStatusRecord, newLogbookRecord);
+              }
               if (Daten.efaConfig.getValueEfaDirekt_resBooteNichtVerfuegbar()) {
                 if (!boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
                   boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_NOTAVAILABLE);
@@ -526,7 +548,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (statusRecordChanged && Logger.isTraceOn(Logger.TT_BACKGROUND, 2)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
                 "BoatStatus changed for Boat " + boatStatusRecord.getBoatNameAsString(now)
-                + ", new Status: " + boatStatusRecord.toString());
+                    + ", new Status: " + boatStatusRecord.toString());
           }
         } catch (Exception ee) {
           Logger.logdebug(ee);
@@ -547,29 +569,119 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
   }
 
-  private int starteFahrtMitEndtimeLautReservation(UUID boatId) {
-    // // TODO fahr(20.03.2016): Reservierung startet automatisch eine Fahrt
-    //
-    // // if boat is already on_the_water -> return;
-    //
-    // // get reservation for boatId that is valid now.
-    // BoatReservationRecord r;
-    //
-    // EfaBaseFrame efaBaseFrame = new EfaBaseFrame(this.efaBoathouseFrame,
-    // EfaBaseFrame.MODE_BOATHOUSE);
-    // efaBaseFrame.prepareDialog();
-    // efaBaseFrame.setFixedLocationAndSize();
-    //
-    // ItemTypeBoatstatusList.BoatListItem action = new ItemTypeBoatstatusList.BoatListItem();
-    // action.mode = EfaBaseFrame.MODE_BOATHOUSE_START;
-    // boolean success = efaBaseFrame.setDataForBoathouseAction(action,
-    // this.efaBoathouseFrame.getLogbook());
-    //
-    // // set all Fields in efaBaseFrame with data from reservation
-    // efaBaseFrame.setFieldsFromReservation(r);
-    //
-    // efaBaseFrame.saveEntry();
-    return 0;
+  /**
+   * Eine Woche vor der Reservierung wird eine Email verschickt
+   *
+   * @param boatReservations
+   */
+  private void sendeEmailAlsErinnerungWennZeitpunktErreicht(BoatReservationRecord[] reservations) {
+    if (reservations == null) {
+      return;
+    }
+    if (reservations.length != 1) {
+      return;
+    }
+    String aktion = "REMINDER";
+    for (BoatReservationRecord boatReservationRecord : reservations) {
+      UUID personId = boatReservationRecord.getPersonId();
+      if (personId == null) {
+        continue;
+      }
+      PersonRecord personRecord = getPersonRecord(personId);
+      if (personRecord == null) {
+        continue;
+      }
+      String emailAdresse = personRecord.getEmail();
+      if (emailAdresse == null) {
+        continue;
+      }
+      emailAdresse = emailAdresse.replaceAll("@", ".");
+      emailAdresse = emailAdresse.trim().toLowerCase() + ICalendarExport.ABFX_DE;
+      String emailSubject = "OH Reservierung " + aktion;
+      String emailMessage = boatReservationRecord.getFormattedEmailtextMitglied(personRecord);
+
+      Messages messages = Daten.project.getMessages(false);
+      // TODO messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
+    }
+  }
+
+  private PersonRecord getPersonRecord(UUID id) {
+    if (id == null) {
+      return null;
+    }
+    try {
+      Persons persons = Daten.project.getPersons(false);
+      return persons.getPerson(id, System.currentTimeMillis());
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * Eine Reservierung startet automatisch eine Fahrt
+   *
+   * @param boatId
+   * @return
+   */
+  private LogbookRecord starteFahrtMitEndtimeLautReservation(
+      BoatReservationRecord[] boatReservations) {
+    if (boatReservations != null) {
+      for (BoatReservationRecord boatReservationRecord : boatReservations) {
+        if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+          continue; // skip weekly
+        }
+        if (boatReservationRecord.getDayOfWeek() != null) {
+          continue; // skip weekly
+        }
+        LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
+        return newLogbookRecord;
+        // TODO efaBaseFrame.setDataForBoathouseAction(action,
+        // TODO efaBaseFrame.setFieldsFromReservation(r);
+        // TODO List On The Water aktualisieren
+      }
+    }
+    return null;
+  }
+
+  private LogbookRecord createAndPersistNewLogbookRecord(
+      BoatReservationRecord boatReservationRecord) {
+    Logbook currentLogbook = Daten.project.getCurrentLogbook();
+
+    DataTypeIntString newEntryNo = currentLogbook.getNextEntryNo();
+    LogbookRecord newLogbookRecord = currentLogbook.createLogbookRecord(newEntryNo);
+    newLogbookRecord.setEntryId(newEntryNo); // braucht man das?
+    newLogbookRecord.setBoatId(boatReservationRecord.getBoatId());
+    newLogbookRecord.setCrewId(1, boatReservationRecord.getPersonId());
+    newLogbookRecord.setDate(boatReservationRecord.getDateFrom());
+    newLogbookRecord.setStartTime(boatReservationRecord.getTimeFrom());
+    if (!boatReservationRecord.getDateFrom().equals(boatReservationRecord.getDateTo())) {
+      newLogbookRecord.setEndDate(boatReservationRecord.getDateTo());
+    }
+    newLogbookRecord.setEndTime(boatReservationRecord.getTimeTo());
+    newLogbookRecord.setDestinationName(boatReservationRecord.getReason());
+    newLogbookRecord.setDistance(new DataTypeDistance(1));
+    newLogbookRecord.setComments("(efa: Fahrt gestartet anhand Reservierung #"
+        + boatReservationRecord.getReservation() + ")");
+    if (boatReservationRecord.getPersonId() == null) {
+      newLogbookRecord.setCrewName(1, boatReservationRecord.getPersonName());
+    }
+    try {
+      currentLogbook.data().add(newLogbookRecord);
+      return newLogbookRecord;
+    } catch (EfaException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  private void updateBoatstatusRecord(BoatStatusRecord boatStatusRecord,
+      LogbookRecord newLogbookRecord) {
+    boatStatusRecord.setEntryNo(newLogbookRecord.getEntryId());
+    // TODO boatStatusRecord.setLogbook(curr);
+    // TODO boatStatusRecord.setComment(...);
+    boatStatusRecord.setCurrentStatus(BoatStatusRecord.STATUS_ONTHEWATER);
+    // ???? boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_ONTHEWATER);
   }
 
   private void checkForUnreadMessages() {

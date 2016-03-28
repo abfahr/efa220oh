@@ -40,7 +40,6 @@ import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
 // @i18n complete
-
 public class BoatReservationRecord extends DataRecord {
 
   // =========================================================================
@@ -666,7 +665,7 @@ public class BoatReservationRecord extends DataRecord {
     if (p != null) {
       msg.add("PS: Hi Wolle, der nachfolgende Text ist eine Vorlage für eine Antwort an das Mitglied "
           + p.getEmail());
-      msg.add("");
+      // msg.add("");
       if (p.getGender().equals(International.getString("weiblich"))) {
         msg.add("Liebe " + p.getFirstName() + ",");
       } else {
@@ -686,23 +685,25 @@ public class BoatReservationRecord extends DataRecord {
       return null;
     }
     List<String> msg = new ArrayList<String>();
-    msg.add("Hallo " + p.getFirstName());
+    msg.add("Hallo " + p.getFirstName() + "!");
     msg.add("");
-    msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai.");
-    msg.add("Eingabe am: " + new DateTime(getLastModified()).toString().replace('T', '.'));
+    msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. "
+        + "(Eingabe am " + new DateTime(getLastModified()).toString().replace('T', '.') + ")");
     msg.add("");
     msg.add("Reservierung des " + getBoatName());
-    msg.add("für die Zeit: " + getReservationTimeDescription());
-    msg.add("für " + getPersonAsName());
+    msg.add("für die Zeit: " + getReservationTimeDescription() + " für " + getPersonAsName());
     msg.add("Grund der Reservierung: " + getReason());
     msg.add("");
     msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus. Ansonsten viel Spaß im "
         + getBoatName());
+    if (isBootshausOH()) {
+      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular schnell aus (http://www.overfreunde.de/downloads.html) und gib es im Bootshaus ab.");
+    }
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("Efa");
-    msg.add("");
-    msg.add(toString());
+    // msg.add("");
+    // msg.add(toString());
     return join(msg);
   }
 

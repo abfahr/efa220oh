@@ -35,6 +35,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -60,6 +61,8 @@ import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.ClubworkRecord;
 import de.nmichael.efa.data.Messages;
+import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.DataRecord;
@@ -422,8 +425,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
             if (dlg instanceof BoatReservationEditDialog) {
               BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg).getDataRecord();
+              sendEmailMitglied("INSERT", reservation);
               if (reservation.isBootshausOH()) {
-                sendEmail("wolle", "INSERT", reservation);
+                sendEmailBootshausnutzungswart("INSERT", reservation);
               }
             }
             break;
@@ -468,8 +472,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 if (dlg instanceof BoatReservationEditDialog) {
                   BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg)
                       .getDataRecord();
+                  sendEmailMitglied("UPDATE", reservation);
                   if (reservation.isBootshausOH()) {
-                    sendEmail("wolle", "UPDATE", reservation);
+                    sendEmailBootshausnutzungswart("UPDATE", reservation);
                   }
                 }
               }
@@ -520,8 +525,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   if (persistence.data().getMetaData().isVersionized()) {
                     if (records[i] instanceof BoatReservationRecord) {
                       BoatReservationRecord reservation = (BoatReservationRecord) records[i];
+                      sendEmailMitglied("DELETE", reservation);
                       if (reservation.isBootshausOH()) {
-                        sendEmail("wolle", "DELETE", reservation);
+                        sendEmailBootshausnutzungswart("DELETE", reservation);
                       }
                     }
                     persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
@@ -556,8 +562,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   } else {
                     if (records[i] instanceof BoatReservationRecord) {
                       BoatReservationRecord reservation = (BoatReservationRecord) records[i];
+                      sendEmailMitglied("DELETE", reservation);
                       if (reservation.isBootshausOH()) {
-                        sendEmail("wolle", "DELETE", reservation);
+                        sendEmailBootshausnutzungswart("DELETE", reservation);
                       }
                     }
                     persistence.data().delete(records[i].getKey());
@@ -751,15 +758,50 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
   }
 
-  private void sendEmail(String empfaenger, String aktion, BoatReservationRecord brr) {
+  private void sendEmailBootshausnutzungswart(String aktion, BoatReservationRecord brr) {
     // TODO Overfreunde Adresse Bootshausnutzungswart
-    String emailAdresse = empfaenger.trim().toLowerCase() + ICalendarExport.ABFX_DE;
+    String emailAdresse = "bootshausnutzungswart" + ICalendarExport.ABFX_DE;
     String emailSubject = "OH Reservierung " + aktion + " "
         + brr.getReason() + " " + brr.getDateFrom();
     String emailMessage = brr.getFormattedEmailtextBootshausnutzungswart();
 
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
+  }
+
+  private void sendEmailMitglied(String aktion, BoatReservationRecord brr) {
+    UUID personId = brr.getPersonId();
+    if (personId == null) {
+      return;
+    }
+    PersonRecord personRecord = getPersonRecord(personId);
+    if (personRecord == null) {
+      return;
+    }
+    String emailAdresse = personRecord.getEmail();
+    if (emailAdresse == null) {
+      return;
+    }
+    emailAdresse = emailAdresse.replaceAll("@", ".");
+    emailAdresse = emailAdresse.trim() + ICalendarExport.ABFX_DE;
+    String emailSubject = "OH Reservierung " + aktion;
+    String emailMessage = brr.getFormattedEmailtextMitglied(personRecord);
+
+    Messages messages = Daten.project.getMessages(false);
+    // Mareike mag das nicht
+    // messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
+  }
+
+  private PersonRecord getPersonRecord(UUID id) {
+    if (id == null) {
+      return null;
+    }
+    try {
+      Persons persons = Daten.project.getPersons(false);
+      return persons.getPerson(id, System.currentTimeMillis());
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   private boolean versionizedRecordOfThatNameAlreadyExists(BoatReservationRecord dataRecord) {
@@ -1293,7 +1335,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     try {
       date = dayFormat.parse(dayName);
     } catch (ParseException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       return 0;
     }

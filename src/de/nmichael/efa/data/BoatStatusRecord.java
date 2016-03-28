@@ -146,6 +146,10 @@ public class BoatStatusRecord extends DataRecord {
     return getUUID(BOATID);
   }
 
+  public boolean isBootshausOH() {
+    return BoatRecord.BOOTSHAUS.equals(getBoatId());
+  }
+
   public String getBoatNameAsString(long validAt) {
     Boats b = getPersistence().getProject().getBoats(false);
     if (b != null) {

@@ -641,22 +641,63 @@ public class BoatReservationRecord extends DataRecord {
     return IDX_BOATID;
   }
 
-  public String getFormattedEmailtext() {
+  public String getFormattedEmailtextBootshausnutzungswart() {
     PersonRecord p = getPersonRecord();
 
     List<String> msg = new ArrayList<String>();
+    msg.add("Hallo Bootshausnutzungswart Wolfgang!");
+    msg.add("");
     msg.add("Hier die neueste Reservierung von EFA am Isekai");
     msg.add("Eingabe durch: " + getPersonAsName() + " "
         + (p != null ? p.getMembershipNo() + " " + p.getStatusName() : "(wer ist das?)"));
     msg.add("Eingabe am: " + new DateTime(getLastModified()).toString().replace('T', '.'));
     msg.add("");
     msg.add("Reservierung des " + getBoatName());
-    msg.add("für die Periode: " + getReservationTimeDescription());
-    msg.add("Contact: " + getContact());
+    msg.add("für die Zeit: " + getReservationTimeDescription());
+    msg.add("Kontakt: " + getContact());
     msg.add("Telefon (aus Sewobe): " + (p != null ? p.getTelefonFestnetz() : "..."));
     msg.add("Handy (aus Sewobe): " + (p != null ? p.getTelefonHandy() : "..."));
     msg.add("Email (aus Sewobe): " + (p != null ? p.getEmail() : "..."));
     msg.add("Grund der Reservierung: " + getReason());
+    msg.add("");
+    msg.add("mit freundlichen Grüßen");
+    msg.add("Efa");
+    msg.add("");
+    if (p != null) {
+      msg.add("PS: Hi Wolle, der nachfolgende Text ist eine Vorlage für eine Antwort an das Mitglied "
+          + p.getEmail());
+      msg.add("");
+      if (p.getGender().equals(International.getString("weiblich"))) {
+        msg.add("Liebe " + p.getFirstName() + ",");
+      } else {
+        msg.add("Lieber " + p.getFirstName() + ",");
+      }
+      msg.add("Dein Vertrag ist beim Nutzungswart eingegangen und wurde in die Datenbank eingegeben. Mit der nächsten Abbuchung wird das Nutzungsentgeld abgebucht. Bitte beachte, dass der Verein bis vier Wochen vor dem beantragten Veranstaltungstermin das Vortrittsrecht hat (siehe allgemeine Vertragsinhalte). In diesem Falle wird das Entgelt zurück überwiesen.");
+      msg.add("Reservierung des " + getBoatName() + " für die Zeit: "
+          + getReservationTimeDescription());
+      msg.add("Viel Spaß und Gruß");
+      msg.add("Wolfgang (Bootshausnutzungswart)");
+    }
+    return join(msg);
+  }
+
+  public String getFormattedEmailtextMitglied(PersonRecord p) {
+    if (p == null) {
+      return null;
+    }
+    List<String> msg = new ArrayList<String>();
+    msg.add("Hallo " + p.getFirstName());
+    msg.add("");
+    msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai.");
+    msg.add("Eingabe am: " + new DateTime(getLastModified()).toString().replace('T', '.'));
+    msg.add("");
+    msg.add("Reservierung des " + getBoatName());
+    msg.add("für die Zeit: " + getReservationTimeDescription());
+    msg.add("für " + getPersonAsName());
+    msg.add("Grund der Reservierung: " + getReason());
+    msg.add("");
+    msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus. Ansonsten viel Spaß im "
+        + getBoatName());
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("Efa");

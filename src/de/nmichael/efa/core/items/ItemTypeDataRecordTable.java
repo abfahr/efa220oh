@@ -97,9 +97,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   public static final String ACTIONTEXT_DELETE = International.getString("Löschen");
   public static final String BUTTON_IMAGE_CENTERED_PREFIX = "%";
   private static final String[] DEFAULT_ACTIONS = new String[] {
-    ACTIONTEXT_NEW,
-    ACTIONTEXT_EDIT,
-    ACTIONTEXT_DELETE
+      ACTIONTEXT_NEW,
+      ACTIONTEXT_EDIT,
+      ACTIONTEXT_DELETE
   };
   protected StorageObject persistence;
   protected long validAt = -1; // configured validAt
@@ -416,19 +416,22 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               return;
             }
             dlg.showDialog();
-            if (admin != null && dlg instanceof BoatReservationEditDialog) {
-              try {
-                uebertragenAufAndereBoote(((BoatReservationEditDialog) dlg).getDataRecord());
-              } catch (EfaException e1) {
-                Logger.logdebug(e1);
-              }
-            }
             if (dlg instanceof BoatReservationEditDialog) {
               BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg).getDataRecord();
-              sendEmailMitglied("INSERT", reservation);
-              if (reservation.isBootshausOH()) {
-                sendEmailBootshausnutzungswart("INSERT", reservation);
+              if (!reservation.getType().isEmpty()) { // validRecord?
+                sendEmailMitglied("INSERT", reservation);
+                if (reservation.isBootshausOH()) {
+                  sendEmailBootshausnutzungswart("INSERT", reservation);
+                }
+                if (admin != null) {
+                  try {
+                    uebertragenAufAndereBoote(reservation);
+                  } catch (EfaException e1) {
+                    Logger.logdebug(e1);
+                  }
+                }
               }
+
             }
             break;
           case ACTION_EDIT:
@@ -751,7 +754,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                         (admin != null ? International.getString("Admin") + " '" + admin.getName()
                             + "'" :
                             International.getString("Normaler Benutzer")),
-                        newReservationsRecord.getQualifiedName()));
+                          newReservationsRecord.getQualifiedName()));
           }
         }
       }

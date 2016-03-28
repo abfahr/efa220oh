@@ -290,8 +290,11 @@ public class BoatDamageRecord extends DataRecord {
     if (id != null) {
       try {
         Persons persons = getPersistence().getProject().getPersons(false);
-        return persons.getPerson(id, getReportDate().getTimestamp(getReportTime()))
-            .getQualifiedName();
+        long reportTimestamp = getReportDate().getTimestamp(getReportTime());
+        PersonRecord person = persons.getPerson(id, reportTimestamp);
+        String qualifiedName = person.getQualifiedName();
+        qualifiedName += " " + person.getEmail();
+        return qualifiedName;
       } catch (Exception e) {
         Logger.logdebug(e);
         return null;
@@ -338,7 +341,10 @@ public class BoatDamageRecord extends DataRecord {
     if (id != null) {
       try {
         Persons persons = getPersistence().getProject().getPersons(false);
-        return persons.getPerson(id, getFixDate().getTimestamp(getFixTime())).getQualifiedName();
+        PersonRecord person = persons.getPerson(id, getFixDate().getTimestamp(getFixTime()));
+        String qualifiedName = person.getQualifiedName();
+        qualifiedName += " " + person.getEmail();
+        return qualifiedName;
       } catch (Exception e) {
         Logger.logdebug(e);
         return null;

@@ -38,7 +38,9 @@ import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeDecimal;
 import de.nmichael.efa.data.types.DataTypeDistance;
+import de.nmichael.efa.data.types.DataTypeDistance.UnitType;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
@@ -606,8 +608,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (emailAdresse == null) {
         continue;
       }
-      emailAdresse = emailAdresse.replaceAll("@", ".");
-      emailAdresse = emailAdresse.trim().toLowerCase() + ICalendarExport.ABFX_DE;
+      emailAdresse = emailAdresse.replaceAll("@", ".").trim();
+      emailAdresse = emailAdresse + ICalendarExport.ABFX_DE;
       String emailSubject = "OH Reservierung " + aktion;
       String emailMessage = boatReservationRecord.getFormattedEmailtextMitglied(personRecord);
 
@@ -671,9 +673,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
     newLogbookRecord.setEndTime(boatReservationRecord.getTimeTo());
     newLogbookRecord.setDestinationName(boatReservationRecord.getReason());
-    newLogbookRecord.setDistance(new DataTypeDistance(1000)); // 1km
-    newLogbookRecord.setComments("(efa: Fahrt gestartet anhand Reservierung #"
-        + boatReservationRecord.getReservation() + ")");
+    newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km)); // 1km
+    newLogbookRecord.setComments("(efa: Fahrt gestartet anhand einer Reservierung)");
     if (boatReservationRecord.getPersonId() == null) {
       newLogbookRecord.setCrewName(1, boatReservationRecord.getPersonName());
     }

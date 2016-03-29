@@ -112,7 +112,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected String buttonPanelPosition = BorderLayout.EAST;
   protected Vector<DataRecord> data;
   protected Hashtable<String, DataRecord> mappingKeyToRecord;
-  protected Hashtable<DataTypeDate, String> mappingDateToReservations;
+  protected Hashtable<DataTypeDate, Integer> mappingDateToReservations;
+  protected Hashtable<DataTypeDate, String> mappingBootshausDateToReservations;
   protected Hashtable<Integer, String> mappingWeekdayToReservations;
   protected IItemListenerDataRecordTable itemListenerActionTable;
   protected ItemTypeString searchField;
@@ -418,7 +419,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             dlg.showDialog();
             if (dlg instanceof BoatReservationEditDialog) {
               BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg).getDataRecord();
-              if (!reservation.getType().isEmpty()) { // validRecord?
+              if (!reservation.getContact().isEmpty()) { // validRecord?
                 sendEmailMitglied("INSERT", reservation);
                 if (reservation.isBootshausOH()) {
                   sendEmailBootshausnutzungswart("INSERT", reservation);
@@ -712,12 +713,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
       }
 
-      // persistence.
       BoatReservations reservations = Daten.project.getBoatReservations(true);
-      // reservations = persistence.data().getAllKeys();
-      // reservations = (BoatReservations) dataRecord.getPersistence(); // TODO
-
-      // boats.
       Boats boats = Daten.project.getBoats(false);
       IDataAccess data2 = boats.data();
       // for-schleife
@@ -762,10 +758,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void sendEmailBootshausnutzungswart(String aktion, BoatReservationRecord brr) {
-    // TODO Overfreunde Adresse Bootshausnutzungswart
-    String emailAdresse = "bootshausnutzungswart" + ICalendarExport.ABFX_DE;
+    String emailAdresse = "bootshausnutzungswart@overfreunde.de";
+    emailAdresse = emailAdresse.replaceAll("@", ".").trim();
+    emailAdresse = emailAdresse + ICalendarExport.ABFX_DE;
     String emailSubject = "OH Reservierung " + aktion + " "
-        + brr.getReason() + " " + brr.getDateFrom();
+        + brr.getDateFrom() + " " + brr.getReason();
     String emailMessage = brr.getFormattedEmailtextBootshausnutzungswart();
 
     Messages messages = Daten.project.getMessages(false);
@@ -785,8 +782,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (emailAdresse == null) {
       return;
     }
-    emailAdresse = emailAdresse.replaceAll("@", ".");
-    emailAdresse = emailAdresse.trim() + ICalendarExport.ABFX_DE;
+    emailAdresse = emailAdresse.replaceAll("@", ".").trim();
+    emailAdresse = emailAdresse + ICalendarExport.ABFX_DE;
     String emailSubject = "OH Reservierung " + aktion;
     String emailMessage = brr.getFormattedEmailtextMitglied(personRecord);
 
@@ -954,8 +951,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       DataKey<?, ?, ?> key = it.getFirst();
       Hashtable<DataKey<?, ?, ?>, String> uniqueHash = new Hashtable<DataKey<?, ?, ?>, String>();
       if (updateDataRightSideCalendar) {
-        mappingDateToReservations = new Hashtable<DataTypeDate, String>();
+        mappingDateToReservations = new Hashtable<DataTypeDate, Integer>();
         mappingWeekdayToReservations = new Hashtable<Integer, String>();
+        mappingBootshausDateToReservations = new Hashtable<DataTypeDate, String>();
       }
       while (key != null) {
         // avoid duplicate versionized keys for the same record
@@ -1218,10 +1216,17 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         myBuchungtext += recurringEvent;
       }
     }
+    if (mappingBootshausDateToReservations != null) {
+      String singleBootshausEvent = mappingBootshausDateToReservations.get(date);
+      if (singleBootshausEvent != null) {
+        myBuchungtext += singleBootshausEvent;
+      }
+    }
     if (mappingDateToReservations != null) {
-      String singleEvent = mappingDateToReservations.get(date);
+      Integer singleEvent = mappingDateToReservations.get(date);
       if (singleEvent != null) {
-        myBuchungtext += singleEvent;
+        String trennzeichen = "'";
+        myBuchungtext += trennzeichen + singleEvent;
       }
     }
     return myBuchungtext;
@@ -1277,41 +1282,24 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (wochentag != null) {
         String regelterminKuerzel = "r";
         mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
-        return;
+        // return; // scheint egal zu sein
       }
 
       boolean isBootshausReservierung = brr.isBootshausOH();
-      String bootshausKuerzel = "BH";
-      String trennzeichen = "'";
       List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo());
       for (DataTypeDate dataTypeDate : dates) {
-        // alten Wert auslesen
-        String myValue = mappingDateToReservations.get(dataTypeDate);
-        if (myValue == null) {
-          myValue = "";
-        }
-        boolean containsBootshaus = false;
-        if (myValue.contains(bootshausKuerzel)) {
-          containsBootshaus = true;
-          myValue = myValue.replace(bootshausKuerzel, "");
-        }
-        myValue = myValue.replace(trennzeichen, "");
-        int myCount = Integer.parseInt("0" + myValue);
-
         if (isBootshausReservierung) {
-          containsBootshaus = true;
-        } else {
-          myCount++;
+          String bootshausKuerzel = "BH";
+          mappingBootshausDateToReservations.put(dataTypeDate, bootshausKuerzel);
+          continue;
         }
-        myValue = "";
-        if (containsBootshaus) {
-          myValue += bootshausKuerzel;
+
+        // alten Wert auslesen
+        Integer myValue = mappingDateToReservations.get(dataTypeDate);
+        if (myValue == null) {
+          myValue = 0;
         }
-        if (myCount > 0) {
-          myValue += trennzeichen;
-          myValue += myCount;
-        }
-        mappingDateToReservations.put(dataTypeDate, myValue);
+        mappingDateToReservations.put(dataTypeDate, myValue + 1);
       }
     }
   }

@@ -28,7 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -114,6 +113,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected Vector<DataRecord> data;
   protected Hashtable<String, DataRecord> mappingKeyToRecord;
   protected Hashtable<DataTypeDate, String> mappingDateToReservations;
+  protected Hashtable<Integer, String> mappingWeekdayToReservations;
   protected IItemListenerDataRecordTable itemListenerActionTable;
   protected ItemTypeString searchField;
   protected String wochentagFilter;
@@ -754,7 +754,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                         (admin != null ? International.getString("Admin") + " '" + admin.getName()
                             + "'" :
                             International.getString("Normaler Benutzer")),
-                          newReservationsRecord.getQualifiedName()));
+                        newReservationsRecord.getQualifiedName()));
           }
         }
       }
@@ -835,7 +835,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (allowConflicts) {
         String warn = (identical ?
             International.getString("Es existiert bereits ein gleichnamiger Datensatz!") :
-              International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
+            International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
         if (Dialog.yesNoDialog(International.getString("Warnung"),
             warn + "\n"
                 + conflict + "\n"
@@ -955,6 +955,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       Hashtable<DataKey<?, ?, ?>, String> uniqueHash = new Hashtable<DataKey<?, ?, ?>, String>();
       if (updateDataRightSideCalendar) {
         mappingDateToReservations = new Hashtable<DataTypeDate, String>();
+        mappingWeekdayToReservations = new Hashtable<Integer, String>();
       }
       while (key != null) {
         // avoid duplicate versionized keys for the same record
@@ -1209,17 +1210,21 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   public String getBuchungString(DataTypeDate date) {
-    if (mappingDateToReservations == null) {
-      // updateData();
-      if (mappingDateToReservations == null) {
-        return "";
+    String myBuchungtext = "";
+    if (mappingWeekdayToReservations != null) {
+      Integer weekday = date.toCalendar().get(Calendar.DAY_OF_WEEK);
+      String recurringEvent = mappingWeekdayToReservations.get(weekday);
+      if (recurringEvent != null) {
+        myBuchungtext += recurringEvent;
       }
     }
-    String myValue = mappingDateToReservations.get(date);
-    if (myValue == null) {
-      return "";
+    if (mappingDateToReservations != null) {
+      String singleEvent = mappingDateToReservations.get(date);
+      if (singleEvent != null) {
+        myBuchungtext += singleEvent;
+      }
     }
-    return myValue;
+    return myBuchungtext;
   }
 
   class btnPrev_Action implements ActionListener {
@@ -1268,11 +1273,17 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   private void mappingDateToName(DataRecord r) {
     if (r instanceof BoatReservationRecord) {
       BoatReservationRecord brr = (BoatReservationRecord) r;
+      Integer wochentag = getWochentag(brr.getDayOfWeek());
+      if (wochentag != null) {
+        String regelterminKuerzel = "r";
+        mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
+        return;
+      }
+
       boolean isBootshausReservierung = brr.isBootshausOH();
       String bootshausKuerzel = "BH";
       String trennzeichen = "'";
-      List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo(),
-          brr.getDayOfWeek());
+      List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo());
       for (DataTypeDate dataTypeDate : dates) {
         // alten Wert auslesen
         String myValue = mappingDateToReservations.get(dataTypeDate);
@@ -1297,55 +1308,39 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           myValue += bootshausKuerzel;
         }
         if (myCount > 0) {
-          myValue += trennzeichen + myCount;
+          myValue += trennzeichen;
+          myValue += myCount;
         }
         mappingDateToReservations.put(dataTypeDate, myValue);
       }
     }
   }
 
-  private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo,
-      String dayOfWeek) {
-    DataTypeDate myDateFrom = dateFrom;
-    DataTypeDate myDateTo = dateTo;
-
-    int wochentag = -1;
-    if (dayOfWeek != null) {
-      wochentag = getWochentag(dayOfWeek);
-      myDateFrom = DataTypeDate.today();
-      int fromWochentag = myDateFrom.toCalendar().get(Calendar.DAY_OF_WEEK);
-      myDateFrom.addDays(wochentag - fromWochentag);
-      myDateTo = new DataTypeDate(myDateFrom);
-      myDateTo.addDays(365);
-    }
-
+  private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo) {
     List<DataTypeDate> datumListe = new ArrayList<DataTypeDate>();
-    DataTypeDate myDate = new DataTypeDate(myDateFrom);
-    while (myDate.isBeforeOrEqual(myDateTo)) {
+    if (dateFrom == null || dateTo == null) {
+      return datumListe;
+    }
+    DataTypeDate myDate = new DataTypeDate(dateFrom);
+    while (myDate.isBeforeOrEqual(dateTo)) {
       datumListe.add(new DataTypeDate(myDate));
-      if (wochentag == myDate.toCalendar().get(Calendar.DAY_OF_WEEK)) {
-        myDate.addDays(7);
-      } else {
-        myDate.addDays(1);
-      }
+      myDate.addDays(1);
     }
     return datumListe;
   }
 
-  private int getWochentag(String dayName) {
+  private Integer getWochentag(String dayName) {
+    if (dayName == null) {
+      return null;
+    }
     SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.US);
-    Date date;
+    Calendar calendar = Calendar.getInstance();
     try {
-      date = dayFormat.parse(dayName);
+      calendar.setTime(dayFormat.parse(dayName));
+      return calendar.get(Calendar.DAY_OF_WEEK);
     } catch (ParseException e) {
       e.printStackTrace();
-      return 0;
+      return null;
     }
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-    return dayOfWeek;
-
   }
-
 }

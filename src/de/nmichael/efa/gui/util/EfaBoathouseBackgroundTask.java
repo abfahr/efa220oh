@@ -437,7 +437,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (boatStatusRecord.isBootshausOH()) {
             BoatReservationRecord[] br = boatReservations.getBoatReservations(
                 boatStatusRecord.getBoatId(), now + BOOTSHAUS_RESERVATION_REMINDER, 0);
-            sendeEmailAlsErinnerungWennZeitpunktErreicht(br);
+            sendeEmailAlsErinnerungWennZeitpunktErreicht(br, BOOTSHAUS_RESERVATION_REMINDER);
           } else {
             // Mareike mag das nicht
             // sendeEmailAlsErinnerungWennZeitpunktErreicht(boatReservations.getBoatReservations(
@@ -552,7 +552,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (statusRecordChanged && Logger.isTraceOn(Logger.TT_BACKGROUND, 2)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
                 "BoatStatus changed for Boat " + boatStatusRecord.getBoatNameAsString(now)
-                    + ", new Status: " + boatStatusRecord.toString());
+                + ", new Status: " + boatStatusRecord.toString());
           }
         } catch (Exception ee) {
           Logger.logdebug(ee);
@@ -578,7 +578,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
    *
    * @param boatReservations
    */
-  private void sendeEmailAlsErinnerungWennZeitpunktErreicht(BoatReservationRecord[] reservations) {
+  private void sendeEmailAlsErinnerungWennZeitpunktErreicht(BoatReservationRecord[] reservations,
+      long remindertime) {
     if (reservations == null) {
       return;
     }
@@ -591,7 +592,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       long lastModified = boatReservationRecord.getLastModified();
       long realStart = boatReservationRecord.getDateFrom()
           .getTimestamp(boatReservationRecord.getTimeFrom());
-      if (lastModified + BOOTSHAUS_RESERVATION_REMINDER > realStart) {
+      if (lastModified + remindertime > realStart) {
         // Email wurde offenbar schon einmal verschickt
         continue;
       }
@@ -610,7 +611,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
       emailAdresse = emailAdresse.replaceAll("@", ".").trim();
       emailAdresse = emailAdresse + ICalendarExport.ABFX_DE;
-      String emailSubject = "OH Reservierung " + aktion;
+      String emailSubject = "OH Reservierung " + aktion + " "
+          + boatReservationRecord.getDateFrom() + " " + boatReservationRecord.getReason();
       String emailMessage = boatReservationRecord.getFormattedEmailtextMitglied(personRecord);
 
       Messages messages = Daten.project.getMessages(false);

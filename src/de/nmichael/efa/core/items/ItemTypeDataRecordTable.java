@@ -28,6 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -424,12 +426,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 if (reservation.isBootshausOH()) {
                   sendEmailBootshausnutzungswart("INSERT", reservation);
                 }
-                if (admin != null) {
-                  try {
+                try {
+                  if (admin != null) {
                     uebertragenAufAndereBoote(reservation);
-                  } catch (EfaException e1) {
-                    Logger.logdebug(e1);
+                  } else {
+                    uebertragenAufAndereBooteDieserGruppe(reservation);
                   }
+                } catch (EfaException e1) {
+                  Logger.logdebug(e1);
                 }
               }
 
@@ -716,9 +720,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       BoatReservations reservations = Daten.project.getBoatReservations(true);
       Boats boats = Daten.project.getBoats(false);
       IDataAccess data2 = boats.data();
-      // for-schleife
+      long now = System.currentTimeMillis();
       for (DataKey<?, ?, ?> dataKey : data2.getAllKeys()) {
         BoatRecord boatRecord = (BoatRecord) data2.get(dataKey);
+        if (!boatRecord.isValidAt(now)) {
+          // Boot nicht mehr gültig, abgelaufen
+          continue;
+        }
         if (originalBoat.getId().equals(boatRecord.getId())) {
           // aber nicht das eine Boot selber
           // dieses Boot haben wir schon reserviert
@@ -755,6 +763,146 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
       }
     }
+  }
+
+  /**
+   * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppe
+   *
+   * @param reservationRecord
+   * @throws EfaException
+   */
+  private void uebertragenAufAndereBooteDieserGruppe(BoatReservationRecord reservationRecord)
+      throws EfaException {
+    BoatRecord originalBoat = reservationRecord.getBoat();
+
+    ArrayList<IItemType> liste = createListOfSelectableItemsSimilarTo(originalBoat);
+    liste.add(new ItemTypeLabel("*A-L0", IItemType.TYPE_INTERNAL, "",
+        "Anstatt mehrere Ausleihen zu machen,"));
+    liste.add(new ItemTypeLabel("*A-L1", IItemType.TYPE_INTERNAL, "",
+        "kannst Du direkt weitere \"Boote\" anklicken."));
+    liste.add(new ItemTypeLabel("*A-L2", IItemType.TYPE_INTERNAL, "",
+        "Zeit: " + reservationRecord.getReservationTimeDescription()));
+    liste.add(new ItemTypeLabel("*A-L3", IItemType.TYPE_INTERNAL, "",
+        "Sollen andere Boote genauso reserviert werden?"));
+    liste.add(new ItemTypeLabel("*A-L4", IItemType.TYPE_INTERNAL, "",
+        "-> Bitte auswählen:"));
+    IItemType[] items = createArraySortedByName(liste);
+
+    boolean pressedOKAY = MultiInputDialog.showInputDialog(getParentDialog(),
+        International.getString("Übertragen auf andere Boote dieser Gruppe"),
+        items);
+    if (!pressedOKAY) {
+      return;
+    }
+
+    ArrayList<String> fehlerListe = new ArrayList<String>();
+    String lastException = "";
+
+    BoatReservations reservations = Daten.project.getBoatReservations(true);
+    for (IItemType iItemType : items) {
+      if (!(iItemType instanceof ItemTypeBoolean)) {
+        // erste Zeilen überspringen
+        continue;
+      }
+      boolean selectedInGui = ((ItemTypeBoolean) iItemType).getValue();
+      if (!selectedInGui) {
+        // diese Boote wurden nicht ausgewählt
+        continue;
+      }
+      @SuppressWarnings("unchecked")
+      DataKey<UUID, Long, String> dataKey = iItemType.getDataKey();
+      UUID selectedBoatId = dataKey.getKeyPart1();
+      if (originalBoat.getId().equals(selectedBoatId)) {
+        // das eigene Boot haben wir schon reserviert
+        continue;
+      }
+
+      // neue Reservierung: alle Parameter einzeln eintragen
+      BoatReservationRecord newReservationsRecord = reservations
+          .createBoatReservationsRecordFromClone(selectedBoatId, reservationRecord);
+
+      if (versionizedRecordOfThatNameAlreadyExists(newReservationsRecord)) {
+        // seems to have conflicts TODO
+        // keep track of failures in a List
+        fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
+        fehlerListe.add("--versionizedRecordOfThatNameAlreadyExists");
+        continue;
+      }
+
+      // check Conflicts with same time
+      try {
+        reservations.preModifyRecordCallback(newReservationsRecord, true, false, false);
+      } catch (EfaModifyException e) {
+        Logger.log(Logger.INFO, Logger.MSG_DATA_UPDATECONFLICT, e); // MSG_DATA_CREATEFAILED
+        fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
+        lastException = e.getLocalizedMessage();
+        continue;
+      }
+
+      reservations.data().add(newReservationsRecord);
+      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
+          newReservationsRecord.getPersistence().getDescription() + ": " +
+              International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                  (admin != null
+                      ? International.getString("Admin") + " '" + admin.getName() + "'"
+                      : International.getString("Normaler Benutzer")),
+                  newReservationsRecord.getQualifiedName()));
+    } // for loop
+    if (!fehlerListe.isEmpty()) {
+      // display the failures at end
+      String s = "";
+      s += "Für die Zeit " + reservationRecord.getReservationTimeDescription() + "\n";
+      s += "konnten nicht alle Boote automatisch mitreserviert werden.\n";
+      for (String string : fehlerListe) {
+        s += string + "\n";
+      }
+      s += lastException;
+      Dialog.infoDialog("Fehlerprotokoll", s);
+    }
+  }
+
+  private ArrayList<IItemType> createListOfSelectableItemsSimilarTo(BoatRecord originalBoat)
+      throws EfaException {
+    ArrayList<IItemType> liste = new ArrayList<IItemType>();
+    IDataAccess boats = Daten.project.getBoats(false).data();
+    long now = System.currentTimeMillis();
+    for (DataKey<?, ?, ?> dataKey : boats.getAllKeys()) {
+      BoatRecord boatRecord = (BoatRecord) boats.get(dataKey);
+      if (!boatRecord.isValidAt(now)) {
+        // Boot nicht mehr gültig, abgelaufen
+        continue;
+      }
+      if (!originalBoat.getTypeSeats(0).equals(boatRecord.getTypeSeats(0))) {
+        // aber nicht fremde Bootstypen - hier als Sitzplätze
+        // für andere Bootstypen, bitte neue Reservierung dort aufmachen.
+        continue;
+      }
+
+      ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
+          IItemType.TYPE_INTERNAL, "",
+          International.getString(boatRecord.getQualifiedName()));
+      item.setDataKey(boatRecord.getKey());
+      if (originalBoat.getId().equals(boatRecord.getId())) {
+        // das eigene Boot haben wir schon reserviert
+        // item.setName("*A-L9 " + item.getName());
+        item.setEnabled(false);
+        item.setValue(true);
+      }
+      liste.add(item);
+    }
+    return liste;
+  }
+
+  private IItemType[] createArraySortedByName(ArrayList<IItemType> liste) {
+    Collections.sort(liste, new Comparator<IItemType>() {
+      @Override
+      public int compare(IItemType item1, IItemType item2)
+      {
+        return item1.getName().compareTo(item2.getName());
+      }
+    });
+    IItemType[] items = new IItemType[liste.size()];
+    return liste.toArray(items);
   }
 
   private void sendEmailBootshausnutzungswart(String aktion, BoatReservationRecord brr) {

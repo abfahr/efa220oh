@@ -21,6 +21,7 @@ import java.util.Vector;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.calendar.ICalendarExport;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatDamages;
 import de.nmichael.efa.data.BoatRecord;
@@ -668,6 +669,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
     newLogbookRecord.setEntryId(newEntryNo); // braucht man das?
     newLogbookRecord.setBoatId(boatReservationRecord.getBoatId());
     newLogbookRecord.setCrewId(1, boatReservationRecord.getPersonId());
+    if (boatReservationRecord.getPersonId() == null) {
+      newLogbookRecord.setCrewName(1, boatReservationRecord.getPersonName());
+    }
     newLogbookRecord.setDate(boatReservationRecord.getDateFrom());
     newLogbookRecord.setStartTime(boatReservationRecord.getTimeFrom());
     if (!boatReservationRecord.getDateFrom().equals(boatReservationRecord.getDateTo())) {
@@ -677,9 +681,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     newLogbookRecord.setDestinationName(boatReservationRecord.getReason());
     newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km)); // 1km
     newLogbookRecord.setComments("(efa: Fahrt gestartet anhand einer Reservierung)");
-    if (boatReservationRecord.getPersonId() == null) {
-      newLogbookRecord.setCrewName(1, boatReservationRecord.getPersonName());
-    }
+    newLogbookRecord.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
+    newLogbookRecord.setSessionIsOpen(true);
     try {
       currentLogbook.data().add(newLogbookRecord); // save
       return newLogbookRecord;

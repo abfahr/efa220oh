@@ -906,9 +906,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void sendEmailBootshausnutzungswart(String aktion, BoatReservationRecord brr) {
-    String emailAdresse = "bootshausnutzungswart@overfreunde.de";
-    emailAdresse = emailAdresse.replaceAll("@", ".").trim();
-    emailAdresse = emailAdresse + ICalendarExport.ABFX_DE;
+    String emailAdresse = "bootshausnutzung@overfreunde.de";
     String emailSubject = "OH Reservierung " + aktion + " "
         + brr.getDateFrom() + " " + brr.getReason();
     String emailMessage = brr.getFormattedEmailtextBootshausnutzungswart();

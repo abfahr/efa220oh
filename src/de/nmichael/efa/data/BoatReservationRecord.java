@@ -695,10 +695,13 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Grund der Reservierung: " + getReason());
     msg.add("");
     if (isBootshausOH()) {
-      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular schnell aus (http://www.overfreunde.de/downloads.html) und gib es im Bootshaus ab.");
+      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular schnell aus (http://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden dir automatisch 75€ berechnet).");
     }
-    msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus. Ansonsten viel Spaß im "
-        + getBoatName());
+    msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus.");
+    if (isBootshausOH()) {
+      msg.add("Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
+    }
+    msg.add("Ansonsten viel Spaß im " + getBoatName());
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("Efa");

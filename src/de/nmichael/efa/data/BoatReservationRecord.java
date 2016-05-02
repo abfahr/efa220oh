@@ -666,7 +666,7 @@ public class BoatReservationRecord extends DataRecord {
       msg.add("PS: Hi Wolle, der nachfolgende Text ist eine Vorlage für eine Antwort an das Mitglied "
           + p.getEmail());
       // msg.add("");
-      if (p.getGender().equals(International.getString("weiblich"))) {
+      if (p.getGender().equals(EfaTypes.TYPE_GENDER_FEMALE)) {
         msg.add("Liebe " + p.getFirstName() + ",");
       } else {
         msg.add("Lieber " + p.getFirstName() + ",");

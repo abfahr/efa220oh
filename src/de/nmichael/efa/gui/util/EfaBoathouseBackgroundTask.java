@@ -20,7 +20,6 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatDamages;
@@ -610,8 +609,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (emailAdresse == null) {
         continue;
       }
-      emailAdresse = emailAdresse.replaceAll("@", ".").trim();
-      emailAdresse = emailAdresse + ICalendarExport.ABFX_DE;
       String emailSubject = "OH Reservierung " + aktion + " "
           + boatReservationRecord.getDateFrom() + " " + boatReservationRecord.getReason();
       String emailMessage = boatReservationRecord.getFormattedEmailtextMitglied(personRecord);

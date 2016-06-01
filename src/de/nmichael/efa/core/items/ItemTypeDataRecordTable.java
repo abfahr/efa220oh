@@ -928,14 +928,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (emailAdresse == null) {
       return;
     }
-    emailAdresse = emailAdresse.replaceAll("@", ".").trim();
-    emailAdresse = emailAdresse + ICalendarExport.ABFX_DE;
-    String emailSubject = "OH Reservierung " + aktion;
+    emailAdresse = emailAdresse.replaceAll("@", ".").trim(); // remove brr.getPersonAsName()
+    emailAdresse = emailAdresse + ICalendarExport.ABFX_DE; // remove me brr.getPersonAsName()
+    String emailSubject = "OH Reservierung " + aktion + " "
+        + brr.getDateFrom() + " " + brr.getPersonAsName() + " " + brr.getReason();
     String emailMessage = brr.getFormattedEmailtextMitglied(personRecord);
 
     Messages messages = Daten.project.getMessages(false);
     // Mareike mag das nicht
-    // messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
+    messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
   }
 
   private PersonRecord getPersonRecord(UUID id) {

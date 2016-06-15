@@ -442,7 +442,7 @@ public class Audit extends Thread {
                         "Bootsstatus '{status}' korrigiert nach '{status}'.",
                         BoatStatusRecord.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                         BoatStatusRecord.getStatusDescription(status.getBaseStatus()))
-                        + " (Logbook or EntryNo not set)");
+                        + " (Logbook " + logbookName + " or EntryNo " + entryNo + " not set)");
           }
           if (!logbookName.equals(project.getCurrentLogbookEfaBoathouse())) {
             auditError(

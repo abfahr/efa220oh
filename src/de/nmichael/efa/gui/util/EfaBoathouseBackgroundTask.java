@@ -693,8 +693,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private void updateBoatstatusRecord(BoatStatusRecord boatStatusRecord,
       LogbookRecord newLogbookRecord) {
     boatStatusRecord.setCurrentStatus(BoatStatusRecord.STATUS_ONTHEWATER);
+    boatStatusRecord.setLogbook(efaBoathouseFrame.getLogbook().getName());
     boatStatusRecord.setEntryNo(newLogbookRecord.getEntryId());
-    // boatStatusRecord.setLogbook(curr);
     // boatStatusRecord.setComment(...);
   }
 

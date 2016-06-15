@@ -28,6 +28,7 @@ import javax.swing.plaf.ColorUIResource;
 
 import org.apache.commons.io.FileUtils;
 
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.CrontabThread;
 import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.core.EfaRunning;
@@ -103,10 +104,10 @@ public class Daten {
   public final static String EFAWETTURL = "http://efa.rudern.de";
   public final static String NICOLASURL = "http://www.nmichael.de";
   public final static String EFAEMAILNAME = "efa";
-  public final static String EMAILINFO = "info.efa@abfx.de";
-  public final static String EMAILBUGS = "bugs.efa@abfx.de";
-  public final static String EMAILHELP = "help.efa@abfx.de";
-  public final static String EMAILDEV = "dev.efa@abfx.de";
+  public final static String EMAILINFO = "info.efa" + ICalendarExport.ABFX_DE;
+  public final static String EMAILBUGS = "bugs.efa" + ICalendarExport.ABFX_DE;
+  public final static String EMAILHELP = "help.efa" + ICalendarExport.ABFX_DE;
+  public final static String EMAILDEV = "dev.efa" + ICalendarExport.ABFX_DE;
   public static final String EFA_USERDATA_DIR = "efa2"; // <efauser> = ~/efa2/ Directory for efauser
   // data (if not efa program directory)
   public static final String EFA_RUNNING = "efa.run"; // <efauser>/efa.run Indiz, daß efaDirekt

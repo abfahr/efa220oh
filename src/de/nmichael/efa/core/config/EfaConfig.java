@@ -16,6 +16,7 @@ import java.util.Vector;
 import javax.swing.UIManager;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.EfaSec;
 import de.nmichael.efa.core.items.IItemFactory;
 import de.nmichael.efa.core.items.IItemType;
@@ -236,6 +237,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_showEingabeInfos;
   private ItemTypeBoolean efaDirekt_showBootsschadenButton;
   private ItemTypeBoolean boatNotCleanedButton;
+  private ItemTypeString emailToBootshausnutzungWolle;
   private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
   private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
   private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
@@ -733,6 +735,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON), // @todo - make
           // PUBLIC?
           International.getString("Melden von ungeputzten Booten erlauben")));
+      addParameter(emailToBootshausnutzungWolle = new ItemTypeString(
+          "emailToBootshausnutzungWolle", "bootshausnutzung" + ICalendarExport.ABFX_DE,
+          IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("EmailTo bei Bootshausreservierung")));
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
@@ -1921,6 +1928,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean getShowBoatNotCleanedButton() {
     return boatNotCleanedButton.getValue();
+  }
+
+  public String getEmailToBootshausnutzungWolle() {
+    return emailToBootshausnutzungWolle.getValue();
   }
 
   public int getValueEfaDirekt_maxFBAnzeigenFahrten() {

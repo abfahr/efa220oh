@@ -238,6 +238,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_showBootsschadenButton;
   private ItemTypeBoolean boatNotCleanedButton;
   private ItemTypeString emailToBootshausnutzungWolle;
+  private ItemTypeBoolean reservierungAnMitgliedEmailen;
   private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
   private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
   private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
@@ -740,6 +741,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("EmailTo bei Bootshausreservierung")));
+      addParameter(reservierungAnMitgliedEmailen = new ItemTypeBoolean(
+          "reservierungAnMitgliedEmailen", false, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("jede Reservierung an das Mitglied emailen")));
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
@@ -1932,6 +1937,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public String getEmailToBootshausnutzungWolle() {
     return emailToBootshausnutzungWolle.getValue();
+  }
+
+  public boolean isReservierungAnMitgliedEmailen() {
+    return reservierungAnMitgliedEmailen.getValue();
   }
 
   public int getValueEfaDirekt_maxFBAnzeigenFahrten() {

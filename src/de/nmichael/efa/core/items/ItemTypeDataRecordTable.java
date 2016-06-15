@@ -906,13 +906,16 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void sendEmailBootshausnutzungswart(String aktion, BoatReservationRecord brr) {
-    String emailAdresse = Daten.efaConfig.getEmailToBootshausnutzungWolle();
+    String emailToAdresse = Daten.efaConfig.getEmailToBootshausnutzungWolle();
+    if (!isValidEmail(emailToAdresse)) {
+      return;
+    }
     String emailSubject = "OH Reservierung " + aktion + " "
         + brr.getDateFrom() + " " + brr.getPersonAsName() + " " + brr.getReason();
     String emailMessage = brr.getFormattedEmailtextBootshausnutzungswart();
 
     Messages messages = Daten.project.getMessages(false);
-    messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
+    messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
   }
 
   private void sendEmailMitglied(String aktion, BoatReservationRecord brr) {
@@ -924,19 +927,38 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (personRecord == null) {
       return;
     }
-    String emailAdresse = personRecord.getEmail();
-    if (emailAdresse == null) {
+    String emailToAdresse = personRecord.getEmail();
+    if (!isValidEmail(emailToAdresse)) {
       return;
     }
-    emailAdresse = emailAdresse.replaceAll("@", ".").trim(); // remove brr.getPersonAsName()
-    emailAdresse = emailAdresse + ICalendarExport.ABFX_DE; // remove me brr.getPersonAsName()
-    String emailSubject = "OH Reservierung " + aktion + " "
-        + brr.getDateFrom() + " " + brr.getPersonAsName() + " " + brr.getReason();
+    if (!Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
+      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim(); // remove brr.getPersonAsName()
+      emailToAdresse = emailToAdresse + ICalendarExport.ABFX_DE; // remove me brr.getPersonAsName()
+    }
+    String emailSubject = "OH Reservierung " + aktion;
+    emailSubject += " " + brr.getDateFrom();
+    if (!Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
+      emailSubject += " " + brr.getPersonAsName();
+    }
+    emailSubject += " " + brr.getReason();
     String emailMessage = brr.getFormattedEmailtextMitglied(personRecord);
 
     Messages messages = Daten.project.getMessages(false);
     // Mareike mag das nicht
-    messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
+    messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
+  }
+
+  private boolean isValidEmail(String emailCandidate) {
+    if (emailCandidate == null) {
+      return false;
+    }
+    if (emailCandidate.isEmpty()) {
+      return false;
+    }
+    if (!emailCandidate.contains("@")) {
+      return false;
+    }
+    return true;
   }
 
   private PersonRecord getPersonRecord(UUID id) {

@@ -1167,7 +1167,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
           }
           if (updateDataRightSideCalendar) {
-            mappingDateToName(r);
+            if (r instanceof BoatReservationRecord) {
+              mappingDateToName((BoatReservationRecord) r);
+            }
           }
         }
         key = it.getNext();
@@ -1237,8 +1239,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     mtblCalendar = new CalendarTableModel();
     tblCalendar = new JTable(mtblCalendar);
     JScrollPane stblCalendar = new JScrollPane(tblCalendar);
-    // JPanel stblCalendarNeu = new JPanel();
-    // stblCalendarNeu.add(tblCalendar);
 
     // Register action listeners
     btnPrev.addActionListener(new btnPrev_Action());
@@ -1246,19 +1246,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     lblMonth.addActionListener(new lblMonth_Action());
 
     pnlCalendarPanel = new JPanel(new BorderLayout()); // BorderLayout
-    // pnlCalendarPanel.setSize(xr320 + 10, yu335 + 40); // Set size to 400x400 pixels
     pnlCalendarPanel.add(btnPrev);
     pnlCalendarPanel.add(lblMonth);
     pnlCalendarPanel.add(btnNext);
     pnlCalendarPanel.add(stblCalendar);
 
     // Set bounds
-    // pnlCalendarPanel.setBounds(0, 0, xr320, yu335);
     btnPrev.setBounds(50, yu335 - 25, 70, 25);
     lblMonth.setBounds((xr320 - 170) / 2, yu335 - 25, 220, 25);
     btnNext.setBounds(xr320 - 70, yu335 - 25, 70, 25);
-    // stblCalendar.setBounds(10, 50, xr320 - 20, yu335 - 85);
-    // tblCalendar.setBounds(10, 50, xr320 - 10, yu335 - 85);
 
     rightSidePanel.add(pnlCalendarPanel, BorderLayout.NORTH);
 
@@ -1303,7 +1299,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     currentYear = realYear;
 
     // Refresh calendar
-    refreshCalendar(0, realMonth, realYear); // Refresh calendar
+    refreshCalendar(realDay, realMonth, realYear); // Refresh calendar
     // don't filter at startup
   }
 
@@ -1444,44 +1440,37 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
   }
 
-  private void mappingDateToName(DataRecord r) {
-    if (r instanceof BoatReservationRecord) {
-      BoatReservationRecord brr = (BoatReservationRecord) r;
-      Integer wochentag = getWochentag(brr.getDayOfWeek());
-      if (wochentag != null) {
-        String regelterminKuerzel = "r";
-        mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
-        // return; // scheint egal zu sein
-      }
+  private void mappingDateToName(BoatReservationRecord brr) {
+    // TODO abf 16.6.2016 hier wird viel gerechnet. Unbedingt verbessern
 
-      boolean isBootshausReservierung = brr.isBootshausOH();
-      List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo());
-      for (DataTypeDate dataTypeDate : dates) {
-        if (isBootshausReservierung) {
-          String bootshausKuerzel = "BH";
-          mappingBootshausDateToReservations.put(dataTypeDate, bootshausKuerzel);
-          continue;
-        }
+    Integer wochentag = getWochentag(brr.getDayOfWeek());
+    if (wochentag != null) {
+      String regelterminKuerzel = "r";
+      mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
+      // return; // scheint egal zu sein
+    }
 
-        // alten Wert auslesen
-        Integer myValue = mappingDateToReservations.get(dataTypeDate);
-        if (myValue == null) {
-          myValue = 0;
-        }
-        mappingDateToReservations.put(dataTypeDate, myValue + 1);
+    boolean isBootshausReservierung = brr.isBootshausOH();
+    String bootshausKuerzel = "BH";
+    List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo());
+    for (DataTypeDate dataTypeDate : dates) {
+      if (isBootshausReservierung) {
+        mappingBootshausDateToReservations.put(dataTypeDate, bootshausKuerzel);
+      } else {
+        Integer oldValue = mappingDateToReservations.get(dataTypeDate);
+        oldValue = (oldValue == null) ? 0 : oldValue;
+        mappingDateToReservations.put(dataTypeDate, oldValue + 1);
       }
     }
   }
 
   private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo) {
     List<DataTypeDate> datumListe = new ArrayList<DataTypeDate>();
-    if (dateFrom == null || dateTo == null) {
-      return datumListe;
-    }
-    DataTypeDate myDate = new DataTypeDate(dateFrom);
-    while (myDate.isBeforeOrEqual(dateTo)) {
-      datumListe.add(new DataTypeDate(myDate));
-      myDate.addDays(1);
+    if (dateFrom != null && dateTo != null) {
+      DataTypeDate myDate = new DataTypeDate(dateFrom);
+      for (; myDate.isBeforeOrEqual(dateTo); myDate.addDays(1)) {
+        datumListe.add(new DataTypeDate(myDate));
+      }
     }
     return datumListe;
   }

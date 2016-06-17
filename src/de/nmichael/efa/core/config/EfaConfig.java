@@ -242,6 +242,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean reservierungAnMitgliedEmailen;
   private ItemTypeInteger anzahlTageErinnerungBootshaus;
   private ItemTypeInteger anzahlTageErinnerungBoote;
+  private ItemTypeBoolean updateDataRightSideCalendar;
   private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
   private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
   private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
@@ -762,6 +763,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "anzahlTageErinnerungBoote", 0, 0, 99, false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("Erinnerung wg.Boot an das Mitglied emailen. Tage")));
+      addParameter(updateDataRightSideCalendar = new ItemTypeBoolean("updateDataRightSideCalendar",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("fülle Kalender rechte Seite bei Reservierungen")));
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
@@ -953,8 +958,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           .getString("Nach Beenden letzter Fahrt Erinnerung zum Schließen der Bootshalle anzeigen")));
       addParameter(efaBoathouseShowLastFromWaterNotificationText = new ItemTypeString(
           "ShowLastFromWaterNotificationText",
-          International.getString("Alle Boote sind zurück.") + "<br>" +
-              International.getString("Bitte schließe die Hallentore."),
+          International.getString("Alle Boote sind zurück.") + "<br>"
+              + International.getString("Bitte schließe die Hallentore."),
               IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
               International.getString("Erinnerungstext zum Schließen der Bootshalle")));
       addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger(
@@ -1970,6 +1975,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public int getAnzahlTageErinnerungBoote() {
     return anzahlTageErinnerungBoote.getValue();
+  }
+
+  public boolean isUpdateDataRightSideCalendar() {
+    return updateDataRightSideCalendar.getValue();
   }
 
   public int getValueEfaDirekt_maxFBAnzeigenFahrten() {

@@ -1123,6 +1123,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         mappingDateToReservations = new Hashtable<DataTypeDate, Integer>();
         mappingWeekdayToReservations = new Hashtable<Integer, String>();
         mappingBootshausDateToReservations = new Hashtable<DataTypeDate, String>();
+        updateDataRightSideCalendar = Daten.efaConfig.isUpdateDataRightSideCalendar();
       }
       while (key != null) {
         // avoid duplicate versionized keys for the same record

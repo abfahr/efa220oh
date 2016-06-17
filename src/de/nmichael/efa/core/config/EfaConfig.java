@@ -237,8 +237,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_showEingabeInfos;
   private ItemTypeBoolean efaDirekt_showBootsschadenButton;
   private ItemTypeBoolean boatNotCleanedButton;
+  private ItemTypeString uuidBootshaus;
   private ItemTypeString emailToBootshausnutzungWolle;
   private ItemTypeBoolean reservierungAnMitgliedEmailen;
+  private ItemTypeInteger anzahlTageErinnerungBootshaus;
+  private ItemTypeInteger anzahlTageErinnerungBoote;
   private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
   private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
   private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
@@ -736,6 +739,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON), // @todo - make
           // PUBLIC?
           International.getString("Melden von ungeputzten Booten erlauben")));
+      addParameter(uuidBootshaus = new ItemTypeString(
+          "uuidBootshaus", BoatRecord.BOOTSHAUS.toString(),
+          IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("aktuelle UUID des Bootshauses")));
       addParameter(emailToBootshausnutzungWolle = new ItemTypeString(
           "emailToBootshausnutzungWolle", "bootshausnutzung" + ICalendarExport.ABFX_DE,
           IItemType.TYPE_PUBLIC,
@@ -744,7 +752,16 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(reservierungAnMitgliedEmailen = new ItemTypeBoolean(
           "reservierungAnMitgliedEmailen", false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("jede Reservierung an das Mitglied emailen")));
+          International
+          .getString("jede Reservierung an das Mitglied emailen. Insert, Update, Delete")));
+      addParameter(anzahlTageErinnerungBootshaus = new ItemTypeInteger(
+          "anzahlTageErinnerungBootshaus", 14, 0, 99, false, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Erinnerung wg.BH an das Mitglied emailen. #Tage")));
+      addParameter(anzahlTageErinnerungBoote = new ItemTypeInteger(
+          "anzahlTageErinnerungBoote", 0, 0, 99, false, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Erinnerung wg.Boot an das Mitglied emailen. Tage")));
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
@@ -1935,12 +1952,24 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return boatNotCleanedButton.getValue();
   }
 
+  public String getUuidBootshaus() {
+    return uuidBootshaus.getValue();
+  }
+
   public String getEmailToBootshausnutzungWolle() {
     return emailToBootshausnutzungWolle.getValue();
   }
 
   public boolean isReservierungAnMitgliedEmailen() {
     return reservierungAnMitgliedEmailen.getValue();
+  }
+
+  public int getAnzahlTageErinnerungBootshaus() {
+    return anzahlTageErinnerungBootshaus.getValue();
+  }
+
+  public int getAnzahlTageErinnerungBoote() {
+    return anzahlTageErinnerungBoote.getValue();
   }
 
   public int getValueEfaDirekt_maxFBAnzeigenFahrten() {

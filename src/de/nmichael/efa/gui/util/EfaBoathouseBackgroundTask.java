@@ -59,8 +59,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private static final int REMOTE_SCN_CHECK_INTERVAL = 5;
   private static final int ONCE_AN_HOUR = 3600 / CHECK_INTERVAL;
   private static final long BOAT_DAMAGE_REMINDER_INTERVAL = 7 * 24 * 60 * 60 * 1000;
-  private static final long BOOTSHAUS_RESERVATION_REMINDER = 14 * 24 * 60 * 60 * 1000;
-  private static final long BOAT_RESERVATION_REMINDER_TIME = 1 * 24 * 60 * 60 * 1000;
+  private static final long RESERVATION_REMINDER_DAY = 1 * 24 * 60 * 60 * 1000;
   private EfaBoathouseFrame efaBoathouseFrame;
   private boolean isProjectOpen = false;
   private boolean isLocalProject = true;
@@ -434,14 +433,16 @@ public class EfaBoathouseBackgroundTask extends Thread {
             continue;
           }
 
+          long boatReservationReminderTime = RESERVATION_REMINDER_DAY;
           if (boatStatusRecord.isBootshausOH()) {
-            BoatReservationRecord[] br = boatReservations.getBoatReservations(
-                boatStatusRecord.getBoatId(), now + BOOTSHAUS_RESERVATION_REMINDER, 0);
-            sendeEmailAlsErinnerungWennZeitpunktErreicht(br, BOOTSHAUS_RESERVATION_REMINDER);
+            boatReservationReminderTime *= Daten.efaConfig.getAnzahlTageErinnerungBootshaus();
           } else {
-            // Mareike mag das nicht
-            // sendeEmailAlsErinnerungWennZeitpunktErreicht(boatReservations.getBoatReservations(
-            // boatStatusRecord.getBoatId(), now + BOAT_RESERVATION_REMINDER_TIME, 0));
+            boatReservationReminderTime *= Daten.efaConfig.getAnzahlTageErinnerungBoote();
+          }
+          if (boatReservationReminderTime > 0) {
+            BoatReservationRecord[] br = boatReservations.getBoatReservations(
+                boatStatusRecord.getBoatId(), now + boatReservationReminderTime, 0);
+            sendeEmailAlsErinnerungWennZeitpunktErreicht(br, boatReservationReminderTime);
           }
 
           // delete any obsolete reservations

@@ -932,8 +932,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       return;
     }
     if (!Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
-      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim(); // remove brr.getPersonAsName()
-      emailToAdresse = emailToAdresse + ICalendarExport.ABFX_DE; // remove me brr.getPersonAsName()
+      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
+      emailToAdresse = "no." + emailToAdresse + ICalendarExport.ABFX_DE;
     }
     String emailSubject = "OH Reservierung " + aktion;
     emailSubject += " " + brr.getDateFrom();

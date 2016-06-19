@@ -254,11 +254,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     actionButtons = new Hashtable<ItemTypeButton, String>();
 
+    rightSidePanel.add(buttonPanel, BorderLayout.CENTER);
     if (persistence.getName().equals("boatreservations")) {
-      rightSidePanel.add(buttonPanel, BorderLayout.SOUTH);
       drawCalendar();
-    } else {
-      rightSidePanel.add(buttonPanel, BorderLayout.CENTER);
     }
 
     JPanel smallButtonPanel = null;
@@ -1265,8 +1263,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       mtblCalendar.addColumn(headers[i]);
     }
 
-    // tblCalendar.getParent().setBackground(tblCalendar.getBackground()); // Set background
-
     // No resize/reorder
     tblCalendar.getTableHeader().setResizingAllowed(false);
     tblCalendar.getTableHeader().setReorderingAllowed(false);
@@ -1298,6 +1294,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     realYear = cal.get(GregorianCalendar.YEAR); // Get year
     currentMonth = realMonth; // Match month and year
     currentYear = realYear;
+
+    if (Daten.efaConfig.isUpdateDataRightSideCalendar()) {
+      return;
+    }
 
     // Refresh calendar
     refreshCalendar(realDay, realMonth, realYear); // Refresh calendar

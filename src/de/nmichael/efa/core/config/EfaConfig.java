@@ -244,6 +244,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeInteger anzahlTageErinnerungBoote;
   private ItemTypeBoolean showDataRightSideCalendar;
   private ItemTypeBoolean updateDataRightSideCalendar;
+  private ItemTypeBoolean saveAllReservationToCalendarFile;
+  private ItemTypeBoolean saveAllReservationToCalendarBackupFile;
+  private ItemTypeBoolean saveBootshausReservierungenToCsvFile;
   private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
   private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
   private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
@@ -746,6 +749,21 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("aktuelle UUID des Bootshauses")));
+      addParameter(saveAllReservationToCalendarFile = new ItemTypeBoolean(
+          "saveAllReservationToCalendarFile",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("speichere Reservierungen in calender.ics für Google")));
+      addParameter(saveAllReservationToCalendarBackupFile = new ItemTypeBoolean(
+          "saveAllReservationToCalendarBackupFile",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("speichere Reservierungen in datum.calender.ics für Backup")));
+      addParameter(saveBootshausReservierungenToCsvFile = new ItemTypeBoolean(
+          "saveBootshausReservierungenToCsvFile",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("speichere BH-Reservierungen für Wolle")));
       addParameter(emailToBootshausnutzungWolle = new ItemTypeString(
           "emailToBootshausnutzungWolle", "bootshausnutzung" + ICalendarExport.ABFX_DE,
           IItemType.TYPE_PUBLIC,
@@ -1988,6 +2006,18 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isUpdateDataRightSideCalendar() {
     return updateDataRightSideCalendar.getValue();
+  }
+
+  public boolean isSaveAllReservationToCalendarFile() {
+    return saveAllReservationToCalendarFile.getValue();
+  }
+
+  public boolean isSaveAllReservationToCalendarBackupFile() {
+    return saveAllReservationToCalendarBackupFile.getValue();
+  }
+
+  public boolean isSaveBootshausReservierungenToCsvFile() {
+    return saveBootshausReservierungenToCsvFile.getValue();
   }
 
   public int getValueEfaDirekt_maxFBAnzeigenFahrten() {

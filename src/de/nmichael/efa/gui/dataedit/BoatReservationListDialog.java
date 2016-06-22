@@ -209,8 +209,12 @@ public class BoatReservationListDialog extends DataListDialog {
 
   @Override
   public boolean cancel() {
-    new ICalendarExport().saveAllReservationToCalendarFile();
-    saveBootshausReservierungenToCsvFile();
+    if (Daten.efaConfig.isSaveAllReservationToCalendarFile()) {
+      new ICalendarExport().saveAllReservationToCalendarFile();
+    }
+    if (Daten.efaConfig.isSaveBootshausReservierungenToCsvFile()) {
+      saveBootshausReservierungenToCsvFile();
+    }
 
     return super.cancel();
   }

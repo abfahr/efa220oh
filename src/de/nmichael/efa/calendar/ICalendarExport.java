@@ -248,8 +248,11 @@ public class ICalendarExport {
     FileOutputStream foutohne = new FileOutputStream(path + title + extension);
     outputter.output(iCalendar, foutohne);
 
-    path += "backup" + Daten.fileSep;
-    FileOutputStream foutdat = new FileOutputStream(path + dateTimeStamp + "." + title + extension);
-    outputter.output(iCalendar, foutdat);
+    if (Daten.efaConfig.isSaveAllReservationToCalendarBackupFile()) {
+      path += "backup" + Daten.fileSep;
+      FileOutputStream foutdat = new FileOutputStream(path + dateTimeStamp + "." + title
+          + extension);
+      outputter.output(iCalendar, foutdat);
+    }
   }
 }

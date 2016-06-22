@@ -148,7 +148,6 @@ public class ICalendarExport {
       // Creating an event
       String eventSummary = boatName + " - " + (saveName ? personAsName : efaId);
       VEvent termin = new VEvent(startDateTime, endDateTime, eventSummary);
-      termin.getProperties().add(new Description(description));
       termin.getProperties().add(new Location("Isekai 10 Hamburg"));
       termin.getProperties().add(new Uid(uid));
 
@@ -159,11 +158,10 @@ public class ICalendarExport {
           }
           wochentermine.add(reservationTimeDescription);
           termin.getSummary().setValue("OH-Regeltermin");
-          // TODO fahr 2016-02-01 Hier noch den Text erweitern:
-          // keine Ausleihe möglich
-          // nur nach Rücksprache mit den Fachwarten
-          // Es gibt keine Boote in der Zeit
-
+          description += CRLF
+              + "Keine Ausleihe möglich!" + CRLF
+              + "Nur nach Rücksprache mit den Fachwarten!" + CRLF
+              + "Es gibt keine Boote in dieser Zeit!";
         }
         // String recur3 = "RRULE:FREQ=" + type + ";BYDAY=" + dayOfWeek.substring(0, 2);
         Recur recur = new Recur();
@@ -171,6 +169,7 @@ public class ICalendarExport {
         recur.getDayList().add(new WeekDay(dayOfWeek.substring(0, 2)));
         termin.getProperties().add(new RRule(recur));
       }
+      termin.getProperties().add(new Description(description));
 
       if (isBootshausReservierung) {
         if (saveBootshaus) {

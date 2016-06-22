@@ -242,6 +242,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean reservierungAnMitgliedEmailen;
   private ItemTypeInteger anzahlTageErinnerungBootshaus;
   private ItemTypeInteger anzahlTageErinnerungBoote;
+  private ItemTypeBoolean showDataRightSideCalendar;
   private ItemTypeBoolean updateDataRightSideCalendar;
   private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
   private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
@@ -763,6 +764,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "anzahlTageErinnerungBoote", 0, 0, 99, false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("Erinnerung wg.Boot an das Mitglied emailen. Tage")));
+      addParameter(showDataRightSideCalendar = new ItemTypeBoolean("showDataRightSideCalendar",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("zeige Kalender rechte Seite bei Reservierungen")));
       addParameter(updateDataRightSideCalendar = new ItemTypeBoolean("updateDataRightSideCalendar",
           true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
@@ -1975,6 +1980,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public int getAnzahlTageErinnerungBoote() {
     return anzahlTageErinnerungBoote.getValue();
+  }
+
+  public boolean isShowDataRightSideCalendar() {
+    return showDataRightSideCalendar.getValue();
   }
 
   public boolean isUpdateDataRightSideCalendar() {

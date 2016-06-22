@@ -255,7 +255,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     actionButtons = new Hashtable<ItemTypeButton, String>();
 
     rightSidePanel.add(buttonPanel, BorderLayout.CENTER);
-    if (persistence.getName().equals("boatreservations")) {
+    if (persistence.getName().equals("boatreservations")
+        && Daten.efaConfig.isShowDataRightSideCalendar()) {
       drawCalendar();
     }
 

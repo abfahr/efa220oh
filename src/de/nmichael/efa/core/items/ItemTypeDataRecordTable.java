@@ -1296,10 +1296,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     currentMonth = realMonth; // Match month and year
     currentYear = realYear;
 
-    if (Daten.efaConfig.isUpdateDataRightSideCalendar()) {
-      return;
-    }
-
     // Refresh calendar
     refreshCalendar(realDay, realMonth, realYear); // Refresh calendar
     // don't filter at startup

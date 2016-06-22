@@ -938,7 +938,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (!Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
       emailSubject += " " + brr.getPersonAsName();
     }
-    emailSubject += " " + brr.getReason();
+    emailSubject += " " + brr.getBoatName();
     String emailMessage = brr.getFormattedEmailtextMitglied(personRecord);
 
     Messages messages = Daten.project.getMessages(false);

@@ -1326,4 +1326,28 @@ public class LogbookRecord extends DataRecord {
     return true;
   }
 
+  /**
+   * @return true, falls diese Fahrt das Bootshaus betrifft
+   */
+  public boolean isBootshausOH() {
+    return BoatRecord.BOOTSHAUS.equals(getBoatId());
+  }
+
+  public String getReservationTimeDescription() {
+    return getDateTimeFromDescription() + " - " + getDateTimeToDescription();
+  }
+
+  public String getDateTimeFromDescription() {
+    return getDateDescription(getDate(), getStartTime());
+  }
+
+  public String getDateTimeToDescription() {
+    return getDateDescription(getEndDate(), getEndTime());
+  }
+
+  private String getDateDescription(DataTypeDate date, DataTypeTime time) {
+    return (date != null ? date.toString() + " " : "")
+        + (time != null ? time.toString() : "");
+  }
+
 }

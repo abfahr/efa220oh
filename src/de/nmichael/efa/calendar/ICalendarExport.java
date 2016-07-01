@@ -47,8 +47,12 @@ public class ICalendarExport {
       // Creating a new calendar
       net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 
-      calendar = saveAllLogbookToCalendarFileIntern(calendar);
-      calendar = saveAllReservationToCalendarFileIntern(calendar);
+      if (Daten.efaConfig.isSaveAllLogbookToCalendarFile()) {
+        calendar = saveAllLogbookToCalendarFileIntern(calendar);
+      }
+      if (Daten.efaConfig.isSaveAllReservationToCalendarFile()) {
+        calendar = saveAllReservationToCalendarFileIntern(calendar);
+      }
 
       // Saving as iCalendar file
       saveCalendarToFile(calendar, "OH-Bootshaus");

@@ -244,6 +244,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeInteger anzahlTageErinnerungBoote;
   private ItemTypeBoolean showDataRightSideCalendar;
   private ItemTypeBoolean updateDataRightSideCalendar;
+  private ItemTypeBoolean saveAllLogbookToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarBackupFile;
   private ItemTypeBoolean saveBootshausReservierungenToCsvFile;
@@ -749,6 +750,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("aktuelle UUID des Bootshauses")));
+      addParameter(saveAllLogbookToCalendarFile = new ItemTypeBoolean(
+          "saveAllLogbookToCalendarFile",
+          false, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("speichere Fahrten in calender.ics für Google")));
       addParameter(saveAllReservationToCalendarFile = new ItemTypeBoolean(
           "saveAllReservationToCalendarFile",
           true, IItemType.TYPE_PUBLIC,
@@ -2006,6 +2012,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isUpdateDataRightSideCalendar() {
     return updateDataRightSideCalendar.getValue();
+  }
+
+  public boolean isSaveAllLogbookToCalendarFile() {
+    return saveAllLogbookToCalendarFile.getValue();
   }
 
   public boolean isSaveAllReservationToCalendarFile() {

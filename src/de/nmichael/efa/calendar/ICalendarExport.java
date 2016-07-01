@@ -28,6 +28,8 @@ import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.Clubwork;
 import de.nmichael.efa.data.ClubworkRecord;
+import de.nmichael.efa.data.Logbook;
+import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -42,7 +44,15 @@ public class ICalendarExport {
 
   public void saveAllReservationToCalendarFile() {
     try {
-      saveAllReservationToCalendarFileIntern();
+      // Creating a new calendar
+      net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
+
+      calendar = saveAllLogbookToCalendarFileIntern(calendar);
+      calendar = saveAllReservationToCalendarFileIntern(calendar);
+
+      // Saving as iCalendar file
+      saveCalendarToFile(calendar, "OH-Bootshaus");
+
     } catch (IOException e) {
       e.printStackTrace();
     } catch (ValidationException e) {
@@ -68,8 +78,82 @@ public class ICalendarExport {
     }
   }
 
-  private void saveAllReservationToCalendarFileIntern() throws IOException, ValidationException,
-  ParserException, EfaException, ParseException {
+  private net.fortuna.ical4j.model.Calendar saveAllLogbookToCalendarFileIntern(
+      net.fortuna.ical4j.model.Calendar calendar)
+          throws IOException, ValidationException, ParserException, EfaException, ParseException {
+
+    // [x] Bootshaus (nur das vertragspflichtige Haus)
+    // [x] Boote (alles ohne Bootshaus)
+    // [ ] mit Klarnamen
+    // [ ] mit Anlass/Infotext
+    boolean saveBootshaus = true;
+    boolean saveBoote = true;
+    boolean saveName = false;
+    boolean saveInfo = false;
+
+    Logbook logbook = Daten.project.getCurrentLogbook();
+    for (DataKey<?, ?, ?> dataKey : logbook.data().getAllKeys()) {
+      DataRecord dataRecord = logbook.data().get(dataKey);
+      LogbookRecord logbookRecord = (LogbookRecord) dataRecord;
+      if (logbookRecord.getDeleted()) {
+        continue;
+      }
+      String boatName = logbookRecord.getBoatAsName();
+      boolean isBootshausReservierung = logbookRecord.isBootshausOH();
+      DataTypeDate dateFrom = logbookRecord.getDate(); // From
+      DataTypeTime timeFrom = logbookRecord.getStartTime();
+      DataTypeDate dateTo = logbookRecord.getEndDate();
+      DataTypeTime timeTo = logbookRecord.getEndTime();
+      // String contactPhone = logbookRecord.getContact();
+      String personAsName = logbookRecord.getAllCoxAndCrewAsNameString();
+      String reason = logbookRecord.getComments();
+      String reservationTimeDescription = logbookRecord.getReservationTimeDescription();
+      long lastModified = logbookRecord.getLastModified();
+      String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
+      int reservationOrder = logbookRecord.getEntryId().intValue();
+      String efaId = EFA + reservationOrder + personAsName.substring(0, 1).toLowerCase();
+      String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
+      String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
+
+      String description = reservationTimeDescription + CRLF;
+      if (saveInfo && !"k.A.".equals(reason)) {
+        description += "Anlass: " + reason + CRLF;
+      }
+      if (saveName) {
+        description += "Mitglied: " + personAsName + CRLF;
+      }
+      description += modif;
+
+      if (dateTo == null) {
+        dateTo = new DataTypeDate(dateFrom);
+      }
+      DateTime startDateTime = new DateTime(dateFrom.getTimestamp(timeFrom));
+      DateTime endDateTime = new DateTime(dateTo.getTimestamp(timeTo));
+
+      // Creating an event
+      String eventSummary = boatName + " - " + (saveName ? personAsName : efaId);
+      VEvent termin = new VEvent(startDateTime, endDateTime, eventSummary);
+      termin.getProperties().add(new Location("Isekai 10 Hamburg"));
+      termin.getProperties().add(new Uid(uid));
+
+      termin.getProperties().add(new Description(description));
+
+      if (isBootshausReservierung) {
+        if (saveBootshaus) {
+          calendar.getComponents().add(termin);
+        }
+      } else {
+        if (saveBoote) {
+          calendar.getComponents().add(termin);
+        }
+      }
+    }
+    return calendar;
+  }
+
+  private net.fortuna.ical4j.model.Calendar saveAllReservationToCalendarFileIntern(
+      net.fortuna.ical4j.model.Calendar calendar)
+          throws IOException, ValidationException, ParserException, EfaException, ParseException {
 
     // [x] Bootshaus (nur das vertragspflichtige Haus)
     // [x] Boote (alles ohne Bootshaus)
@@ -86,8 +170,6 @@ public class ICalendarExport {
     boolean savePhone = false;
     boolean saveInfo = false;
 
-    // Creating a new calendar
-    net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
     ArrayList<String> wochentermine = new ArrayList<String>();
 
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
@@ -181,13 +263,11 @@ public class ICalendarExport {
         }
       }
     }
-
-    // Saving as iCalendar file
-    saveCalendarToFile(calendar, "OH-Bootshaus");
+    return calendar;
   }
 
   private void saveAllClubworkToCalendarFileIntern() throws EfaException, IOException,
-      ValidationException {
+  ValidationException {
     // Creating a new calendar
     net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 

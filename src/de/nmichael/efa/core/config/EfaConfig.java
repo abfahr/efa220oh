@@ -247,6 +247,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean saveAllLogbookToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarBackupFile;
+  private ItemTypeBoolean saveReservationsWithBackupTask;
   private ItemTypeBoolean saveBootshausReservierungenToCsvFile;
   private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
   private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
@@ -760,6 +761,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("speichere Reservierungen in calender.ics für Google")));
+      addParameter(saveReservationsWithBackupTask = new ItemTypeBoolean(
+          "saveReservationsWithBackupTask",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Backup speichert auch Reservierungen für Google/Wolle")));
       addParameter(saveAllReservationToCalendarBackupFile = new ItemTypeBoolean(
           "saveAllReservationToCalendarBackupFile",
           true, IItemType.TYPE_PUBLIC,
@@ -2024,6 +2030,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isSaveAllReservationToCalendarBackupFile() {
     return saveAllReservationToCalendarBackupFile.getValue();
+  }
+
+  public boolean isSaveReservationsWithBackupTask() {
+    return saveReservationsWithBackupTask.getValue();
   }
 
   public boolean isSaveBootshausReservierungenToCsvFile() {

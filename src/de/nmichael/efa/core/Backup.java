@@ -20,6 +20,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
@@ -387,6 +388,15 @@ public class Backup {
       Logger.logdebug(e);
       return -1;
     }
+
+    if (backupTask == null) {
+      if (Daten.efaConfig.isSaveReservationsWithBackupTask()) {
+        // a) calendar Vergangenheit, Zukunft
+        // b) Wolle.csv Datei anlegen
+        new ICalendarExport().saveAllReservationToCalendarFile();
+      }
+    }
+
     return errors;
   }
 

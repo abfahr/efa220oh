@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
@@ -30,8 +32,10 @@ import de.nmichael.efa.data.Clubwork;
 import de.nmichael.efa.data.ClubworkRecord;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
+import de.nmichael.efa.data.storage.DataExport;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
@@ -50,9 +54,9 @@ public class ICalendarExport {
       if (Daten.efaConfig.isSaveAllLogbookToCalendarFile()) {
         calendar = saveAllLogbookToCalendarFileIntern(calendar);
       }
-      if (Daten.efaConfig.isSaveAllReservationToCalendarFile()) {
-        calendar = saveAllReservationToCalendarFileIntern(calendar);
-      }
+      // if (Daten.efaConfig.isSaveAllReservationToCalendarFile()) {
+      calendar = saveAllReservationToCalendarFileIntern(calendar);
+      // }
 
       // Saving as iCalendar file
       saveCalendarToFile(calendar, "OH-Bootshaus");
@@ -68,6 +72,61 @@ public class ICalendarExport {
     } catch (ParseException e) {
       e.printStackTrace();
     }
+    if (Daten.efaConfig.isSaveBootshausReservierungenToCsvFile()) {
+      saveBootshausReservierungenToCsvFile();
+    }
+
+  }
+
+  private void saveBootshausReservierungenToCsvFile() {
+    StorageObject persistence = Daten.project.getBoatReservations(false);
+    Vector<DataRecord> selection = getAlleBoothausReservierungen(persistence);
+    DataExport export = new DataExport(persistence, -1 /* validAt */,
+        selection, getWollesFieldNames(persistence),
+        DataExport.Format.csv, Daten.ENCODING_ISO,
+        getFilenameCSV(persistence), DataExport.EXPORT_TYPE_TEXT);
+    export.runExport();
+  }
+
+  private Vector<DataRecord> getAlleBoothausReservierungen(StorageObject persistence) {
+    Vector<DataRecord> retVal = new Vector<DataRecord>();
+    try {
+      for (DataKey<?, ?, ?> k : persistence.data().getAllKeys()) {
+        BoatReservationRecord r = (BoatReservationRecord) persistence.data().get(k);
+        if (r.isBootshausOH()) {
+          retVal.add(r);
+        }
+      }
+    } catch (EfaException e) {
+      // TODO Auto-generated catch block
+      retVal = null;
+    }
+    return retVal;
+  }
+
+  private String[] getWollesFieldNames(StorageObject persistence) {
+    List<String> retVal = new ArrayList<String>();
+    String[] fields = persistence.createNewRecord().getFieldNamesForTextExport(false);
+    for (String field : fields) {
+      if (!field.equals(DataRecord.LASTMODIFIED) &&
+          !field.equals(DataRecord.CHANGECOUNT) &&
+          !field.equals(DataRecord.VALIDFROM) &&
+          !field.equals(DataRecord.INVALIDFROM) &&
+          !field.equals(DataRecord.INVISIBLE) &&
+          !field.equals(DataRecord.DELETED) &&
+          !field.equals("Id")) {
+        retVal.add("" + field);
+      }
+    }
+    return retVal.toArray(new String[retVal.size()]);
+  }
+
+  private String getFilenameCSV(StorageObject persistence) {
+    String dir = Daten.userHomeDir;
+    String fname = dir
+        + (Daten.fileSep != null && !dir.endsWith(Daten.fileSep) ? Daten.fileSep : "")
+        + persistence.data().getStorageObjectName() + ".csv";
+    return fname;
   }
 
   public void saveAllClubworkToCalendarFile() {

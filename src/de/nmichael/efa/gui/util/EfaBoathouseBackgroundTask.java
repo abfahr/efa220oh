@@ -332,7 +332,13 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     // get List of Boats "on the water" = boatsOnTheWaterList;
     BoatStatus boatStatus = Daten.project.getBoatStatus(false);
-    Vector<BoatStatusRecord> boats = boatStatus.getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
+    Vector<BoatStatusRecord> boats = new Vector<BoatStatusRecord>();
+    if (Daten.efaConfig.isAutomaticEndLogbookOnTheWater()) {
+      boats = boatStatus.getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
+    }
+    if (Daten.efaConfig.isAutomaticEndLogbookNotAvailable()) {
+      boats.addAll(boatStatus.getBoats(BoatStatusRecord.STATUS_NOTAVAILABLE, true));
+    }
 
     Logbook currentLogbook = Daten.project.getCurrentLogbook();
 
@@ -481,9 +487,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
           } else {
             // reservations found
             if (!boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
-              LogbookRecord newLogbookRecord = starteFahrtMitEndtimeLautReservation(reservations);
-              if (newLogbookRecord != null) {
-                updateBoatstatusRecord(boatStatusRecord, newLogbookRecord);
+              if (Daten.efaConfig.isAutomaticStartLogbookFromReservation()) {
+                LogbookRecord newLogbookRecord = starteFahrtMitEndtimeLautReservation(reservations);
+                if (newLogbookRecord != null) {
+                  updateBoatstatusRecord(boatStatusRecord, newLogbookRecord);
+                }
               }
               if (Daten.efaConfig.getValueEfaDirekt_resBooteNichtVerfuegbar()) {
                 if (!boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {

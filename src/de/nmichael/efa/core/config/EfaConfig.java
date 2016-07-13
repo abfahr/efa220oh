@@ -244,6 +244,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeInteger anzahlTageErinnerungBoote;
   private ItemTypeBoolean showDataRightSideCalendar;
   private ItemTypeBoolean updateDataRightSideCalendar;
+  private ItemTypeBoolean automaticStartLogbookFromReservation;
+  private ItemTypeBoolean automaticEndLogbookOnTheWater;
+  private ItemTypeBoolean automaticEndLogbookNotAvailable;
   private ItemTypeBoolean saveAllLogbookToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarBackupFile;
@@ -802,6 +805,23 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("fülle Kalender rechte Seite bei Reservierungen")));
+
+      addParameter(automaticStartLogbookFromReservation = new ItemTypeBoolean(
+          "automaticStartLogbookFromReservation",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Reservierungen beginnen automatisch Fahrten")));
+      addParameter(automaticEndLogbookOnTheWater = new ItemTypeBoolean(
+          "automaticEndLogbookOnTheWater",
+          true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Fahrten enden automatisch nach Ablauf")));
+      addParameter(automaticEndLogbookNotAvailable = new ItemTypeBoolean(
+          "automaticEndLogbookNotAvailable",
+          false, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("nicht-verfügbare enden automatisch nach Ablauf")));
+
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
@@ -2018,6 +2038,18 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isUpdateDataRightSideCalendar() {
     return updateDataRightSideCalendar.getValue();
+  }
+
+  public boolean isAutomaticStartLogbookFromReservation() {
+    return automaticStartLogbookFromReservation.getValue();
+  }
+
+  public boolean isAutomaticEndLogbookOnTheWater() {
+    return automaticEndLogbookOnTheWater.getValue();
+  }
+
+  public boolean isAutomaticEndLogbookNotAvailable() {
+    return automaticEndLogbookNotAvailable.getValue();
   }
 
   public boolean isSaveAllLogbookToCalendarFile() {

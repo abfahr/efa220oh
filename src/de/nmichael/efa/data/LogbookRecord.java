@@ -1286,9 +1286,9 @@ public class LogbookRecord extends DataRecord {
     if (timeFrom == null || !timeFrom.isSet()) {
       return false; // keine Startzeit eingetragen
     }
-    if (timeTo.isBeforeOrEqual(timeFrom)) {
-      return false; // keine sinnvolle Endzeit eingetragen
-    }
+    // if (timeTo.isBeforeOrEqual(timeFrom)) {
+    // return false; // keine sinnvolle Endzeit eingetragen
+    // }
     DataTypeDate dateTo = getEndDate();
     if (dateTo == null || !dateTo.isSet()) {
       dateTo = getDate(); // gleicher Tag

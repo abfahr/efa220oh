@@ -225,7 +225,12 @@ public class BoatReservationRecord extends DataRecord {
   public String getReason() {
     String s = getString(REASON);
     if (s == null || s.length() == 0) {
-      s = International.getString("k.A.");
+      if (isBootshausOH()) {
+        s = International.getString("privat mit Vertrag");
+      } else {
+        s = International.getString("");
+      }
+
     }
     return s;
   }

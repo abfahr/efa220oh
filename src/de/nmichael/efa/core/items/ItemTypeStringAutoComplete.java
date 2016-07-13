@@ -63,6 +63,7 @@ AutoCompletePopupWindowCallback {
   protected boolean alwaysReturnPlainText = false;
   protected ItemTypeDate validAtDateItem;
   protected ItemTypeTime validAtTimeItem;
+  protected boolean alwaysTitleCase = false;
 
   public ItemTypeStringAutoComplete(String name, String value, int type,
       String category, String description, boolean showButton) {
@@ -72,6 +73,7 @@ AutoCompletePopupWindowCallback {
     if (isPersonListHidden(name)) {
       this.showButton = false;
       this.popupComplete = false;
+      this.alwaysTitleCase = true;
     }
   }
 
@@ -239,6 +241,9 @@ AutoCompletePopupWindowCallback {
       // temporary focusLost events all the time...
       return;
     }
+    if (alwaysTitleCase) {
+      this.parseAndShowValue(convertToTitleCase(getValueFromField().trim()));
+    }
     if (popupComplete) {
       AutoCompletePopupWindow.hideWindow();
     }
@@ -247,6 +252,23 @@ AutoCompletePopupWindowCallback {
       checkSpelling();
     }
     super.field_focusLost(e);
+  }
+
+  private String convertToTitleCase(String lowercaseName) {
+    // these cause the character following // to be capitalized
+    final String ACTIONABLE_DELIMITERS = " '-/";
+
+    StringBuilder sb = new StringBuilder();
+    boolean capNext = true;
+
+    for (char c : lowercaseName.toCharArray()) {
+      c = (capNext)
+          ? Character.toUpperCase(c)
+          : Character.toLowerCase(c);
+      sb.append(c);
+      capNext = (ACTIONABLE_DELIMITERS.indexOf(c) >= 0); // explicit cast not needed
+    }
+    return sb.toString();
   }
 
   public void showOrRemoveAutoCompletePopupWindow() {

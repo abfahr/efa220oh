@@ -64,6 +64,7 @@ AutoCompletePopupWindowCallback {
   protected ItemTypeDate validAtDateItem;
   protected ItemTypeTime validAtTimeItem;
   protected boolean alwaysTitleCase = false;
+  protected boolean datenschutzModus = false;
 
   public ItemTypeStringAutoComplete(String name, String value, int type,
       String category, String description, boolean showButton) {
@@ -74,6 +75,7 @@ AutoCompletePopupWindowCallback {
       this.showButton = false;
       this.popupComplete = false;
       this.alwaysTitleCase = true;
+      this.datenschutzModus = true;
     }
   }
 
@@ -241,9 +243,6 @@ AutoCompletePopupWindowCallback {
       // temporary focusLost events all the time...
       return;
     }
-    if (alwaysTitleCase) {
-      this.parseAndShowValue(convertToTitleCase(getValueFromField().trim()));
-    }
     if (popupComplete) {
       AutoCompletePopupWindow.hideWindow();
     }
@@ -298,9 +297,6 @@ AutoCompletePopupWindowCallback {
     if (field == null) {
       return;
     }
-    if (isPersonListHidden(getName())) {
-      return;
-    }
 
     JTextField field = (JTextField) this.field;
 
@@ -325,7 +321,8 @@ AutoCompletePopupWindowCallback {
     String base = null;
 
     Mode mode = Mode.none; // 0
-    if (e == null || (EfaUtil.isRealChar(e) && e.getKeyCode() != KeyEvent.VK_ENTER)
+    if (e == null
+        || (EfaUtil.isRealChar(e) && e.getKeyCode() != KeyEvent.VK_ENTER)
         || e.getKeyCode() == KeyEvent.VK_DOWN) {
       mode = Mode.normal; // 1
     } else if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -346,8 +343,8 @@ AutoCompletePopupWindowCallback {
     boolean matching = false;
 
     if (mode == Mode.normal
-        || ((mode == Mode.enter || mode == Mode.escape || mode == Mode.none) && field.getText()
-            .length() > 0)) {
+        || ((mode == Mode.enter || mode == Mode.escape || mode == Mode.none)
+            && field.getText().length() > 0)) {
 
       // remove leading spaces
       String spc = field.getText();
@@ -369,7 +366,7 @@ AutoCompletePopupWindowCallback {
         prefix = field.getText().toLowerCase();
       }
 
-      if (e != null && e.getKeyCode() == KeyEvent.VK_DOWN) {
+      if (e != null && e.getKeyCode() == KeyEvent.VK_DOWN && !datenschutzModus) {
         if (withPopup && popupComplete && AutoCompletePopupWindow.isShowingAt(field)) {
           complete = list.getNext();
         } else {
@@ -381,14 +378,17 @@ AutoCompletePopupWindowCallback {
       } else {
 
         if (e != null) {
-          complete = list.getFirst(prefix); // Taste gedrückt --> OK, Wortanfang genügt
+          if (!datenschutzModus) { // abf dies muss verboten werden
+            complete = list.getFirst(prefix); // Taste gedrückt --> OK, Wortanfang genügt
+          }
         } else {
           complete = list.getExact(field.getText().toLowerCase()); // keine Taste gedrückt --> nur
-          // richtig, wenn gesamtes Feld
-          // exakt vorhanden!
+          // richtig, wenn gesamtes Feld exakt vorhanden!
         }
-        if (list.getAlias(prefix) != null) {
-          complete = list.getAlias(prefix);
+        String aliasCandidate = list.getAlias(prefix);
+        if (aliasCandidate != null) {
+          complete = aliasCandidate;
+          prefix = aliasCandidate;
         }
 
       }
@@ -401,6 +401,10 @@ AutoCompletePopupWindowCallback {
           field.select(prefix.length(), complete.length());
         }
         matching = true;
+      } else {
+        if (alwaysTitleCase) {
+          field.setText(convertToTitleCase(prefix));
+        }
       }
       if (withPopup && popupComplete && e != null && mode != Mode.none) {
         AutoCompletePopupWindow
@@ -408,7 +412,7 @@ AutoCompletePopupWindowCallback {
       }
     }
 
-    if (mode == Mode.up) {
+    if (mode == Mode.up && !datenschutzModus) {
       if (field.getSelectedText() != null) {
         prefix = field.getText().toLowerCase().substring(0, field.getSelectionStart());
       } else {
@@ -420,7 +424,6 @@ AutoCompletePopupWindowCallback {
       } else {
         complete = list.getPrev(prefix);
       }
-
       if (complete == null) {
         complete = list.getLast(prefix); // liste.getFirst(anf);
       }

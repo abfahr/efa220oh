@@ -74,8 +74,21 @@ public class ICalendarExport {
     }
     if (Daten.efaConfig.isSaveBootshausReservierungenToCsvFile()) {
       saveBootshausReservierungenToCsvFile();
+      saveBootshausLogbookToCsvFile();
     }
 
+  }
+
+  private void saveBootshausLogbookToCsvFile() {
+    StorageObject persistence = Daten.project.getCurrentLogbook();
+    String[] wollesFieldNames = new String[] { "Boat", "EntryId", "Cox", "Date",
+        "EndDate", "BoatCaptain", "StartTime", "EndTime", "Crew1", "Cox", "Destination" };
+    Vector<DataRecord> selection = getAlleBoothausLogbookrecords(persistence);
+    DataExport export = new DataExport(persistence, -1 /* validAt */,
+        selection, wollesFieldNames,
+        DataExport.Format.csv, Daten.ENCODING_ISO,
+        getFilenameCSV(persistence), DataExport.EXPORT_TYPE_TEXT);
+    export.runExport();
   }
 
   private void saveBootshausReservierungenToCsvFile() {
@@ -86,6 +99,22 @@ public class ICalendarExport {
         DataExport.Format.csv, Daten.ENCODING_ISO,
         getFilenameCSV(persistence), DataExport.EXPORT_TYPE_TEXT);
     export.runExport();
+  }
+
+  private Vector<DataRecord> getAlleBoothausLogbookrecords(StorageObject persistence) {
+    Vector<DataRecord> retVal = new Vector<DataRecord>();
+    try {
+      for (DataKey<?, ?, ?> k : persistence.data().getAllKeys()) {
+        LogbookRecord r = (LogbookRecord) persistence.data().get(k);
+        if (r.isBootshausOH()) {
+          retVal.add(r);
+        }
+      }
+    } catch (EfaException e) {
+      // TODO Auto-generated catch block
+      retVal = null;
+    }
+    return retVal;
   }
 
   private Vector<DataRecord> getAlleBoothausReservierungen(StorageObject persistence) {

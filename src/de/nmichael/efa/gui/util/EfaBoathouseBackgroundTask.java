@@ -503,10 +503,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 }
               }
             }
+            // letzte Reservierung, nicht erste
             String s = International.getMessage("reserviert für {name} ({reason}) {from_to}",
-                reservations[0].getPersonAsName(),
-                reservations[0].getReason(),
-                reservations[0].getReservationTimeDescription());
+                reservations[reservations.length - 1].getPersonAsName(),
+                reservations[reservations.length - 1].getReason(),
+                reservations[reservations.length - 1].getReservationTimeDescription());
             boatStatusRecord.setComment(s);
           }
 
@@ -660,10 +661,39 @@ public class EfaBoathouseBackgroundTask extends Thread {
         if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
           continue; // skip weekly
         }
-        return createAndPersistNewLogbookRecord(boatReservationRecord);
+        if (isModifiedAfterStart(boatReservationRecord)) {
+          continue; // skip deleted
+        }
+        LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
+        if (newLogbookRecord != null) {
+          // kill boatReservationRecord; boatReservationRecord.setInvisible(invisible);
+          boatReservationRecord.setLastModified(); // mark as deleted
+          updateReservation(boatReservationRecord);
+          return newLogbookRecord;
+        }
       }
     }
     return null;
+  }
+
+  private boolean isModifiedAfterStart(BoatReservationRecord boatReservationRecord) {
+    long lastModified = boatReservationRecord.getLastModified();
+    long realStart = boatReservationRecord.getDateFrom()
+        .getTimestamp(boatReservationRecord.getTimeFrom());
+    if (lastModified > realStart) {
+      return true;
+    }
+    return false;
+
+  }
+
+  private void updateReservation(BoatReservationRecord boatReservationRecord) {
+    try {
+      boatReservationRecord.getPersistence().data().update(boatReservationRecord);
+    } catch (EfaException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   private LogbookRecord createAndPersistNewLogbookRecord(

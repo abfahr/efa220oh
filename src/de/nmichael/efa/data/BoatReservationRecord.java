@@ -430,7 +430,7 @@ public class BoatReservationRecord extends DataRecord {
       if (isBootshausOH()) { // Bootshaus stehen lassen
         // this.setDeleted(true);
         // return false;
-        now = now + 30 * 24 * 60 * 60 * 1000; // 30 Tage später
+        now = now + 8 * 24 * 60 * 60 * 1000; // 8 Tage später
       }
       if (this.getType().equals(TYPE_ONETIME)) {
         DataTypeDate dateTo = this.getDateTo();

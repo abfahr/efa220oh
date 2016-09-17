@@ -18,6 +18,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import net.fortuna.ical4j.model.DateTime;
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemType;
@@ -430,7 +431,8 @@ public class BoatReservationRecord extends DataRecord {
       if (isBootshausOH()) { // Bootshaus stehen lassen
         // this.setDeleted(true);
         // return false;
-        now = now + 8 * 24 * 60 * 60 * 1000; // 8 Tage später
+        int tage = Daten.efaConfig.getAnzahlTageAbgelaufenesBootshausSichtbar();
+        now = now + tage * 24 * 60 * 60 * 1000; // 8 Tage später
       }
       if (this.getType().equals(TYPE_ONETIME)) {
         DataTypeDate dateTo = this.getDateTo();

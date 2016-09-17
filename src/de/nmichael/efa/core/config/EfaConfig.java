@@ -242,6 +242,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean reservierungAnMitgliedEmailen;
   private ItemTypeInteger anzahlTageErinnerungBootshaus;
   private ItemTypeInteger anzahlTageErinnerungBoote;
+  private ItemTypeInteger anzahlTageAbgelaufenesBootshausSichtbar;
   private ItemTypeBoolean showDataRightSideCalendar;
   private ItemTypeBoolean updateDataRightSideCalendar;
   private ItemTypeBoolean automaticStartLogbookFromReservation;
@@ -797,6 +798,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "anzahlTageErinnerungBoote", 0, 0, 99, false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("Erinnerung wg.Boot an das Mitglied emailen. Tage")));
+      addParameter(anzahlTageAbgelaufenesBootshausSichtbar = new ItemTypeInteger(
+          "anzahlTageAbgelaufenesBootshausSichtbar", 30, 0, 99, false, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Reservierungen Bootshaus bleiben sichtbar. #Tage")));
       addParameter(showDataRightSideCalendar = new ItemTypeBoolean("showDataRightSideCalendar",
           true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
@@ -2030,6 +2035,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public int getAnzahlTageErinnerungBoote() {
     return anzahlTageErinnerungBoote.getValue();
+  }
+
+  public int getAnzahlTageAbgelaufenesBootshausSichtbar() {
+    return anzahlTageAbgelaufenesBootshausSichtbar.getValue();
   }
 
   public boolean isShowDataRightSideCalendar() {

@@ -197,7 +197,7 @@ public class ICalendarExport {
       DataTypeDate dateTo = logbookRecord.getEndDate();
       DataTypeTime timeTo = logbookRecord.getEndTime();
       // String contactPhone = logbookRecord.getContact();
-      String personAsName = logbookRecord.getAllCoxAndCrewAsNameString();
+      String personAsName = logbookRecord.getAllCoxAndCrewAsNameString() + " "; // not empty
       String reason = logbookRecord.getComments();
       String reservationTimeDescription = logbookRecord.getReservationTimeDescription();
       long lastModified = logbookRecord.getLastModified();

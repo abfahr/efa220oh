@@ -43,6 +43,7 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class BoatReservationRecord extends DataRecord {
 
+  private static final long LONG_MILLI_SECONDS_PER_DAY = 24 * 60 * 60 * 1000;
   // =========================================================================
   // Value Constants
   // =========================================================================
@@ -428,16 +429,14 @@ public class BoatReservationRecord extends DataRecord {
       if (this.getType().equals(TYPE_WEEKLY)) {
         return false;
       }
-      if (isBootshausOH()) { // Bootshaus stehen lassen
-        // this.setDeleted(true);
-        // return false;
-        int tage = Daten.efaConfig.getAnzahlTageAbgelaufenesBootshausSichtbar();
-        now = now + tage * 24 * 60 * 60 * 1000; // 8 Tage später
-      }
       if (this.getType().equals(TYPE_ONETIME)) {
         DataTypeDate dateTo = this.getDateTo();
         DataTypeTime timeTo = this.getTimeTo();
         long resEnd = dateTo.getTimestamp(timeTo);
+        if (isBootshausOH()) { // Bootshaus stehen lassen
+          long tage = Daten.efaConfig.getAnzahlTageAbgelaufenesBootshausSichtbar();
+          resEnd = resEnd + tage * LONG_MILLI_SECONDS_PER_DAY; // Reservierung ende x Tage später
+        }
         return now > resEnd;
       }
     } catch (Exception e) {

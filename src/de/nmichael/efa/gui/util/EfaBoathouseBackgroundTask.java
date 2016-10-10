@@ -661,13 +661,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
         if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
           continue; // skip weekly
         }
+        if (boatReservationRecord.getInvisible()) {
+          continue; // skip invisible
+        }
         if (isModifiedAfterStart(boatReservationRecord)) {
           continue; // skip deleted
         }
         LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
         if (newLogbookRecord != null) {
           // kill boatReservationRecord; boatReservationRecord.setInvisible(invisible);
-          boatReservationRecord.setLastModified(); // mark as deleted
+          // boatReservationRecord.setLastModified(); // mark as deleted
+          boatReservationRecord.setInvisible(true);
           updateReservation(boatReservationRecord);
           return newLogbookRecord;
         }

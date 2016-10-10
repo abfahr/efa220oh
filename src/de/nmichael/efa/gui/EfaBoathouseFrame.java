@@ -2052,17 +2052,17 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   // mode==2
   // erfolgt aus EfaFrame.java.
   boolean checkStartSessionForBoat(ItemTypeBoatstatusList.BoatListItem item,
-      String entryNo,
-      int mode) {
+      String entryNo, int mode) {
     if (item == null || item.boatStatus == null || item.boatStatus.getCurrentStatus() == null) {
       return true;
     }
-    if (item.boatStatus.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
-      if (entryNo != null && item.boatStatus.getEntryNo() != null &&
-          !entryNo.equals(item.boatStatus.getEntryNo().toString())) {
+    BoatStatusRecord boatStatus = item.boatStatus;
+    if (boatStatus.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+      if (entryNo != null && boatStatus.getEntryNo() != null &&
+          !entryNo.equals(boatStatus.getEntryNo().toString())) {
         // Dieses Boot ist bereits auf Fahrt in einem anderen Fahrtenbucheintrag!
         Dialog.error(International.getMessage("Das Boot {boat} ist bereits unterwegs.",
-            item.boatStatus.getBoatText()));
+            boatStatus.getBoatText()));
         return false;
       }
 
@@ -2074,14 +2074,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (mode == 3) {
       return true;
     }
-    if (item.boatStatus.getCurrentStatus().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
+    if (boatStatus.getCurrentStatus().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
       if (Dialog.yesNoCancelDialog(
           International.getString("Boot gesperrt"),
           International.getMessage("Das Boot {boat} ist laut Liste nicht verfügbar.",
-              item.boatStatus.getBoatText())
+              boatStatus.getBoatText())
               + "\n"
-              + (item.boatStatus.getComment() != null ? International.getString("Bemerkung") + ": "
-                  + item.boatStatus.getComment() + "\n" : "")
+              + (boatStatus.getComment() != null ? International.getString("Bemerkung") + ": "
+                  + boatStatus.getComment() + "\n" : "")
               + "\n"
               + International.getString("Möchtest Du trotzdem das Boot benutzen?"))
         != Dialog.YES) {
@@ -2089,40 +2089,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
     }
 
-    long now = System.currentTimeMillis();
-    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
-    BoatReservationRecord[] reservations = (item.boatStatus.getBoatId() != null ?
-        boatReservations.getBoatReservations(item.boatStatus.getBoatId(), now,
-            Daten.efaConfig.getValueEfaDirekt_resLookAheadTime()) : null);
-    if (reservations != null && reservations.length > 0) {
-      long validInMinutes = reservations[0].getReservationValidInMinutes(now,
-          Daten.efaConfig.getValueEfaDirekt_resLookAheadTime());
-      if (Dialog
-          .yesNoCancelDialog(
-              International.getString("Boot reserviert"),
-              International.getMessage(
-                  "Das Boot {boat} ist {currently_or_in_x_minutes} für {name} reserviert.",
-                  item.boatStatus.getBoatText(),
-                  (validInMinutes == 0
-                      ? International.getString("zur Zeit")
-                      : International.getMessage("in {x} Minuten", (int) validInMinutes)),
-                  reservations[0].getPersonAsName())
-                  + "\n"
-                  + (reservations[0].getReason() != null
-                      && reservations[0].getReason().length() > 0 ?
-                      International.getString("Grund") + ": " + reservations[0].getReason() + "\n"
-                      : "")
-                  + (reservations[0].getContact() != null
-                      && reservations[0].getContact().length() > 0 ?
-                      International.getString("Telefon für Rückfragen") + ": "
-                          + reservations[0].getContact() + "\n" : "")
-                  + "\n"
-                  + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
-                      reservations[0].getReservationTimeDescription()) + "\n"
-                  + International.getString("Möchtest Du trotzdem das Boot benutzen?"))
-        != Dialog.YES) {
-        return false;
-      }
+    if (frageBenutzerWennUeberschneidungReservierung(boatStatus)) {
+      return false;
     }
 
     if (!checkBoatDamage(item, International.getString("Möchtest Du trotzdem das Boot benutzen?"))) {
@@ -2130,6 +2098,43 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     return true;
+  }
+
+  boolean frageBenutzerWennUeberschneidungReservierung(BoatStatusRecord boatStatus) {
+    long now = System.currentTimeMillis();
+    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
+    BoatReservationRecord[] reservations = (boatStatus.getBoatId() != null ?
+        boatReservations.getBoatReservations(boatStatus.getBoatId(), now,
+            Daten.efaConfig.getValueEfaDirekt_resLookAheadTime()) : null);
+    if (reservations != null && reservations.length > 0) {
+      long validInMinutes = reservations[0].getReservationValidInMinutes(now,
+          Daten.efaConfig.getValueEfaDirekt_resLookAheadTime());
+      int ergebnisYesNoCancelDialog = Dialog.yesNoCancelDialog(
+          International.getString("Boot reserviert"),
+          International.getMessage(
+              "Das Boot {boat} ist {currently_or_in_x_minutes} für {name} reserviert.",
+              boatStatus.getBoatText(),
+              (validInMinutes == 0
+              ? International.getString("zur Zeit")
+                  : International.getMessage("in {x} Minuten", (int) validInMinutes)),
+                  reservations[0].getPersonAsName())
+                  + "\n"
+                  + (reservations[0].getReason() != null && reservations[0].getReason().length() > 0
+                  ? International.getString("Grund") + ": " + reservations[0].getReason() + "\n"
+                      : "")
+                      + (reservations[0].getContact() != null && reservations[0].getContact().length() > 0
+                  ? International.getString("Telefon für Rückfragen") + ": "
+                      + reservations[0].getContact() + "\n"
+                  : "")
+                      + "\n"
+                      + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
+                          reservations[0].getReservationTimeDescription()) + "\n"
+                          + International.getString("Möchtest Du trotzdem das Boot benutzen?"));
+      if (ergebnisYesNoCancelDialog != Dialog.YES) {
+        return true;
+      }
+    }
+    return false;
   }
 
   boolean checkBoatDamage(ItemTypeBoatstatusList.BoatListItem item, String questionText) {

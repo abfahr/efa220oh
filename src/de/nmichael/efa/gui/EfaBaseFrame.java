@@ -1690,10 +1690,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         !checkAllowedPersons()) {
       return false;
     }
-    BoatStatusRecord boatStatus = efaBoathouseAction.boatStatus;
-    if (mode != MODE_BOATHOUSE_FINISH) {
-      if (efaBoathouseFrame.frageBenutzerWennUeberschneidungReservierung(boatStatus)) {
-        return false; // abortNow
+    if (efaBoathouseAction != null) {
+      BoatStatusRecord boatStatus = efaBoathouseAction.boatStatus;
+      if (mode != MODE_BOATHOUSE_FINISH) {
+        if (efaBoathouseFrame.frageBenutzerWennUeberschneidungReservierung(boatStatus)) {
+          return false; // abortNow
+        }
       }
     }
 

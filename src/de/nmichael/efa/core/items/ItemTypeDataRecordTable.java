@@ -143,7 +143,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   JButton btnPrev, btnNext;
   DefaultTableModel mtblCalendar; // Table model
   JTable tblCalendar;
-  int xr320 = 400;
+  int xr320 = 400; // 400
   int yu335 = 410;
 
   public ItemTypeDataRecordTable(String name,
@@ -1284,7 +1284,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     });
 
     // Set row/column count
-    tblCalendar.setRowHeight(58);
+    tblCalendar.setRowHeight(58); // 58
     mtblCalendar.setColumnCount(7);
     mtblCalendar.setRowCount(6);
 

@@ -472,6 +472,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 if (dlg == null) {
                   return;
                 }
+                String beforeEdit = records[i].toString();
                 dlg.showDialog();
                 if (!dlg.getDialogResult()) {
                   break;
@@ -479,9 +480,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 if (dlg instanceof BoatReservationEditDialog) {
                   BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg)
                       .getDataRecord();
-                  sendEmailMitglied("UPDATE", reservation);
-                  if (reservation.isBootshausOH()) {
-                    sendEmailBootshausnutzungswart("UPDATE", reservation);
+                  String afterEdit = reservation.toString();
+                  boolean reservationHasBeenChanged = !beforeEdit.equals(afterEdit);
+                  if (reservationHasBeenChanged) {
+                    sendEmailMitglied("UPDATE", reservation);
+                    if (reservation.isBootshausOH()) {
+                      sendEmailBootshausnutzungswart("UPDATE", reservation);
+                    }
                   }
                 }
               }
@@ -752,12 +757,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 Logger.MSG_DATAADM_RECORDADDED,
                 newReservationsRecord.getPersistence().getDescription()
                     + ": "
-                    +
-                    International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                    + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
                         (admin != null ? International.getString("Admin") + " '" + admin.getName()
-                            + "'" :
-                            International.getString("Normaler Benutzer")),
-                        newReservationsRecord.getQualifiedName()));
+                            + "'" : newReservationsRecord.getPersonAsName()),
+                        newReservationsRecord.getQualifiedName() + " "
+                            + newReservationsRecord.getReservationTimeDescription()));
           }
         }
       }
@@ -844,8 +848,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
                   (admin != null
                       ? International.getString("Admin") + " '" + admin.getName() + "'"
-                      : International.getString("Normaler Benutzer")),
-                  newReservationsRecord.getQualifiedName()));
+                      : newReservationsRecord.getPersonAsName()),
+                  newReservationsRecord.getQualifiedName() + " "
+                          + newReservationsRecord.getReservationTimeDescription()));
     } // for loop
     if (!fehlerListe.isEmpty()) {
       // display the failures at end

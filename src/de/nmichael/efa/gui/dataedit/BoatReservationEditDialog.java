@@ -74,6 +74,9 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
       if (item.getName().equals(BoatReservationRecord.PERSONID)) {
         item.registerItemListener(this);
       }
+      if (item.getName().equals(BoatReservationRecord.CONTACT)) {
+        item.registerItemListener(this);
+      }
     }
     itemListenerAction(itemType, null);
   }
@@ -101,7 +104,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     // Das Datum übernehmen
     if (item != null && item.getName().equals(BoatReservationRecord.DATEFROM) &&
         ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
-        (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+            (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
       ItemTypeDate dateFrom = (ItemTypeDate) item;
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.DATETO)) {
@@ -118,7 +121,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     // Die Uhrzeit übernehmen und 2 Stunden dazuzählen
     if (item != null && item.getName().equals(BoatReservationRecord.TIMEFROM) &&
         ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST)
-        || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+            || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
       ItemTypeTime timeFrom = (ItemTypeTime) item;
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.TIMETO)) {
@@ -134,10 +137,27 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
       }
     }
 
-    // jetzt bei Name des Mitglieds
+    // Name des Mitglieds
     if (item != null && item.getName().equals(BoatReservationRecord.PERSONID) &&
         ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
             (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+
+      // Prüfung Name zu kurz?
+      ItemTypeString eingegebenerName = (ItemTypeString) item;
+      for (IItemType it : allGuiItems) {
+        if (it.getName().equals(BoatReservationRecord.REASON)) {
+          ItemTypeString reason = (ItemTypeString) it;
+          String prangerText = Daten.efaConfig.getTextBadMitgliedsname();
+          String reasonString = reason.getValue().replace(prangerText, "").trim();
+          String myMatch = Daten.efaConfig.getRegexForVorUndNachname();
+          if (!eingegebenerName.getValue().matches(myMatch)) {
+            reasonString = prangerText + " " + reasonString;
+          }
+          reason.setValue(reasonString);
+          reason.showValue();
+          break;
+        }
+      }
 
       // Hier Telefonnummer aus alter Reservierung kopieren
       BoatReservationRecord rr = findAnyPreviousReservation(item);
@@ -151,6 +171,34 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
             ItemTypeString phoneContactGuiField = (ItemTypeString) it;
             phoneContactGuiField.setValue(rr.getContact());
           }
+        }
+      }
+    }
+
+    // Telefonnummer (Handy)
+    if (item != null && item.getName().equals(BoatReservationRecord.CONTACT) &&
+        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
+            (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+      ItemTypeString eingegebeneHandynummer = (ItemTypeString) item;
+      for (IItemType it : allGuiItems) {
+        if (it.getName().equals(BoatReservationRecord.REASON)) {
+          ItemTypeString reason = (ItemTypeString) it;
+          String prangerText = Daten.efaConfig.getTextBadHandynummer();
+          prangerText = "Vorwahl kenntlich machen!";
+          String reasonString = reason.getValue().replace(prangerText, "").trim();
+          String myMatch = Daten.efaConfig.getRegexForHandynummer();
+          // myMatch = "0\\d{2,5}-\\d{3,}";
+          // myMatch = "0\\d*[-\\.\\s]\\d*";
+          // myMatch = "0[0-9]{1,5}.[0-9]{4,14}(?:x.+)?";
+          // myMatch = ".*"; // alles erlaubt
+          // myMatch = "0[1-9][0-9]*[\\.-/ ][0-9]*"; // geht best original - /)+
+          // myMatch = "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*"; // standard
+          if (!eingegebeneHandynummer.getValue().matches(myMatch)) {
+            reasonString = prangerText + " " + reasonString;
+          }
+          reason.setValue(reasonString);
+          reason.showValue();
+          break;
         }
       }
 

@@ -228,7 +228,7 @@ public class BoatReservationRecord extends DataRecord {
     String s = getString(REASON);
     if (s == null || s.length() == 0) {
       if (isBootshausOH()) {
-        s = International.getString("privat mit Vertrag");
+        s = International.getString(Daten.efaConfig.getTextPrivatMitVertrag());
       } else {
         s = International.getString("");
       }
@@ -562,7 +562,7 @@ public class BoatReservationRecord extends DataRecord {
         getPersistence().getProject().getPersons(false),
         System.currentTimeMillis(),
         System.currentTimeMillis(),
-        International.getString("Reserviert für"));
+        International.getString("Reserviert für Mitglied"));
     personId.setNotNull(true);
     personId.setAlternateFieldNameForPlainText(BoatReservationRecord.PERSONNAME);
     if (getPersonId() != null) {
@@ -572,19 +572,19 @@ public class BoatReservationRecord extends DataRecord {
     }
     v.add(personId);
 
-    ItemTypeString reason = new ItemTypeString(BoatReservationRecord.REASON,
-        getReason(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-        International.getString("Reservierungsgrund"));
-    reason.setMinCharacters(5);
-    v.add(reason);
-
     item = new ItemTypeString(BoatReservationRecord.CONTACT,
         getContact(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Telefon für Rückfragen"));
     item.setNotNull(true);
     v.add(item);
+
+    ItemTypeString reason = new ItemTypeString(BoatReservationRecord.REASON,
+        getReason(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Reservierungsgrund"));
+    reason.setMinCharacters(5);
+    v.add(reason);
 
     // Virtual Fields hidden internal, only for list output and export/import
     item = new ItemTypeString(BoatReservationRecord.VBOAT,

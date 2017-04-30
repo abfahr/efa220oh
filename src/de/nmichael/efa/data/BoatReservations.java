@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.MetaData;
@@ -169,6 +170,20 @@ public class BoatReservations extends StorageObject {
       assertFieldNotEmpty(record, BoatReservationRecord.TYPE);
 
       BoatReservationRecord r = ((BoatReservationRecord) record);
+
+      String myMatch = Daten.efaConfig.getRegexForVorUndNachname();
+      if (!r.getPersonAsName().matches(myMatch)) {
+        throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+            International.getString("Bitte Vor- und Nachname eingeben"),
+            Thread.currentThread().getStackTrace());
+      }
+      myMatch = Daten.efaConfig.getRegexForHandynummer();
+      if (!r.getContact().matches(myMatch)) {
+        throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+            International.getString("Telefonnummer bitte mit separater Vorwahl"),
+            Thread.currentThread().getStackTrace());
+      }
+
       if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
         DataTypeDate today = DataTypeDate.today();
 

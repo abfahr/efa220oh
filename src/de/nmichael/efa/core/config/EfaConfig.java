@@ -248,6 +248,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean automaticStartLogbookFromReservation;
   private ItemTypeBoolean automaticEndLogbookOnTheWater;
   private ItemTypeBoolean automaticEndLogbookNotAvailable;
+  private ItemTypeString regexForVorUndNachname;
+  private ItemTypeString regexForHandynummer;
+  private ItemTypeString textPrivatMitVertrag;
+  private ItemTypeString textBadMitgliedsname;
+  private ItemTypeString textBadHandynummer;
   private ItemTypeBoolean saveAllLogbookToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarBackupFile;
@@ -826,6 +831,33 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("nicht-verfügbare enden automatisch nach Ablauf")));
+      addParameter(regexForVorUndNachname = new ItemTypeString(
+          "regexForFullName",
+          "^\\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,} \\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,}$",
+          IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("regex für Mitgliedsname")));
+      addParameter(regexForHandynummer = new ItemTypeString(
+          "regexForHandynummer",
+          "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("regex für Handynummer")));
+
+      addParameter(textPrivatMitVertrag = new ItemTypeString(
+          "textPrivatMitVertrag",
+          "zB. privat, aber mit Bootshausnutzungsvertrag", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Fehlermeldung PrivatMitVertrag")));
+      addParameter(textBadMitgliedsname = new ItemTypeString(
+          "textBadMitgliedsname",
+          "unmöglicher Mitgliedsname!", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Fehlermeldung bei BadMitgliedsname")));
+      addParameter(textBadHandynummer = new ItemTypeString(
+          "textBadHandynummer",
+          "Vorwahl kenntlich machen --", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Fehlermeldung bei BadHandynummer")));
 
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
@@ -2079,6 +2111,28 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isSaveBootshausReservierungenToCsvFile() {
     return saveBootshausReservierungenToCsvFile.getValue();
+  }
+
+  public String getRegexForVorUndNachname() {
+    String retVal = regexForVorUndNachname.getValue();
+    return retVal == "" ? ".*" : retVal;
+  }
+
+  public String getRegexForHandynummer() {
+    String retVal = regexForHandynummer.getValue();
+    return retVal == "" ? ".*" : retVal;
+  }
+
+  public String getTextPrivatMitVertrag() {
+    return textPrivatMitVertrag.getValue();
+  }
+
+  public String getTextBadMitgliedsname() {
+    return textBadMitgliedsname.getValue();
+  }
+
+  public String getTextBadHandynummer() {
+    return textBadHandynummer.getValue();
   }
 
   public int getValueEfaDirekt_maxFBAnzeigenFahrten() {

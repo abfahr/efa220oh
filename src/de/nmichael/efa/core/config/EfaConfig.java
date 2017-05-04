@@ -832,7 +832,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("nicht-verfügbare enden automatisch nach Ablauf")));
       addParameter(regexForVorUndNachname = new ItemTypeString(
-          "regexForFullName",
+          "regexForVorUndNachname",
           "^\\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,} \\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,}$",
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),

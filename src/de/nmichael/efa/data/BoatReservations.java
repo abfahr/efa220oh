@@ -172,12 +172,14 @@ public class BoatReservations extends StorageObject {
       BoatReservationRecord r = ((BoatReservationRecord) record);
 
       String myMatch = Daten.efaConfig.getRegexForVorUndNachname();
+      myMatch = ".*"; // Name alles erlaubt für Übergangsphase (ab Mai 2017)
       if (!r.getPersonAsName().matches(myMatch)) {
         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
             International.getString("Bitte Vor- und Nachname eingeben"),
             Thread.currentThread().getStackTrace());
       }
       myMatch = Daten.efaConfig.getRegexForHandynummer();
+      myMatch = ".*"; // Handy alles erlaubt für Übergangsphase (ab Mai 2017)
       if (!r.getContact().matches(myMatch)) {
         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
             International.getString("Telefonnummer bitte mit separater Vorwahl"),

@@ -3459,7 +3459,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             String description = items[2].getValueFromField();
             personName = items[3].getValueFromField();
             UUID personId = (UUID) (((ItemTypeStringAutoComplete) items[3]).getId(personName));
-            LogbookRecord latest = logbook.getLastBoatUsage(currentBoat.getId(), myRecord);
+            LogbookRecord latest = (logbook != null ?
+                logbook.getLastBoatUsage(currentBoat.getId(), myRecord) : null);
             String lastUsage = (latest != null ?
                 latest.getLogbookRecordAsStringDescription() :
                 International.getString("Keinen Eintrag gefunden!"));

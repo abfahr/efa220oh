@@ -1316,6 +1316,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     int row = tblCalendar.rowAtPoint(point);
     int col = tblCalendar.columnAtPoint(point);
 
+    // row oder col dürfen nicht < 0 sein
+    if (row < 0) {
+      return 0;
+    }
+    if (col < 0) {
+      return 0;
+    }
     Object valueAt = mtblCalendar.getValueAt(row, col);
     if (valueAt instanceof CalendarString) {
       CalendarString value = (CalendarString) valueAt;

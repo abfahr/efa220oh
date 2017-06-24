@@ -26,6 +26,7 @@ import de.nmichael.efa.core.items.ItemTypeColor;
 import de.nmichael.efa.core.items.ItemTypeConfigButton;
 import de.nmichael.efa.core.items.ItemTypeCronEntry;
 import de.nmichael.efa.core.items.ItemTypeDate;
+import de.nmichael.efa.core.items.ItemTypeDouble;
 import de.nmichael.efa.core.items.ItemTypeFile;
 import de.nmichael.efa.core.items.ItemTypeHashtable;
 import de.nmichael.efa.core.items.ItemTypeImage;
@@ -253,6 +254,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString textPrivatMitVertrag;
   private ItemTypeString textBadMitgliedsname;
   private ItemTypeString textBadHandynummer;
+  private ItemTypeDouble minimumDauerFuerKulanz;
   private ItemTypeBoolean saveAllLogbookToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarBackupFile;
@@ -858,6 +860,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "Vorwahl kenntlich machen --", IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("Fehlermeldung bei BadHandynummer")));
+      addParameter(minimumDauerFuerKulanz = new ItemTypeDouble(
+          "minimumDauerFuerKulanz", 48, 0, 9999, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Regeltermin: Minimum Dauer für Kulanz (in Std.)")));
 
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
@@ -2133,6 +2139,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public String getTextBadHandynummer() {
     return textBadHandynummer.getValue();
+  }
+
+  public double getMinimumDauerFuerKulanz() {
+    return minimumDauerFuerKulanz.getValue();
   }
 
   public int getValueEfaDirekt_maxFBAnzeigenFahrten() {

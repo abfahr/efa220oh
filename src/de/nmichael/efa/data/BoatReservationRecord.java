@@ -424,6 +424,15 @@ public class BoatReservationRecord extends DataRecord {
     return -1;
   }
 
+  public double getDurationInHours() {
+    if (this.getType().equals(TYPE_WEEKLY)) {
+      return 3; // Stunden
+    }
+    long resStart = getDateFrom().getTimestamp(getTimeFrom());
+    long resEnd = getDateTo().getTimestamp(getTimeTo());
+    return (resEnd - resStart) / 1000 / 60 / 60;
+  }
+
   public boolean isObsolete(long now) {
     try {
       if (this.getType().equals(TYPE_WEEKLY)) {

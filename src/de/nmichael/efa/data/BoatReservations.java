@@ -238,12 +238,16 @@ public class BoatReservations extends StorageObject {
                   r.getDateTo(), // Ersatz
                   br[i].getTimeTo())) {
                 // TODO fahr(16.03.2016) hier reicht eine Warnung, Klärung meist positiv!
-                throw new EfaModifyException(
-                    Logger.MSG_DATA_MODIFYEXCEPTION,
-                    International
-                        .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
-                            + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
-                    Thread.currentThread().getStackTrace());
+                double anzahlStunden = r.getDurationInHours();
+                double minimumDauerFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
+                if (anzahlStunden < minimumDauerFuerKulanz) {
+                  throw new EfaModifyException(
+                      Logger.MSG_DATA_MODIFYEXCEPTION,
+                      International
+                      .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                          + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                          Thread.currentThread().getStackTrace());
+                }
               }
             }
           }

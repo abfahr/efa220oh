@@ -2103,9 +2103,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   boolean frageBenutzerWennUeberschneidungReservierung(BoatStatusRecord boatStatus) {
     long now = System.currentTimeMillis();
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
-    BoatReservationRecord[] reservations = (boatStatus.getBoatId() != null ?
-        boatReservations.getBoatReservations(boatStatus.getBoatId(), now,
-            Daten.efaConfig.getValueEfaDirekt_resLookAheadTime()) : null);
+    BoatReservationRecord[] reservations = null;
+    if (boatStatus != null && boatStatus.getBoatId() != null) {
+      reservations = boatReservations.getBoatReservations(boatStatus.getBoatId(), now,
+          Daten.efaConfig.getValueEfaDirekt_resLookAheadTime());
+    }
     if (reservations != null && reservations.length > 0) {
       long validInMinutes = reservations[0].getReservationValidInMinutes(now,
           Daten.efaConfig.getValueEfaDirekt_resLookAheadTime());

@@ -171,8 +171,8 @@ public class BoatReservations extends StorageObject {
 
       BoatReservationRecord r = ((BoatReservationRecord) record);
 
-      String myMatch = Daten.efaConfig.getRegexForVorUndNachname();
-      myMatch = ".*"; // Name alles erlaubt für Übergangsphase (ab Mai 2017)
+      String myMatch = Daten.efaConfig.getRegexForVorUndNachname(); // (ab Juli 2017)
+      // myMatch = ".*"; // Name alles erlaubt für Übergangsphase (ab Mai 2017)
       if (!r.getPersonAsName().matches(myMatch)) {
         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
             International.getString("Bitte Vor- und Nachname eingeben"),

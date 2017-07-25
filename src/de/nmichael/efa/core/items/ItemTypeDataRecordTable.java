@@ -935,13 +935,22 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (!isValidEmail(emailToAdresse)) {
       return;
     }
-    if (!Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
+
+    String konkreterInputShortcut = personRecord.getInputShortcut();
+    boolean hatEingabeKuerzel = konkreterInputShortcut != null && !konkreterInputShortcut.isEmpty();
+    boolean alleReservierungAnMitgliedEmailenErlaubt =
+        Daten.efaConfig.isReservierungAnMitgliedEmailen();
+    boolean mitKuerzelAnMitgliedEmailenErlaubt =
+        Daten.efaConfig.isReservierungAnMitgliedMitKuerzelEmailen();
+    boolean kombinierteEmailErlaubnis = alleReservierungAnMitgliedEmailenErlaubt
+        || (mitKuerzelAnMitgliedEmailenErlaubt && hatEingabeKuerzel);
+    if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
       emailToAdresse = "no." + emailToAdresse + ICalendarExport.ABFX_DE;
     }
     String emailSubject = "OH Reservierung " + aktion;
     emailSubject += " " + brr.getDateFrom();
-    if (!Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
+    if (!kombinierteEmailErlaubnis) {
       emailSubject += " " + brr.getPersonAsName();
     }
     emailSubject += " " + brr.getBoatName();

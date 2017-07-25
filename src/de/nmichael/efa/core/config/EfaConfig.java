@@ -241,6 +241,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString uuidBootshaus;
   private ItemTypeString emailToBootshausnutzungWolle;
   private ItemTypeBoolean reservierungAnMitgliedEmailen;
+  private ItemTypeBoolean reservierungAnMitgliedMitKuerzelEmailen;
   private ItemTypeInteger anzahlTageErinnerungBootshaus;
   private ItemTypeInteger anzahlTageErinnerungBoote;
   private ItemTypeInteger anzahlTageAbgelaufenesBootshausSichtbar;
@@ -797,6 +798,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International
           .getString("jede Reservierung an das Mitglied emailen. Insert, Update, Delete")));
+      addParameter(reservierungAnMitgliedMitKuerzelEmailen = new ItemTypeBoolean(
+          "reservierungAnMitgliedMitKuerzelEmailen",
+          true,
+          IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International
+          .getString("jede Reservierung an Mitglieder mit Kürzel emailen. Insert, Update, Delete")));
       addParameter(anzahlTageErinnerungBootshaus = new ItemTypeInteger(
           "anzahlTageErinnerungBootshaus", 14, 0, 99, false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
@@ -2065,6 +2073,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isReservierungAnMitgliedEmailen() {
     return reservierungAnMitgliedEmailen.getValue();
+  }
+
+  public boolean isReservierungAnMitgliedMitKuerzelEmailen() {
+    return reservierungAnMitgliedMitKuerzelEmailen.getValue();
   }
 
   public int getAnzahlTageErinnerungBootshaus() {

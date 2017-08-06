@@ -752,6 +752,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
             // newReservationsRecord.saveRecord();
             reservations.data().add(newReservationsRecord);
+            sendEmailMitglied("INSERT", newReservationsRecord);
             Logger.log(
                 Logger.INFO,
                 Logger.MSG_DATAADM_RECORDADDED,
@@ -843,6 +844,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
 
       reservations.data().add(newReservationsRecord);
+      sendEmailMitglied("INSERT", newReservationsRecord);
       Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
           newReservationsRecord.getPersistence().getDescription() + ": " +
               International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",

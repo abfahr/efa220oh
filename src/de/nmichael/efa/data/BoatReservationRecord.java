@@ -716,10 +716,10 @@ public class BoatReservationRecord extends DataRecord {
     if (isBootshausOH()) {
       msg.add("Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
     }
-    msg.add("Ansonsten viel Spaß im " + getBoatName());
+    msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("Efa");
+    msg.add("Efa-Admin im Bootshaus");
     // msg.add("");
     // msg.add(toString());
     return join(msg);

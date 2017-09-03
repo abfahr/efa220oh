@@ -51,10 +51,11 @@ import de.nmichael.efa.util.XmlHandler;
 
 public class LogbookRecord extends DataRecord {
 
+  private static final String EFA = "efa";
+
   // =========================================================================
   // Field Names
   // =========================================================================
-
   public static final String ENTRYID = "EntryId";
   public static final String DATE = "Date";
   public static final String ENDDATE = "EndDate";
@@ -766,6 +767,11 @@ public class LogbookRecord extends DataRecord {
       }
     }
     return c;
+  }
+
+  public String getEfaId() {
+    return EFA + getEntryId().intValue()
+        + (getAllCoxAndCrewAsNameString() + " ").substring(0, 1).toUpperCase();
   }
 
   public String getDestinationAndVariantName() {

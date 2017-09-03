@@ -43,7 +43,6 @@ import de.nmichael.efa.ex.EfaException;
 public class ICalendarExport {
 
   public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
-  private static final String EFA = "efa";
   public static final String ABFX_DE = "@abfx.de";
 
   public void saveAllReservationToCalendarFile() {
@@ -172,7 +171,7 @@ public class ICalendarExport {
 
   private net.fortuna.ical4j.model.Calendar saveAllLogbookToCalendarFileIntern(
       net.fortuna.ical4j.model.Calendar calendar)
-          throws IOException, ValidationException, ParserException, EfaException, ParseException {
+      throws IOException, ValidationException, ParserException, EfaException, ParseException {
 
     // [x] Bootshaus (nur das vertragspflichtige Haus)
     // [x] Boote (alles ohne Bootshaus)
@@ -202,8 +201,7 @@ public class ICalendarExport {
       String reservationTimeDescription = logbookRecord.getReservationTimeDescription();
       long lastModified = logbookRecord.getLastModified();
       String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
-      int reservationOrder = logbookRecord.getEntryId().intValue();
-      String efaId = EFA + reservationOrder + personAsName.substring(0, 1).toLowerCase();
+      String efaId = logbookRecord.getEfaId();
       String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
       String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
 
@@ -245,7 +243,7 @@ public class ICalendarExport {
 
   private net.fortuna.ical4j.model.Calendar saveAllReservationToCalendarFileIntern(
       net.fortuna.ical4j.model.Calendar calendar)
-          throws IOException, ValidationException, ParserException, EfaException, ParseException {
+      throws IOException, ValidationException, ParserException, EfaException, ParseException {
 
     // [x] Bootshaus (nur das vertragspflichtige Haus)
     // [x] Boote (alles ohne Bootshaus)
@@ -285,8 +283,7 @@ public class ICalendarExport {
       String reservationTimeDescription = boatReservationRecord.getReservationTimeDescription();
       long lastModified = boatReservationRecord.getLastModified();
       String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
-      int reservationOrder = boatReservationRecord.getReservation();
-      String efaId = EFA + reservationOrder + personAsName.substring(0, 1).toUpperCase();
+      String efaId = boatReservationRecord.getEfaId();
       String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
       String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
 
@@ -359,7 +356,7 @@ public class ICalendarExport {
   }
 
   private void saveAllClubworkToCalendarFileIntern() throws EfaException, IOException,
-  ValidationException {
+      ValidationException {
     // Creating a new calendar
     net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 
@@ -374,7 +371,7 @@ public class ICalendarExport {
       double hours = clubworkRecord.getHours();
       DateTime dateTimeLastModified = new DateTime(clubworkRecord.getLastModified());
       String dateTimeLastModifiedStr = dateTimeLastModified.toString().replace('T', '.');
-      String efaId = EFA + firstLastName.substring(0, 1).toUpperCase();
+      String efaId = clubworkRecord.getEfaId();
       String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
 
       String descriptionAlle = firstLastName + CRLF;

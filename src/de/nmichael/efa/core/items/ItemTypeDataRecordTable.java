@@ -958,6 +958,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     emailSubject += " " + brr.getBoatName();
     String emailMessage = brr.getFormattedEmailtextMitglied(personRecord);
 
+    // bugfixing
+    if (brr.getLastModified() == IDataAccess.UNDEFINED_LONG) {
+      emailToAdresse = "efa.error" + ICalendarExport.ABFX_DE;
+      emailSubject = "Error " + emailSubject;
+    }
+
     Messages messages = Daten.project.getMessages(false);
     // Mareike mag das nicht
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);

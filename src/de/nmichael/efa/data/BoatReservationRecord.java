@@ -44,6 +44,8 @@ import de.nmichael.efa.util.Logger;
 public class BoatReservationRecord extends DataRecord {
 
   private static final long LONG_MILLI_SECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+  private static final String EFA = "efa";
+
   // =========================================================================
   // Value Constants
   // =========================================================================
@@ -512,11 +514,11 @@ public class BoatReservationRecord extends DataRecord {
         (getType() != null && getType().length() > 0 ? getType() : TYPE_ONETIME),
         new String[] { TYPE_ONETIME, TYPE_WEEKLY },
         new String[] {
-            International.getString("einmalig"),
-            International.getString("wöchentlich"),
-        },
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-        International.getString("Art der Reservierung"));
+      International.getString("einmalig"),
+      International.getString("wöchentlich"),
+    },
+    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+    International.getString("Art der Reservierung"));
     v.add(item);
 
     item = new ItemTypeStringList(BoatReservationRecord.DAYOFWEEK,
@@ -645,6 +647,10 @@ public class BoatReservationRecord extends DataRecord {
     return items;
   }
 
+  public String getEfaId() {
+    return EFA + getReservation() + getPersonAsName().substring(0, 1).toUpperCase();
+  }
+
   @Override
   public String getQualifiedName() {
     return International.getMessage("Reservierung für {boat}", getBoatName());
@@ -664,7 +670,7 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Hier die neueste Reservierung von EFA am Isekai");
     msg.add("Eingabe durch: " + getPersonAsName() + " "
         + (p != null ? p.getMembershipNo() + " " + p.getStatusName() : "(wer ist das?)"));
-    msg.add("Eingabe am: " + new DateTime(getLastModified()).toString().replace('T', '.'));
+    msg.add(getStringEingabeAm(getLastModified()));
     msg.add("");
     msg.add("Reservierung des " + getBoatName());
     msg.add("für die Zeit: " + getReservationTimeDescription());
@@ -703,14 +709,14 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Hallo " + p.getFirstName() + "!");
     msg.add("");
     msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. "
-        + "(Eingabe am " + new DateTime(getLastModified()).toString().replace('T', '.') + ")");
+        + "(" + getStringEingabeAm(getLastModified()) + ")");
     msg.add("");
     msg.add("Reservierung des " + getBoatName());
     msg.add("für die Zeit: " + getReservationTimeDescription() + " für " + getPersonAsName());
     msg.add("Grund der Reservierung: " + getReason());
     msg.add("");
     if (isBootshausOH()) {
-      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular schnell aus (http://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden dir automatisch 75 Euro berechnet).");
+      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular schnell aus (http://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden Dir automatisch 75 Euro berechnet).");
     }
     msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus.");
     if (isBootshausOH()) {
@@ -720,9 +726,22 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("Efa-Admin im Bootshaus");
+    msg.add("");
+    msg.add("PS: Der öffentliche Kalender unter "
+        + "http://www.overfreunde.de/termine.html bzw. http://overfreunde.ddns.net"
+        + " wird morgen aktualisiert. "
+        + "Diese Reservierung trägt dort die Identifizierung " + getEfaId());
     // msg.add("");
     // msg.add(toString());
     return join(msg);
+  }
+
+  private String getStringEingabeAm(long lastModifiziert) {
+    if (lastModifiziert == IDataAccess.UNDEFINED_LONG) {
+      return "Eingabezeitpunkt unbekannt";
+    } else {
+      return "Eingabe am " + new DateTime(lastModifiziert).toString().replace('T', '.');
+    }
   }
 
   private String join(List<String> list) {

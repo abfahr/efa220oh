@@ -38,6 +38,8 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class ClubworkRecord extends DataRecord implements IItemFactory {
 
+  private static final String EFA = "efa";
+
   // =========================================================================
   // Field Names
   // =========================================================================
@@ -64,7 +66,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
   private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
   public static final String INPUTSHORTCUT = "InputShortcut";
   public static final String[] IDX_DATE_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX,
-    WORKDATE };
+      WORKDATE };
   private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
   public static void initialize() {
@@ -220,6 +222,10 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
       default:
         return International.getString("unbekannt");
     }
+  }
+
+  public String getEfaId() {
+    return EFA + getFirstLastName().substring(0, 1).toUpperCase();
   }
 
   public String getQualifiedName(boolean firstFirst) {

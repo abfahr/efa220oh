@@ -88,7 +88,7 @@ public class ImportBoatStatus extends ImportBase {
             newRecord = true;
           }
 
-          if ((d.get(BootStatus.STATUS) != null && d.get(BootStatus.STATUS).equals(
+          if ((d.get(BootStatus.STATUS) != null && d.get(BootStatus.STATUS).equals("" + 
               BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN))
               ||
               (d.get(BootStatus.UNBEKANNTESBOOT) != null && d.get(BootStatus.UNBEKANNTESBOOT)

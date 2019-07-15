@@ -699,11 +699,23 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   private void updateGuiLogo() {
-    if (Daten.efaConfig.getValueEfaDirekt_vereinsLogo().length() > 0) {
+    int xWidth = 200;
+    int yHeight = 80;
+    String strPfadVereinsLogo = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
+    if (strPfadVereinsLogo.length() > 0) {
       try {
-        logoLabel.setIcon(new ImageIcon(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()));
-        logoLabel.setMinimumSize(new Dimension(200, 80));
-        logoLabel.setPreferredSize(new Dimension(200, 80));
+        logoLabel.setIcon(new ImageIcon(strPfadVereinsLogo));
+        logoLabel.setMinimumSize(new Dimension(xWidth, yHeight));
+        int lastIndexSlash = strPfadVereinsLogo.lastIndexOf(Daten.fileSep);
+        String fileName = strPfadVereinsLogo.substring(lastIndexSlash, strPfadVereinsLogo.length());
+        java.util.regex.Pattern regexPattern;
+        regexPattern = java.util.regex.Pattern.compile("\\D*(\\d\\d*)x(\\d*).*");
+        java.util.regex.Matcher matcher = regexPattern.matcher(fileName);
+        if (matcher.matches() && matcher.groupCount() == 2) {
+          xWidth = Integer.parseInt(matcher.group(1));
+          yHeight = Integer.parseInt(matcher.group(2));        
+        }
+        logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
       } catch (Exception e) {

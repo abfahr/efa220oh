@@ -38,13 +38,18 @@ public class StartLogo {
     try {
       JLabel l = new JLabel();
       try {
-        ImageIcon i = new ImageIcon(StartLogo.class.getResource(logoFile));
-        l.setIcon(i);
+        if (!logoFile.contains(Daten.efaCfgDirectory)) {
+          ImageIcon i = new ImageIcon(StartLogo.class.getResource(logoFile));
+          l.setIcon(i);
+        } else {
+          ImageIcon i = new ImageIcon(logoFile);
+          l.setIcon(i);
+        }
       } catch (Exception e) {
         Logger.logdebug(e);
       }
       JPanel p = new JPanel();
-      p.setBackground(new Color(0, 0, 150));
+      p.setBackground(new Color(0, 0, 0));
       p.setBorder(BorderFactory.createEtchedBorder());
       p.add(l);
 
@@ -62,6 +67,7 @@ public class StartLogo {
       } else {
         w.toBack(); // damit bei Java 1.5 aufpoppende Fenster nicht hinter dem Logo aufpoppen!
       }
+      w.toFront(); // bei Java 1.4 im Vordergrund, da es sonst nicht sichtbar ist
 
       this.window = w;
     } catch (Exception e) {}

@@ -62,10 +62,10 @@ public class Daten {
 
   public final static String VERSION = "2.2.0"; // Version für die Ausgabe (z.B. 2.1.0, kann aber
   // auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "2.2.0_09"; // VersionsID: Format: "X.Y.Z_MM";
+  public final static String VERSIONID = "2.2.0_10"; // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version
   // z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "11.07.2019"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONRELEASEDATE = "15.07.2019"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -295,9 +295,9 @@ public class Daten {
     iniLanguageSupport();
     iniUserDirectory();
     iniLogging();
-    iniSplashScreen(true);
     iniEnvironmentSettings();
     iniDirectories();
+    iniSplashScreen(true);
     iniEfaSec();
     boolean createNewAdmin = iniAdmins();
     Object[] efaFirstSetup = iniEfaFirstSetup(createNewAdmin);
@@ -777,8 +777,13 @@ public class Daten {
       return;
     }
     if (show) {
-      splashScreen = new StartLogo(IMAGEPATH + "efaIntro.png");
-      splashScreen.show();
+      try { // abf
+        splashScreen = new StartLogo(efaCfgDirectory + "efa.intro.png");
+        splashScreen.show();
+      } catch (Exception e) {
+        splashScreen = new StartLogo(IMAGEPATH + "efaIntro.png");
+        splashScreen.show();
+      }
       try {
         Thread.sleep(1000); // Damit nach automatischem Restart genügend Zeit vergeht
       } catch (InterruptedException e) {}
@@ -996,7 +1001,7 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniCopiedFiles()");
     }
-    String distribCfgDirectory = Daten.efaMainDirectory + "cfg" + Daten.fileSep;
+    String distribCfgDirectory = Daten.efaMainDirectory + efaSubdirCFG + Daten.fileSep;
     tryCopy(distribCfgDirectory + Daten.WETTFILE, Daten.efaCfgDirectory + Daten.WETTFILE, true);
     tryCopy(distribCfgDirectory + Daten.WETTDEFS, Daten.efaCfgDirectory + Daten.WETTDEFS, true);
   }

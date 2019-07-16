@@ -650,8 +650,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     updateGuiLogo();
     iniGuiButtons();
     updateGuiClock();
-
     centerPanel.setLayout(new GridBagLayout());
+
     int logoTop = (int) (10.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog
         .getDefaultFontSize());
     int logoBottom = 5;
@@ -663,8 +663,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
     }
     centerPanel.add(logoLabel, new GridBagConstraints(1, 0, 1, 2, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(logoTop, 0, logoBottom, 0),
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(logoTop, 0, 0+logoBottom, 0),
         0, 0));
+
     int fahrtbeginnTop = (int) (10.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog
         .getDefaultFontSize());
     centerPanel.add(startSessionButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
@@ -713,7 +714,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         java.util.regex.Matcher matcher = regexPattern.matcher(fileName);
         if (matcher.matches() && matcher.groupCount() == 2) {
           xWidth = Integer.parseInt(matcher.group(1));
-          yHeight = Integer.parseInt(matcher.group(2));        
+          yHeight = Integer.parseInt(matcher.group(2));
+        }
+        if (xWidth > 352) {
+          xWidth = 352;
+          // yHeight = 704;
         }
         logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1013,7 +1018,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     southPanel.add(statusLabel, BorderLayout.NORTH);
     southPanel.add(news.getGuiComponent(), BorderLayout.SOUTH);
     statusLabelSetText(International.getString("Status"));
-
   }
 
   private void statusLabelSetText(String s) {

@@ -225,7 +225,7 @@ public class EfaAboutDialog extends BaseDialog {
     jScrollPane3.getViewport().add(languages, null);
     mainPanel.add(tabbedPane, BorderLayout.CENTER);
     versionLabel.setText(International.getString("Version") + " " + Daten.VERSION + "   ("
-        + Daten.VERSIONID + ")");
+        + Daten.VERSIONID + ") vom " + Daten.VERSIONRELEASEDATE);
     Vector infos = Daten.getEfaInfos();
     for (int i = 0; infos != null && i < infos.size(); i++) {
       efaInfos.append((String) infos.get(i) + "\n");

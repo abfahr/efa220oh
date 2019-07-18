@@ -125,6 +125,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected JTable aggregationTable = null;
   protected JPanel myPanel;
   protected JPanel tablePanel;
+  protected JPanel northSidePanel;
   protected JPanel rightSidePanel;
   protected JPanel pnlCalendarPanel;
   protected JPanel buttonPanel;
@@ -243,20 +244,23 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     buttonPanel = new JPanel();
     buttonPanel.setLayout(new GridBagLayout());
     buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+    northSidePanel = new JPanel(new BorderLayout());
     rightSidePanel = new JPanel(new BorderLayout());
-    rightSidePanel.setBorder(new EmptyBorder(40, 0, 15, 10));
+    rightSidePanel.setBorder(new EmptyBorder(20, 0, 15, 10));
     // rightSidePanel.setAlignmentY(Component.TOP_ALIGNMENT);
     searchPanel = new JPanel();
     searchPanel.setLayout(new GridBagLayout());
+    myPanel.add(northSidePanel, BorderLayout.NORTH);
     myPanel.add(tablePanel, BorderLayout.CENTER);
     myPanel.add(rightSidePanel, buttonPanelPosition);
     tablePanel.add(searchPanel, new GridBagConstraints(0, 10, 0, 0, 0.0, 0.0,
-        GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     actionButtons = new Hashtable<ItemTypeButton, String>();
 
     rightSidePanel.add(buttonPanel, BorderLayout.CENTER);
     if (persistence.getName().equals("boatreservations")
         && Daten.efaConfig.isShowDataRightSideCalendar()) {
+      northSidePanel.setBorder(new EmptyBorder(11, 31, 0, 31));
       drawCalendar();
     }
 
@@ -1256,8 +1260,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     // Container pane;
 
     lblMonth = new JButton("heute");
-    btnPrev = new JButton("<<");
-    btnNext = new JButton(">>");
+    btnPrev = new JButton("     <<-     ");
+    btnNext = new JButton("     ->>     ");
     mtblCalendar = new CalendarTableModel();
     tblCalendar = new JTable(mtblCalendar);
     JScrollPane stblCalendar = new JScrollPane(tblCalendar);
@@ -1267,21 +1271,19 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     btnNext.addActionListener(new btnNext_Action());
     lblMonth.addActionListener(new lblMonth_Action());
 
+    JPanel pnlCalendarButtonPanel = new JPanel(new BorderLayout());
+    pnlCalendarButtonPanel.add(btnPrev, BorderLayout.WEST);
+    pnlCalendarButtonPanel.add(lblMonth, BorderLayout.CENTER);
+    pnlCalendarButtonPanel.add(btnNext, BorderLayout.EAST);
+
     pnlCalendarPanel = new JPanel(new BorderLayout()); // BorderLayout
-    pnlCalendarPanel.add(btnPrev);
-    pnlCalendarPanel.add(lblMonth);
-    pnlCalendarPanel.add(btnNext);
-    pnlCalendarPanel.add(stblCalendar);
+    pnlCalendarPanel.add(stblCalendar, BorderLayout.NORTH);
+    pnlCalendarPanel.add(pnlCalendarButtonPanel, BorderLayout.SOUTH);
 
-    // Set bounds
-    btnPrev.setBounds(50, yu335 - 25, 70, 25);
-    lblMonth.setBounds((xr320 - 170) / 2, yu335 - 25, 220, 25);
-    btnNext.setBounds(xr320 - 70, yu335 - 25, 70, 25);
-
-    rightSidePanel.add(pnlCalendarPanel, BorderLayout.NORTH);
+    northSidePanel.add(pnlCalendarPanel, BorderLayout.NORTH);
 
     // Add headers
-    String[] headers = { "Mon", "Die", "Mit", "Don", "Fre", "Sam", "Son" }; // All headers
+    String[] headers = { " Montag", " Dienstag", " Mittwoch", "Donnerstag", " Freitag", " Samstag", " Sonntag" }; // All headers
     for (int i = 0; i < 7; i++) {
       mtblCalendar.addColumn(headers[i]);
     }
@@ -1363,9 +1365,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       btnNext.setEnabled(false);
     } // Too late
     lblMonth.setText(months[month] + " " + year); // Refresh the month label (at the top)
-    // Re-align label with calendar
-    // lblMonth.setBounds((xr320 + 40 - lblMonth.getPreferredSize().width) / 2, yu335 - 25, 190,
-    // 25);
 
     // Clear table
     for (int i = 0; i < 6; i++) {

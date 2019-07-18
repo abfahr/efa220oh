@@ -89,7 +89,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
   protected boolean intelligentColumnWidth = true;
   protected int minColumnWidth = -1;
   protected int[] minColumnWidths = null;
-  protected String buttonPanelPosition = BorderLayout.EAST;
+  protected String buttonPanelPosition = BorderLayout.SOUTH;
   private ItemTypeDateTime validAtDateTime;
   private ItemTypeBoolean showAll;
   private ItemTypeBoolean showDeleted;
@@ -260,7 +260,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
       table.setMinColumnWidths(minColumnWidths);
     }
     table.setButtonPanelPosition(buttonPanelPosition);
-    table.setFieldSize(600, 500);
+    table.setFieldSize(900, 500);
     table.setPadding(0, 0, 10, 0);
     table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);
 

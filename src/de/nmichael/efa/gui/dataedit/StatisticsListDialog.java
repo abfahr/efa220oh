@@ -71,7 +71,6 @@ public class StatisticsListDialog extends DataListDialog {
       this.filterFieldName = StatisticsRecord.PUBLICLYAVAILABLE;
       this.filterFieldValue = Boolean.toString(true);
       this.tableFontSize = Dialog.getFontSize();
-      this.buttonPanelPosition = BorderLayout.SOUTH;
       StatisticsRecord.TABLE_HEADER_LONG = false;
     } else {
       StatisticsRecord.TABLE_HEADER_LONG = true;

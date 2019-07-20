@@ -60,12 +60,15 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class Daten {
 
-  public final static String VERSION = "2.2.0"; // Version für die Ausgabe (z.B. 2.1.0, kann aber
+  // Version für die Ausgabe (z.B. 2.1.0, kann aber
   // auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "2.2.0_12"; // VersionsID: Format: "X.Y.Z_MM";
+  public final static String VERSION = "2.2.0"; 
+
+  // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version
   // z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "18.07.2019"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_13"; 
+  public final static String VERSIONRELEASEDATE = "21.07.2019"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -123,10 +126,10 @@ public class Daten {
   public static final String WETTDEFS = "wettdefs.cfg"; // <efauser>/cfg/wettdefs.cfg
   // Wettbewerbs-Definitionen
 
-  public static final String EFALIVE_VERSIONFILE = "/etc/efalive_version"; // file containing
+  private static final String EFALIVE_VERSIONFILE = "/etc/efalive_version"; // file containing
   // efaLive version
   public static String EFALIVE_VERSION = null; // efaLive Version Number
-  public static final String EFACREDENVVAR = "EFA_CRED"; // Environment Variable specifying the
+  private static final String EFACREDENVVAR = "EFA_CRED"; // Environment Variable specifying the
   // Credentials File Name
   public static String EFACREDFILE = ".efacred"; // <userHomeDir>.efacred Credentials for CLI Remote
   // Access
@@ -160,8 +163,11 @@ public class Daten {
   public static final int HALT_JAVARESTART = 98;
   public static final int HALT_SHELLRESTART = 99;
 
-  public static final String efaSubdirDATA = "data";
+  private static final String efaSubdirBACKUP = "backup";
   public static final String efaSubdirCFG = "cfg";
+  public static final String efaSubdirDATA = "data";
+  private static final String efaSubdirLOG = "log";
+  private static final String efaSubdirTMP = "tmp";
 
   public static Program program = null; // this Program
   public static String userHomeDir = null; // User Home Directory (NOT the efa userdata directoy!!
@@ -199,9 +205,7 @@ public class Daten {
 
   public final static String PLUGIN_INFO_FILE = "plugins.xml";
   public static String pluginWebpage = "http://efa.nmichael.de/plugins.html"; // wird automatisch
-  // auf das in der o.g.
-  // Datei stehende
-  // gesetzt
+  // auf das in der o.g. Datei stehende gesetzt
 
   public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou/eou.xml";
   public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eou/eoudrv.xml";
@@ -212,15 +216,12 @@ public class Daten {
   public final static String DATATEMPLATEPATH = "/de/nmichael/efa/data/templates/";
 
   public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein
-  // muß, damit es zu einem automatischen
-  // Beenden/Restart kommt (60)
+  // muß, damit es zu einem automatischen Beenden/Restart kommt (60)
   public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt
-  // wurde, damit Beenden/Neustart nicht
-  // verzögert wird (muß kleiner als
+  // wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als
   // AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
   public final static int WINDOWCLOSINGTIMEOUT = 600; // Timeout in Sekunden, nach denen im
-  // Direkt-Modus manche Fenster automatisch
-  // geschlossen werden
+  // Direkt-Modus manche Fenster automatisch geschlossen werden
   public final static int MIN_FREEMEM_PERCENTAGE = 90;
   public final static int WARN_FREEMEM_PERCENTAGE = 70;
   public final static int MIN_FREEMEM_COLLECTION_THRESHOLD = 99;
@@ -243,7 +244,7 @@ public class Daten {
   public static EmailSenderThread emailSenderThread;
 
   private static StartLogo splashScreen; // Efa Splash Screen
-  public static boolean firstEfaStart = false; // true wenn efa das erste Mal gestartet wurde und
+  private static boolean firstEfaStart = false; // true wenn efa das erste Mal gestartet wurde und
   // EfaBaseConfig neu erzeugt wurde
 
   public static Color colorGreen = new Color(0, 150, 0);
@@ -295,9 +296,9 @@ public class Daten {
     iniLanguageSupport();
     iniUserDirectory();
     iniLogging();
-    iniEnvironmentSettings();
     iniDirectories();
     iniSplashScreen(true);
+    iniEnvironmentSettings();
     iniEfaSec();
     boolean createNewAdmin = iniAdmins();
     Object[] efaFirstSetup = iniEfaFirstSetup(createNewAdmin);
@@ -380,11 +381,11 @@ public class Daten {
     }
 
     if (exitCode != 0) {
-      if (exitCode == Daten.HALT_SHELLRESTART || exitCode == Daten.HALT_JAVARESTART) {
+      if (exitCode == HALT_SHELLRESTART || exitCode == HALT_JAVARESTART) {
         Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
             International.getString("PROGRAMMENDE") + " (Exit Code " + exitCode + ")");
       } else {
-        if (Daten.applID != Daten.APPL_CLI) {
+        if (applID != APPL_CLI) {
           Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
         }
         Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
@@ -459,26 +460,22 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniMainDirectory()");
     }
-    Daten.efaMainDirectory = System.getProperty("user.dir");
-    if (!Daten.efaMainDirectory.endsWith(Daten.fileSep)) {
-      Daten.efaMainDirectory += Daten.fileSep;
+    efaMainDirectory = System.getProperty("user.dir");
+    if (!efaMainDirectory.endsWith(fileSep)) {
+      efaMainDirectory += fileSep;
     }
-    if (Daten.efaMainDirectory.endsWith("/program/")
-        && !new File(Daten.efaMainDirectory + "program/").isDirectory()) {
-      Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,
-          Daten.efaMainDirectory.length() - 8);
+    if (efaMainDirectory.endsWith("/program/")
+        && !new File(efaMainDirectory + "program/").isDirectory()) {
+      efaMainDirectory = efaMainDirectory.substring(0,
+          efaMainDirectory.length() - 8);
     }
-    if (Daten.efaMainDirectory.endsWith("/classes/")
-        && !new File(Daten.efaMainDirectory + "program/").isDirectory()) {
-      Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,
-          Daten.efaMainDirectory.length() - 8);
+    if (efaMainDirectory.endsWith("/classes/")
+        && !new File(efaMainDirectory + "program/").isDirectory()) {
+      efaMainDirectory = efaMainDirectory.substring(0,
+          efaMainDirectory.length() - 8);
     }
-    Daten.efaProgramDirectory = Daten.efaMainDirectory + "program" + Daten.fileSep; // just
-    // temporary,
-    // will be
-    // overwritten
-    // by
-    // iniDirectories()
+    efaProgramDirectory = efaMainDirectory + "program" + fileSep; // just
+    // temporary, will be overwritten by iniDirectories()
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       printEfaInfos(true, false, false, false, false);
     }
@@ -488,23 +485,23 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaBaseConfig()");
     }
-    String efaBaseConfigFile = Daten.userHomeDir
-        + (Daten.fileSep != null && !Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "");
-    Daten.efaBaseConfig = new EfaBaseConfig(efaBaseConfigFile);
-    if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {
+    String efaBaseConfigFile = userHomeDir
+        + (fileSep != null && !userHomeDir.endsWith(fileSep) ? fileSep : "");
+    efaBaseConfig = new EfaBaseConfig(efaBaseConfigFile);
+    if (!EfaUtil.canOpenFile(efaBaseConfig.getFileName())) {
       if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
         Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
-            "iniEfaBaseConfig(): cannot open: " + Daten.efaBaseConfig.getFileName());
+            "iniEfaBaseConfig(): cannot open: " + efaBaseConfig.getFileName());
       }
-      if (!Daten.efaBaseConfig.writeFile()) {
+      if (!efaBaseConfig.writeFile()) {
         if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
           Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
-              "iniEfaBaseConfig(): cannot write: " + Daten.efaBaseConfig.getFileName());
+              "iniEfaBaseConfig(): cannot write: " + efaBaseConfig.getFileName());
         }
         String msg = International.getString("efa can't start")
             + ": "
             + LogString.fileCreationFailed(International.getString("Basic Configuration File"),
-                Daten.efaBaseConfig.getFileName());
+                efaBaseConfig.getFileName());
         Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDCREATE, msg);
         if (isGuiAppl()) {
           Dialog.error(msg);
@@ -517,15 +514,15 @@ public class Daten {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
           "iniEfaBaseConfig(): firstEfaStart=" + firstEfaStart);
     }
-    if (!Daten.efaBaseConfig.readFile()) {
+    if (!efaBaseConfig.readFile()) {
       if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
         Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
-            "iniEfaBaseConfig(): cannot read: " + Daten.efaBaseConfig.getFileName());
+            "iniEfaBaseConfig(): cannot read: " + efaBaseConfig.getFileName());
       }
       String msg = International.getString("efa can't start")
           + ": "
           + LogString.fileOpenFailed(International.getString("Basic Configuration File"),
-              Daten.efaBaseConfig.getFileName());
+              efaBaseConfig.getFileName());
       Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDOPEN, msg);
       if (isGuiAppl()) {
         Dialog.error(msg);
@@ -554,7 +551,7 @@ public class Daten {
           Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
               "iniUserDirectory(): prompting user for input...");
         }
-        ItemTypeFile dir = new ItemTypeFile("USERDIR", Daten.efaBaseConfig.efaUserDirectory,
+        ItemTypeFile dir = new ItemTypeFile("USERDIR", efaBaseConfig.efaUserDirectory,
             International.getString("Verzeichnis für Nutzerdaten"),
             International.getString("Verzeichnisse"),
             null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
@@ -596,7 +593,7 @@ public class Daten {
             Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
                 "iniUserDirectory(): input aborted.");
           }
-          Daten.haltProgram(HALT_BASICCONFIG);
+          haltProgram(HALT_BASICCONFIG);
         }
       }
     }
@@ -609,8 +606,8 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniLogging()");
     }
-    Daten.efaLogDirectory = Daten.efaBaseConfig.efaUserDirectory + "log" + Daten.fileSep;
-    if (!checkAndCreateDirectory(Daten.efaLogDirectory)) {
+    efaLogDirectory = efaBaseConfig.efaUserDirectory + efaSubdirLOG + fileSep;
+    if (!checkAndCreateDirectory(efaLogDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
     String lastLogEntry = null;
@@ -635,8 +632,8 @@ public class Daten {
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
         International.getString("PROGRAMMSTART"));
     Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
-        "Version efa: " + Daten.VERSIONID + "vom " + Daten.VERSIONRELEASEDATE + " -- Java: " + Daten.javaVersion + " (JVM "
-            + Daten.jvmVersion + ") -- OS: " + Daten.osName + " " + Daten.osVersion);
+        "Version efa: " + VERSIONID + "vom " + VERSIONRELEASEDATE + " -- Java: " + javaVersion + " (JVM "
+            + jvmVersion + ") -- OS: " + osName + " " + osVersion);
 
     if (Logger.isDebugLogging()) {
       Logger.log(Logger.INFO, Logger.MSG_LOGGER_DEBUGACTIVATED,
@@ -665,15 +662,15 @@ public class Daten {
 
     try {
       if (applID == APPL_EFABH) {
-        Daten.efa_java_arguments = System.getenv(Daten.EFA_JAVA_ARGUMENTS);
+        efa_java_arguments = System.getenv(EFA_JAVA_ARGUMENTS);
         if (Logger.isTraceOn(Logger.TT_CORE)) {
           Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
-              Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
+              EFA_JAVA_ARGUMENTS + "=" + efa_java_arguments);
         }
       }
     } catch (Error e) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTGETEFAJAVAARGS,
-          "Cannot get Environment Variable " + Daten.EFA_JAVA_ARGUMENTS + ": " + e.toString());
+          "Cannot get Environment Variable " + EFA_JAVA_ARGUMENTS + ": " + e.toString());
     }
 
     try {
@@ -681,7 +678,7 @@ public class Daten {
       if (s != null && s.length() > 0) {
         EFACREDFILE = s;
       } else {
-        EFACREDFILE = Daten.userHomeDir + EFACREDFILE;
+        EFACREDFILE = userHomeDir + EFACREDFILE;
       }
     } catch (Exception e) {
       Logger.logdebug(e);
@@ -707,50 +704,38 @@ public class Daten {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniDirectories()");
     }
     // ./program
-    Daten.efaProgramDirectory = Daten.efaMainDirectory + "program" + Daten.fileSep;
-    if (!checkAndCreateDirectory(Daten.efaProgramDirectory)) {
+    efaProgramDirectory = efaMainDirectory + "program" + fileSep;
+    if (!checkAndCreateDirectory(efaProgramDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
 
     // ./program/plugins
-    Daten.efaPluginDirectory = Daten.efaProgramDirectory + "plugins" + Daten.fileSep;
-    if (!checkAndCreateDirectory(Daten.efaPluginDirectory)) {
+    efaPluginDirectory = efaProgramDirectory + "plugins" + fileSep;
+    if (!checkAndCreateDirectory(efaPluginDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
 
-    // ./daten
+    // ./data
     if (applID != APPL_DRV) {
-      Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + efaSubdirDATA + Daten.fileSep;
+      efaDataDirectory = efaBaseConfig.efaUserDirectory + efaSubdirDATA + fileSep;
     } else {
-      Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + "daten" + Daten.fileSep;
+      efaDataDirectory = efaBaseConfig.efaUserDirectory + "daten" + fileSep;
     }
-    if (!checkAndCreateDirectory(Daten.efaDataDirectory)) {
+    if (!checkAndCreateDirectory(efaDataDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
 
     // ./cfg
-    Daten.efaCfgDirectory = Daten.efaBaseConfig.efaUserDirectory + efaSubdirCFG + Daten.fileSep;
-    if (!checkAndCreateDirectory(Daten.efaCfgDirectory)) {
+    efaCfgDirectory = efaBaseConfig.efaUserDirectory + efaSubdirCFG + fileSep;
+    if (!checkAndCreateDirectory(efaCfgDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
 
     // ./doc
-    Daten.efaDocDirectory = Daten.efaMainDirectory + "doc" + Daten.fileSep;
-    if (!checkAndCreateDirectory(Daten.efaDocDirectory)) {
+    efaDocDirectory = efaMainDirectory + "doc" + fileSep;
+    if (!checkAndCreateDirectory(efaDocDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
-
-    // ./ausgabe
-    // Daten.efaAusgabeDirectory = Daten.efaBaseConfig.efaUserDirectory + "fmt" + Daten.fileSep;
-    // if (!checkAndCreateDirectory(Daten.efaAusgabeDirectory)) {
-    // haltProgram(HALT_DIRECTORIES);
-    // }
-
-    // ./ausgabe/layout
-    // Daten.efaStyleDirectory = Daten.efaAusgabeDirectory + "layout" + Daten.fileSep;
-    // if (!checkAndCreateDirectory(Daten.efaStyleDirectory)) {
-    // haltProgram(HALT_DIRECTORIES);
-    // }
 
     // ./bak
     if (!trySetEfaBackupDirectory(null)) {
@@ -758,8 +743,8 @@ public class Daten {
     }
 
     // ./tmp
-    Daten.efaTmpDirectory = Daten.efaBaseConfig.efaUserDirectory + "tmp" + Daten.fileSep;
-    if (!checkAndCreateDirectory(Daten.efaTmpDirectory)) {
+    efaTmpDirectory = efaBaseConfig.efaUserDirectory + efaSubdirTMP + fileSep;
+    if (!checkAndCreateDirectory(efaTmpDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
 
@@ -770,14 +755,14 @@ public class Daten {
 
   public static void iniSplashScreen(boolean show) {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-      Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniSplashScreen(" + show
-          + ")");
+      Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, 
+          "iniSplashScreen(" + show + ")");
     }
     if (!isGuiAppl()) {
       return;
     }
     if (show) {
-      try { // abf
+      try {
         splashScreen = new StartLogo(efaCfgDirectory + "efa.intro.png");
         splashScreen.show();
       } catch (Exception e) {
@@ -800,19 +785,10 @@ public class Daten {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaSec()");
     }
     if (firstEfaStart) {
-      EfaSec.createNewSecFile(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE,
-          Daten.efaProgramDirectory + Daten.EFA_JAR);
+      EfaSec.createNewSecFile(efaBaseConfig.efaUserDirectory + EFA_SECFILE,
+          efaProgramDirectory + EFA_JAR);
     }
-    efaSec = new EfaSec(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE);
-    // in efa2 we don't care whether the file is corrupt, just whether it's there
-    /*
-     * if (efaSec.secFileExists() && !efaSec.secValueValid()) { String msg =
-     * International.getStringXXX("Die Sicherheitsdatei ist korrupt!") + "\n" +
-     * International.getXXX("Aus Gründen der Sicherheit verweigert efa den Dienst. " +
-     * "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
-     * Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECCORRUPTED, msg); if (isGuiAppl()) {
-     * Dialog.error(msg); } haltProgram(HALT_EFASEC); }
-     */
+    efaSec = new EfaSec(efaBaseConfig.efaUserDirectory + EFA_SECFILE);
   }
 
   // returns true if we need to create a new super admin (and are allowed to do so)
@@ -822,28 +798,28 @@ public class Daten {
     if (applID == APPL_DRV) {
       return false;
     }
-    Daten.admins = new Admins();
+    admins = new Admins();
     try {
       // try to open admin file
-      Daten.admins.open(false);
+      admins.open(false);
     } catch (Exception e) {
       if (!isGuiAppl()) {
         // if this is not a GUI appl, then stop here!
         Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDOPEN,
-            LogString.fileOpenFailed(((DataFile) Daten.admins.data()).getFilename(),
+            LogString.fileOpenFailed(((DataFile) admins.data()).getFilename(),
                 International.getString("Administratoren")));
         haltProgram(HALT_ADMIN);
       }
       // check whether admin file exists, and only could not be opened
       boolean exists = true;
       try {
-        exists = Daten.admins.data().existsStorageObject();
+        exists = admins.data().existsStorageObject();
       } catch (Exception ee) {
         Logger.logdebug(ee);
       }
       if (exists) {
         // admin file exists, but could not be opened. we exit here.
-        String msg = LogString.fileOpenFailed(((DataFile) Daten.admins.data()).getFilename(),
+        String msg = LogString.fileOpenFailed(((DataFile) admins.data()).getFilename(),
             International.getString("Administratoren"));
         Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDOPEN, msg);
         if (isGuiAppl()) {
@@ -852,7 +828,7 @@ public class Daten {
         haltProgram(HALT_ADMIN);
       }
       // no admin file there, we need to create a new one
-      if (Daten.efaSec.secFileExists() && Daten.efaSec.secValueValid()) {
+      if (efaSec.secFileExists() && efaSec.secValueValid()) {
         // ok, sec file is there: we're allowed to create a new one
         return true;
       } else {
@@ -872,7 +848,7 @@ public class Daten {
     // configured as well
     if (admins.getAdmin(Admins.SUPERADMIN) == null) {
       // we don't have a super admin yet
-      if (Daten.efaSec.secFileExists() && Daten.efaSec.secValueValid()) {
+      if (efaSec.secFileExists() && efaSec.secValueValid()) {
         // ok, sec file is there: we're allowed to create a new one
         return true;
       }
@@ -903,7 +879,7 @@ public class Daten {
       if (!isGuiAppl()) {
         Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIG,
             "efa is not yet fully set up. Please launch GUI program first.");
-        Daten.haltProgram(HALT_BASICCONFIG);
+        haltProgram(HALT_BASICCONFIG);
       }
       iniSplashScreen(false);
       EfaFirstSetupDialog dlg = new EfaFirstSetupDialog(createNewAdmin, firstEfaStart);
@@ -943,7 +919,7 @@ public class Daten {
           haltProgram(HALT_EFACONFIG);
         }
       }
-      Daten.efaConfig.setExternalParameters(false);
+      efaConfig.setExternalParameters(false);
     }
   }
 
@@ -973,7 +949,7 @@ public class Daten {
         haltProgram(HALT_EFATYPES);
       }
     }
-    Daten.efaConfig.buildTypes();
+    efaConfig.buildTypes();
   }
 
   public static void iniEfaRunning() {
@@ -991,7 +967,7 @@ public class Daten {
       if (isGuiAppl()) {
         Dialog.error(msg);
       }
-      haltProgram(Daten.HALT_EFARUNNING);
+      haltProgram(HALT_EFARUNNING);
     }
     efaRunning.run();
     efaRunning.runDataLockThread();
@@ -1001,20 +977,20 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniCopiedFiles()");
     }
-    String distribCfgDirectory = Daten.efaMainDirectory + efaSubdirCFG + Daten.fileSep;
-    tryCopy(distribCfgDirectory + Daten.WETTFILE, Daten.efaCfgDirectory + Daten.WETTFILE, true);
-    tryCopy(distribCfgDirectory + Daten.WETTDEFS, Daten.efaCfgDirectory + Daten.WETTDEFS, true);
+    String distribCfgDirectory = efaMainDirectory + efaSubdirCFG + fileSep;
+    tryCopy(distribCfgDirectory + WETTFILE, efaCfgDirectory + WETTFILE, true);
+    tryCopy(distribCfgDirectory + WETTDEFS, efaCfgDirectory + WETTDEFS, true);
   }
 
   public static void iniAllDataFiles() {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniAllDataFiles()");
     }
-    Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
-    iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
-    Daten.keyStore = (applID != APPL_DRV ?
-        new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray()) :
-        new EfaKeyStore(Daten.efaDataDirectory + Daten.DRVKEYSTORE, "efa".toCharArray()));
+    wettDefs = new WettDefs(efaCfgDirectory + WETTDEFS);
+    iniDataFile(wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
+    keyStore = (applID != APPL_DRV ?
+        new EfaKeyStore(efaDataDirectory + PUBKEYSTORE, "efa".toCharArray()) :
+        new EfaKeyStore(efaDataDirectory + DRVKEYSTORE, "efa".toCharArray()));
   }
 
   public static void iniRemoteEfaServer() {
@@ -1024,8 +1000,8 @@ public class Daten {
     if (applID != APPL_EFABH) {
       return;
     }
-    new RemoteEfaServer(Daten.efaConfig.getValueDataataRemoteEfaServerPort(),
-        Daten.efaConfig.getValueDataRemoteEfaServerEnabled());
+    new RemoteEfaServer(efaConfig.getValueDataataRemoteEfaServerPort(),
+        efaConfig.getValueDataRemoteEfaServerEnabled());
   }
 
   public static void iniEmailSenderThread() {
@@ -1048,7 +1024,7 @@ public class Daten {
                 + " "
                 + International.getMessage(
                     "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
-                    Daten.pluginWebpage));
+                    pluginWebpage));
       }
     }
   }
@@ -1057,10 +1033,9 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniScreenSize()");
     }
-    if (!isGuiAppl()) {
-      return;
+    if (isGuiAppl()) {
+      Dialog.initializeScreenSize();
     }
-    Dialog.initializeScreenSize();
   }
 
   public static void iniGUI() {
@@ -1073,12 +1048,12 @@ public class Daten {
     iniScreenSize();
 
     // Look&Feel
-    if (Daten.efaConfig != null) { // is null for applDRV
+    if (efaConfig != null) { // is null for applDRV
       try {
-        if (Daten.efaConfig.getValueLookAndFeel().length() == 0) {
+        if (efaConfig.getValueLookAndFeel().length() == 0) {
           UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } else {
-          UIManager.setLookAndFeel(Daten.efaConfig.getValueLookAndFeel());
+          UIManager.setLookAndFeel(efaConfig.getValueLookAndFeel());
         }
       } catch (Exception e) {
         Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
@@ -1094,8 +1069,8 @@ public class Daten {
         // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6753637
         Dialog.getUiDefaults().put("PopupMenu.consumeEventOnClose", false);
       }
-      Color buttonFocusColor = (Daten.efaConfig != null ?
-          Daten.efaConfig.getLafButtonFocusColor() : null);
+      Color buttonFocusColor = (efaConfig != null ?
+          efaConfig.getLafButtonFocusColor() : null);
       if (buttonFocusColor != null) {
         // colored square around text of selected button
         Dialog.getUiDefaults().put("Button.focus", new ColorUIResource(buttonFocusColor));
@@ -1115,8 +1090,8 @@ public class Daten {
     // Font Size
     if (applID == APPL_EFABH) {
       try {
-        Dialog.setGlobalFontSize(Daten.efaConfig.getValueEfaDirekt_fontSize(),
-            Daten.efaConfig.getValueEfaDirekt_fontStyle());
+        Dialog.setGlobalFontSize(efaConfig.getValueEfaDirekt_fontSize(),
+            efaConfig.getValueEfaDirekt_fontStyle());
       } catch (Exception e) {
         Logger.log(
             Logger.WARNING,
@@ -1185,14 +1160,13 @@ public class Daten {
   }
 
   private static boolean istSchluesselGedrehtIntern() {
-    String gpio = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep;
+    String gpio = efaBaseConfig.efaUserDirectory;
     File fileGpio = new File(gpio + "value");
     File fileGut = new File(gpio + "value.gut.txt");
     try {
       String contentsGpio = FileUtils.readFileToString(fileGpio);
       String contentsGut = FileUtils.readFileToString(fileGut);
       return contentsGut.equals(contentsGpio);
-      // return FileUtils.contentEquals(file1, file2);
     } catch (IOException e) {
       Logger.log(e);
       Dialog.exceptionError(e.getMessage(), e.fillInStackTrace().toString());
@@ -1259,13 +1233,13 @@ public class Daten {
 
   public static boolean trySetEfaBackupDirectory(String dir) {
     if (dir == null || dir.length() == 0) {
-      dir = Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep;
+      dir = efaBaseConfig.efaUserDirectory + efaSubdirBACKUP + fileSep;
     }
-    if (!dir.endsWith(Daten.fileSep)) {
-      dir = dir + Daten.fileSep;
+    if (!dir.endsWith(fileSep)) {
+      dir = dir + fileSep;
     }
     if (checkAndCreateDirectory(dir)) {
-      Daten.efaBakDirectory = dir;
+      efaBakDirectory = dir;
       return true;
     }
     return false;
@@ -1284,37 +1258,37 @@ public class Daten {
 
     // efa-Infos
     if (efaInfos) {
-      infos.add("efa.version=" + Daten.VERSIONID);
+      infos.add("efa.version=" + VERSIONID);
       if (EFALIVE_VERSION != null && EFALIVE_VERSION.length() > 0) {
-        infos.add("efalive.version=" + Daten.EFALIVE_VERSION);
+        infos.add("efalive.version=" + EFALIVE_VERSION);
       }
       if (applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) {
-        if (Daten.efaMainDirectory != null) {
-          infos.add("efa.dir.main=" + Daten.efaMainDirectory);
+        if (efaMainDirectory != null) {
+          infos.add("efa.dir.main=" + efaMainDirectory);
         }
-        if (Daten.efaBaseConfig != null && Daten.efaBaseConfig.efaUserDirectory != null) {
-          infos.add("efa.dir.user=" + Daten.efaBaseConfig.efaUserDirectory);
+        if (efaBaseConfig != null && efaBaseConfig.efaUserDirectory != null) {
+          infos.add("efa.dir.user=" + efaBaseConfig.efaUserDirectory);
         }
-        if (Daten.efaProgramDirectory != null) {
-          infos.add("efa.dir.program=" + Daten.efaProgramDirectory);
+        if (efaProgramDirectory != null) {
+          infos.add("efa.dir.program=" + efaProgramDirectory);
         }
-        if (Daten.efaPluginDirectory != null) {
-          infos.add("efa.dir.plugin=" + Daten.efaPluginDirectory);
+        if (efaPluginDirectory != null) {
+          infos.add("efa.dir.plugin=" + efaPluginDirectory);
         }
-        if (Daten.efaDocDirectory != null) {
-          infos.add("efa.dir.doc=" + Daten.efaDocDirectory);
+        if (efaDocDirectory != null) {
+          infos.add("efa.dir.doc=" + efaDocDirectory);
         }
-        if (Daten.efaDataDirectory != null) {
-          infos.add("efa.dir.data=" + Daten.efaDataDirectory);
+        if (efaDataDirectory != null) {
+          infos.add("efa.dir.data=" + efaDataDirectory);
         }
-        if (Daten.efaCfgDirectory != null) {
-          infos.add("efa.dir.cfg=" + Daten.efaCfgDirectory);
+        if (efaCfgDirectory != null) {
+          infos.add("efa.dir.cfg=" + efaCfgDirectory);
         }
-        if (Daten.efaBakDirectory != null) {
-          infos.add("efa.dir.bak=" + Daten.efaBakDirectory);
+        if (efaBakDirectory != null) {
+          infos.add("efa.dir.bak=" + efaBakDirectory);
         }
-        if (Daten.efaTmpDirectory != null) {
-          infos.add("efa.dir.tmp=" + Daten.efaTmpDirectory);
+        if (efaTmpDirectory != null) {
+          infos.add("efa.dir.tmp=" + efaTmpDirectory);
         }
       }
     }
@@ -1322,7 +1296,7 @@ public class Daten {
     // efa Plugin-Infos
     if (pluginInfos) {
       try {
-        File dir = new File(Daten.efaPluginDirectory);
+        File dir = new File(efaPluginDirectory);
         if ((applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) && Logger.isDebugLogging()) {
           File[] files = dir.listFiles();
           for (File file : files) {
@@ -1403,8 +1377,7 @@ public class Daten {
               Object o;
               while (_enum.hasMoreElements() && (o = _enum.nextElement()) != null) {
                 infos.add("java.jar.content="
-                    + o
-                    + ":"
+                    + o + ":"
                     + (jar.getEntry(o.toString()) == null ? "null" : Long.toString(jar.getEntry(
                         o.toString()).getSize())));
               }
@@ -1425,10 +1398,6 @@ public class Daten {
     return infos;
   }
 
-  public static void printEfaInfos() {
-    printEfaInfos(true, true, true, true, false);
-  }
-
   public static void printEfaInfos(boolean efaInfos, boolean pluginInfos, boolean javaInfos,
       boolean hostInfos, boolean jarInfos) {
     Vector infos = getEfaInfos(efaInfos, pluginInfos, javaInfos, hostInfos, jarInfos);
@@ -1438,121 +1407,52 @@ public class Daten {
   }
 
   public static String getEfaImage(int size) {
-    int birthday = EfaUtil.getEfaBirthday();
     switch (size) {
-      case 1:
-        return IMAGEPATH + "efa_small.png";
-      case 2:
-        return IMAGEPATH + "efa_logo.png";
-      case 3:
-        return IMAGEPATH + "efa_large.png";
-      default:
-        return IMAGEPATH + "efa_logo.png";
+      case 1:  return IMAGEPATH + "efa_small.png";
+      case 2:  return IMAGEPATH + "efa_logo.png";
+      case 3:  return IMAGEPATH + "efa_large.png";
+      default: return IMAGEPATH + "efa_logo.png";
     }
   }
 
   public static void checkEfaVersion(boolean interactive) {
     // @todo (P7) check for outdated efa version
-    /*
-     * // Bei 1 Jahr alten Versionen alle 90 Tage prüfen, ob eine neue Version vorliegt if
-     * (EfaUtil.getDateDiff(Daten.VERSIONRELEASEDATE,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 365
-     * && (Daten.efaConfig.efaVersionLastCheck == null ||
-     * Daten.efaConfig.efaVersionLastCheck.length() == 0 ||
-     * EfaUtil.getDateDiff(Daten.efaConfig.efaVersionLastCheck
-     * ,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 90) ) { if
-     * (Dialog.yesNoDialog(InternationalXX.getString("Prüfen, ob neue efa-Version verfügbar"),
-     * InternationalXX
-     * .getMessage("Die von Dir verwendete Version von efa ({versionid}) ist bereits "+
-     * "über ein Jahr alt. Soll efa jetzt für Dich prüfen, ob eine "+
-     * "neue Version von efa vorliegt?",Daten.VERSIONID)) == Dialog.YES) {
-     * OnlineUpdateFrame.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO); }
-     * Daten.efaConfig.efaVersionLastCheck = EfaUtil.getCurrentTimeStampDD_MM_YYYY(); }
-     */
   }
 
   public static void checkJavaVersion(boolean interactive) {
     // @todo (P7) check for outdated java version
-    /*
-     * if (Daten.javaVersion == null) return; TMJ tmj =
-     * EfaUtil.string2date(Daten.javaVersion,0,0,0); int version = tmj.tag*100 + tmj.monat*10 +
-     * tmj.jahr; if (version < 140) { if
-     * (Dialog.yesNoDialog(InternationalXX.getString("Java-Version zu alt"),
-     * InternationalXX.getMessage("Die von Dir verwendete Java-Version {version} wird von efa "+
-     * "offiziell nicht mehr unterstützt. Einige Funktionen von efa stehen "+
-     * "unter dieser Java-Version nicht zur Verfügung oder funktionieren nicht "+
-     * "richtig. Vom Einsatz von efa mit dieser Java-Version wird dringend abgeraten. "+
-     * "Für den optimalen Einsatz von efa wird Java-Version 5 oder neuer empfohlen.\n\n"+
-     * "Sollen jetzt die Download-Anleitung für eine neue Java-Version "+
-     * "angezeigt werden?",Daten.javaVersion)) == Dialog.YES) { showJavaDownloadHints(); } return; }
-     * if (!alsoCheckForOptimalVersion) return; if (version < 150) { if
-     * (Dialog.yesNoDialog(InternationalXX.getString("Java-Version alt"),
-     * InternationalXX.getMessage(
-     * "Die von Dir verwendete Java-Version {version} ist bereits relativ alt. "+
-     * "Für den optimalen Einsatz von efa wird Java 5 (Version 1.5.0) oder neuer empfohlen. "+
-     * "efa funktioniert zwar auch mit älteren Java-Versionen weiterhin, jedoch gibt es einige "+
-     * "Funktionen, die nur unter neueren Java-Versionen unterstützt werden. Außerdem werden "+
-     * "Java-Fehler oft nur noch in den neueren Versionen korrigiert, so daß auch aus diesem "+
-     * "Grund immer der Einsatz einer möglichst neuen Java-Version empfohlen ist.\n\n"+
-     * "Sollen jetzt die Download-Anleitung für eine neue Java-Version "+
-     * "angezeigt werden?",Daten.javaVersion)) == Dialog.YES) { showJavaDownloadHints(); } }
-     */
   }
 
   public static void checkRegister() {
-    if (PROGRAMMID.equals(Daten.efaConfig.getValueRegisteredProgramID())) {
+    if (PROGRAMMID.equals(efaConfig.getValueRegisteredProgramID())) {
       return; // already registered
     }
-    Daten.efaConfig.setValueRegistrationChecks(Daten.efaConfig.getValueRegistrationChecks() + 1);
+    efaConfig.setValueRegistrationChecks(efaConfig.getValueRegistrationChecks() + 1);
 
     boolean promptForRegistration = false;
-    if (Daten.efaConfig.getValueRegisteredProgramID().length() == 0) {
+    if (efaConfig.getValueRegisteredProgramID().length() == 0) {
       // never before registered
-      if (Daten.efaConfig.getValueRegistrationChecks() <= 30
-          && Daten.efaConfig.getValueRegistrationChecks() % 10 == 0) {
+      if (efaConfig.getValueRegistrationChecks() <= 30
+          && efaConfig.getValueRegistrationChecks() % 10 == 0) {
         promptForRegistration = true;
       }
     } else {
       // previous version already registered
-      if (Daten.efaConfig.getValueRegistrationChecks() <= 10
-          && Daten.efaConfig.getValueRegistrationChecks() % 10 == 0) {
+      if (efaConfig.getValueRegistrationChecks() <= 10
+          && efaConfig.getValueRegistrationChecks() % 10 == 0) {
         promptForRegistration = true;
       }
     }
 
     if (promptForRegistration) {
-      if (BrowserDialog.openInternalBrowser(null, Daten.EFA_SHORTNAME,
+      if (BrowserDialog.openInternalBrowser(null, EFA_SHORTNAME,
           "file:" + HtmlFactory.createRegister(),
           850, 750).endsWith(".pl")) {
         // registration complete
-        Daten.efaConfig.setValueRegisteredProgramID(Daten.PROGRAMMID);
-        Daten.efaConfig.setValueRegistrationChecks(0);
+        efaConfig.setValueRegisteredProgramID(PROGRAMMID);
+        efaConfig.setValueRegistrationChecks(0);
       }
 
-    }
-  }
-
-  /**
-   * Returns the Java version as an integer number representing the "official" Java *minor* version.
-   * Newer Versions are guaranteed to have higher numbers than previous versions. e.g. for Java 1.4,
-   * this will return "4" for Java 1.5, this will return "5" for Java 1.6, this will return "6" for
-   * Java 1.7, this will return "7"
-   *
-   * @return the Java version
-   */
-  public static int getJavaVersion() {
-    try {
-      if (Daten.javaVersion.startsWith("1.")) {
-        return Integer.parseInt(Daten.javaVersion.substring(2, 3));
-      }
-      return 99;
-    } catch (Exception e) {
-      return 0;
-    }
-  }
-
-  private static void showJavaDownloadHints() {
-    if (Daten.efaDocDirectory == null) {
-      return;
     }
   }
 }

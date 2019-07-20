@@ -523,8 +523,7 @@ public class Logger {
           // Wenn Logdatei zu groß ist, die alte Logdatei verschieben
           File log = new File(Daten.efaLogfile);
           if (log.exists() && log.length() > MAX_LOG_FILE_SIZE) {
-            baklog = EfaUtil.moveAndEmptyFile(Daten.efaLogfile,
-                Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep);
+            baklog = EfaUtil.moveAndEmptyFile(Daten.efaLogfile, Daten.efaBakDirectory);
           }
         } catch (Exception e) {
           LogString.logError_fileArchivingFailed(Daten.efaLogfile,

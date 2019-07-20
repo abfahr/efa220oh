@@ -141,7 +141,7 @@ public class ClubworkListDialog extends DataListDialog {
     if (minColumnWidths != null) {
       table.setMinColumnWidths(minColumnWidths);
     }
-    table.setButtonPanelPosition(buttonPanelPosition);
+    table.setButtonPanelPosition(BorderLayout.SOUTH);
     table.setFieldSize(600, 500);
     table.setPadding(0, 0, 10, 0);
     table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);

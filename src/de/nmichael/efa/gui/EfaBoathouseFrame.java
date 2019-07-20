@@ -33,6 +33,8 @@ import java.util.Hashtable;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -395,7 +397,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     mainPanel.add(eastPanel, BorderLayout.EAST);
     mainPanel.add(northPanel, BorderLayout.NORTH);
     mainPanel.add(southPanel, BorderLayout.SOUTH);
-    mainPanel.add(centerPanel, BorderLayout.CENTER);
+    mainPanel.add(centerPanel, BorderLayout.CENTER); // muss Center
   }
 
   private void iniApplication() {
@@ -709,9 +711,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         logoLabel.setMinimumSize(new Dimension(xWidth, yHeight));
         int lastIndexSlash = strPfadVereinsLogo.lastIndexOf(Daten.fileSep);
         String fileName = strPfadVereinsLogo.substring(lastIndexSlash, strPfadVereinsLogo.length());
-        java.util.regex.Pattern regexPattern;
-        regexPattern = java.util.regex.Pattern.compile("\\D*(\\d\\d*)x(\\d*).*");
-        java.util.regex.Matcher matcher = regexPattern.matcher(fileName);
+        Pattern regexPattern = Pattern.compile("\\D*(\\d\\d*)x(\\d*).*");
+        Matcher matcher = regexPattern.matcher(fileName);
         if (matcher.matches() && matcher.groupCount() == 2) {
           xWidth = Integer.parseInt(matcher.group(1));
           yHeight = Integer.parseInt(matcher.group(2));
@@ -1237,7 +1238,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     String finishSession = EfaUtil.replace(
         Daten.efaConfig.getValueEfaDirekt_butFahrtBeenden().getValueText(), "<<<", "").trim();
     String boatReserve = (Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservieren() ?
-        International.getString("Boot reservieren") :
+        International.getString("Bootsreservierungen") :
         International.getString("Bootsreservierungen"));
     if (listnr == 1 || listnr == 101) { // verfügbare Boote bzw. Personen
       if (listnr == 1) {

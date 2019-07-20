@@ -19,6 +19,7 @@ import java.awt.TextField;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -68,8 +69,8 @@ public class Dialog {
   public static void initializeScreenSize() {
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     if (Daten.isOsLinux()) {
-      // Workaround für Linux: Fenster verschwinden oder werden falsch positioniert, wenn die die
-      // volle Bildschirmgröße haben
+      // Workaround für Linux: Fenster verschwinden oder werden falsch positioniert, 
+      // wenn sie die volle Bildschirmgröße haben
       Dialog.screenSize = new Dimension(screenSize.width - 1, screenSize.height - 1);
     } else {
       Dialog.screenSize = screenSize;
@@ -121,7 +122,7 @@ public class Dialog {
       return; // should never happen
     }
     int fontSize = (FONT_SIZE > 0 ? FONT_SIZE : 12);
-    MAX_DIALOG_WIDTH = (int) (Dialog.screenSize.width / (fontSize * 0.7));
+    MAX_DIALOG_WIDTH  = (int) (Dialog.screenSize.width  / (fontSize * 0.7));
     MAX_DIALOG_HEIGHT = (int) (Dialog.screenSize.height / (fontSize * 1.6)) - 5;
   }
 
@@ -135,12 +136,9 @@ public class Dialog {
         International.getString("Fehler"),
         LogString.fileNotFound(dat, International.getString("Datei")) + "\n"
             + International.getString("Soll die Datei neu erstellt werden?"))) {
-      case Dialog.YES:
-        return YES;
-      case Dialog.NO:
-        return NO;
-      default:
-        return INVALID;
+      case Dialog.YES:       return YES;
+      case Dialog.NO:        return NO;
+      default:        return INVALID;
     }
   }
 
@@ -253,7 +251,9 @@ public class Dialog {
   public static int yesNoDialog(String title, String s) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    if (JOptionPane.showConfirmDialog(frame, chopDialogString(s), title, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame, 
+        chopDialogString(s), title, JOptionPane.YES_NO_OPTION);
+    if (answerConfirmDialog == JOptionPane.YES_OPTION) {
       return YES;
     } else {
       return NO;
@@ -263,22 +263,24 @@ public class Dialog {
   public static int yesNoCancelDialog(String title, String s) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    switch (JOptionPane.showConfirmDialog(frame, chopDialogString(s), title,
-        JOptionPane.YES_NO_CANCEL_OPTION)) {
-      case JOptionPane.YES_OPTION:
-        return YES;
-      case JOptionPane.NO_OPTION:
-        return NO;
-      default:
-        return CANCEL;
+    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame, 
+        chopDialogString(s), title,
+        JOptionPane.YES_NO_CANCEL_OPTION);
+    switch (answerConfirmDialog) {
+      case JOptionPane.YES_OPTION:       return YES;
+      case JOptionPane.NO_OPTION:        return NO;
+      default:        return CANCEL;
     }
   }
 
   public static int auswahlDialog(String title, String messagebody, String[] options) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    return JOptionPane.showOptionDialog(frame, chopDialogString(messagebody), title,
-        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+    return JOptionPane.showOptionDialog(frame, 
+        chopDialogString(messagebody), title,
+        JOptionPane.YES_NO_OPTION, 
+        JOptionPane.QUESTION_MESSAGE, 
+        null, options, options[0]);
   }
 
   public static int auswahlDialog(String title, String messagebody, String option1, String option2,
@@ -318,8 +320,10 @@ public class Dialog {
   public static boolean okAbbrDialog(String title, String s) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    return JOptionPane.showConfirmDialog(frame, chopDialogString(s), title,
-        JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
+    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame, 
+        chopDialogString(s), title,
+        JOptionPane.OK_CANCEL_OPTION);
+    return answerConfirmDialog == JOptionPane.OK_OPTION;
   }
 
   public static void infoDialog(String title, String s) {
@@ -329,7 +333,8 @@ public class Dialog {
       // ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efa_large.png");
       // ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
       ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "notification_closedoors.png");
-      JOptionPane.showConfirmDialog(frame, chopDialogString(s), title, -1,
+      JOptionPane.showConfirmDialog(frame, 
+          chopDialogString(s), title, -1,
           JOptionPane.QUESTION_MESSAGE, icon);
     } else {
       System.out.println("INFO" + ": " + s);
@@ -343,18 +348,22 @@ public class Dialog {
   public static String inputDialog(String title, String s) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    return JOptionPane
-        .showInputDialog(frame, chopDialogString(s), title, JOptionPane.PLAIN_MESSAGE);
+    return JOptionPane.showInputDialog(frame,
+        chopDialogString(s), title, 
+        JOptionPane.PLAIN_MESSAGE);
   }
 
   public static String inputDialog(String title, String s, String vorbelegung) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    return (String) JOptionPane.showInputDialog(frame, chopDialogString(s), title,
-        JOptionPane.PLAIN_MESSAGE, null, null, vorbelegung);
+    Object answerInputDialog = JOptionPane.showInputDialog(frame, 
+        chopDialogString(s), title,
+        JOptionPane.PLAIN_MESSAGE, 
+        null, null, vorbelegung);
+    return (String) answerInputDialog;
   }
 
-  // muß von jedem Frame gerufen werden, das geöffnet wird!!
+  // muss von jedem Frame gerufen werden, das geöffnet wird!!
   public static void frameOpened(Window w) {
     if (frameStack == null) {
       frameStack = new Stack();
@@ -376,7 +385,7 @@ public class Dialog {
     }
   }
 
-  // muß von jedem Frame gerufen werden, das geschlossen wird!!
+  // muss von jedem Frame gerufen werden, das geschlossen wird!!
   public static void frameClosed(Window w) {
     Mnemonics.clearCache(w);
     if (frameStack == null) {
@@ -466,7 +475,6 @@ public class Dialog {
       if (titel != null) {
         dlg.setDialogTitle(titel);
       }
-
       if (selectedfile != null) {
         dlg.setSelectedFile(new File(selectedfile));
       }
@@ -506,12 +514,14 @@ public class Dialog {
 
   // Methoden zum Setzen der Position eines neuen JDialogs
   public static void setDlgLocation(JDialog dlg, Frame parent) {
-    dlg.setLocation(getLocation(dlg.getSize(), (parent != null ? parent.getSize() : null),
+    dlg.setLocation(getLocation(dlg.getSize(), 
+        (parent != null ? parent.getSize() : null),
         (parent != null ? parent.getLocation() : null)));
   }
 
   public static void setDlgLocation(JDialog dlg, Window parent) {
-    dlg.setLocation(getLocation(dlg.getSize(), (parent != null ? parent.getSize() : null),
+    dlg.setLocation(getLocation(dlg.getSize(), 
+        (parent != null ? parent.getSize() : null),
         (parent != null ? parent.getLocation() : null)));
   }
 
@@ -618,14 +628,14 @@ public class Dialog {
 
     UIDefaults uid = getUiDefaults();
 
-    java.util.Enumeration keys = uid.keys();
+    Enumeration<Object> keys = uid.keys();
     while (keys.hasMoreElements()) {
       Object key = keys.nextElement();
       Object value = uid.get(key);
       String font = (key == null ? null : key.toString());
       if (font != null
           && (font.endsWith(".font")
-          || (font.startsWith("OptionPane") && font.endsWith("Font")))) {
+              || (font.startsWith("OptionPane") && font.endsWith("Font")))) {
         if (!font.equals("TableHeader.font") && !font.equals("Table.font")) {
           setFontSize(uid, font, size, style);
         }

@@ -75,7 +75,8 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
 
   @Override
   public IItemType copyOf() {
-    return new ItemTypeTable(name, header.clone(), (Hashtable<String, TableItem[]>) items.clone(),
+    return new ItemTypeTable(name, header.clone(), 
+        (Hashtable<String, TableItem[]>) items.clone(),
         value, type, category, description);
   }
 
@@ -105,17 +106,6 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
       h[i] = new TableItemHeader(header[i]);
     }
     return h;
-  }
-
-  private TableItem[][] createTableData(String[][] data) {
-    TableItem[][] d = new TableItem[data.length][];
-    for (int i = 0; i < d.length; i++) {
-      d[i] = new TableItem[data[i].length];
-      for (int j = 0; j < data[i].length; j++) {
-        d[i][j] = new TableItem(data[i][j], false);
-      }
-    }
-    return d;
   }
 
   @Override
@@ -276,6 +266,7 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
     scrollPane = new JScrollPane();
     scrollPane.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
     scrollPane.setMinimumSize(new Dimension(fieldWidth, fieldHeight));
+    // TODO abf 2019-07-20 
     showValue();
   }
 
@@ -283,15 +274,21 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
   public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
     this.dlg = dlg;
     iniDisplay();
-    panel.add(scrollPane, new GridBagConstraints(x, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
-        fieldGridAnchor, fieldGridFill, new Insets(padYbefore, padXbefore, padYafter, padXafter),
-        0, 0));
+    GridBagConstraints gridBagConstraints = new GridBagConstraints(
+        x, y, 
+        fieldGridWidth, fieldGridHeight, 
+        0.0, 0.0,
+        fieldGridAnchor, fieldGridFill, 
+        new Insets(padYbefore, padXbefore, padYafter, padXafter),
+        0, 0);
+    panel.add(scrollPane, gridBagConstraints);
     return 1;
   }
 
   public int displayOnGui(Window dlg, JPanel panel, String borderLayoutPosition) {
     this.dlg = dlg;
     iniDisplay();
+    // meistens: BorderLayout.CENTER
     panel.add(scrollPane, borderLayoutPosition);
     return 1;
   }

@@ -32,7 +32,6 @@ import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemListenerDataRecordTable;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
-import de.nmichael.efa.core.items.ItemTypeButton;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
 import de.nmichael.efa.core.items.ItemTypeDateTime;
 import de.nmichael.efa.core.items.ItemTypeHtmlList;
@@ -89,13 +88,9 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
   protected boolean intelligentColumnWidth = true;
   protected int minColumnWidth = -1;
   protected int[] minColumnWidths = null;
-  protected String buttonPanelPosition = BorderLayout.SOUTH;
   private ItemTypeDateTime validAtDateTime;
   private ItemTypeBoolean showAll;
   private ItemTypeBoolean showDeleted;
-  private JPanel tablePanel;
-  private JPanel buttonPanel;
-  private Hashtable<ItemTypeButton, String> actionButtons;
   protected Color markedCellColor = Color.red;
   protected boolean markedCellBold = false;
 
@@ -259,7 +254,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     if (minColumnWidths != null) {
       table.setMinColumnWidths(minColumnWidths);
     }
-    table.setButtonPanelPosition(buttonPanelPosition);
+    table.setButtonPanelPosition(BorderLayout.SOUTH);
     table.setFieldSize(900, 500);
     table.setPadding(0, 0, 10, 0);
     table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);

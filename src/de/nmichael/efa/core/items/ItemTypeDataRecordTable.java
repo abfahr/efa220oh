@@ -41,7 +41,6 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -78,6 +77,7 @@ import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
+import de.nmichael.efa.gui.util.TableCellRenderer;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.Dialog;
@@ -124,9 +124,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected ItemTypeBoolean filterBySearch;
   protected JTable aggregationTable = null;
   protected JPanel myPanel;
-  protected JPanel tablePanel;
-  protected JPanel northSidePanel;
-  protected JPanel rightSidePanel;
+  protected JPanel centerTableListPanel;
+  protected JPanel northSideCalenderPanel;
+  protected JPanel rightSouthSideButtonPanel;
   protected JPanel pnlCalendarPanel;
   protected JPanel buttonPanel;
   protected JPanel searchPanel;
@@ -139,13 +139,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected Color markedCellColor = Color.red;
   protected boolean markedCellBold = false;
 
-  int realYear, realMonth, realDay, currentYear, currentMonth;
+  int realYear, realMonth, realDay;
+  int currentYear, currentMonth;
   JButton lblMonth;
   JButton btnPrev, btnNext;
   DefaultTableModel mtblCalendar; // Table model
   JTable tblCalendar;
-  int xr320 = 400; // 400
-  int yu335 = 410;
 
   public ItemTypeDataRecordTable(String name,
       TableItemHeader[] tableHeader,
@@ -160,7 +159,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     setData(persistence, validAt, admin, filterFieldName, filterFieldValue);
     setActions(actions, actionTypes, actionIcons);
     this.itemListenerActionTable = itemListenerActionTable;
-    renderer = new de.nmichael.efa.gui.util.TableCellRenderer();
+    renderer = new TableCellRenderer();
     renderer.setMarkedBold(false);
     renderer.setMarkedForegroundColor(markedCellColor);
     renderer.setMarkedBold(markedCellBold);
@@ -237,33 +236,51 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   protected void iniDisplayActionTable(Window dlg) {
     this.dlg = dlg;
-    myPanel = new JPanel();
-    myPanel.setLayout(new BorderLayout());
-    tablePanel = new JPanel();
-    tablePanel.setLayout(new GridBagLayout());
-    buttonPanel = new JPanel();
-    buttonPanel.setLayout(new GridBagLayout());
-    buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-    northSidePanel = new JPanel(new BorderLayout());
-    rightSidePanel = new JPanel(new BorderLayout());
-    rightSidePanel.setBorder(new EmptyBorder(20, 0, 15, 10));
-    // rightSidePanel.setAlignmentY(Component.TOP_ALIGNMENT);
-    searchPanel = new JPanel();
-    searchPanel.setLayout(new GridBagLayout());
-    myPanel.add(northSidePanel, BorderLayout.NORTH);
-    myPanel.add(tablePanel, BorderLayout.CENTER);
-    myPanel.add(rightSidePanel, buttonPanelPosition);
-    tablePanel.add(searchPanel, new GridBagConstraints(0, 10, 0, 0, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    actionButtons = new Hashtable<ItemTypeButton, String>();
-
-    rightSidePanel.add(buttonPanel, BorderLayout.CENTER);
+    
+    northSideCalenderPanel = new JPanel(new BorderLayout());
     if (persistence.getName().equals("boatreservations")
         && Daten.efaConfig.isShowDataRightSideCalendar()) {
-      northSidePanel.setBorder(new EmptyBorder(11, 31, 0, 31));
+      northSideCalenderPanel.setBorder(new EmptyBorder(11, 31, 0, 31));
       drawCalendar();
     }
 
+    centerTableListPanel = new JPanel();
+    centerTableListPanel.setLayout(new GridBagLayout());
+    searchPanel = new JPanel();
+    searchPanel.setLayout(new GridBagLayout());
+    GridBagConstraints gridBagConstraints = new GridBagConstraints(
+        0, 10,
+        0, 0,
+        0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+        new Insets(0, 0, 0, 0),
+        0, 0);
+    centerTableListPanel.add(searchPanel, gridBagConstraints);
+    searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, "SEARCH_CAT",
+        International.getString("Suche"));
+    searchField.setFieldSize(300, -1);
+    searchField.registerItemListener(this);
+    searchField.displayOnGui(dlg, searchPanel, 0, 0);
+    filterBySearch = new ItemTypeBoolean("FILTERBYSEARCH", true, IItemType.TYPE_PUBLIC,
+        "SEARCH_CAT", International.getString("filtern"));
+    filterBySearch.registerItemListener(this);
+    filterBySearch.displayOnGui(dlg, searchPanel, 10, 0);
+
+    rightSouthSideButtonPanel = new JPanel(new BorderLayout());
+    rightSouthSideButtonPanel.setBorder(new EmptyBorder(20, 0, 15, 10));
+    // rightSidePanel.setAlignmentY(Component.TOP_ALIGNMENT);
+    buttonPanel = new JPanel();
+    buttonPanel.setLayout(new GridBagLayout());
+    buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+    rightSouthSideButtonPanel.add(buttonPanel, BorderLayout.CENTER);
+
+    myPanel = new JPanel();
+    myPanel.setLayout(new BorderLayout());
+    myPanel.add(northSideCalenderPanel, BorderLayout.NORTH);
+    myPanel.add(centerTableListPanel, BorderLayout.CENTER);
+    myPanel.add(rightSouthSideButtonPanel, buttonPanelPosition);
+
+    actionButtons = new Hashtable<ItemTypeButton, String>();
     JPanel smallButtonPanel = null;
     for (int i = 0; actionText != null && i < actionText.length; i++) {
       if (actionTypes[i] >= 2000) {
@@ -284,9 +301,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         if (smallButtonPanel == null) {
           smallButtonPanel = new JPanel();
           smallButtonPanel.setLayout(new GridBagLayout());
-          buttonPanel.add(smallButtonPanel, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0,
-              GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 0, 20, 0),
-              0, 0));
+          GridBagConstraints gridBagConstraintsButtons = new GridBagConstraints(
+              0, i,
+              1, 1,
+              0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+              new Insets(20, 0, 20, 0),
+              0, 0);
+          buttonPanel.add(smallButtonPanel, gridBagConstraintsButtons);
         }
       }
       if (actionIcons != null && i < actionIcons.length && actionIcons[i] != null) {
@@ -307,25 +329,20 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
       actionButtons.put(button, action);
     }
-
-    searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, "SEARCH_CAT",
-        International.getString("Suche"));
-    searchField.setFieldSize(300, -1);
-    searchField.registerItemListener(this);
-    searchField.displayOnGui(dlg, searchPanel, 0, 0);
-    filterBySearch = new ItemTypeBoolean("FILTERBYSEARCH", true, IItemType.TYPE_PUBLIC,
-        "SEARCH_CAT", International.getString("filtern"));
-    filterBySearch.registerItemListener(this);
-    filterBySearch.displayOnGui(dlg, searchPanel, 10, 0);
   }
 
   @Override
   public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
     iniDisplayActionTable(dlg);
-    panel.add(myPanel, new GridBagConstraints(x, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
-        fieldGridAnchor, fieldGridFill, new Insets(padYbefore, padXbefore, padYafter, padXafter),
-        0, 0));
-    super.displayOnGui(dlg, tablePanel, 0, 0);
+    GridBagConstraints gridBagConstraints = new GridBagConstraints(
+        x, y,
+        fieldGridWidth, fieldGridHeight,
+        0.0, 0.0,
+        fieldGridAnchor, fieldGridFill,
+        new Insets(padYbefore, padXbefore, padYafter, padXafter),
+        0, 0);
+    panel.add(myPanel, gridBagConstraints);
+    super.displayOnGui(dlg, centerTableListPanel, 0, 0);
     return 1;
   }
 
@@ -333,12 +350,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   public int displayOnGui(Window dlg, JPanel panel, String borderLayoutPosition) {
     iniDisplayActionTable(dlg);
     panel.add(myPanel, borderLayoutPosition);
-    super.displayOnGui(dlg, tablePanel, 0, 0);
+    super.displayOnGui(dlg, centerTableListPanel, 0, 0);
     return 1;
   }
 
   public void setVisibleButtonPanel(boolean visible) {
-    rightSidePanel.setVisible(visible);
+    rightSouthSideButtonPanel.setVisible(visible);
   }
 
   public void setVisibleSearchPanel(boolean visible) {
@@ -1072,7 +1089,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   protected void updateAggregations(boolean create) {
     if (aggregationTable != null) {
-      tablePanel.remove(aggregationTable);
+      centerTableListPanel.remove(aggregationTable);
     }
 
     if (create && data != null) {
@@ -1104,19 +1121,22 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               dataModel.setValueAt(aggregationStrings[i], 0, j++);
             }
           }
+          GridBagConstraints gridBagConstraints = new GridBagConstraints(
+              0, 1,
+              1, 1,
+              0.0, 0.0,
+              GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
+              new Insets(1, 1, 1, 1),
+              0, 0);
           aggregationTable = new JTable(dataModel);
-
-          tablePanel.add(aggregationTable,
-              new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                  GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1),
-                  0, 0));
-          tablePanel.setComponentZOrder(aggregationTable, 0);
+          centerTableListPanel.add(aggregationTable, gridBagConstraints);
+          centerTableListPanel.setComponentZOrder(aggregationTable, 0);
         }
       }
     }
 
-    tablePanel.revalidate();
-    tablePanel.repaint();
+    centerTableListPanel.revalidate();
+    centerTableListPanel.repaint();
   }
 
   protected void updateData() {
@@ -1257,30 +1277,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void drawCalendar() {
-    // Container pane;
 
-    lblMonth = new JButton("heute");
-    btnPrev = new JButton("     <<-     ");
-    btnNext = new JButton("     ->>     ");
-    mtblCalendar = new CalendarTableModel();
-    tblCalendar = new JTable(mtblCalendar);
-    JScrollPane stblCalendar = new JScrollPane(tblCalendar);
-
-    // Register action listeners
-    btnPrev.addActionListener(new btnPrev_Action());
-    btnNext.addActionListener(new btnNext_Action());
-    lblMonth.addActionListener(new lblMonth_Action());
-
-    JPanel pnlCalendarButtonPanel = new JPanel(new BorderLayout());
-    pnlCalendarButtonPanel.add(btnPrev, BorderLayout.WEST);
-    pnlCalendarButtonPanel.add(lblMonth, BorderLayout.CENTER);
-    pnlCalendarButtonPanel.add(btnNext, BorderLayout.EAST);
-
-    pnlCalendarPanel = new JPanel(new BorderLayout()); // BorderLayout
-    pnlCalendarPanel.add(stblCalendar, BorderLayout.NORTH);
-    pnlCalendarPanel.add(pnlCalendarButtonPanel, BorderLayout.SOUTH);
-
-    northSidePanel.add(pnlCalendarPanel, BorderLayout.NORTH);
+    mtblCalendar = new CalendarTableModel(); // egal nur Model 6x7tage
+    mtblCalendar.setRowCount(6);  // Set row/column count
+    // mtblCalendar.setColumnCount(7); // Set row/column count
 
     // Add headers
     String[] headers = { " Montag", " Dienstag", " Mittwoch", "Donnerstag", " Freitag", " Samstag", " Sonntag" }; // All headers
@@ -1288,15 +1288,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       mtblCalendar.addColumn(headers[i]);
     }
 
-    // No resize/reorder
+    tblCalendar = new JTable(mtblCalendar); // kennt seine Höhe
+    tblCalendar.setRowHeight(58); // 58 // Set row/column count
     tblCalendar.getTableHeader().setResizingAllowed(false);
     tblCalendar.getTableHeader().setReorderingAllowed(false);
-
-    // Single cell selection
+    tblCalendar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     tblCalendar.setColumnSelectionAllowed(true);
     tblCalendar.setRowSelectionAllowed(true);
-    tblCalendar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
     tblCalendar.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
@@ -1307,10 +1305,26 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
     });
 
-    // Set row/column count
-    tblCalendar.setRowHeight(58); // 58
-    mtblCalendar.setColumnCount(7);
-    mtblCalendar.setRowCount(6);
+    btnPrev = new JButton("     <<-     ");
+    lblMonth = new JButton("heute");
+    btnNext = new JButton("     ->>     ");
+
+    // Register action listeners
+    btnPrev.addActionListener(new btnPrev_Action());
+    lblMonth.addActionListener(new lblMonth_Action());
+    btnNext.addActionListener(new btnNext_Action());
+
+    JPanel pnlCalendarButtonPanel = new JPanel(new BorderLayout());
+    pnlCalendarButtonPanel.add(btnPrev, BorderLayout.WEST);
+    pnlCalendarButtonPanel.add(lblMonth, BorderLayout.CENTER);
+    pnlCalendarButtonPanel.add(btnNext, BorderLayout.EAST);
+
+    pnlCalendarPanel = new JPanel(new BorderLayout());
+    javax.swing.JScrollPane stblCalendar = new javax.swing.JScrollPane(tblCalendar);
+    pnlCalendarPanel.add(stblCalendar, BorderLayout.NORTH);
+    pnlCalendarPanel.add(pnlCalendarButtonPanel, BorderLayout.SOUTH);
+
+    northSideCalenderPanel.add(pnlCalendarPanel, BorderLayout.NORTH);
 
     // Get real month/year
     GregorianCalendar cal = new GregorianCalendar(); // Create calendar
@@ -1321,8 +1335,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     currentYear = realYear;
 
     // Refresh calendar
-    refreshCalendar(realDay, realMonth, realYear); // Refresh calendar
+    refreshCalendar(realDay, currentMonth, currentYear); // Refresh calendar
     // don't filter at startup
+    // updateFilterWithDate(0); // button Month
   }
 
   private void repaintCalendarButtons() {
@@ -1385,7 +1400,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     // Draw calendar
     for (int i = 1; i <= numberOfDays; i++) {
       int aktuell = i + startOfMonth - 3;
-      int row = new Integer(aktuell / 7);
+      int row = aktuell / 7;
       int column = aktuell % 7;
       String buchungStand = getBuchungString(new DataTypeDate(i, month + 1, year));
       CalendarString aValue = new CalendarString(i, buchungStand);
@@ -1393,7 +1408,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
 
     // Apply renderer
-    TblCalendarRenderer tblCalendarRenderer = new TblCalendarRenderer(realYear, realMonth, realDay,
+    TblCalendarRenderer tblCalendarRenderer = new TblCalendarRenderer(
+        realYear, realMonth, realDay,
         currentYear, currentMonth, day);
     tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), tblCalendarRenderer);
   }

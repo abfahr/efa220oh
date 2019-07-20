@@ -150,9 +150,7 @@ public class ICalendarExport {
   }
 
   private String getFilenameCSV(StorageObject persistence) {
-    String dir = Daten.userHomeDir;
-    String fname = dir
-        + (Daten.fileSep != null && !dir.endsWith(Daten.fileSep) ? Daten.fileSep : "")
+    String fname = Daten.efaDataDirectory 
         + persistence.data().getStorageObjectName() + ".csv";
     return fname;
   }

@@ -11,7 +11,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class TblCalendarRenderer extends DefaultTableCellRenderer {
   private static final long serialVersionUID = 8256072858414595273L;
 
-  int realYear, realMonth, realDay, currentDay, currentYear, currentMonth;
+  int realYear, realMonth, realDay;
+  int currentYear, currentMonth, currentDay;
 
   public TblCalendarRenderer(int realYear, int realMonth, int realDay,
       int currentYear, int currentMonth, int currentDay) {

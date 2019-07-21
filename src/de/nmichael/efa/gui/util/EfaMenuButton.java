@@ -280,7 +280,7 @@ public class EfaMenuButton {
     if (admin == null || admin.isAllowedEditBoatReservation()) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_BOATRESERVATIONS,
           International.getStringWithMnemonic("Administration"),
-          International.getStringWithMnemonic("Bootsreservierungen"),
+          International.getStringWithMnemonic("Reservierungen"),
           BaseFrame.getIcon("menu_boatreservations.png")));
     }
     if (admin == null || admin.isAllowedEditBoatDamages()) {

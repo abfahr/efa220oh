@@ -1284,7 +1284,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     // mtblCalendar.setColumnCount(7);
 
     // Add headers
-    String[] headers = { " Montag", " Dienstag", " Mittwoch", "Donnerstag", " Freitag", " Samstag", " Sonntag" }; // All headers
+    String[] headers = { " Montag", " Dienstag", " Mittwoch", " Donnerstag", " Freitag", " Samstag", " Sonntag" }; // All headers
     for (int i = 0; i < 7; i++) {
       mtblCalendar.addColumn(headers[i]);
     }

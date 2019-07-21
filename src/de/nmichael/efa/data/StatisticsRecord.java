@@ -1035,7 +1035,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       } else {
         return new String[] {
             International.getString("Bootsstatus"),
-            International.getString("Bootsreservierungen"),
+            International.getString("Reservierungen"),
             International.getString("Bootsschäden"),
             International.getString("Bootsschäden-Statistik"),
             International.getString("Vereinsarbeit")

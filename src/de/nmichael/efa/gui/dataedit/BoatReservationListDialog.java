@@ -38,43 +38,44 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class BoatReservationListDialog extends DataListDialog {
 
+  private static final String TITEL_BOOTRESERVIERUNGEN = International.getString("Reservierungen");
   private static final long serialVersionUID = 1L;
   boolean allowNewReservationsWeekly = true;
 
   public BoatReservationListDialog(Frame parent, AdminRecord admin) {
-    super(parent, International.getString("Bootsreservierungen"), Daten.project
+    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, admin);
     iniValues(null, true, true, true);
   }
 
   public BoatReservationListDialog(JDialog parent, AdminRecord admin) {
-    super(parent, International.getString("Bootsreservierungen"), Daten.project
+    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, admin);
     iniValues(null, true, true, true);
   }
 
   public BoatReservationListDialog(Frame parent, UUID boatId, AdminRecord admin) {
-    super(parent, International.getString("Bootsreservierungen"), Daten.project
+    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, admin);
     iniValues(boatId, true, true, true);
   }
 
   public BoatReservationListDialog(JDialog parent, UUID boatId, AdminRecord admin) {
-    super(parent, International.getString("Bootsreservierungen"), Daten.project
+    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, admin);
     iniValues(boatId, true, true, true);
   }
 
   public BoatReservationListDialog(Frame parent, UUID boatId, boolean allowNewReservations,
       boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
-    super(parent, International.getString("Bootsreservierungen"), Daten.project
+    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, null);
     iniValues(boatId, allowNewReservations, allowNewReservationsWeekly, allowEditDeleteReservations);
   }
 
   public BoatReservationListDialog(JDialog parent, UUID boatId, boolean allowNewReservations,
       boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
-    super(parent, International.getString("Bootsreservierungen"), Daten.project
+    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, null);
     iniValues(boatId, allowNewReservations, allowNewReservationsWeekly, allowEditDeleteReservations);
   }

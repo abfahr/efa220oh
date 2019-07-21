@@ -908,7 +908,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     this.abortSessionButton.setText(International.getString("Fahrt abbrechen")
         + (fkey ? " [F4]" : ""));
     this.lateEntryButton.setText(International.getString("Nachtrag") + (fkey ? " [F5]" : ""));
-    this.boatReservationButton.setText(International.getString("Bootsreservierungen")
+    this.boatReservationButton.setText(International.getString("Reservierungen")
         + (fkey ? " [F6]" : ""));
     this.clubworkButton.setText(International.getString("Vereinsarbeit")
         + (fkey ? " [Alt-F6]" : ""));
@@ -1238,7 +1238,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     String finishSession = EfaUtil.replace(
         Daten.efaConfig.getValueEfaDirekt_butFahrtBeenden().getValueText(), "<<<", "").trim();
     String boatReserve = (Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservieren() ?
-        International.getString("Bootsreservierungen") :
+        International.getString("Reservierungen") :
         International.getString("Bootsreservierungen"));
     if (listnr == 1 || listnr == 101) { // verfügbare Boote bzw. Personen
       if (listnr == 1) {

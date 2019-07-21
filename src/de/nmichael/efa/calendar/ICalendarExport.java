@@ -150,7 +150,7 @@ public class ICalendarExport {
   }
 
   private String getFilenameCSV(StorageObject persistence) {
-    String fname = Daten.efaDataDirectory 
+    String fname = Daten.efaBaseConfig.efaUserDirectory
         + persistence.data().getStorageObjectName() + ".csv";
     return fname;
   }
@@ -410,7 +410,7 @@ public class ICalendarExport {
     CalendarOutputter outputter = new CalendarOutputter();
     outputter.setValidating(true);
 
-    String path = Daten.efaBaseConfig.efaUserDirectory + Daten.fileSep;
+    String path = Daten.efaBaseConfig.efaUserDirectory;
     FileOutputStream foutohne = new FileOutputStream(path + title + extension);
     outputter.output(iCalendar, foutohne);
 

@@ -350,6 +350,9 @@ public class Dialog {
         String fileName = Daten.efaImagesDirectory + title + ".jpg";
         icon = new ImageIcon(fileName);
         if (icon.getIconHeight() < 0) {
+          Logger.log(Logger.WARNING, 
+              Logger.MSG_FILE_FILENOTFOUND,
+              "icon nicht gefunden: " + fileName);
           icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
         }
       } catch (Exception e) {

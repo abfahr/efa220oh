@@ -84,6 +84,7 @@ public class BoatReservationListDialog extends DataListDialog {
       boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
     // Lieblingsbreite der Datumsspalten
     minColumnWidths = new int[] { 200, 135, 135, 200, 135, 0 }; // abf
+    minColumnWidths = new int[] { 200, 200, 200, 200, 180, 0 }; // abf
 
     if (boatId != null) {
       this.filterFieldName = BoatReservationRecord.BOATID;

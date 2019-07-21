@@ -1274,6 +1274,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       if (Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton()) {
         listItems.add(ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"));
       }
+      listItems.add(ACTIONID_BOATINFOS + International.getString("Bootsinfos"));
+      listItems.add(ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung"));
       return listItems.toArray(new String[0]);
     }
     if (listnr == 3) { // nicht verfügbare Boote

@@ -60,7 +60,7 @@ public class ImportMetadata {
     if (type == TYPE_FAHRTENBUCH) {
       if (firstDate != null && lastDate != null) {
         s += " "
-            + International.getMessage("vom {day_from} bis {day_to}", firstDate.toString(),
+            + International.getMessage(" vom {day_from} bis {day_to}", firstDate.toString(),
                 lastDate.toString());
       }
       if (longtext) {

@@ -185,8 +185,8 @@ public class Daten {
   // ("./log/")
   public static String efaCfgDirectory = null; // Efa-Configverzeichnis, immer mit "/" am Ende
   // ("./cfg/")
-  public static String efaDocDirectory = null; // Efa-Doku-Verzeichnis, immer mit "/" am Ende
-  // ("./doc/")
+  public static String efaImagesDirectory = null; // Efa-Doku-Verzeichnis, immer mit "/" am Ende
+  // ("./images/")
   public static String efaFormattingDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am
   // Ende ("./fmt/")
   public static String efaBakDirectory = null; // Efa-Backupverzeichnis, immer mit "/" am Ende
@@ -731,9 +731,9 @@ public class Daten {
       haltProgram(HALT_DIRECTORIES);
     }
 
-    // ./doc
-    efaDocDirectory = efaMainDirectory + "doc" + fileSep;
-    if (!checkAndCreateDirectory(efaDocDirectory)) {
+    // ./images
+    efaImagesDirectory = efaBaseConfig.efaUserDirectory + "images" + fileSep;
+    if (!checkAndCreateDirectory(efaImagesDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
 
@@ -1275,8 +1275,8 @@ public class Daten {
         if (efaPluginDirectory != null) {
           infos.add("efa.dir.plugin=" + efaPluginDirectory);
         }
-        if (efaDocDirectory != null) {
-          infos.add("efa.dir.doc=" + efaDocDirectory);
+        if (efaImagesDirectory != null) {
+          infos.add("efa.dir.images=" + efaImagesDirectory);
         }
         if (efaDataDirectory != null) {
           infos.add("efa.dir.data=" + efaDataDirectory);

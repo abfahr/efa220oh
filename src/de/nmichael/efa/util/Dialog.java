@@ -341,6 +341,28 @@ public class Dialog {
     }
   }
 
+  public static void bootsinfoDialog(String title, String s) {
+    if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
+      Window frame = frameCurrent();
+      prepareWindow(frame);
+      ImageIcon icon = null;
+      try {
+        String fileName = Daten.efaImagesDirectory + title + ".jpg";
+        icon = new ImageIcon(fileName);
+        if (icon.getIconHeight() < 0) {
+          icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
+        }
+      } catch (Exception e) {
+        icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
+      }
+      JOptionPane.showConfirmDialog(frame, 
+          chopDialogString(s), title, -1,
+          JOptionPane.INFORMATION_MESSAGE, icon);
+    } else {
+      System.out.println("INFO" + ": " + s);
+    }
+  }
+
   public static void infoDialog(String s) {
     Dialog.infoDialog(International.getString("Information"), s);
   }

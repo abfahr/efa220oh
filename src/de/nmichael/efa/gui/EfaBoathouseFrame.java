@@ -96,6 +96,8 @@ import de.nmichael.efa.util.Mnemonics;
 
 public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
+  private static final String NEWLINE = "\n";
+
   private static final long serialVersionUID = 1L;
 
   public static EfaBoathouseFrame efaBoathouseFrame;
@@ -1303,7 +1305,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (s != null) {
       Dialog.error(s);
       Logger.log(Logger.ERROR, Logger.MSG_ERR_GENERIC,
-          EfaUtil.replace(s, "\n", " ", true));
+          EfaUtil.replace(s, NEWLINE, " ", true));
     }
     Daten.haltProgram(exitCode);
   }
@@ -2096,10 +2098,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           International.getString("Boot gesperrt"),
           International.getMessage("Das Boot {boat} ist laut Liste nicht verfügbar.",
               boatStatus.getBoatText())
-              + "\n"
-              + (boatStatus.getComment() != null ? International.getString("Bemerkung") + ": "
-                  + boatStatus.getComment() + "\n" : "")
-              + "\n"
+              + NEWLINE
+              + (boatStatus.getComment() != null ? 
+                  International.getString("Bemerkung") + ": "
+                  + boatStatus.getComment() + NEWLINE : "")
+              + NEWLINE
               + International.getString("Möchtest Du trotzdem das Boot benutzen?"))
         != Dialog.YES) {
         return false;
@@ -2137,17 +2140,17 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
               ? International.getString("zur Zeit")
                   : International.getMessage("in {x} Minuten", (int) validInMinutes)),
                   reservations[0].getPersonAsName())
-                  + "\n"
+                  + NEWLINE
                   + (reservations[0].getReason() != null && reservations[0].getReason().length() > 0
-                  ? International.getString("Grund") + ": " + reservations[0].getReason() + "\n"
+                  ? International.getString("Grund") + ": " + reservations[0].getReason() + NEWLINE
                       : "")
                       + (reservations[0].getContact() != null && reservations[0].getContact().length() > 0
                   ? International.getString("Telefon für Rückfragen") + ": "
-                      + reservations[0].getContact() + "\n"
+                      + reservations[0].getContact() + NEWLINE
                   : "")
-                      + "\n"
+                      + NEWLINE
                       + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
-                          reservations[0].getReservationTimeDescription()) + "\n"
+                          reservations[0].getReservationTimeDescription()) + NEWLINE
                           + International.getString("Möchtest Du trotzdem das Boot benutzen?"));
       if (ergebnisYesNoCancelDialog != Dialog.YES) {
         return true;
@@ -2157,29 +2160,30 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   boolean checkBoatDamage(ItemTypeBoatstatusList.BoatListItem item, String questionText) {
-    BoatDamages boatDamages = Daten.project.getBoatDamages(false);
     UUID boatId = null;
     if (item.boatStatus != null && item.boatStatus.getBoatId() != null) {
       boatId = item.boatStatus.getBoatId();
     }
     if (item.boat != null && item.boat.getId() != null) {
-      boatId = item.boatStatus.getBoatId();
+      boatId = item.boat.getId();
     }
-    BoatDamageRecord[] damages = (boatId != null ?
-        boatDamages.getBoatDamages(boatId, true, true) : null);
+    BoatDamageRecord[] damages = null;
+    if (boatId != null) {
+      BoatDamages boatDamages = Daten.project.getBoatDamages(false);
+      damages = boatDamages.getBoatDamages(boatId, true, true);
+    }
     if (damages != null && damages.length > 0) {
       if (Dialog.yesNoDialog(
           International.getString("Bootsschaden gemeldet"),
           International.getMessage("Für das Boot {boat} wurde folgender Bootsschaden gemeldet:",
               item.boatStatus.getBoatText())
-              + "\n"
-              + "\""
-              + damages[0].getDescription()
-              + "\"\n"
-              + International.getString("Schwere des Schadens")
-              + ": "
+              + NEWLINE
+              + "\"" + damages[0].getDescription() + "\"" 
+              + NEWLINE
+              + International.getString("Schwere des Schadens") + ": "
               + damages[0].getSeverityDescription()
-              + "\n\n"
+              + NEWLINE 
+              + NEWLINE
               + questionText)
         != Dialog.YES) {
         return false;
@@ -2376,7 +2380,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     switch (Dialog.auswahlDialog(International.getString("Fahrt abbrechen"),
         International.getMessage("Die Fahrt des Bootes {boat} sollte nur abgebrochen werden, "
             + "wenn sie nie stattgefunden hat.", item.boatStatus.getBoatText())
-            + "\n"
+            + NEWLINE
             + International.getString("Was möchtest Du tun?"),
         International.getString("Fahrt abbrechen"),
         International.getString("Fahrt abbrechen")
@@ -2628,27 +2632,52 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (item == null || item.boat == null) {
       Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
       boatListRequestFocus(1);
-      efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt
-      // der Thread ihn richtig!
+      // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+      efaBoathouseBackgroundTask.interrupt();
       return;
     }
     try {
       StringBuilder s = new StringBuilder();
-      s.append(International.getString("Boot") + ": " + item.boat.getQualifiedName() + "\n\n");
-      for (int i = 0; i < item.boat.getNumberOfVariants(); i++) {
-        s.append(item.boat.getDetailedBoatType(i) + "\n");
-      }
+      s.append(International.getString("Boot") + ": " + item.boat.getQualifiedName() + NEWLINE);
+      s.append("Eigentümer: " + item.boat.getAsText(BoatRecord.OWNER) + NEWLINE);
+      s.append("Anschaffung: " + item.boat.getAsText(BoatRecord.PURCHASEDATE) + NEWLINE);
+      s.append("Kategorie: " + item.boat.getAsText(BoatRecord.TYPESEATS).split(";")[0] + NEWLINE);
+      s.append("Bootstyp: " + item.boat.getAsText(BoatRecord.TYPETYPE).split(";")[0] + NEWLINE);
+      s.append("Paddel-Art: " + item.boat.getAsText(BoatRecord.TYPERIGGING).split(";")[0] + NEWLINE);
+      s.append("Coxing: " + item.boat.getAsText(BoatRecord.TYPECOXING).split(";")[0] + NEWLINE);
+      
       if (item.boat.getMaxCrewWeight() > 0) {
-        s.append("\n" + International.getString("Maximales Mannschaftsgewicht") + ": " +
-            item.boat.getMaxCrewWeight());
+        s.append(International.getString("Maximales Mannschaftsgewicht") + ": " +
+            item.boat.getMaxCrewWeight() + NEWLINE);
       }
       String groups = item.boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
       if (groups.length() > 0) {
-        s.append("\n\n" + International.getString("Gruppen, die dieses Boot benutzen dürfen")
-            + ":\n" +
-            groups);
+        s.append(NEWLINE + International.getString("Gruppen, die dieses Boot benutzen dürfen")
+            + ":" + NEWLINE + groups);
       }
-      Dialog.infoDialog(s.toString());
+      
+      s.append(NEWLINE);
+      s.append("Ort: " + "Liegt im Bootshaus am Isekai (todo)" + NEWLINE);
+      String fileName = item.boat.getName() + ".jpg";
+      s.append("Foto: " + "so sieht das Boot aus ("+ fileName +")" + NEWLINE);
+      String currentStatus = item.boatStatus.getCurrentStatus();
+      String statusDescription = BoatStatusRecord.getStatusDescription(currentStatus);
+      s.append("Bootsstatus: " + statusDescription + NEWLINE);
+      BoatDamages boatDamages = Daten.project.getBoatDamages(false);
+      BoatDamageRecord[] damages = boatDamages.getBoatDamages(item.boat.getId(), true, true);
+      s.append("Bootsschäden: " + (damages==null ? 0 : damages.length) + NEWLINE);
+      if (damages != null) {
+        for (BoatDamageRecord damage : damages) {
+          if (!damage.getFixed()) {
+            s.append("Bootsschaden: " + damage.getDescription() + NEWLINE);
+          }
+        }
+      }
+      s.append(NEWLINE);
+      s.append(International.getString("Letzte Benutzung") + ": " + NEWLINE);
+      s.append(getLastBoatUsageString(item.boat.getId()) + NEWLINE);
+      
+      Dialog.bootsinfoDialog(item.boat.getName(), s.toString());
     } catch (Exception e) {
       Logger.logdebug(e);
       Dialog.error(e.getMessage());
@@ -2670,13 +2699,20 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       // der Thread ihn richtig!
       return;
     }
-    LogbookRecord latest = logbook.getLastBoatUsage(item.boat.getId(), null);
+    String lastBoatUsageString = getLastBoatUsageString(item.boat.getId());
+    lastBoatUsageString = International.getString("Letzte Benutzung") + ": " + NEWLINE + lastBoatUsageString;
+    Dialog.infoDialog(lastBoatUsageString);
+  }
+
+  private String getLastBoatUsageString(UUID id) {
+    String latestString = "";
+    LogbookRecord latest = logbook.getLastBoatUsage(id, null);
     if (latest != null) {
-      Dialog.infoDialog(International.getString("Letzte Benutzung") + ":\n"
-          + latest.getLogbookRecordAsStringDescription());
+      latestString = latest.getLogbookRecordAsStringDescription();
     } else {
-      Dialog.infoDialog(International.getString("Keinen Eintrag gefunden!"));
+      latestString = International.getString("Keinen Eintrag gefunden!");
     }
+    return latestString;
   }
 
   void efaButton_actionPerformed(ActionEvent e) {
@@ -2728,21 +2764,22 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           if (html == null || !EfaUtil.canOpenFile(html)) {
             html = Daten.efaTmpDirectory + "locked.html";
             try {
-              String img = EfaUtil.saveImage("efaLocked.png", "png", Daten.efaTmpDirectory,
-                  true, false, false);
+              String img = EfaUtil.saveImage("efaLocked.png", "png", 
+                  Daten.efaTmpDirectory, true, false, false);
               BufferedWriter f = new BufferedWriter(new FileWriter(html));
               f.write("<html><body><h1 align=\"center\">"
-                  + International.getString("efa ist für die Benutzung gesperrt") + "</h1>\n");
+                  + International.getString("efa ist für die Benutzung gesperrt")
+                  + "</h1>" + NEWLINE);
               f.write("<p align=\"center\"><img src=\"" + img
-                  + "\" align=\"center\" width=\"256\" height=\"256\"></p>\n");
+                  + "\" align=\"center\" width=\"256\" height=\"256\"></p>" + NEWLINE);
               f.write("<p align=\"center\">"
                   + International
                   .getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")
-                  + "</p>\n");
+                  + "</p>" + NEWLINE);
               if (endeDerSperrung.length() > 0) {
-                f.write("<p align=\"center\">" + endeDerSperrung + "</p>\n");
+                f.write("<p align=\"center\">" + endeDerSperrung + "</p>" + NEWLINE);
               }
-              f.write("</body></html>\n");
+              f.write("</body></html>" + NEWLINE);
               f.close();
             } catch (Exception e) {
               EfaUtil.foo();
@@ -2760,8 +2797,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           browser.setModal(true);
           Dialog.setDlgLocation(browser, frame);
           browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
-          Logger
-          .log(
+          Logger.log(
               Logger.INFO,
               Logger.MSG_EVT_LOCKED,
               International

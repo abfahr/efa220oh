@@ -258,6 +258,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     centerTableListPanel.add(searchPanel, gridBagConstraints);
     searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, "SEARCH_CAT",
         International.getString("Suche"));
+    // TODO abf 2019-07-21 braucht man die nächste Zeile? 300,-1 
     searchField.setFieldSize(300, -1);
     searchField.registerItemListener(this);
     searchField.displayOnGui(dlg, searchPanel, 0, 0);
@@ -336,7 +337,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     iniDisplayActionTable(dlg);
     GridBagConstraints gridBagConstraints = new GridBagConstraints(
         x, y,
-        fieldGridWidth, fieldGridHeight,
+        fieldGridWidth, fieldGridHeight, // 1,1 // TODO abf 2019-07-21 
         0.0, 0.0,
         fieldGridAnchor, fieldGridFill,
         new Insets(padYbefore, padXbefore, padYafter, padXafter),
@@ -1279,8 +1280,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   private void drawCalendar() {
 
     mtblCalendar = new CalendarTableModel(); // egal nur Model 6x7tage
-    mtblCalendar.setRowCount(6);  // Set row/column count
-    // mtblCalendar.setColumnCount(7); // Set row/column count
+    mtblCalendar.setRowCount(6);
+    // mtblCalendar.setColumnCount(7);
 
     // Add headers
     String[] headers = { " Montag", " Dienstag", " Mittwoch", "Donnerstag", " Freitag", " Samstag", " Sonntag" }; // All headers
@@ -1320,8 +1321,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     pnlCalendarButtonPanel.add(btnNext, BorderLayout.EAST);
 
     pnlCalendarPanel = new JPanel(new BorderLayout());
-    javax.swing.JScrollPane stblCalendar = new javax.swing.JScrollPane(tblCalendar);
-    pnlCalendarPanel.add(stblCalendar, BorderLayout.NORTH);
+    pnlCalendarPanel.add(tblCalendar.getTableHeader(), BorderLayout.NORTH);
+    pnlCalendarPanel.add(tblCalendar, BorderLayout.CENTER);
     pnlCalendarPanel.add(pnlCalendarButtonPanel, BorderLayout.SOUTH);
 
     northSideCalenderPanel.add(pnlCalendarPanel, BorderLayout.NORTH);

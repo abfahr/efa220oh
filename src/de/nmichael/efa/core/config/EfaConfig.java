@@ -201,6 +201,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaBoathouseOnlyEnterKnownDestinations;
   private ItemTypeBoolean efaBoathouseOnlyEnterKnownWaters;
   private ItemTypeBoolean efaDirekt_eintragHideUnnecessaryInputFields;
+  private ItemTypeBoolean efaDirekt_AlteReservierungDurchsuchen;
+  private ItemTypeBoolean efaDirekt_FindenNachHaeufigsterStattNeuesterReservierung;
   private ItemTypeInteger efaDirekt_plusMinutenAbfahrt;
   private ItemTypeInteger efaDirekt_minusMinutenAnkunft;
   private ItemTypeBoolean allowEnterEndDate;
@@ -841,37 +843,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("nicht-verfügbare enden automatisch nach Ablauf")));
-      addParameter(regexForVorUndNachname = new ItemTypeString(
-          "regexForVorUndNachname",
-          "^\\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,} \\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,}$",
-          IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("regex für Mitgliedsname")));
-      addParameter(regexForHandynummer = new ItemTypeString(
-          "regexForHandynummer",
-          "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("regex für Handynummer")));
-
-      addParameter(textPrivatMitVertrag = new ItemTypeString(
-          "textPrivatMitVertrag",
-          "zB. privat, aber mit Bootshausnutzungsvertrag", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("Fehlermeldung PrivatMitVertrag")));
-      addParameter(textBadMitgliedsname = new ItemTypeString(
-          "textBadMitgliedsname",
-          "unmöglicher Mitgliedsname!", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("Fehlermeldung bei BadMitgliedsname")));
-      addParameter(textBadHandynummer = new ItemTypeString(
-          "textBadHandynummer",
-          "Vorwahl kenntlich machen --", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("Fehlermeldung bei BadHandynummer")));
-      addParameter(minimumDauerFuerKulanz = new ItemTypeDouble(
-          "minimumDauerFuerKulanz", 48, 0, 9999, IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("Regeltermin: Minimum Dauer für Kulanz (in Std.)")));
 
       addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
           IItemType.TYPE_PUBLIC,
@@ -998,13 +969,53 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International.getString("Beim Eintrag von Fahrten unnötige Eingabefelder ausblenden")));
       addParameter(efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen = new ItemTypeBoolean(
-          "InputDistanceNotEditableForKnownDestinations",
-          false,
-          IItemType.TYPE_EXPERT,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International
+          "InputDistanceNotEditableForKnownDestinations", false, IItemType.TYPE_EXPERT,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT), International
           .getString("Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert werden")));
 
+      // abf 2019-07-23
+      addParameter(efaDirekt_AlteReservierungDurchsuchen = new ItemTypeBoolean(
+          "AlteReservierungDurchsuchen", true,
+          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("Telefon und Grund in alten Reservierungen suchen")));
+      addParameter(efaDirekt_FindenNachHaeufigsterStattNeuesterReservierung = new ItemTypeBoolean(
+          "FindenNachHaeufigsterStattNeuesterReservierung", false,
+          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("+ Finden nach häufigster statt neuester Reservierung")));
+
+      
+      addParameter(regexForVorUndNachname = new ItemTypeString(
+          "regexForVorUndNachname",
+          "^\\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,} \\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,}$",
+          IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("regex für Mitgliedsname")));
+      addParameter(regexForHandynummer = new ItemTypeString(
+          "regexForHandynummer",
+          "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("regex für Handynummer")));
+
+      addParameter(textPrivatMitVertrag = new ItemTypeString(
+          "textPrivatMitVertrag",
+          "zB. privat, aber mit Bootshausnutzungsvertrag", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("Fehlermeldung PrivatMitVertrag")));
+      addParameter(textBadMitgliedsname = new ItemTypeString(
+          "textBadMitgliedsname",
+          "unmöglicher Mitgliedsname!", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("Fehlermeldung bei BadMitgliedsname")));
+      addParameter(textBadHandynummer = new ItemTypeString(
+          "textBadHandynummer",
+          "Vorwahl kenntlich machen --", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("Fehlermeldung bei BadHandynummer")));
+      addParameter(minimumDauerFuerKulanz = new ItemTypeDouble(
+          "minimumDauerFuerKulanz", 48, 0, 9999, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("Regeltermin: Minimum Dauer für Kulanz (in Std.)")));
+      
       // ============================= BOATHOUSE:GUI =============================
       addParameter(efaDirekt_startMaximized = new ItemTypeBoolean("EfaBoathouseWindowMaximized",
           true,
@@ -1913,6 +1924,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean getValueEfaDirekt_eintragHideUnnecessaryInputFields() {
     return efaDirekt_eintragHideUnnecessaryInputFields.getValue();
+  }
+
+  public boolean getValueEfaDirekt_AlteReservierungDurchsuchen() {
+    return efaDirekt_AlteReservierungDurchsuchen.getValue();
+  }
+  public boolean getValueEfaDirekt_FindenNachHaeufigsterStattNeuesterReservierung() {
+    return efaDirekt_FindenNachHaeufigsterStattNeuesterReservierung.getValue();
   }
 
   public int getValueEfaDirekt_plusMinutenAbfahrt() {

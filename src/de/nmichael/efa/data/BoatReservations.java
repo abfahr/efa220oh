@@ -104,6 +104,25 @@ public class BoatReservations extends StorageObject {
     return r;
   }
 
+  public BoatReservationRecord[] getBoatReservationsByPerson(UUID personId) {
+    try {
+      DataKey<?, ?, ?>[] keys = data().getByFields(
+              new String[] { BoatReservationRecord.PERSONID }, 
+              new Object[] { personId });
+      if (keys == null || keys.length == 0) {
+        return null;
+      }
+      BoatReservationRecord[] recs = new BoatReservationRecord[keys.length];
+      for (int i = 0; i < keys.length; i++) {
+        recs[i] = (BoatReservationRecord) data().get(keys[i]);
+      }
+      return recs;
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      return null;
+    }
+  }
+
   public BoatReservationRecord[] getBoatReservations(UUID boatId) {
     try {
       DataKey<?, ?, ?>[] keys = data()

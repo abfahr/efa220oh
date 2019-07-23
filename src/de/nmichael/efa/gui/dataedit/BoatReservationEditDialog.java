@@ -40,6 +40,7 @@ import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 public class BoatReservationEditDialog extends UnversionizedDataEditDialog implements IItemListener {
@@ -172,8 +173,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
           findAnyPreviousReservation((ItemTypeStringAutoComplete) item);
         }
       } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        Logger.log(Logger.WARNING, Logger.MSG_ERR_UNEXPECTED, e);
       }
     }
 

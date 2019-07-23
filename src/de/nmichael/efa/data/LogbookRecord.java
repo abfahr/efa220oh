@@ -643,7 +643,9 @@ public class LogbookRecord extends DataRecord {
         id = getCrewId(pos);
       }
       if (id != null) {
-        return getPersistence().getProject().getPersons(false).getPerson(id, validAt);
+        Persons personsDB = getPersistence().getProject().getPersons(false);
+        PersonRecord person = personsDB.getPerson(id, validAt);
+        return person;
       }
     } catch (Exception e) {
       Logger.logdebug(e);
@@ -697,14 +699,14 @@ public class LogbookRecord extends DataRecord {
     }
     PersonRecord p = getPersonRecord(pos, validAt);
     if (p != null) {
-      name = p.getQualifiedName();
+      name = p.getQualifiedName() + "!";
     }
-    if (name == null || name.length() == 0) {
+    if (name == null || name.length() < 2) {
       if (pos == 0) {
-        name = getCoxName();
+        name = getCoxName() + "?";
       }
       if (pos >= 1 && pos <= CREW_MAX) {
-        name = getCrewName(pos);
+        name = getCrewName(pos) + "?";
       }
     }
     if (name != null) {
@@ -737,7 +739,8 @@ public class LogbookRecord extends DataRecord {
     Vector<String> v = new Vector<String>();
     String s;
     for (int i = 0; i <= CREW_MAX; i++) {
-      if ((s = getPersonAsName(i, validAt)).length() > 0) {
+      s = getPersonAsName(i, validAt);
+      if (s.length() > 0) {
         v.add(s);
       }
     }
@@ -750,10 +753,14 @@ public class LogbookRecord extends DataRecord {
 
   public String getAllCoxAndCrewAsNameString(long validAt) {
     Vector<String> v = getAllCoxAndCrewAsNames(validAt);
+    if (v == null) {
+      return "";
+    }
     String sep = (Daten.efaConfig.getValueNameFormatIsFirstNameFirst() ? ", " : "; ");
     StringBuffer s = new StringBuffer();
-    for (int i = 0; v != null && i < v.size(); i++) {
-      s.append((s.length() > 0 ? sep : "") + v.get(i));
+    for (int i = 0; i < v.size(); i++) {
+      String aufzaehlung = s.length() > 0 ? sep : "";
+      s.append(aufzaehlung + v.get(i));
     }
     return s.toString();
   }

@@ -65,10 +65,9 @@ public class Daten {
   public final static String VERSION = "2.2.0"; 
 
   // VersionsID: Format: "X.Y.Z_MM";
-  // final-Version z.B. 1.4.0_00; beta-Version
-  // z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_13"; 
-  public final static String VERSIONRELEASEDATE = "21.07.2019"; // Release Date: TT.MM.JJJJ
+  // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONID = "2.2.0_14"; 
+  public final static String VERSIONRELEASEDATE = "23.07.2019"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -632,7 +631,7 @@ public class Daten {
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
         International.getString("PROGRAMMSTART"));
     Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
-        "Version efa: " + VERSIONID + "vom " + VERSIONRELEASEDATE + " -- Java: " + javaVersion + " (JVM "
+        "Version efa: " + VERSIONID + " vom " + VERSIONRELEASEDATE + " -- Java: " + javaVersion + " (JVM "
             + jvmVersion + ") -- OS: " + osName + " " + osVersion);
 
     if (Logger.isDebugLogging()) {

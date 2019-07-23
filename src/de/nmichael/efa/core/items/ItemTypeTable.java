@@ -62,8 +62,7 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
   private int _moveRowSelectionUponNextRefresh = 0;
 
   public ItemTypeTable(String name, TableItemHeader[] header, Hashtable<String, TableItem[]> items,
-      String value,
-      int type, String category, String description) {
+      String value, int type, String category, String description) {
     ini(name, header, items, value, type, category, description);
   }
 
@@ -267,6 +266,10 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
     scrollPane.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
     scrollPane.setMinimumSize(new Dimension(fieldWidth, fieldHeight));
     // TODO abf 2019-07-20 
+    // fieldGridAnchor = GridBagConstraints.CENTER; // 10?
+    // fieldGridFill = GridBagConstraints.NONE; // 1?
+    // fieldGridAnchor = GridBagConstraints.CENTER; // 10?
+    // fieldGridFill = GridBagConstraints.BOTH; // 1?
     showValue();
   }
 

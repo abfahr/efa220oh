@@ -4862,8 +4862,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     String infoText = null;
     if (r != null) {
       long tstmp = r.getValidAtTimestamp();
-      infoText = "#" + r.getEntryId().toString() + " - " + r.getBoatAsName(tstmp) + " " +
-          International.getMessage("mit {crew}", r.getAllCoxAndCrewAsNameString(tstmp));
+      infoText = "#" + r.getEntryId().toString() + " - " + r.getBoatAsName(tstmp) + " ";
+      infoText += International.getMessage("mit {crew}", r.getAllCoxAndCrewAsNameString(tstmp));
     }
     return msg + (infoText != null ? ": " + infoText : "");
   }

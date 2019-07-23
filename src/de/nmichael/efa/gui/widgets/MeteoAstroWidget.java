@@ -344,9 +344,10 @@ public class MeteoAstroWidget extends Widget {
     htmlPane.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
-        if (getHtmlPopupUrl() != null && getHtmlPopupUrl().length() > 0) {
+        String htmlPopupUrl = getHtmlPopupUrl();
+        if (htmlPopupUrl != null && htmlPopupUrl.length() > 0) {
           new HtmlPopupDialog(getDescription(),
-              getHtmlPopupUrl(),
+              htmlPopupUrl,
               getPopupExecCommand(),
               getHtmlPopupWidth(), getHtmlPopupHeight(), 60).showDialog();
         }

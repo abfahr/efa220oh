@@ -241,8 +241,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         persistence, validAt, admin,
         filterFieldName, filterFieldValue, // defaults are null
         actionText, actionType, actionImage, // default actions: new, edit, delete
-        this,
-        IItemType.TYPE_PUBLIC, "BASE_CAT", getTitle());
+        this, IItemType.TYPE_PUBLIC, "BASE_CAT", getTitle());
     table.setSorting(sortByColumn, sortAscending);
     table.setFontSize(tableFontSize);
     table.setMarkedCellColor(markedCellColor);
@@ -256,8 +255,10 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     }
     table.setButtonPanelPosition(BorderLayout.SOUTH);
     table.setFieldSize(900, 500);
-    table.setPadding(0, 0, 10, 0);
-    table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);
+    table.setPadding(0, 0, 10, 0); // yBefore = 10
+    //table.setFieldGrid(-1, -1, GridBagConstraints.BOTH);
+    //table.setHorizontalAlignment(SwingConstants.HORIZONTAL);
+    table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER); // HIER??
 
     boolean hasEditAction = false;
     for (int i = 0; actionType != null && i < actionType.length; i++) {

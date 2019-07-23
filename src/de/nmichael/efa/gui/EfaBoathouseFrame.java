@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -28,6 +29,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -283,11 +285,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   private void iniGuiBase() {
-    setIconImage(Toolkit.getDefaultToolkit().createImage(
-        EfaBaseFrame.class.getResource("/de/nmichael/efa/img/efa_icon.png")));
+    URL iconResource = EfaBaseFrame.class.getResource("/de/nmichael/efa/img/efa_icon.png");
+    Image iconImage = Toolkit.getDefaultToolkit().createImage(iconResource);
+    setIconImage(iconImage);
+    
     mainPanel.setLayout(new BorderLayout());
     setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     setResizable(false);
+
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
@@ -385,8 +390,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     southPanel.add(widgetBottomPanel, BorderLayout.CENTER);
     westPanel.add(widgetLeftPanel, BorderLayout.WEST);
     eastPanel.add(widgetRightPanel, BorderLayout.EAST);
-    centerPanel.add(widgetCenterPanel, new GridBagConstraints(1, 100, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 10, 10, 10), 0, 0));
+    GridBagConstraints gridBagConstraints = new GridBagConstraints(
+        1, 19, 
+        1, 1, 
+        0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, 
+        new Insets(5, 10, 10, 10), 
+        0, 0);
+    centerPanel.add(widgetCenterPanel, gridBagConstraints);
 
     // Color bg = new Color(0, 170, 0);
     // northPanel.setBackground(bg);
@@ -446,26 +457,23 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     // Fenster nicht verschiebbar
     if (Daten.efaConfig.getValueEfaDirekt_fensterNichtVerschiebbar()) {
       try {
-        // must be called before any packing of the frame, since packing makes the frame
-        // displayable!
+        // must be called before any packing of the frame,
+        // since packing makes the frame displayable!
         this.setUndecorated(true);
+
         Color bgColor = new Color(0, 0, 170);
-
-        EmptyBorder b = new EmptyBorder(2, 2, 2, 2);
         mainPanel.setBackground(bgColor);
-        mainPanel.setBorder(b);
+        mainPanel.setBorder(new EmptyBorder(2, 2, 2, 2));
 
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setLayout(new BorderLayout());
-        menuBar.setBackground(bgColor);
-        menuBar.setForeground(Color.white);
         JLabel efaLabel = new JLabel();
         efaLabel.setIcon(getIcon("efa_icon_small.png"));
+
         titleLabel.setText(Daten.EFA_LONGNAME);
         titleLabel.setForeground(Color.white);
         titleLabel.setFont(titleLabel.getFont().deriveFont(12f));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+
         JButton closeButton = new JButton();
         closeButton.setIcon(getIcon("frame_close.png"));
         closeButton.setBackground(bgColor);
@@ -478,10 +486,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             cancel();
           }
         });
+
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setLayout(new BorderLayout());
+        menuBar.setBorder(new EmptyBorder(4, 10, 2, 10));
+        menuBar.setBackground(bgColor);
+        menuBar.setForeground(Color.white);        
         menuBar.add(efaLabel, BorderLayout.WEST);
         menuBar.add(titleLabel, BorderLayout.CENTER);
         menuBar.add(closeButton, BorderLayout.EAST);
-        menuBar.setBorder(new EmptyBorder(2, 5, 2, 5));
         menuBar.validate();
         this.setJMenuBar(menuBar);
       } catch (NoSuchMethodError e) {
@@ -666,7 +679,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         logoBottom = 0;
       }
     }
-    centerPanel.add(logoLabel, new GridBagConstraints(1, 0, 1, 2, 0.0, 0.0,
+    int yPlacement = 0;
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    if (screenSize.getHeight()<1234) {      
+      yPlacement = 22;
+    }
+    centerPanel.add(logoLabel, new GridBagConstraints(1, yPlacement, 1, 2, 0.0, 0.0,
         GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(logoTop, 0, 0+logoBottom, 0),
         0, 0));
 
@@ -974,14 +992,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     Vector<IWidget> allWidgets = Widget.getAllWidgets();
     for (int i = 0; allWidgets != null && i < allWidgets.size(); i++) {
       IWidget w = allWidgets.get(i);
-      IItemType enabled = Daten.efaConfig.getExternalGuiItem(w
-          .getParameterName(Widget.PARAM_ENABLED));
-      if (enabled != null && enabled instanceof ItemTypeBoolean
+      String parameterName = w.getParameterName(Widget.PARAM_ENABLED);
+      IItemType enabled = Daten.efaConfig.getExternalGuiItem(parameterName);
+      if (enabled != null 
+          && enabled instanceof ItemTypeBoolean
           && ((ItemTypeBoolean) enabled).getValue()) {
         // set parameters for this enabled widget according to configuration
         IItemType[] params = w.getParameters();
         for (IItemType param : params) {
-          param.parseValue(Daten.efaConfig.getExternalGuiItem(param.getName()).toString());
+          IItemType externalGuiItem = Daten.efaConfig.getExternalGuiItem(param.getName());
+          param.parseValue(externalGuiItem.toString());
         }
         widgets.add(w);
       }
@@ -1026,11 +1046,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   private void statusLabelSetText(String s) {
     statusLabel.setText(s);
     // wenn Text zu lang, dann PreferredSize verringern, damit bei pack() die zu große Label-Breite
-    // nicht
-    // zum Vergrößern des Fensters führt!
+    // nicht zum Vergrößern des Fensters führt!
     if (statusLabel.getPreferredSize().getWidth() > this.getSize().getWidth()) {
-      statusLabel.setPreferredSize(new Dimension((int) this.getSize().getWidth() - 20,
-          (int) statusLabel.getPreferredSize().getHeight()));
+      Dimension dimension = new Dimension(
+          (int) this.getSize().getWidth() - 20,
+          (int) statusLabel.getPreferredSize().getHeight());
+      statusLabel.setPreferredSize(dimension);
     }
   }
 

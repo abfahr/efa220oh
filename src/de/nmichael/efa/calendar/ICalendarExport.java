@@ -398,7 +398,7 @@ public class ICalendarExport {
     String extension = ".ics";
     String description = title + " vom " + dateTimeStamp;
 
-    iCalendar.getProperties().add(new ProdId("-//Arndt Boris Fahr//iCal4j 1.0//EN"));
+    iCalendar.getProperties().add(new ProdId("-//Boris Fahr//iCal4j 1.0//EN"));
     iCalendar.getProperties().add(Version.VERSION_2_0);
     iCalendar.getProperties().add(CalScale.GREGORIAN);
     iCalendar.getProperties().add(new XProperty("X-WR-CALNAME", title));

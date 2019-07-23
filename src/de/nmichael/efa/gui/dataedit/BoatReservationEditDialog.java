@@ -217,7 +217,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     }
     Persons persons = Daten.project.getPersons(false);
     PersonRecord person = persons.getPerson(personId, System.currentTimeMillis());
-    if (person.getInputShortcut().isEmpty()) {
+    String inputShortcut = person.getInputShortcut();
+    if (inputShortcut == null || inputShortcut.isEmpty()) {
       return;
     }
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);

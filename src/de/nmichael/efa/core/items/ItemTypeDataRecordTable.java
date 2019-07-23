@@ -128,7 +128,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected JPanel northSideCalenderPanel;
   protected JPanel rightSouthSideButtonPanel;
   protected JPanel pnlCalendarPanel;
-  protected JPanel buttonPanel;
   protected JPanel searchPanel;
   protected Hashtable<ItemTypeButton, String> actionButtons;
   protected static final String ACTION_BUTTON = "ACTION_BUTTON";
@@ -164,6 +163,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     renderer.setMarkedForegroundColor(markedCellColor);
     renderer.setMarkedBold(markedCellBold);
     renderer.setMarkedBackgroundColor(null);
+    // TODO abf 2019-07-23 hier noch bei this.xxxx die Breite einstellen
   }
 
   protected void setData(StorageObject persistence, long validAt, AdminRecord admin,
@@ -244,8 +244,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       drawCalendar();
     }
 
-    centerTableListPanel = new JPanel();
-    centerTableListPanel.setLayout(new GridBagLayout());
     searchPanel = new JPanel();
     searchPanel.setLayout(new GridBagLayout());
     GridBagConstraints gridBagConstraints = new GridBagConstraints(
@@ -255,9 +253,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
         new Insets(0, 0, 0, 0),
         0, 0);
+    centerTableListPanel = new JPanel();
+    centerTableListPanel.setLayout(new GridBagLayout());
     centerTableListPanel.add(searchPanel, gridBagConstraints);
-    searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, "SEARCH_CAT",
-        International.getString("Suche"));
+    searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, 
+        "SEARCH_CAT", International.getString("Suche"));
     // TODO abf 2019-07-21 braucht man die nächste Zeile? 300,-1 
     searchField.setFieldSize(300, -1);
     searchField.registerItemListener(this);
@@ -267,13 +267,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     filterBySearch.registerItemListener(this);
     filterBySearch.displayOnGui(dlg, searchPanel, 10, 0);
 
+    JPanel buttonPanelWestMain;
+    buttonPanelWestMain = new JPanel();
+    buttonPanelWestMain.setLayout(new GridBagLayout());
+    buttonPanelWestMain.setAlignmentY(Component.TOP_ALIGNMENT);
+    JPanel buttonPanelEastAdditional;
+    buttonPanelEastAdditional = new JPanel();
+    buttonPanelEastAdditional.setLayout(new GridBagLayout());
+    buttonPanelEastAdditional.setAlignmentY(Component.TOP_ALIGNMENT);
     rightSouthSideButtonPanel = new JPanel(new BorderLayout());
-    rightSouthSideButtonPanel.setBorder(new EmptyBorder(20, 0, 15, 10));
-    // rightSidePanel.setAlignmentY(Component.TOP_ALIGNMENT);
-    buttonPanel = new JPanel();
-    buttonPanel.setLayout(new GridBagLayout());
-    buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-    rightSouthSideButtonPanel.add(buttonPanel, BorderLayout.CENTER);
+    rightSouthSideButtonPanel.setBorder(new EmptyBorder(15, 100, 15, 100));
+    rightSouthSideButtonPanel.add(buttonPanelWestMain, BorderLayout.CENTER); // CENTER besser als WEST
+    rightSouthSideButtonPanel.add(buttonPanelEastAdditional, BorderLayout.EAST);
 
     myPanel = new JPanel();
     myPanel.setLayout(new BorderLayout());
@@ -283,18 +288,24 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
     actionButtons = new Hashtable<ItemTypeButton, String>();
     JPanel smallButtonPanel = null;
+    boolean isMainButtonsWestGroup = true;
     for (int i = 0; actionText != null && i < actionText.length; i++) {
       if (actionTypes[i] >= 2000) {
         continue; // actions >= 2000 not shown as buttons
       }
       String action = ACTION_BUTTON + "_" + actionTypes[i];
-      ItemTypeButton button = new ItemTypeButton(action, IItemType.TYPE_PUBLIC, "BUTTON_CAT",
-          (actionTypes[i] < 1000 ? actionText[i] : null)); // >= 2000 just as small buttons without
-      // text
+      // >= 2000 just as small buttons without text
+      String descriptionAction = actionTypes[i] < 1000 ? actionText[i] : null;
+      ItemTypeButton button = new ItemTypeButton(action, 
+          IItemType.TYPE_PUBLIC, "BUTTON_CAT", descriptionAction);
       button.registerItemListener(this);
       if (actionTypes[i] < 1000) {
-        button.setPadding(20, 20,
-            (i > 0 && actionTypes[i] < 0 && actionTypes[i - 1] >= 0 ? 20 : 0), 5);
+        int padYbefore2 = 0;
+        if (i > 0 && actionTypes[i] < 0 && actionTypes[i - 1] >= 0) { 
+          padYbefore2 = 36;
+          isMainButtonsWestGroup = false;
+        }
+        button.setPadding(20, 20, padYbefore2, 5);
         button.setFieldSize(200, -1);
       } else {
         button.setPadding(5, 5, 5, 5);
@@ -303,13 +314,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           smallButtonPanel = new JPanel();
           smallButtonPanel.setLayout(new GridBagLayout());
           GridBagConstraints gridBagConstraintsButtons = new GridBagConstraints(
-              0, i,
-              1, 1,
-              0.0, 0.0,
+              0, i, 1, 1, 0.0, 0.0,
               GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
               new Insets(20, 0, 20, 0),
               0, 0);
-          buttonPanel.add(smallButtonPanel, gridBagConstraintsButtons);
+          buttonPanelWestMain.add(smallButtonPanel, gridBagConstraintsButtons);
         }
       }
       if (actionIcons != null && i < actionIcons.length && actionIcons[i] != null) {
@@ -324,7 +333,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
       }
       if (actionTypes[i] < 1000) {
-        button.displayOnGui(dlg, buttonPanel, 0, i);
+        if (isMainButtonsWestGroup) {
+          button.displayOnGui(dlg, buttonPanelWestMain, 0, i);
+        } else {
+          button.displayOnGui(dlg, buttonPanelEastAdditional, 0, i);
+        }
       } else {
         button.displayOnGui(dlg, smallButtonPanel, i, 0);
       }

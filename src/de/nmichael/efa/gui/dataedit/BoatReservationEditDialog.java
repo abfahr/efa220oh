@@ -15,7 +15,11 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.swing.JDialog;
 
@@ -26,10 +30,13 @@ import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDate;
 import de.nmichael.efa.core.items.ItemTypeRadioButtons;
 import de.nmichael.efa.core.items.ItemTypeString;
+import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.core.items.ItemTypeTime;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
+import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
@@ -159,19 +166,14 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
         }
       }
 
-      // Hier Telefonnummer aus alter Reservierung kopieren
-      BoatReservationRecord rr = findAnyPreviousReservation(item);
-      if (rr != null) {
-        for (IItemType it : allGuiItems) {
-          if (it.getName().equals(BoatReservationRecord.REASON)) {
-            ItemTypeString phoneContactGuiField = (ItemTypeString) it;
-            phoneContactGuiField.setValue(rr.getReason());
-          }
-          if (it.getName().equals(BoatReservationRecord.CONTACT)) {
-            ItemTypeString phoneContactGuiField = (ItemTypeString) it;
-            phoneContactGuiField.setValue(rr.getContact());
-          }
+      try {
+        if (Daten.efaConfig.getValueEfaDirekt_AlteReservierungDurchsuchen()) {
+          // Hier Telefonnummer aus alter Reservierung übernehmen
+          findAnyPreviousReservation((ItemTypeStringAutoComplete) item);
         }
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
     }
 
@@ -206,21 +208,76 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     }
   }
 
-  private BoatReservationRecord findAnyPreviousReservation(IItemType item) {
-    // TODO
-    // UUID id = getPersonId();
-    // try {
-    // PersonRecord p = getPersistence().getProject().getPersons(false)
-    // .getPerson(id, System.currentTimeMillis());
-    // if (p != null) {
-    // return p.getQualifiedName();
-    // }
-    // } catch (Exception e) {
-    // Logger.logdebug(e);
-    // }
-    // return getPersonName();
+  private void findAnyPreviousReservation(ItemTypeStringAutoComplete item) {
+    boolean isMostStattLatest = Daten.efaConfig.getValueEfaDirekt_FindenNachHaeufigsterStattNeuesterReservierung();
 
-    return null;
+    UUID personId = (UUID) item.getAutoCompleteData().getId(item.getValueFromField());
+    if (personId == null) {
+      return;
+    }
+    Persons persons = Daten.project.getPersons(false);
+    PersonRecord person = persons.getPerson(personId, System.currentTimeMillis());
+    if (person.getInputShortcut().isEmpty()) {
+      return;
+    }
+    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
+    BoatReservationRecord[] oldReservations = boatReservations.getBoatReservationsByPerson(personId);
+    if (oldReservations == null) {
+      return;
+    }
+    BoatReservationRecord latestReservation = oldReservations[0];
+    List<String> listTelnums = new ArrayList<String>();
+    List<String> listReasons = new ArrayList<String>();
+    long latestModified = 0L;
+    String bestTelnum = "";
+    String bestReason = "";
+    for (BoatReservationRecord boatReservationRecord : oldReservations) {
+      listTelnums.add(boatReservationRecord.getContact());
+      listReasons.add(boatReservationRecord.getReason());
+      if (boatReservationRecord.getLastModified() > latestModified) {
+        latestModified = boatReservationRecord.getLastModified();
+        latestReservation = boatReservationRecord;
+        bestTelnum = boatReservationRecord.getContact();
+        bestReason = boatReservationRecord.getReason();
+      }
+    }
+    if (isMostStattLatest) {      
+      Map<String, Long> occurrencesTelnums = listTelnums.stream().collect(
+          Collectors.groupingBy(w -> w, Collectors.counting()));
+      Map<String, Long> occurrencesReasons = listReasons.stream().collect(
+          Collectors.groupingBy(w -> w, Collectors.counting()));
+      
+      Long previous = 0L;
+      for (String telnum : occurrencesTelnums.keySet()) {
+        if (occurrencesTelnums.get(telnum) > previous) {
+          previous = occurrencesTelnums.get(telnum);
+          bestTelnum = telnum;
+        }
+      }
+      previous = 0L;
+      for (String reason : occurrencesReasons.keySet()) {
+        if (occurrencesReasons.get(reason) > previous) {
+          previous = occurrencesReasons.get(reason);
+          bestReason = reason;
+        }
+      }
+    }
+
+    for (IItemType it : allGuiItems) {
+      if (it.getName().equals(BoatReservationRecord.CONTACT)) {
+        ItemTypeString phoneContactGuiField = (ItemTypeString) it;
+        if (phoneContactGuiField.getValueFromField().isEmpty()) {
+          phoneContactGuiField.setValue(bestTelnum);
+        }
+      }
+      if (it.getName().equals(BoatReservationRecord.REASON)) {
+        ItemTypeString reasonGuiField = (ItemTypeString) it;
+        if (reasonGuiField.getValueFromField().isEmpty()) {
+          reasonGuiField.setValue(bestReason);
+          reasonGuiField.setValue(latestReservation.getReason());
+        }
+      }
+    }
   }
 
   boolean isReservationForBoatDuringFreetime() {

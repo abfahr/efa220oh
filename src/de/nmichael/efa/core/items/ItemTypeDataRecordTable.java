@@ -242,6 +242,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         && Daten.efaConfig.isShowDataRightSideCalendar()) {
       northSideCalenderPanel.setBorder(new EmptyBorder(11, 31, 0, 31));
       drawCalendar();
+      // refreshCalendar(0, currentMonth, currentYear); // funktioniert nicht
     }
 
     searchPanel = new JPanel();
@@ -259,7 +260,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, 
         "SEARCH_CAT", International.getString("Suche"));
     // TODO abf 2019-07-21 braucht man die nächste Zeile? 300,-1 
-    searchField.setFieldSize(300, -1);
+    // searchField.setFieldSize(300, -1);
     searchField.registerItemListener(this);
     searchField.displayOnGui(dlg, searchPanel, 0, 0);
     filterBySearch = new ItemTypeBoolean("FILTERBYSEARCH", true, IItemType.TYPE_PUBLIC,

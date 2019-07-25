@@ -70,6 +70,7 @@ public class BoatReservationRecord extends DataRecord {
   public static final String PERSONNAME = "PersonName";
   public static final String REASON = "Reason";
   public static final String CONTACT = "Contact";
+  public static final String VDATESBETWEEN = "TageDazwischen";
 
   public static final String[] IDX_BOATID = new String[] { BOATID };
 
@@ -107,6 +108,8 @@ public class BoatReservationRecord extends DataRecord {
     t.add(IDataAccess.DATA_STRING);
     f.add(CONTACT);
     t.add(IDataAccess.DATA_STRING);
+    f.add(VDATESBETWEEN);
+    t.add(IDataAccess.DATA_VIRTUAL);
     MetaData metaData = constructMetaData(BoatReservations.DATATYPE, f, t, false);
     metaData.setKey(new String[] { BOATID, RESERVATION });
     metaData.addIndex(IDX_BOATID);
@@ -338,7 +341,27 @@ public class BoatReservationRecord extends DataRecord {
     if (getFieldName(fieldIdx).equals(VPERSON)) {
       return getPersonAsName();
     }
+    if (getFieldName(fieldIdx).equals(VDATESBETWEEN)) {
+      return getDatesBetween();
+    }
     return null;
+  }
+
+  private String getDatesBetween() {
+    if (getDateTo() == null) {
+      return "";
+    }
+    String daysBetween = "";
+    try {
+      for (DataTypeDate day = getDateFrom(); day.compareTo(getDateTo()) < 0; day.addDays(1)) {
+        daysBetween += day.toString() + " ";
+      }
+    } catch (Exception e) {
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION,
+          "Cannot compute days between " + getDateFrom() + " and " + getDateTo() + ". "
+          + e.getLocalizedMessage());
+    }
+    return daysBetween;
   }
 
   /**

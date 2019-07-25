@@ -2667,7 +2667,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       showString = showString == null ? "[todo]" : showString;
       s.append("Eigentümer: " + showString + NEWLINE);
       showString = item.boat.getAsText(BoatRecord.PURCHASEDATE);
-      showString = showString == null ? "[todo]" : showString;
+      showString = showString == null ? "[Jahr]" : showString;
       s.append("Anschaffung: " + showString + NEWLINE);
       s.append("Kategorie: " + item.boat.getAsText(BoatRecord.TYPESEATS).split(";")[0] + NEWLINE);
       showString = item.boat.getAsText(BoatRecord.TYPETYPE).split(";")[0];

@@ -348,9 +348,6 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   private String getDatesBetween() {
-    if (VDATESBETWEEN != null) {
-      return "";
-    }
     if (getDateTo() == null) {
       return "";
     }

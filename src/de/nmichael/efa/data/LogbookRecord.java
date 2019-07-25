@@ -699,14 +699,14 @@ public class LogbookRecord extends DataRecord {
     }
     PersonRecord p = getPersonRecord(pos, validAt);
     if (p != null) {
-      name = p.getQualifiedName() + "!";
+      name = p.getQualifiedName();
     }
     if (name == null || name.length() < 2) {
       if (pos == 0) {
-        name = getCoxName() + "?";
+        name = getCoxName();
       }
       if (pos >= 1 && pos <= CREW_MAX) {
-        name = getCrewName(pos) + "?";
+        name = getCrewName(pos);
       }
     }
     if (name != null) {

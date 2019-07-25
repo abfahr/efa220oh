@@ -2661,14 +2661,27 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
     try {
       StringBuilder s = new StringBuilder();
+      String showString;
       s.append(International.getString("Boot") + ": " + item.boat.getQualifiedName() + NEWLINE);
-      s.append("Eigentümer: " + item.boat.getAsText(BoatRecord.OWNER) + NEWLINE);
-      s.append("Anschaffung: " + item.boat.getAsText(BoatRecord.PURCHASEDATE) + NEWLINE);
+      showString = item.boat.getAsText(BoatRecord.OWNER);
+      showString = showString == null ? "[todo]" : showString;
+      s.append("Eigentümer: " + showString + NEWLINE);
+      showString = item.boat.getAsText(BoatRecord.PURCHASEDATE);
+      showString = showString == null ? "[todo]" : showString;
+      s.append("Anschaffung: " + showString + NEWLINE);
       s.append("Kategorie: " + item.boat.getAsText(BoatRecord.TYPESEATS).split(";")[0] + NEWLINE);
-      s.append("Bootstyp: " + item.boat.getAsText(BoatRecord.TYPETYPE).split(";")[0] + NEWLINE);
-      s.append("Paddel-Art: " + item.boat.getAsText(BoatRecord.TYPERIGGING).split(";")[0] + NEWLINE);
-      s.append("Coxing: " + item.boat.getAsText(BoatRecord.TYPECOXING).split(";")[0] + NEWLINE);
-      
+      showString = item.boat.getAsText(BoatRecord.TYPETYPE).split(";")[0];
+      if (!showString.contentEquals("andere")) {
+        s.append("Bootstyp: " + showString + NEWLINE);
+      }
+      showString = item.boat.getAsText(BoatRecord.TYPERIGGING).split(";")[0];
+      if (!showString.contentEquals("andere")) {
+        s.append("Paddel-Art: " + showString + NEWLINE);
+      }
+      showString = item.boat.getAsText(BoatRecord.TYPECOXING).split(";")[0];
+      if (!showString.contentEquals("andere")) {
+        s.append("Coxing: " + showString + NEWLINE);
+      }
       if (item.boat.getMaxCrewWeight() > 0) {
         s.append(International.getString("Maximales Mannschaftsgewicht") + ": " +
             item.boat.getMaxCrewWeight() + NEWLINE);
@@ -2680,7 +2693,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       
       s.append(NEWLINE);
-      s.append("Ort: " + "Liegt im Bootshaus am Isekai (todo)" + NEWLINE);
+      s.append("Ort: " + "[Liegt im Bootshaus am Isekai] (todo)" + NEWLINE);
       String fileName = item.boat.getName() + ".jpg";
       s.append("Foto: " + "so sieht das Boot aus ("+ fileName +")" + NEWLINE);
       String currentStatus = item.boatStatus.getCurrentStatus();
@@ -2698,7 +2711,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       s.append(NEWLINE);
       s.append(International.getString("Letzte Benutzung") + ": " + NEWLINE);
-      s.append(getLastBoatUsageString(item.boat.getId()) + NEWLINE);
+      String lastUsage = getLastBoatUsageString(item.boat.getId());
+      lastUsage = EfaUtil.replace(lastUsage, ", null?", "", true);
+      lastUsage = EfaUtil.replace(lastUsage, "null?, ", "", true);
+      lastUsage = EfaUtil.replace(lastUsage, "null?", "", true);
+      lastUsage = EfaUtil.replace(lastUsage, "; (efa:", NEWLINE + "(efa hat", true);
+      lastUsage = EfaUtil.replace(lastUsage, ") (efa:", ")" + NEWLINE + "(efa hat", true);
+      lastUsage = EfaUtil.replace(lastUsage, " (efa:", NEWLINE + "(efa hat", true);
+      lastUsage = EfaUtil.replace(lastUsage, ": ", NEWLINE, true);
+      s.append(lastUsage + NEWLINE);
       
       Dialog.bootsinfoDialog(item.boat.getName(), s.toString());
     } catch (Exception e) {
@@ -2718,8 +2739,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (item == null || item.boat == null || item.boat.getId() == null) {
       Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
       boatListRequestFocus(1);
-      efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt
-      // der Thread ihn richtig!
+      // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+      efaBoathouseBackgroundTask.interrupt();
       return;
     }
     String lastBoatUsageString = getLastBoatUsageString(item.boat.getId());

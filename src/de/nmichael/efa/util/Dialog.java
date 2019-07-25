@@ -13,6 +13,7 @@ package de.nmichael.efa.util;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.TextField;
@@ -358,12 +359,34 @@ public class Dialog {
       } catch (Exception e) {
         icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
       }
+      icon = scale(icon, 240);
       JOptionPane.showConfirmDialog(frame, 
           chopDialogString(s), title, -1,
           JOptionPane.INFORMATION_MESSAGE, icon);
     } else {
       System.out.println("INFO" + ": " + s);
     }
+  }
+
+  private static ImageIcon scale(ImageIcon imageIcon, int maxSize) {
+    int iconHeight = imageIcon.getIconHeight();
+    int iconWidth = imageIcon.getIconWidth();
+    float factor = (float) iconHeight / iconWidth;
+    int newHeight;
+    int newWidth;
+    if (factor > 1) {
+      //portrait
+      newHeight = maxSize;
+      newWidth =  (int) (maxSize / factor);
+    } else {
+      //Landscape
+      newWidth = maxSize;
+      newHeight = (int) (maxSize * factor);
+    }
+    // scale it the smooth way   
+    Image image = imageIcon.getImage();
+    Image newImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH); 
+    return new ImageIcon(newImage, imageIcon.getDescription());
   }
 
   public static void infoDialog(String s) {

@@ -179,30 +179,22 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         if (newRecord) {
           warnIfVersionizedRecordOfThatNameAlreadyExists();
           dataRecord.getPersistence().data().add(dataRecord);
-          Logger.log(
-              Logger.INFO,
-              Logger.MSG_DATAADM_RECORDADDED,
-              dataRecord.getPersistence().getDescription()
-              + ": "
-              +
-              International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                  (admin != null ? International.getString("Admin") + " '" + admin.getName()
-                      + "'" :
-                        International.getString("Normaler Benutzer")),
-                        dataRecord.getQualifiedName()));
+          Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
+              dataRecord.getPersistence().getDescription() + ": "
+              + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                  (admin != null 
+                  ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                  : International.getString("Normaler Benutzer") + "?"),
+                  dataRecord.getQualifiedName()));
         } else {
           dataRecord.getPersistence().data().update(dataRecord);
-          Logger.log(
-              Logger.INFO,
-              Logger.MSG_DATAADM_RECORDUPDATED,
-              dataRecord.getPersistence().getDescription()
-              + ": "
-              +
-              International.getMessage("{name} hat Datensatz '{record}' geändert.",
-                  (admin != null ? International.getString("Admin") + " '" + admin.getName()
-                      + "'" :
-                        International.getString("Normaler Benutzer")),
-                        dataRecord.getQualifiedName()));
+          Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDUPDATED,
+              dataRecord.getPersistence().getDescription() + ": "
+              + International.getMessage("{name} hat Datensatz '{record}' geändert.",
+                  (admin != null 
+                  ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                  : International.getString("Normaler Benutzer") + "?"),
+                  dataRecord.getQualifiedName()));
         }
         for (IItemType item : getItems()) {
           item.setUnchanged();

@@ -579,32 +579,24 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     }
                     persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
                     if (deleteAt >= 0) {
-                      Logger.log(
-                          Logger.INFO,
-                          Logger.MSG_DATAADM_RECORDDELETEDAT,
-                          records[i].getPersistence().getDescription()
-                              + ": "
+                      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETEDAT,
+                          records[i].getPersistence().getDescription() + ": "
                               + International.getMessage(
                                   "{name} hat Datensatz '{record}' ab {date} gelöscht.",
-                                  (admin != null ? International.getString("Admin") + " '"
-                                      + admin.getName() + "'"
-                                      : International.getString("Normaler Benutzer")),
+                                  (admin != null
+                                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                                      : International.getString("Normaler Benutzer") + "?"),
                                   records[i].getQualifiedName(),
                                   EfaUtil.getTimeStampDDMMYYYY(deleteAt)));
                     } else {
-                      Logger
-                          .log(
-                              Logger.INFO,
-                              Logger.MSG_DATAADM_RECORDDELETED,
-                              records[i].getPersistence().getDescription()
-                                  + ": "
-                                  + International
-                                      .getMessage(
-                                          "{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
-                                          (admin != null ? International.getString("Admin") + " '"
-                                              + admin.getName() + "'"
-                                              : International.getString("Normaler Benutzer")),
-                                          records[i].getQualifiedName()));
+                      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+                          records[i].getPersistence().getDescription() + ": "
+                              + International.getMessage(
+                                  "{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
+                                  (admin != null
+                                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                                      : International.getString("Normaler Benutzer") + "?"),
+                                  records[i].getQualifiedName()));
                     }
                   } else {
                     if (records[i] instanceof BoatReservationRecord) {
@@ -615,16 +607,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       }
                     }
                     persistence.data().delete(records[i].getKey());
-                    Logger.log(
-                        Logger.INFO,
-                        Logger.MSG_DATAADM_RECORDDELETED,
-                        records[i].getPersistence().getDescription()
-                            + ": "
+                    Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+                        records[i].getPersistence().getDescription() + ": "
                             + International.getMessage(
                                 "{name} hat Datensatz '{record}' gelöscht.",
-                                (admin != null ? International.getString("Admin") + " '"
-                                    + admin.getName() + "'"
-                                    : International.getString("Normaler Benutzer")),
+                                (admin != null
+                                    ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                                    : International.getString("Normaler Benutzer") + "?"),
                                 records[i].getQualifiedName()));
                   }
                 }
@@ -788,16 +777,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             // newReservationsRecord.saveRecord();
             reservations.data().add(newReservationsRecord);
             sendEmailMitglied("INSERT", newReservationsRecord);
-            Logger.log(
-                Logger.INFO,
-                Logger.MSG_DATAADM_RECORDADDED,
-                newReservationsRecord.getPersistence().getDescription()
-                    + ": "
+            Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
+                newReservationsRecord.getPersistence().getDescription() + ": "
                     + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                        (admin != null ? International.getString("Admin") + " '" + admin.getName()
-                            + "'" : newReservationsRecord.getPersonAsName()),
-                        newReservationsRecord.getQualifiedName() + " "
-                            + newReservationsRecord.getReservationTimeDescription()));
+                        (admin != null 
+                        ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                        : newReservationsRecord.getPersonAsName()),
+                        newReservationsRecord.getQualifiedName() + " " 
+                        + newReservationsRecord.getReservationTimeDescription()));
           }
         }
       }
@@ -884,10 +871,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           newReservationsRecord.getPersistence().getDescription() + ": " +
               International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
                   (admin != null
-                      ? International.getString("Admin") + " '" + admin.getName() + "'"
+                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
                       : newReservationsRecord.getPersonAsName()),
-                  newReservationsRecord.getQualifiedName() + " "
-                          + newReservationsRecord.getReservationTimeDescription()));
+                      newReservationsRecord.getQualifiedName() + " "
+                      + newReservationsRecord.getReservationTimeDescription()));
     } // for loop
     if (!fehlerListe.isEmpty()) {
       // display the failures at end

@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeLabel;
+import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.ex.EfaModifyException;
@@ -184,8 +185,13 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
               + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
                   (admin != null 
                   ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                  : International.getString("Normaler Benutzer") + "?"),
-                  dataRecord.getQualifiedName()));
+                  : dataRecord instanceof BoatReservationRecord 
+                      ? ((BoatReservationRecord) dataRecord).getPersonAsName()                      
+                      : International.getString("Normaler Benutzer") + "?"),
+                  dataRecord.getQualifiedName() +
+                  (dataRecord instanceof BoatReservationRecord 
+                  ? " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription()
+                  : "")));
         } else {
           dataRecord.getPersistence().data().update(dataRecord);
           Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDUPDATED,
@@ -193,8 +199,13 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
               + International.getMessage("{name} hat Datensatz '{record}' geändert.",
                   (admin != null 
                   ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                  : International.getString("Normaler Benutzer") + "?"),
-                  dataRecord.getQualifiedName()));
+                  : dataRecord instanceof BoatReservationRecord 
+                      ? ((BoatReservationRecord) dataRecord).getPersonAsName()                      
+                      : International.getString("Normaler Benutzer") + "?"),
+                  dataRecord.getQualifiedName() +
+                  (dataRecord instanceof BoatReservationRecord 
+                  ? " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription()
+                  : "")));
         }
         for (IItemType item : getItems()) {
           item.setUnchanged();

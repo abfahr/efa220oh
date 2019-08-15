@@ -370,7 +370,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           boatStatus.data().update(boatStatusRecord);
           currentLogbook.data().update(logbookRecord); // saveEntry();
         } catch (EfaException e) {
-          // Auto-generated catch block
+          Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, e);
           e.printStackTrace();
         }
       }
@@ -673,6 +673,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
           // boatReservationRecord.setLastModified(); // mark as deleted
           boatReservationRecord.setInvisible(true);
           updateReservation(boatReservationRecord);
+          EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
+              International.getString("Fahrtbeginn"), newLogbookRecord);
           return newLogbookRecord;
         }
       }
@@ -695,7 +697,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       boatReservationRecord.getPersistence().data().update(boatReservationRecord);
     } catch (EfaException e) {
-      // TODO Auto-generated catch block
+      Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, e);
       e.printStackTrace();
     }
   }

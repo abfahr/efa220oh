@@ -379,6 +379,9 @@ public class DataImport extends ProgressTask {
       String s;
       DataRecord dummyRecord = storageObject.createNewRecord();
       boolean isPersons = (storageObject instanceof Persons);
+      if (isPersons) {
+        overrideKeyField = PersonRecord.MEMBERSHIPNO;
+      }
       while ((s = f.readLine()) != null) {
         s = s.trim();
         if (s.length() == 0) {

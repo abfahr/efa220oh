@@ -860,7 +860,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       try {
         reservations.preModifyRecordCallback(newReservationsRecord, true, false, false);
       } catch (EfaModifyException e) {
-        Logger.log(Logger.INFO, Logger.MSG_DATA_UPDATECONFLICT, e); // MSG_DATA_CREATEFAILED
+        // Logger.log(Logger.INFO, Logger.MSG_DATA_UPDATECONFLICT, e); // MSG_DATA_CREATEFAILED
         fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
         lastException = e.getLocalizedMessage();
         continue;

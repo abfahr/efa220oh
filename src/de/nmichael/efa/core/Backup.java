@@ -122,7 +122,7 @@ public class Backup {
         BackupMetaDataItem meta = data.saveToZipFile(dir, zipOut);
         backupMetaData.addMetaDataItem(meta);
         successful++;
-        logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPINFO,
+        logMsg(Logger.DEBUG, Logger.MSG_BACKUP_BACKUPINFO,
             LogString.fileSuccessfullyArchived(data.getUID(),
                 data.getStorageObjectDescription()));
       } catch (Exception e) {

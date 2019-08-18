@@ -450,7 +450,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     crontabThread.start();
 
     alive();
-    Logger.log(Logger.INFO, Logger.MSG_EVT_EFAREADY, International.getString("BEREIT"));
+    Logger.log(Logger.INFO, Logger.MSG_EVT_EFAREADY, International.getString("BEREIT") + " -----------------------------------------");
   }
 
   private void iniGuiRemaining() {

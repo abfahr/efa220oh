@@ -907,6 +907,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     if ("Externe Adressen".equals(getStatusName())) {
       return false; // Hauptkategorie
+    }    
+    if (getFirstName() == null) {
+      return false; // Vorname fehlt
     }
     return true;
   }

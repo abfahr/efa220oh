@@ -675,7 +675,8 @@ public class EfaTypes extends StorageObject {
       } catch (Exception e) {
         Logger.log(Logger.ERROR, Logger.MSG_CORE_EFATYPESFAILEDSETVALUES,
             "Failed to set EfaTypes values for language " + lang + ".");
-        return false;
+        bundle = International.getResourceBundle();
+        // return false;
       }
     } else {
       bundle = International.getResourceBundle();

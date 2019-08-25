@@ -1890,6 +1890,25 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     return c;
   }
 
+  int getNumberOfPersonsMitVorNachname() {
+    String myMatch = Daten.efaConfig.getRegexForVorUndNachname();
+
+    int c = 0;
+    String trimmedName = cox.getValueFromField().trim();
+    if (trimmedName.length() > 0 && 
+        trimmedName.matches(myMatch)) {
+      c++;
+    }
+    for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+      trimmedName = crew[i].getValueFromField().trim();
+      if (trimmedName.length() > 0 && 
+          trimmedName.matches(myMatch)) {
+        c++;
+      }
+    }
+    return c;
+  }
+
   void setTime(ItemTypeTime field, int addMinutes, DataTypeTime notBefore) {
     DataTypeTime now = DataTypeTime.now();
 
@@ -2723,6 +2742,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
       if (getNumberOfPersonsInBoat() == 0) {
         Dialog.error(International.getString("Bitte trage mindestens eine Person ein!"));
+        if (cox.isEditable()) {
+          cox.requestFocus();
+        } else {
+          crew[0].requestFocus();
+        }
+        return false;
+      }
+
+      // Aufruf andere Prüfung aus Reservierung
+      // if (config-Erlaubt) --> nicht nötig, einfach Regexp mit .* füllen
+      if (getNumberOfPersonsMitVorNachname() == 0) {
+        Dialog.error(International.getString("Bitte trage Vor- und Nachnamen ein!"));
         if (cox.isEditable()) {
           cox.requestFocus();
         } else {

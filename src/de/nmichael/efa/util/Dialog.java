@@ -354,7 +354,8 @@ public class Dialog {
           Logger.log(Logger.WARNING, 
               Logger.MSG_FILE_FILENOTFOUND,
               "icon nicht gefunden: " + fileName);
-          icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
+          fileName = Daten.efaImagesDirectory + "missing.photo.png";
+          icon = new ImageIcon(fileName);
         }
       } catch (Exception e) {
         icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");

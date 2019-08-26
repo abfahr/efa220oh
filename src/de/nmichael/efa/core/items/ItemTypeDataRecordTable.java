@@ -247,16 +247,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       // refreshCalendar(0, currentMonth, currentYear); // funktioniert nicht
       northSideCalenderPanel.add(pnlCalendarPanel, BorderLayout.NORTH);
 
-      if (filterFieldValue == null) {
-        return;
+      if (filterFieldValue != null) {
+        String filterFieldDescription = 
+            ((BoatReservationListDialog) dlg).getFilterFieldDescription();
+        JLabel filterName = new JLabel();
+        filterName.setText(filterFieldDescription);
+        filterName.setBorder(new EmptyBorder(10, 0, 0, 0));
+        filterName.setHorizontalAlignment(SwingConstants.CENTER);
+        northSideCalenderPanel.add(filterName, BorderLayout.SOUTH);
       }
-      String filterFieldDescription = 
-        ((BoatReservationListDialog) dlg).getFilterFieldDescription();
-      JLabel filterName = new JLabel();
-      filterName.setText(filterFieldDescription);
-      filterName.setBorder(new EmptyBorder(10, 0, 0, 0));
-      filterName.setHorizontalAlignment(SwingConstants.CENTER);
-      northSideCalenderPanel.add(filterName, BorderLayout.SOUTH);
     }
 
     searchPanel = new JPanel();
@@ -470,6 +469,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             dlg.showDialog();
             if (dlg instanceof BoatReservationEditDialog) {
               BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg).getDataRecord();
+              //reservation saved? persisted? valid?;
               if (!reservation.getContact().isEmpty()) { // validRecord?
                 sendEmailMitglied("INSERT", reservation);
                 if (reservation.isBootshausOH()) {

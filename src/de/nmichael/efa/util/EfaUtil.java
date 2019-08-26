@@ -1601,8 +1601,9 @@ public class EfaUtil {
         return null;
       }
       String newname = dstDir
-          + getNameOfFile(fname)
-          + getCurrentTimeStampYYYYMMDD_HHMMSS();
+          + getCurrentTimeStampYYYYMMDD_HHMMSS()
+          + "."
+          + getNameOfFile(fname);
       if (!copyFile(fname, newname)) {
         return null;
       }

@@ -40,6 +40,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -74,6 +75,7 @@ import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.MultiInputDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
+import de.nmichael.efa.gui.dataedit.BoatReservationListDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
@@ -243,6 +245,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       northSideCalenderPanel.setBorder(new EmptyBorder(11, 31, 0, 31));
       drawCalendar();
       // refreshCalendar(0, currentMonth, currentYear); // funktioniert nicht
+      northSideCalenderPanel.add(pnlCalendarPanel, BorderLayout.NORTH);
+
+      if (filterFieldValue == null) {
+        return;
+      }
+      String filterFieldDescription = 
+        ((BoatReservationListDialog) dlg).getFilterFieldDescription();
+      JLabel filterName = new JLabel();
+      filterName.setText(filterFieldDescription);
+      filterName.setBorder(new EmptyBorder(10, 0, 0, 0));
+      filterName.setHorizontalAlignment(SwingConstants.CENTER);
+      northSideCalenderPanel.add(filterName, BorderLayout.SOUTH);
     }
 
     searchPanel = new JPanel();
@@ -468,7 +482,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     uebertragenAufAndereBooteDieserGruppe(reservation);
                   }
                 } catch (EfaException e1) {
-                  Logger.logdebug(e1);
+                  Logger.log(Logger.ERROR, Logger.MSG_ERR_PANIC, e1);
                 }
               }
 
@@ -1325,8 +1339,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     pnlCalendarPanel.add(tblCalendar.getTableHeader(), BorderLayout.NORTH);
     pnlCalendarPanel.add(tblCalendar, BorderLayout.CENTER);
     pnlCalendarPanel.add(pnlCalendarButtonPanel, BorderLayout.SOUTH);
-
-    northSideCalenderPanel.add(pnlCalendarPanel, BorderLayout.NORTH);
 
     // Get real month/year
     GregorianCalendar cal = new GregorianCalendar(); // Create calendar

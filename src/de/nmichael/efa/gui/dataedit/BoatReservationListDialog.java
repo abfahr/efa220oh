@@ -83,7 +83,6 @@ public class BoatReservationListDialog extends DataListDialog {
   private void iniValues(UUID boatId, boolean allowNewReservations,
       boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
     // Lieblingsbreite der Datumsspalten
-    minColumnWidths = new int[] { 200, 135, 135, 200, 135, 0 }; // abf
     minColumnWidths = new int[] { 200, 200, 200, 200, 180, 0 }; // abf
 
     if (boatId != null) {
@@ -211,4 +210,9 @@ public class BoatReservationListDialog extends DataListDialog {
     return super.cancel();
   }
 
+  public String getFilterFieldDescription() {
+    // für zweite Anzeige im Dialog - just to be sure
+    return filterFieldDescription;
+  }
+  
 }

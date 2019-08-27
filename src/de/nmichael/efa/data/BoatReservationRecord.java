@@ -258,8 +258,17 @@ public class BoatReservationRecord extends DataRecord {
     if (date == null && weekday == null) {
       return "";
     }
-    return (date != null ? date.toString() : EfaTypes.getValueWeekday(weekday)) +
-        (time != null ? " " + time.toString() : "");
+    String strDate = "";
+    if (date != null) {
+      strDate =  date.toString();
+    } else {
+      strDate = EfaTypes.getValueWeekday(weekday);
+    }
+    String strTime = "";
+    if (time != null) {
+      strTime = " " + time.toString();
+    }
+    return strDate + strTime;
   }
 
   public String getDateTimeFromDescription() {
@@ -662,8 +671,8 @@ public class BoatReservationRecord extends DataRecord {
   public TableItem[] getGuiTableItems() {
     TableItem[] items = new TableItem[6];
     items[0] = new TableItem(getBoatName());
-    items[1] = new TableItem(getDateTimeFromDescription());
-    items[2] = new TableItem(getDateTimeToDescription());
+    items[1] = new TableItem("< " + getDateTimeFromDescription()); // for sorting
+    items[2] = new TableItem("> " + getDateTimeToDescription()); // for sorting
     items[3] = new TableItem(getPersonAsName());
     items[4] = new TableItem(getContact());
     items[5] = new TableItem(getReason());

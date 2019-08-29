@@ -470,12 +470,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             if (dlg instanceof BoatReservationEditDialog) {
               BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg).getDataRecord();
               //reservation saved? persisted? valid?;
-              if (!reservation.getContact().isEmpty()) { // validRecord?
+              if (!reservation.getContact().isEmpty() // validRecord?
+                  && reservation.getLastModified() > 0) {
                 sendEmailMitglied("INSERT", reservation);
                 if (reservation.isBootshausOH()) {
                   sendEmailBootshausnutzungswart("INSERT", reservation);
                 }
                 try {
+                  // allowed for identified Persons with Id
+                  // if (reservation.getPersonId() != null) { // validRecord?
                   if (admin != null) {
                     uebertragenAufAndereBoote(reservation);
                   } else {

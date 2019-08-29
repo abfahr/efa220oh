@@ -722,15 +722,33 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   private void updateGuiLogo() {
+    String strPfadVereinsLogo = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
+    updateGuiLogo(strPfadVereinsLogo);
+  }
+
+  private void updateGuiLogo(String strZentralesBild) {
     int xWidth = 200;
     int yHeight = 80;
-    String strPfadVereinsLogo = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
-    if (strPfadVereinsLogo.length() > 0) {
+    logoLabel.setMinimumSize(new Dimension(xWidth, yHeight));
+    logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    if (strZentralesBild.length() > 0) {
       try {
-        logoLabel.setIcon(new ImageIcon(strPfadVereinsLogo));
-        logoLabel.setMinimumSize(new Dimension(xWidth, yHeight));
-        int lastIndexSlash = strPfadVereinsLogo.lastIndexOf(Daten.fileSep);
-        String fileName = strPfadVereinsLogo.substring(lastIndexSlash, strPfadVereinsLogo.length());
+        xWidth = 352;
+        yHeight = 654; // 704;
+        ImageIcon imageIcon = new ImageIcon(strZentralesBild);
+        if (imageIcon.getIconHeight()<0) {
+          strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
+          // strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png";
+          imageIcon = new ImageIcon(strZentralesBild);
+        }
+        //imageIcon = Dialog.scale(imageIcon, 352);
+        Image image = imageIcon.getImage();
+        Image newImage = image.getScaledInstance(xWidth, -1, Image.SCALE_SMOOTH); 
+        imageIcon = new ImageIcon(newImage, imageIcon.getDescription());
+        logoLabel.setIcon(imageIcon);
+        int lastIndexSlash = strZentralesBild.lastIndexOf(Daten.fileSep);
+        String fileName = strZentralesBild.substring(lastIndexSlash, strZentralesBild.length());
         Pattern regexPattern = Pattern.compile("\\D*(\\d\\d*)x(\\d*).*");
         Matcher matcher = regexPattern.matcher(fileName);
         if (matcher.matches() && matcher.groupCount() == 2) {
@@ -742,10 +760,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           // yHeight = 704;
         }
         logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
-        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
       } catch (Exception e) {
-        Logger.logdebug(e);
+        Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
       }
     } else {
       logoLabel.setIcon(null);
@@ -1969,9 +1985,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           BoatStatusRecord status = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
           BoatRecord boat = Daten.project.getBoats(false).getBoat(item.boatStatus.getBoatId(),
               System.currentTimeMillis());
-          name = (boat != null ? boat.getQualifiedName()
-              : (status != null ? status.getBoatText() : International
-                  .getString("anderes oder fremdes Boot")));
+          String fileName = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
+          if (boat != null) {
+            name = boat.getQualifiedName();
+            fileName = Daten.efaImagesDirectory + boat.getName() + ".jpg";
+          } else if (status != null) {
+            name = status.getBoatText();
+          } else {
+            name = International.getString("anderes oder fremdes Boot");
+          }
+          updateGuiLogo(fileName);
           String text = "";
           if (status != null) {
             String s = BoatStatusRecord.getStatusDescription(status.getCurrentStatus());
@@ -1999,6 +2022,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           }
           statusLabelSetText(name + ": " + text + bootstyp + rudererlaubnis);
         } else {
+          updateGuiLogo(); // reset to Vereinslogo
           statusLabelSetText(International.getString("anderes oder fremdes Boot"));
         }
       } else {

@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -277,6 +278,28 @@ public class Dialog {
   public static int auswahlDialog(String title, String messagebody, String[] options) {
     Window frame = frameCurrent();
     prepareWindow(frame);
+    int iLen = options.length; // count options
+    if (iLen > 5) {
+      JList<String> list = new JList<String>(options);
+      String strFromInputDialog = JOptionPane.showInputDialog(frame, list, 
+          chopDialogString(messagebody), 
+          JOptionPane.QUESTION_MESSAGE);
+      String numbers = strFromInputDialog.replaceAll("[^0-9]", "");
+      int intFromInputDialog = Integer.parseInt("0" + numbers);
+      if (intFromInputDialog > 0) {
+        return intFromInputDialog - 1;
+      }
+      for (int i = 0; i < options.length; i++) {
+        if (options[i].matches(strFromInputDialog)) {
+          return i;
+        }
+      }
+      return JOptionPane.showOptionDialog(frame, 
+          chopDialogString(messagebody), title + " /" + iLen,
+          JOptionPane.YES_NO_OPTION,
+          JOptionPane.QUESTION_MESSAGE,
+          null, options, options[0]);
+    }
     return JOptionPane.showOptionDialog(frame, 
         chopDialogString(messagebody), title,
         JOptionPane.YES_NO_OPTION, 

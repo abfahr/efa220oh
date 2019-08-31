@@ -247,7 +247,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       // refreshCalendar(0, currentMonth, currentYear); // funktioniert nicht
       northSideCalenderPanel.add(pnlCalendarPanel, BorderLayout.NORTH);
 
-      if (filterFieldValue != null) {
+      if (filterFieldValue != null
+          && dlg instanceof BoatReservationListDialog) {
         String filterFieldDescription = 
             ((BoatReservationListDialog) dlg).getFilterFieldDescription();
         JLabel filterName = new JLabel();

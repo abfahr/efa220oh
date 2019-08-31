@@ -280,18 +280,21 @@ public class Dialog {
     prepareWindow(frame);
     int iLen = options.length; // count options
     if (iLen > 5) {
-      JList<String> list = new JList<String>(options);
-      String strFromInputDialog = JOptionPane.showInputDialog(frame, list, 
+      //JList<JButton> blist = new JList<JButton>();
+      String strFromInputDialog = JOptionPane.showInputDialog(frame, 
+          new JList<String>(options), 
           chopDialogString(messagebody), 
           JOptionPane.QUESTION_MESSAGE);
-      String numbers = strFromInputDialog.replaceAll("[^0-9]", "");
-      int intFromInputDialog = Integer.parseInt("0" + numbers);
-      if (intFromInputDialog > 0) {
-        return intFromInputDialog - 1;
-      }
-      for (int i = 0; i < options.length; i++) {
-        if (options[i].matches(strFromInputDialog)) {
-          return i;
+      if (strFromInputDialog != null) {
+        String numbers = strFromInputDialog.replaceAll("[^0-9]", "");
+        int intFromInputDialog = Integer.parseInt("0" + numbers);
+        if (intFromInputDialog > 0) {
+          return intFromInputDialog - 1;
+        }
+        for (int i = 0; i < options.length; i++) {
+          if (options[i].matches(strFromInputDialog)) {
+            return i;
+          }
         }
       }
       return JOptionPane.showOptionDialog(frame, 
@@ -371,17 +374,17 @@ public class Dialog {
       prepareWindow(frame);
       ImageIcon icon = null;
       try {
-        String fileName = Daten.efaImagesDirectory + title + ".jpg";
+        String fileName = Daten.efaImagesDirectory + title + ".jpg"; // Bild vom Boot
         icon = new ImageIcon(fileName);
         if (icon.getIconHeight() < 0) {
           Logger.log(Logger.WARNING, 
               Logger.MSG_FILE_FILENOTFOUND,
               "icon nicht gefunden: " + fileName);
-          fileName = Daten.efaImagesDirectory + "missing.photo.png";
+          fileName = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
           icon = new ImageIcon(fileName);
         }
       } catch (Exception e) {
-        icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
+        icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png"); // alternatives Bild
       }
       icon = scale(icon, 240);
       JOptionPane.showConfirmDialog(frame, 

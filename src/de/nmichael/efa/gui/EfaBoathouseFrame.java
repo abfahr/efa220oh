@@ -376,7 +376,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     updateGuiClock();
     updateGuiNews();
     updateGuiButtonText();
-    updateGuiLogo();
+    updateGuiLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // Standard-Bild
   }
 
   private void iniGuiPanels() {
@@ -664,7 +664,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   private void iniGuiCenterPanel() {
-    updateGuiLogo();
+    iniGuiLogo(); // Standard-Bild
     iniGuiButtons();
     updateGuiClock();
     centerPanel.setLayout(new GridBagLayout());
@@ -721,51 +721,50 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
   }
 
-  private void updateGuiLogo() {
-    String strPfadVereinsLogo = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
-    updateGuiLogo(strPfadVereinsLogo);
+  private void updateGuiLogo(String strZentralesBild) {
+    if (strZentralesBild == null || strZentralesBild.length() == 0) {
+      logoLabel.setIcon(null);
+      return;
+    }
+
+    try {
+      int xWidth = 352;
+      int yHeight = 654; // 704;
+      ImageIcon imageIcon = new ImageIcon(strZentralesBild);
+      if (imageIcon.getIconHeight()<0) {
+        strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
+        // strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
+        imageIcon = new ImageIcon(strZentralesBild);
+      }
+      Image image = imageIcon.getImage();
+      Image newImage = image.getScaledInstance(xWidth, -1, Image.SCALE_SMOOTH); 
+      imageIcon = new ImageIcon(newImage, imageIcon.getDescription());
+      logoLabel.setIcon(imageIcon);
+      
+      int lastIndexSlash = strZentralesBild.lastIndexOf(Daten.fileSep);
+      String fileName = strZentralesBild.substring(lastIndexSlash, strZentralesBild.length());
+      Pattern regexPattern = Pattern.compile("\\D*(\\d\\d*)x(\\d*).*");
+      Matcher matcher = regexPattern.matcher(fileName);
+      if (matcher.matches() && matcher.groupCount() == 2) {
+        xWidth = Integer.parseInt(matcher.group(1));
+        yHeight = Integer.parseInt(matcher.group(2));
+      }
+      if (xWidth > 352) {
+        xWidth = 352; // max
+        // yHeight = 704;
+      }
+      logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
+    } catch (Exception e) {
+      Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
+    }
   }
 
-  private void updateGuiLogo(String strZentralesBild) {
-    int xWidth = 200;
-    int yHeight = 80;
-    logoLabel.setMinimumSize(new Dimension(xWidth, yHeight));
+  private void iniGuiLogo() {
+    logoLabel.setMinimumSize(new Dimension(200, 80));
     logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-    if (strZentralesBild.length() > 0) {
-      try {
-        xWidth = 352;
-        yHeight = 654; // 704;
-        ImageIcon imageIcon = new ImageIcon(strZentralesBild);
-        if (imageIcon.getIconHeight()<0) {
-          strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
-          // strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png";
-          imageIcon = new ImageIcon(strZentralesBild);
-        }
-        //imageIcon = Dialog.scale(imageIcon, 352);
-        Image image = imageIcon.getImage();
-        Image newImage = image.getScaledInstance(xWidth, -1, Image.SCALE_SMOOTH); 
-        imageIcon = new ImageIcon(newImage, imageIcon.getDescription());
-        logoLabel.setIcon(imageIcon);
-        int lastIndexSlash = strZentralesBild.lastIndexOf(Daten.fileSep);
-        String fileName = strZentralesBild.substring(lastIndexSlash, strZentralesBild.length());
-        Pattern regexPattern = Pattern.compile("\\D*(\\d\\d*)x(\\d*).*");
-        Matcher matcher = regexPattern.matcher(fileName);
-        if (matcher.matches() && matcher.groupCount() == 2) {
-          xWidth = Integer.parseInt(matcher.group(1));
-          yHeight = Integer.parseInt(matcher.group(2));
-        }
-        if (xWidth > 352) {
-          xWidth = 352;
-          // yHeight = 704;
-        }
-        logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
-      } catch (Exception e) {
-        Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
-      }
-    } else {
-      logoLabel.setIcon(null);
-    }
+
+    updateGuiLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // wichtig
   }
 
   private void iniGuiButtons() {
@@ -1661,8 +1660,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                   + ") - setting boatsAvailableList ...");
             }
             boatsAvailableList.setBoatStatusData(
-                boatStatus.getBoats(BoatStatusRecord.STATUS_AVAILABLE, true), logbook, "<"
-                    + International.getString("anderes Boot") + ">");
+                boatStatus.getBoats(BoatStatusRecord.STATUS_AVAILABLE, true), logbook, 
+                "<" + International.getString("anderes Boot") + ">");
             if (Logger.isTraceOn(Logger.TT_GUI, 9)) {
               Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "updateBoatLists(" + listChanged
                   + ") - setting boatsAvailableList - done");
@@ -1959,25 +1958,28 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           } else {
             name = item.person.getQualifiedName();
           }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+          // just to be sure
+        }
         if (name == null || name.startsWith("---")) {
           item = null;
           try {
             int i = list.getSelectedIndex() + direction;
             if (i < 0) {
-              i = 1; // i<0 kann nur erreicht werden, wenn vorher i=0 und direction=-1; dann darf
-              // nicht auf i=0 gesprungen werden, da wir dort herkommen, sondern auf i=1
+              i = 1; // i<0 kann nur erreicht werden,
+              // wenn vorher i=0 und direction=-1; dann darf
+              // nicht auf i=0 gesprungen werden,
+              // da wir dort herkommen, sondern auf i=1
               direction = 1;
             }
             if (i >= list.size()) {
               return;
             }
             list.setSelectedIndex(i);
-          } catch (Exception e) { /* just to be sure */}
+          } catch (Exception e) { 
+            // just to be sure
+          }
         }
-      }
-      if (item == null) {
-        return;
       }
 
       if (list != personsAvailableList) {
@@ -1985,10 +1987,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           BoatStatusRecord status = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
           BoatRecord boat = Daten.project.getBoats(false).getBoat(item.boatStatus.getBoatId(),
               System.currentTimeMillis());
-          String fileName = Daten.efaConfig.getValueEfaDirekt_vereinsLogo();
+          String fileName = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
           if (boat != null) {
             name = boat.getQualifiedName();
-            fileName = Daten.efaImagesDirectory + boat.getName() + ".jpg";
+            fileName = Daten.efaImagesDirectory + boat.getName() + ".jpg"; // Bild vom Boot
           } else if (status != null) {
             name = status.getBoatText();
           } else {
@@ -2022,7 +2024,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           }
           statusLabelSetText(name + ": " + text + bootstyp + rudererlaubnis);
         } else {
-          updateGuiLogo(); // reset to Vereinslogo
+          updateGuiLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // gut // reset to Vereinslogo // Standard-Bild
           statusLabelSetText(International.getString("anderes oder fremdes Boot"));
         }
       } else {
@@ -2610,7 +2612,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     clearAllPopups();
 
     // Prüfe, ob bereits ein Admin-Modus-Fenster offen ist
-    Stack s = Dialog.frameStack;
+    Stack<?> s = Dialog.frameStack;
     boolean adminOnStack = false;
     try {
       for (int i = 0; i < s.size(); i++) {
@@ -2693,7 +2695,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       showString = item.boat.getAsText(BoatRecord.PURCHASEDATE);
       showString = showString == null ? "[Jahr]" : showString;
       s.append("Anschaffung: " + showString + NEWLINE);
-      s.append("Kategorie: " + item.boat.getAsText(BoatRecord.TYPESEATS).split(";")[0] + NEWLINE);
+      showString = item.boat.getAsText(BoatRecord.TYPESEATS).split(";")[0];
+      s.append("EFA-Sortierung: " + showString + NEWLINE);
+      showString = item.boat.getAsText(BoatRecord.TYPEDESCRIPTION).split(";")[0];
+      s.append("Beschreibung Ort: " + showString + NEWLINE);
       showString = item.boat.getAsText(BoatRecord.TYPETYPE).split(";")[0];
       if (!showString.contentEquals("andere")) {
         s.append("Bootstyp: " + showString + NEWLINE);

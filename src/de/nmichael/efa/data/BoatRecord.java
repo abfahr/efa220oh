@@ -939,7 +939,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
       items[0] = new ItemTypeInteger(BoatRecord.TYPEVARIANT, 0, 0, Integer.MAX_VALUE,
           IItemType.TYPE_INTERNAL, CAT_BASEDATA, International.getString("Variante"));
       items[1] = new ItemTypeString(BoatRecord.TYPEDESCRIPTION, "",
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung"));
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung Ort"));
       items[2] = new ItemTypeStringList(BoatRecord.TYPETYPE, EfaTypes.TYPE_BOAT_OTHER,
           EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
           EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
@@ -949,7 +949,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
           EfaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
           EfaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-          International.getString("Bootsplätze"));
+          International.getString("EFA-Sortierung")); // Bootssitzplätze
       items[4] = new ItemTypeStringList(BoatRecord.TYPERIGGING, EfaTypes.TYPE_RIGGING_OTHER,
           EfaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
           EfaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),

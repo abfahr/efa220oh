@@ -175,8 +175,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.name = "";
         if (myBoatRecord != null ) {
           myBoatString.name = myBoatRecord.getQualifiedName();
-          if (myBoatRecord.getFreeUse1() != null ) {
-            myBoatString.name += " " + myBoatRecord.getFreeUse1();
+          if (Daten.efaConfig.isValueEfaBoathouseShowOrtDescriptionInAvailableList()) {
+            String postFix = myBoatRecord.getTypeDescription(0);
+            if (postFix != null && !postFix.isBlank()) {
+              myBoatString.name += " \"" + postFix +"\"";
+            }
           }
         }
         // for BoatsOnTheWater, don't use the "real" boat name, 

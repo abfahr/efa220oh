@@ -2728,8 +2728,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       s.append("Anschaffung: " + showString + NEWLINE);
       showString = item.boat.getAsText(BoatRecord.TYPESEATS).split(";")[0];
       s.append("EFA-Sortierung: " + showString + NEWLINE);
-      showString = item.boat.getAsText(BoatRecord.TYPEDESCRIPTION).split(";")[0];
-      s.append("Beschreibung Ort: " + showString + NEWLINE);
       showString = item.boat.getAsText(BoatRecord.TYPETYPE).split(";")[0];
       if (!showString.contentEquals("andere")) {
         s.append("Bootstyp: " + showString + NEWLINE);
@@ -2753,9 +2751,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       
       s.append(NEWLINE);
+      showString = item.boat.getAsText(BoatRecord.TYPEDESCRIPTION).split(";")[0];
+      if (showString.length() > 1) {
+        showString = "\"" + showString + "\"";
+      } else {
+        showString = "";
+      }
+      s.append("Ort am Isekai: " + showString + NEWLINE);
       //s.append("Ort: " + "[Liegt im Bootshaus am Isekai] (todo)" + NEWLINE);
-      String fileName = item.boat.getName() + ".jpg";
-      s.append("Foto: " + "so sieht das Boot aus ("+ fileName +")" + NEWLINE);
+      //String fileName = item.boat.getName() + ".jpg";
+      //s.append("Foto: " + "so sieht das Boot aus ("+ fileName +")" + NEWLINE);
       String currentStatus = item.boatStatus.getCurrentStatus();
       String statusDescription = BoatStatusRecord.getStatusDescription(currentStatus);
       s.append("Bootsstatus: " + statusDescription + NEWLINE);

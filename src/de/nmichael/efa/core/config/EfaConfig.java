@@ -274,6 +274,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString efadirekt_adminLastOsCommand;
   private ItemTypeLong efadirekt_lastBoatDamangeReminder;
   private ItemTypeImage efaDirekt_vereinsLogo;
+  private ItemTypeBoolean efaBoathouseShowOrtDescriptionInAvailableList;
   private ItemTypeBoolean efaBoathouseShowLastFromWaterNotification;
   private ItemTypeString efaBoathouseShowLastFromWaterNotificationText;
   private ItemTypeBoolean efaDirekt_showUhr;
@@ -1066,10 +1067,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efaDirekt_vereinsLogo = new ItemTypeImage("ClubLogo", "", 192, 64,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International.getString("Vereinslogo")));
+      addParameter(efaBoathouseShowOrtDescriptionInAvailableList = new ItemTypeBoolean(
+          "efaBoathouseShowOrtDescriptionInAvailableList", true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+          International
+          .getString("Ort/Beschreibung hinter Bootsname in Liste anzeigen")));
       addParameter(efaBoathouseShowLastFromWaterNotification = new ItemTypeBoolean(
-          "ShowLastFromWaterNotification",
-          true,
-          IItemType.TYPE_PUBLIC,
+          "ShowLastFromWaterNotification", true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International
           .getString("Nach Beenden letzter Fahrt Erinnerung zum Schließen der Bootshalle anzeigen")));
@@ -2225,6 +2229,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public String getValueEfaDirekt_vereinsLogo() {
     return efaDirekt_vereinsLogo.getValue();
+  }
+
+  public boolean isValueEfaBoathouseShowOrtDescriptionInAvailableList() {
+    return efaBoathouseShowOrtDescriptionInAvailableList.getValue();
   }
 
   public boolean getValueEfaBoathouseShowLastFromWaterNotification() {

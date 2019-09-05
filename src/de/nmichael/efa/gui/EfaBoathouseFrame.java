@@ -951,7 +951,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         + (fkey ? " [F7]" : ""));
     this.statisticsButton.setText(International.getString("Statistik erstellen")
         + (fkey ? " [F8]" : ""));
-    this.messageToAdminButton.setText(International.getString("Nachricht an Admin")
+    this.messageToAdminButton.setText(International.getString("Nachricht an Boris")
         + (fkey ? " [F9]" : ""));
     this.adminButton.setText(International.getString("Admin-Modus") + (fkey ? " [Alt-F10]" : ""));
     this.specialButton.setText(Daten.efaConfig.getValueEfaDirekt_butSpezial().getValueText()

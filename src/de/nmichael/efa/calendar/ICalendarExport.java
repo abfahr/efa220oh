@@ -326,7 +326,8 @@ public class ICalendarExport {
             continue;
           }
           wochentermine.add(reservationTimeDescription);
-          termin.getSummary().setValue("OH-Regeltermin");
+          termin.getSummary().setValue("OH-Regeltermin" 
+              + "+" + personAsName.substring(0, 1).toUpperCase());
           description += CRLF
               + "Keine Ausleihe möglich!" + CRLF
               + "Nur nach Rücksprache mit den Fachwarten!" + CRLF
@@ -402,8 +403,8 @@ public class ICalendarExport {
     iCalendar.getProperties().add(Version.VERSION_2_0);
     iCalendar.getProperties().add(CalScale.GREGORIAN);
     iCalendar.getProperties().add(new XProperty("X-WR-CALNAME", title));
-    iCalendar.getProperties().add(new XProperty("X-WR-TIMEZONE", "Europe/Copenhagen"));
-    iCalendar.getProperties().add(new XProperty("X-LIC-LOCATION", "Europe/Copenhagen"));
+    iCalendar.getProperties().add(new XProperty("X-WR-TIMEZONE", "Europe/Berlin"));
+    iCalendar.getProperties().add(new XProperty("X-LIC-LOCATION", "Europe/Berlin"));
     iCalendar.getProperties().add(new XProperty("X-WR-CALDESC", description));
 
     // Saving as iCalendar file

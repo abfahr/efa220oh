@@ -680,7 +680,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return EFA + getReservation() + getPersonAsName().substring(0, 1).toUpperCase();
+    return EFA + getReservation() + "+" + getPersonAsName().substring(0, 1).toUpperCase();
   }
 
   @Override
@@ -748,7 +748,7 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Grund der Reservierung: " + getReason());
     msg.add("");
     if (isBootshausOH()) {
-      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular schnell aus (http://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden Dir automatisch 75 Euro berechnet).");
+      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular umgehend aus (http://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden Dir automatisch 75 Euro berechnet).");
     }
     msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus.");
     if (isBootshausOH()) {
@@ -757,12 +757,12 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("Efa-Admin im Bootshaus");
+    msg.add("i.A. Efa-PC im Bootshaus");
     msg.add("");
     msg.add("PS: Der öffentliche Kalender unter "
-        + "http://www.overfreunde.de/termine.html bzw. http://overfreunde.ddns.net"
+        + "http://www.overfreunde.de/termine.html bzw. http://overfreunde.abfx.de"
         + " wird morgen aktualisiert. "
-        + "Diese Reservierung trägt dort die Identifizierung " + getEfaId());
+        + "Deine Reservierung trägt dort die Identifizierung " + getEfaId());
     // msg.add("");
     // msg.add(toString());
     return join(msg);

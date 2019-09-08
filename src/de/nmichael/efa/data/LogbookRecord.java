@@ -777,7 +777,7 @@ public class LogbookRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return EFA + getEntryId().intValue()
+    return EFA + getEntryId().intValue() + "-"
         + (getAllCoxAndCrewAsNameString() + " ").substring(0, 1).toUpperCase();
   }
 

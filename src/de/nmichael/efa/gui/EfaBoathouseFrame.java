@@ -719,6 +719,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     // personsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER); // Cannot
     // be displayed here and now, only when toggled to!
     JPanel togglePanel = new JPanel();
+    // Size preferredSize =
+    // togglePanel.setPreferredSize(preferredSize);
     togglePanel.add(toggleAvailableBoatsToBoats);
     if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()) {
       togglePanel.add(toggleAvailableBoatsToPersons);
@@ -2159,8 +2161,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()) {
           boatsAvailablePanel.remove(personsAvailableList.getPanel());
         }
+        Dimension size = boatsAvailablePanel.getPreferredSize();
         boatsAvailablePanel.remove(boatsAvailableList.getPanel()); // abf YES
         boatsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER, newSortingWunsch);
+        boatsAvailablePanel.setPreferredSize(size);
       } else {
         Dimension size = boatsAvailablePanel.getPreferredSize();
         boatsAvailablePanel.remove(boatsAvailableList.getPanel());

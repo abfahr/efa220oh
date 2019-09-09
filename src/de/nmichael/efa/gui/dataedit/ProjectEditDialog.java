@@ -45,7 +45,6 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
   String clubworkBookName;
 
   public enum Type {
-
     project,
     logbook,
     clubwork

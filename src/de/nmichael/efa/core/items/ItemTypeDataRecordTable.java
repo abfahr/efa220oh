@@ -625,15 +625,23 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                         sendEmailBootshausnutzungswart("DELETE", reservation);
                       }
                     }
+                    String name = "";
+                    if (records[i] instanceof BoatReservationRecord) {
+                      BoatReservationRecord reservation = (BoatReservationRecord) records[i];
+                      name = " für " + reservation.getPersonAsName();
+                    }
+                    String user = "";
+                    if (admin != null) {
+                      user = International.getString("Admin") + " '" + admin.getName() + "'";
+                    } else {
+                      user = International.getString("Normaler Benutzer");
+                    }
                     persistence.data().delete(records[i].getKey());
                     Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
                         records[i].getPersistence().getDescription() + ": "
                             + International.getMessage(
                                 "{name} hat Datensatz '{record}' gelöscht.",
-                                (admin != null
-                                    ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                                    : International.getString("Normaler Benutzer") + "?"),
-                                records[i].getQualifiedName()));
+                                user, records[i].getQualifiedName() + name));
                   }
                 }
               }

@@ -241,7 +241,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     
     northSideCalenderPanel = new JPanel(new BorderLayout());
     if (persistence.getName().equals("boatreservations")
-        && Daten.efaConfig.isShowDataRightSideCalendar()) {
+        && Daten.efaConfig.isShowDataRightSideCalendar()
+        && category.equals("BASE_CAT")) {
       northSideCalenderPanel.setBorder(new EmptyBorder(11, 31, 0, 31));
       drawCalendar();
       // refreshCalendar(0, currentMonth, currentYear); // funktioniert nicht

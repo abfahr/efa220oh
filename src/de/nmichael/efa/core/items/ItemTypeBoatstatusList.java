@@ -11,11 +11,14 @@
 package de.nmichael.efa.core.items;
 
 import java.awt.Color;
+import java.awt.Window;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.UUID;
 import java.util.Vector;
+
+import javax.swing.JPanel;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.EfaTypes;
@@ -38,14 +41,31 @@ import de.nmichael.efa.util.Logger;
 public class ItemTypeBoatstatusList extends ItemTypeList {
 
   public static final int SEATS_OTHER = 99;
+  
+  public enum SortingBy {
+    EfaSorting, // default EFA-Sorting
+    DescriptionOrt, // Tor 1
+    BoatType, // Wildwasser
+    BoatNameAffix, // (PE, Rot)
+    Owner, // Eigentümer Overfreunde
+    PaddelArt, // Riggering
+    Steuermann // Coxing
+  }
 
   EfaBoathouseFrame efaBoathouseFrame;
+  SortingBy sortmode;
 
   public ItemTypeBoatstatusList(String name,
       int type, String category, String description,
       EfaBoathouseFrame efaBoathouseFrame) {
     super(name, type, category, description);
     this.efaBoathouseFrame = efaBoathouseFrame;
+  }
+  
+  public int displayOnGui(Window dlg, JPanel panel, 
+      String borderLayoutOrientation, SortingBy sortmode) {
+    this.sortmode = sortmode;
+    return displayOnGui(dlg, panel, borderLayoutOrientation);
   }
 
   public void setBoatStatusData(Vector<BoatStatusRecord> v, Logbook logbook, String other) {
@@ -176,9 +196,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         if (myBoatRecord != null ) {
           myBoatString.name = myBoatRecord.getQualifiedName();
           if (Daten.efaConfig.isValueEfaBoathouseShowOrtDescriptionInAvailableList()) {
-            String postFix = myBoatRecord.getTypeDescription(0);
-            if (postFix != null && !postFix.isBlank()) {
-              myBoatString.name += " \"" + postFix +"\"";
+            if (sortmode == SortingBy.EfaSorting || sortmode == SortingBy.BoatType) {
+              String postFix = myBoatRecord.getTypeDescription(0);
+              if (postFix != null && !postFix.isBlank()) {
+                myBoatString.name += " \"" + postFix +"\"";
+              }
             }
           }
         }
@@ -189,6 +211,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         }
         // myBoatString.name = "" + myBoatString.name + ""; // Prefix + Postfix
         myBoatString.sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
+        myBoatString.sortKategorie = getSortingItem(myBoatRecord);
 
         // Colors for Groups
         ArrayList<Color> aColors = new ArrayList<Color>();
@@ -233,17 +256,24 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
       }
     }
 
-    BoatString[] a = new BoatString[vectorBoatString.size()];
-    for (int i = 0; i < a.length; i++) {
-      a[i] = vectorBoatString.get(i);
+    BoatString[] arrayBoatStrings = new BoatString[vectorBoatString.size()];
+    for (int i = 0; i < arrayBoatStrings.length; i++) {
+      arrayBoatStrings[i] = vectorBoatString.get(i);
     }
-    Arrays.sort(a);
+    Arrays.sort(arrayBoatStrings);
 
     Vector<ItemTypeListData> retValList = new Vector<ItemTypeListData>();
     int anz = -1;
     String lastSep = null;
-    for (BoatString myBoatStringElement : a) {
-      if (myBoatStringElement.seats != anz) {
+    for (BoatString myBoatStringElement : arrayBoatStrings) {
+      if (sortmode != null) {
+        String s = myBoatStringElement.sortKategorie;
+        String newSep = "--------- " + s + " -------------";
+        if (!newSep.equals(lastSep)) {
+          retValList.add(new ItemTypeListData(newSep, null, true, anz));
+        }
+        lastSep = newSep;
+      } else if (myBoatStringElement.seats != anz) {
         String s = null;
         s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, "" + myBoatStringElement.seats);
         switch (myBoatStringElement.seats) {
@@ -296,6 +326,42 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     return retValList;
   }
 
+  private String getSortingItem(BoatRecord aBoatRecord) {
+    String sortString = null;
+    if (aBoatRecord == null) {
+      return sortString;
+    }
+    switch (sortmode) {
+      case EfaSorting:
+        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, aBoatRecord.getTypeSeats(0));
+        break;
+      case DescriptionOrt:
+        sortString = aBoatRecord.getTypeDescription(0);
+        break;
+      case BoatType:
+        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, aBoatRecord.getTypeType(0));
+        break;
+      case BoatNameAffix:
+        sortString = aBoatRecord.getNameAffix();
+        break;
+      case Owner:
+        sortString = aBoatRecord.getOwner();
+        break;
+      case PaddelArt:
+        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, aBoatRecord.getTypeRigging(0));
+        break;
+      case Steuermann:
+        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, aBoatRecord.getTypeCoxing(0));
+        break;
+      default:
+        break;
+    }
+    if (sortString != null && sortString.isBlank()) {
+      sortString = null;
+    }
+    return sortString;
+  }
+
   public void setPersonStatusData(Vector<PersonRecord> v, String other) {
     Vector<ItemTypeListData> vdata = sortMemberList(v);
     if (other != null) {
@@ -311,24 +377,24 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     if (v == null || v.size() == 0) {
       return v;
     }
-    BoatString[] a = new BoatString[v.size()];
+    BoatString[] arrayBoatStrings = new BoatString[v.size()];
     for (int i = 0; i < v.size(); i++) {
       PersonRecord pr = v.get(i);
-      a[i] = new BoatString();
-      a[i].seats = SEATS_OTHER;
-      a[i].name = pr.getQualifiedName();
-      a[i].sortBySeats = false;
+      arrayBoatStrings[i] = new BoatString();
+      arrayBoatStrings[i].seats = SEATS_OTHER;
+      arrayBoatStrings[i].name = pr.getQualifiedName();
+      arrayBoatStrings[i].sortBySeats = false;
       BoatListItem item = new BoatListItem();
       item.list = this;
-      item.text = a[i].name;
+      item.text = arrayBoatStrings[i].name;
       item.person = pr;
-      a[i].record = item;
+      arrayBoatStrings[i].record = item;
     }
-    Arrays.sort(a);
+    Arrays.sort(arrayBoatStrings);
 
     Vector<ItemTypeListData> vv = new Vector<ItemTypeListData>();
     char lastChar = ' ';
-    for (BoatString element : a) {
+    for (BoatString element : arrayBoatStrings) {
       String name = element.name;
       if (name.length() > 0) {
         if (name.toUpperCase().charAt(0) != lastChar) {
@@ -373,6 +439,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
   class BoatString implements Comparable {
 
     public String name;
+    public String sortKategorie;
     public int seats;
     public boolean sortBySeats;
     public Object record;
@@ -480,8 +547,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     @Override
     public int compareTo(Object o) {
       BoatString other = (BoatString) o;
-      String sThis = (sortBySeats ? (seats < 10 ? "0" : "") + seats : "") + normalizeString(name);
-      String sOther = (sortBySeats ? (other.seats < 10 ? "0" : "") + other.seats : "")
+      String sThis = normalizeString(sortKategorie)
+        //  + (sortBySeats ? (seats < 10 ? "0" : "") + seats : "") 
+          + normalizeString(name);
+      String sOther = normalizeString(other.sortKategorie) 
+        //  + (sortBySeats ? (other.seats < 10 ? "0" : "") + other.seats : "")
           + normalizeString(other.name);
       return sThis.compareTo(sOther);
     }

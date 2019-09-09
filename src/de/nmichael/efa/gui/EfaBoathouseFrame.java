@@ -56,6 +56,7 @@ import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoatstatusList;
+import de.nmichael.efa.core.items.ItemTypeBoatstatusList.SortingBy;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.core.items.ItemTypeConfigButton;
 import de.nmichael.efa.core.items.ItemTypeList;
@@ -147,6 +148,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   ButtonGroup toggleAvailableBoats = new ButtonGroup();
   JRadioButton toggleAvailableBoatsToBoats = new JRadioButton();
   JRadioButton toggleAvailableBoatsToPersons = new JRadioButton();
+  JRadioButton toggleAvailableBoatsToDescriptionOrt = new JRadioButton(); // Tor 1
+  JRadioButton toggleAvailableBoatsToBoatType = new JRadioButton(); // Wildwasser
+  JRadioButton toggleAvailableBoatsToBoatNameAffix = new JRadioButton(); // (PE, Rot)
+  JRadioButton toggleAvailableBoatsToOwner = new JRadioButton(); // Eigentümer Overfreunde
+  JRadioButton toggleAvailableBoatsToPaddelArt = new JRadioButton(); // Riggering
+  JRadioButton toggleAvailableBoatsToSteuermann = new JRadioButton(); // Coxing
 
   // Center Panel GUI Items
   JLabel logoLabel = new JLabel();
@@ -543,6 +550,13 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             .getDefaultFontSize());
         toggleAvailableBoatsToBoats.setPreferredSize(new Dimension(width / 2, height));
         toggleAvailableBoatsToPersons.setPreferredSize(new Dimension(width / 2, height));
+        toggleAvailableBoatsToBoats.setPreferredSize(new Dimension(width / 6, height));
+        toggleAvailableBoatsToDescriptionOrt.setPreferredSize(new Dimension(width / 6, height));
+        toggleAvailableBoatsToBoatType.setPreferredSize(new Dimension(width / 6, height));
+        toggleAvailableBoatsToBoatNameAffix.setPreferredSize(new Dimension(width / 6, height));
+        toggleAvailableBoatsToOwner.setPreferredSize(new Dimension(width / 6, height));
+        toggleAvailableBoatsToPaddelArt.setPreferredSize(new Dimension(width / 6, height));
+        toggleAvailableBoatsToSteuermann.setPreferredSize(new Dimension(width / 6, height));
 
         validate();
       } catch (Exception e) {
@@ -571,10 +585,33 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         International.getStringWithMnemonic("Boote"));
     Mnemonics.setButton(this, toggleAvailableBoatsToPersons,
         International.getStringWithMnemonic("Personen"));
+    if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories()) {
+      Mnemonics.setButton(this, toggleAvailableBoatsToBoats,
+          International.getStringWithMnemonic("EFA"));
+    }
+    Mnemonics.setButton(this, toggleAvailableBoatsToDescriptionOrt,
+        International.getStringWithMnemonic("Ort"));
+    Mnemonics.setButton(this, toggleAvailableBoatsToBoatType,
+        International.getStringWithMnemonic("Art"));
+    Mnemonics.setButton(this, toggleAvailableBoatsToBoatNameAffix,
+        International.getStringWithMnemonic("Optik")); // Farbe
+    Mnemonics.setButton(this, toggleAvailableBoatsToOwner,
+        International.getStringWithMnemonic("Eigner"));
+    Mnemonics.setButton(this, toggleAvailableBoatsToPaddelArt,
+        International.getStringWithMnemonic("Paddel"));
+    Mnemonics.setButton(this, toggleAvailableBoatsToSteuermann,
+        International.getStringWithMnemonic("Steuer"));
+    
     toggleAvailableBoatsToBoats.setHorizontalAlignment(SwingConstants.RIGHT);
     toggleAvailableBoatsToPersons.setHorizontalAlignment(SwingConstants.LEFT);
     toggleAvailableBoats.add(toggleAvailableBoatsToBoats);
     toggleAvailableBoats.add(toggleAvailableBoatsToPersons);
+    toggleAvailableBoats.add(toggleAvailableBoatsToDescriptionOrt);
+    toggleAvailableBoats.add(toggleAvailableBoatsToBoatType);
+    toggleAvailableBoats.add(toggleAvailableBoatsToBoatNameAffix);
+    toggleAvailableBoats.add(toggleAvailableBoatsToOwner);
+    toggleAvailableBoats.add(toggleAvailableBoatsToPaddelArt);
+    toggleAvailableBoats.add(toggleAvailableBoatsToSteuermann);
     toggleAvailableBoatsToBoats.setSelected(true);
     toggleAvailableBoatsToBoats.addActionListener(new java.awt.event.ActionListener() {
       @Override
@@ -588,11 +625,61 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         toggleAvailableBoats_actionPerformed(e);
       }
     });
+    toggleAvailableBoatsToDescriptionOrt.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
+    toggleAvailableBoatsToBoatType.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
+    toggleAvailableBoatsToBoatNameAffix.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
+    toggleAvailableBoatsToOwner.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
+    toggleAvailableBoatsToPaddelArt.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
+    toggleAvailableBoatsToSteuermann.addActionListener(new java.awt.event.ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
+
     // Update GUI Elements for Boat Lists
-    toggleAvailableBoatsToBoats.setVisible(Daten.efaConfig
-        .getValueEfaDirekt_listAllowToggleBoatsPersons());
+    toggleAvailableBoatsToBoats.setVisible(
+        Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories() ||
+        Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons());
     toggleAvailableBoatsToPersons.setVisible(Daten.efaConfig
-        .getValueEfaDirekt_listAllowToggleBoatsPersons());
+        .isValueEfaDirekt_listAllowToggleBoatsPersons());
+    toggleAvailableBoatsToDescriptionOrt.setVisible(Daten.efaConfig
+        .isValueEfaDirekt_listAllowToggleSortByCategories());
+    toggleAvailableBoatsToBoatType.setVisible(Daten.efaConfig
+        .isValueEfaDirekt_listAllowToggleSortByCategories());
+    toggleAvailableBoatsToBoatNameAffix.setVisible(Daten.efaConfig
+        .isValueEfaDirekt_listAllowToggleSortByCategories() && false);
+    toggleAvailableBoatsToOwner.setVisible(Daten.efaConfig
+        .isValueEfaDirekt_listAllowToggleSortByCategories() && false);
+    toggleAvailableBoatsToPaddelArt.setVisible(Daten.efaConfig
+        .isValueEfaDirekt_listAllowToggleSortByCategories());
+    toggleAvailableBoatsToSteuermann.setVisible(Daten.efaConfig
+        .isValueEfaDirekt_listAllowToggleSortByCategories());
 
     // Boat Lists
     boatsAvailableList = new ItemTypeBoatstatusList("BOATSAVAILABLELIST", IItemType.TYPE_PUBLIC,
@@ -628,13 +715,24 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     // add Panels to Gui
     boatsAvailablePanel = new JPanel();
     boatsAvailablePanel.setLayout(new BorderLayout());
-    boatsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER);
+    boatsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER, SortingBy.EfaSorting);
     // personsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER); // Cannot
     // be displayed here and now, only when toggled to!
     JPanel togglePanel = new JPanel();
-    togglePanel.add(toggleAvailableBoatsToBoats, null);
-    togglePanel.add(toggleAvailableBoatsToPersons, null);
-    togglePanel.setVisible(Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons());
+    togglePanel.add(toggleAvailableBoatsToBoats);
+    if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()) {
+      togglePanel.add(toggleAvailableBoatsToPersons);
+      togglePanel.setVisible(Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons());
+    }
+    if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories()) {
+      togglePanel.add(toggleAvailableBoatsToDescriptionOrt);
+      togglePanel.add(toggleAvailableBoatsToBoatType);
+      togglePanel.add(toggleAvailableBoatsToBoatNameAffix);
+      togglePanel.add(toggleAvailableBoatsToOwner);
+      togglePanel.add(toggleAvailableBoatsToPaddelArt);
+      togglePanel.add(toggleAvailableBoatsToSteuermann);
+      togglePanel.setVisible(Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories());
+    }
     boatsAvailablePanel.add(togglePanel, BorderLayout.NORTH);
     westPanel.setLayout(new BorderLayout());
     westPanel.add(boatsAvailablePanel, BorderLayout.CENTER);
@@ -649,7 +747,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   private void iniGuiListNames() {
     boolean fkey = Daten.efaConfig.getValueEfaDirekt_showButtonHotkey();
-    if (!Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons()
+    if (!Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()
         || toggleAvailableBoatsToBoats.isSelected()) {
       boatsAvailableList.setDescription(International.getString("verfügbare Boote")
           + (fkey ? " [F10]" : ""));
@@ -1653,7 +1751,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
 
         if (listChanged) {
-          if (!Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons()
+          if (!Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()
               || toggleAvailableBoatsToBoats.isSelected()) {
             if (Logger.isTraceOn(Logger.TT_GUI, 9)) {
               Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "updateBoatLists(" + listChanged
@@ -1911,7 +2009,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     if (listnr == 1
-        && Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons()
+        && Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()
         && toggleAvailableBoatsToPersons.isSelected()) {
       actionStartSession(blitem);
       return;
@@ -2047,7 +2145,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   void toggleAvailableBoats_actionPerformed(ActionEvent e) {
-    if (!Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons()) {
+    if (!Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons() &&
+        !Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories()) {
       return;
     }
     iniGuiListNames();
@@ -2055,9 +2154,13 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "toggleAvailableBoats_actionPerformed()");
     }
     try {
-      if (toggleAvailableBoatsToBoats.isSelected()) {
-        boatsAvailablePanel.remove(personsAvailableList.getPanel());
-        boatsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER);
+      SortingBy newSortingWunsch = getSelectedSorting();
+      if (newSortingWunsch != null) {
+        if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()) {
+          boatsAvailablePanel.remove(personsAvailableList.getPanel());
+        }
+        boatsAvailablePanel.remove(boatsAvailableList.getPanel()); // abf YES
+        boatsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER, newSortingWunsch);
       } else {
         Dimension size = boatsAvailablePanel.getPreferredSize();
         boatsAvailablePanel.remove(boatsAvailableList.getPanel());
@@ -2066,10 +2169,32 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       validate();
       updateBoatLists(true);
-    } catch (Exception ee) {}
+    } catch (Exception ee) {
+      // TODO abf 2019-09-08 do nothing ???
+    }
     if (Logger.isTraceOn(Logger.TT_GUI, 8)) {
       Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI,
           "toggleAvailableBoats_actionPerformed() - done");
+    }
+  }
+
+  private SortingBy getSelectedSorting() {
+    if (toggleAvailableBoatsToBoats.isSelected()) {
+      return (SortingBy.EfaSorting);
+    } else if (toggleAvailableBoatsToDescriptionOrt.isSelected()) {
+      return (SortingBy.DescriptionOrt);
+    } else if (toggleAvailableBoatsToBoatType.isSelected()) {
+      return (SortingBy.BoatType);
+    } else if (toggleAvailableBoatsToBoatNameAffix.isSelected()) {
+      return (SortingBy.BoatNameAffix);
+    } else if (toggleAvailableBoatsToOwner.isSelected()) {
+      return (SortingBy.Owner);
+    } else if (toggleAvailableBoatsToPaddelArt.isSelected()) {
+      return (SortingBy.PaddelArt);
+    } else if (toggleAvailableBoatsToSteuermann.isSelected()) {
+      return (SortingBy.Steuermann);
+    } else {
+      return null;
     }
   }
 
@@ -2094,7 +2219,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   private ItemTypeBoatstatusList.BoatListItem getSelectedListItem() {
     ItemTypeBoatstatusList.BoatListItem item = null;
-    if (Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons()
+    if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()
         && toggleAvailableBoatsToPersons.isSelected()) {
       if (item == null && personsAvailableList != null) {
         item = getSelectedListItem(personsAvailableList);
@@ -2536,8 +2661,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservierenZyklisch(),
           Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservierungenEditieren());
       dlg.showDialog();
-      efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt
-      // der Thread ihn richtig!
+      // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+      efaBoathouseBackgroundTask.interrupt(); 
       return;
     }
 
@@ -2580,8 +2705,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (item == null || item.boat == null) {
       Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
       boatListRequestFocus(1);
-      efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt
-      // der Thread ihn richtig!
+      // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+      efaBoathouseBackgroundTask.interrupt(); 
       return;
     }
     BoatDamageEditDialog.newBoatDamage(this, item.boat, null, null);

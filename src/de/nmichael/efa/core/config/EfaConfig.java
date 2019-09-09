@@ -234,6 +234,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeConfigButton efaDirekt_butHelp;
   private ItemTypeString efaDirekt_butSpezialCmd;
   private ItemTypeBoolean efaDirekt_showButtonHotkey;
+  private ItemTypeBoolean efaDirekt_listAllowToggleSortByCategories;
   private ItemTypeBoolean efaDirekt_sortByAnzahl;
   private ItemTypeBoolean efaDirekt_autoPopupOnBoatLists;
   private ItemTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
@@ -741,13 +742,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International
           .getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
+      addParameter(efaDirekt_listAllowToggleSortByCategories = new ItemTypeBoolean("efaDirekt_listAllowToggleSortByCategories", false,
+          IItemType.TYPE_PUBLIC, 
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("erlaube Auswahl in Bootslisten auch per Kategorien (Ort,..)")));
       addParameter(efaDirekt_resLookAheadTime = new ItemTypeInteger(
-          "ReservationLookAheadTime",
-          120,
-          0,
-          Integer.MAX_VALUE,
-          false,
-          IItemType.TYPE_EXPERT,
+          "ReservationLookAheadTime", 120, 0, Integer.MAX_VALUE,
+          false, IItemType.TYPE_EXPERT,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International
           .getString("Bei Fahrtbeginn auf Reservierungen bis zu x Minuten in der Zukunft prüfen")));
@@ -2069,8 +2070,12 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return efaDirekt_autoPopupOnBoatLists.getValue();
   }
 
-  public boolean getValueEfaDirekt_listAllowToggleBoatsPersons() {
+  public boolean isValueEfaDirekt_listAllowToggleBoatsPersons() {
     return efaDirekt_listAllowToggleBoatsPersons.getValue();
+  }
+
+  public boolean isValueEfaDirekt_listAllowToggleSortByCategories() {
+    return efaDirekt_listAllowToggleSortByCategories.getValue();
   }
 
   public boolean getValueEfaDirekt_showEingabeInfos() {
@@ -2614,6 +2619,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           if (item == efaDirekt_fontSize ||
               item == efaDirekt_fontStyle ||
               item == efaDirekt_listAllowToggleBoatsPersons ||
+              item == efaDirekt_listAllowToggleSortByCategories ||
               item == efaDirekt_autoPopupOnBoatLists ||
               item == useFunctionalityRowing ||
               item == useFunctionalityRowingGermany ||

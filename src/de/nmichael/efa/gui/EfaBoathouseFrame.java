@@ -549,16 +549,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         boatsNotAvailableList.setFieldSize(width, 300); // (int) (newsize.getHeight() / 4));
         int height = (int) (20.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog
             .getDefaultFontSize());
-        toggleAvailableBoatsToBoats.setPreferredSize(new Dimension(width / 2, height));
-        toggleAvailableBoatsToPersons.setPreferredSize(new Dimension(width / 2, height));
-        toggleAvailableBoatsToBoats.setPreferredSize(new Dimension(width / 6, height));
-        toggleAvailableBoatsToDescriptionOrt.setPreferredSize(new Dimension(width / 6, height));
-        toggleAvailableBoatsToBoatType.setPreferredSize(new Dimension(width / 6, height));
-        toggleAvailableBoatsToBoatNameAffix.setPreferredSize(new Dimension(width / 6, height));
-        toggleAvailableBoatsToOwner.setPreferredSize(new Dimension(width / 6, height));
-        toggleAvailableBoatsToPaddelArt.setPreferredSize(new Dimension(width / 6, height));
-        toggleAvailableBoatsToSteuermann.setPreferredSize(new Dimension(width / 6, height));
-
+        if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()) {
+          toggleAvailableBoatsToBoats.setPreferredSize(new Dimension(width / 2, height));
+          toggleAvailableBoatsToPersons.setPreferredSize(new Dimension(width / 2, height));
+        }
         validate();
       } catch (Exception e) {
         Logger.logdebug(e);
@@ -619,10 +613,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 //  toggleAvailableBoatsToPersons.setFont(smallerFont);
 //  toggleAvailableBoatsToDescriptionOrt.setFont(smallerFont);
 //  toggleAvailableBoatsToBoatType.setFont(smallerFont);
-    toggleAvailableBoatsToBoatNameAffix.setFont(smallerFont);
-    toggleAvailableBoatsToOwner.setFont(smallerFont);
-    toggleAvailableBoatsToPaddelArt.setFont(smallerFont);
-    toggleAvailableBoatsToSteuermann.setFont(smallerFont);
+//  toggleAvailableBoatsToBoatNameAffix.setFont(smallerFont);
+//  toggleAvailableBoatsToOwner.setFont(smallerFont);
+//  toggleAvailableBoatsToPaddelArt.setFont(smallerFont);
+//  toggleAvailableBoatsToSteuermann.setFont(smallerFont);
 
     toggleAvailableBoatsToBoats.setSelected(true);
     toggleAvailableBoatsToBoats.addActionListener(new java.awt.event.ActionListener() {

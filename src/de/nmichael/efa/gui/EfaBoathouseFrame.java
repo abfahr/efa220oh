@@ -384,7 +384,17 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     updateGuiClock();
     updateGuiNews();
     updateGuiButtonText();
-    updateGuiLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // Standard-Bild
+    updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // Standard-Bild
+  }
+
+  public boolean resetSorting() {
+    if (!toggleAvailableBoatsToPersons.isSelected() && 
+        !toggleAvailableBoatsToBoats.isSelected()) {
+      toggleAvailableBoatsToBoats.setSelected(true);
+      toggleAvailableBoats_actionPerformed(null); // incl. updateBoatLists() alive()
+      return true; // means updateBoatLists() has already been called 
+    }
+    return false;
   }
 
   private void iniGuiPanels() {
@@ -555,7 +565,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
         validate();
       } catch (Exception e) {
-        Logger.logdebug(e);
+        Logger.logwarn(e);
       }
     }
 
@@ -827,7 +837,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
   }
 
-  private void updateGuiLogo(String strZentralesBild) {
+  private void updateGuiZentralesLogo(String strZentralesBild) {
     if (strZentralesBild == null || strZentralesBild.length() == 0) {
       logoLabel.setIcon(null);
       return;
@@ -870,7 +880,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 
-    updateGuiLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // wichtig
+    updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // wichtig
   }
 
   private void iniGuiButtons() {
@@ -1810,7 +1820,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
        * boats
        */
 
-      if (toggleAvailableBoatsToBoats.isSelected()) {
+      if (!toggleAvailableBoatsToPersons.isSelected()) {
         statusLabelSetText(International.getString("Kein Boot ausgewählt."));
       } else {
         statusLabelSetText(International.getString("Keine Person ausgewählt."));
@@ -1828,21 +1838,21 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       } else if (boatsNotAvailableList.isFocusOwner()) {
         boatsNotAvailableList.setSelectedIndex(0);
       } else {
-        if (toggleAvailableBoatsToBoats.isSelected()) {
+        if (!toggleAvailableBoatsToPersons.isSelected()) {
           boatsAvailableList.requestFocus();
           boatsAvailableList.setSelectedIndex(0);
+          updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo());
         } else {
           personsAvailableList.requestFocus();
           personsAvailableList.setSelectedIndex(0);
         }
-
       }
       if (Logger.isTraceOn(Logger.TT_GUI, 8)) {
         Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "updateBoatLists(" + listChanged
             + ") - done");
       }
     } catch (Exception e) {
-      Logger.logdebug(e);
+      Logger.logwarn(e);
     } finally {
       inUpdateBoatList = false;
     }
@@ -2083,7 +2093,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             }
             list.setSelectedIndex(i);
           } catch (Exception e) { 
-            // just to be sure
+            Logger.logwarn(e);
           }
         }
       }
@@ -2102,7 +2112,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           } else {
             name = International.getString("anderes oder fremdes Boot");
           }
-          updateGuiLogo(fileName);
+          updateGuiZentralesLogo(fileName);
           String text = "";
           if (status != null) {
             String s = BoatStatusRecord.getStatusDescription(status.getCurrentStatus());
@@ -2131,12 +2141,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           }
           statusLabelSetText(name + ": " + text + bootstyp + rudererlaubnis);
         } else {
-          updateGuiLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // gut // reset to Vereinslogo // Standard-Bild
+          // nach klick auf "<anderes Boot>"
+          updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // gut // reset to Vereinslogo // Standard-Bild
           statusLabelSetText(International.getString("anderes oder fremdes Boot"));
         }
       } else {
+        // nach klick auf Personenliste
         statusLabelSetText(name);
       }
+
       if (listnr != 1) {
         boatsAvailableList.clearSelection();
         personsAvailableList.clearSelection();
@@ -2148,7 +2161,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         boatsNotAvailableList.clearSelection();
       }
     } catch (Exception e) {
-      Logger.logdebug(e);
+      Logger.logwarn(e);
     }
   }
 
@@ -2177,10 +2190,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         personsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER);
         boatsAvailablePanel.setPreferredSize(size);
       }
+      alive();
       validate();
       updateBoatLists(true);
     } catch (Exception ee) {
-      // TODO abf 2019-09-08 do nothing ???
+      Logger.logwarn(ee);
     }
     if (Logger.isTraceOn(Logger.TT_GUI, 8)) {
       Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI,

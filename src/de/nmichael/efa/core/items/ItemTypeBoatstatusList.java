@@ -328,7 +328,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
 
   private String getSortingItem(BoatRecord aBoatRecord) {
     String sortString = null;
-    if (aBoatRecord == null) {
+    if (sortmode == null || aBoatRecord == null) {
       return sortString;
     }
     switch (sortmode) {

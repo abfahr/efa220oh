@@ -194,8 +194,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         // Aktivitäten einmal pro Stunde
         if (--onceAnHour <= 0) {
-          System.gc(); // Damit Speicherüberwachung funktioniert (anderenfalls wird CollectionUsage
-          // nicht aktualisiert; Java-Bug)
+          System.gc(); 
+          // Damit Speicherüberwachung funktioniert
+          // (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
           onceAnHour = ONCE_AN_HOUR;
           if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
@@ -383,7 +384,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
           "EfaBoathouseBackgroundTask: checkBoatStatus()");
     }
 
-    boolean listChanged = (newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn);
+    boolean listChanged = false;
+    if (newBoatStatusScn != -1 && 
+        newBoatStatusScn != lastBoatStatusScn) {
+      listChanged = true;
+    }
     lastBoatStatusScn = newBoatStatusScn;
 
     if (isProjectOpen && !isLocalProject) {
@@ -565,7 +570,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 + ", new Status: " + boatStatusRecord.toString());
           }
         } catch (Exception ee) {
-          Logger.logdebug(ee);
+          Logger.logwarn(ee);
         }
       }
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
@@ -573,13 +578,24 @@ public class EfaBoathouseBackgroundTask extends Thread {
             "EfaBoathouseBackgroundTask: checkBoatStatus() - calling updateBoatLists("
                 + listChanged + ") ...");
       }
-      efaBoathouseFrame.updateBoatLists(listChanged);
+      // Prüfung der letzten User-Interaction Zeitpunkt
+      if (listChanged || System.currentTimeMillis() - 
+          efaBoathouseFrame.getLastUserInteraction() > 
+          Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
+        if (efaBoathouseFrame.resetSorting()) {
+          // true means reset has already done updateBoatLists() and alive()
+          // // efaBoathouseFrame.updateBoatLists(listChanged); // no need
+        } else {
+          // false means nothing changed, need to update now
+          efaBoathouseFrame.updateBoatLists(listChanged); // must have
+        }
+      }
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
             "EfaBoathouseBackgroundTask: checkBoatStatus() - done");
       }
     } catch (Exception e) {
-      Logger.logdebug(e);
+      Logger.logwarn(e);
     }
   }
 

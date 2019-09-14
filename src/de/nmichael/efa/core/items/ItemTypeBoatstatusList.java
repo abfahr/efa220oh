@@ -211,7 +211,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         }
         // myBoatString.name = "" + myBoatString.name + ""; // Prefix + Postfix
         myBoatString.sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
-        myBoatString.sortKategorie = getSortingItem(myBoatRecord);
+        myBoatString.sortKategorie = getSortingItem(myBoatRecord, myBoatStatusRecord);
 
         // Colors for Groups
         ArrayList<Color> aColors = new ArrayList<Color>();
@@ -326,7 +326,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     return retValList;
   }
 
-  private String getSortingItem(BoatRecord aBoatRecord) {
+  private String getSortingItem(BoatRecord aBoatRecord, BoatStatusRecord aBoatStatusRecord) {
     String sortString = null;
     if (sortmode == null || aBoatRecord == null) {
       return sortString;
@@ -336,7 +336,32 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, aBoatRecord.getTypeSeats(0));
         break;
       case DescriptionOrt:
-        sortString = aBoatRecord.getTypeDescription(0);
+        String currentStatus = aBoatStatusRecord.getCurrentStatus();
+        if (currentStatus == null) {
+          return sortString;
+        }
+        switch (currentStatus) {
+          case BoatStatusRecord.STATUS_AVAILABLE:
+            sortString = aBoatRecord.getTypeDescription(0);
+            break;
+          case BoatStatusRecord.STATUS_ONTHEWATER:
+            LogbookRecord lr = efaBoathouseFrame.getLogbook().getLogbookRecord(aBoatStatusRecord.getEntryNo());
+            if (lr != null) {
+              sortString = lr.getDestinationAndVariantName();
+            } else {
+              System.out.println("Problem");
+            }
+            break;
+          case BoatStatusRecord.STATUS_NOTAVAILABLE:
+            sortString = aBoatStatusRecord.getComment();
+            sortString = aBoatRecord.getTypeDescription(0);
+            break;
+
+          default:
+            sortString = aBoatStatusRecord.getComment();
+            sortString = aBoatRecord.getTypeDescription(0);
+            break;
+        }
         break;
       case BoatType:
         sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, aBoatRecord.getTypeType(0));

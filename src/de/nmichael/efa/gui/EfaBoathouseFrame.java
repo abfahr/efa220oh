@@ -760,8 +760,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     boatsNotAvailablePanel = new JPanel();
     boatsNotAvailablePanel.setLayout(new BorderLayout());
-    boatsOnTheWaterList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.CENTER);
-    boatsNotAvailableList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.SOUTH);
+    boatsOnTheWaterList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.CENTER, SortingBy.DescriptionOrt);
+    boatsNotAvailableList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.SOUTH, SortingBy.EfaSorting);
     eastPanel.setLayout(new BorderLayout());
     eastPanel.add(boatsNotAvailablePanel, BorderLayout.CENTER);
   }
@@ -2195,6 +2195,13 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         boatsAvailablePanel.remove(boatsAvailableList.getPanel()); // abf YES
         boatsAvailableList.displayOnGui(this, boatsAvailablePanel, BorderLayout.CENTER, newSortingWunsch);
         boatsAvailablePanel.setPreferredSize(size);
+
+        size = boatsNotAvailablePanel.getPreferredSize();
+        boatsNotAvailablePanel.remove(boatsNotAvailableList.getPanel());
+        boatsNotAvailablePanel.remove(boatsOnTheWaterList.getPanel());
+        boatsOnTheWaterList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.CENTER, newSortingWunsch);
+        boatsNotAvailableList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.SOUTH, newSortingWunsch);
+        boatsNotAvailablePanel.setPreferredSize(size);
       } else {
         Dimension size = boatsAvailablePanel.getPreferredSize();
         boatsAvailablePanel.remove(boatsAvailableList.getPanel());

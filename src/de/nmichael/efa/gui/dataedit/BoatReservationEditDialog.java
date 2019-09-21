@@ -203,8 +203,6 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
           break;
         }
       }
-
-      // TODO Hier prüfen, ob Termin-Überlapp
     }
   }
 
@@ -281,53 +279,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     }
   }
 
-  boolean isReservationForBoatDuringFreetime() {
-    getValuesFromGui();
-
-    String boatName = ""; // getItem("BoatName").getValueFromField();
-    UUID boatId = BoatRecord.BOOTSHAUS;// getItem("BoatId").getValueFromField();
-    long startZeit = System.currentTimeMillis(); // abf
-    int dauerMinuten = Daten.efaConfig.getValueEfaDirekt_resLookAheadTime();
-
-    BoatReservationRecord[] reservations = null;
-    if (boatId != null) {
-      BoatReservations boatReservations = Daten.project.getBoatReservations(false);
-      reservations = boatReservations.getBoatReservations(boatId, startZeit, dauerMinuten);
-    }
-
-    if (reservations != null && reservations.length > 0) {
-      long validInMinutes = reservations[0].getReservationValidInMinutes(startZeit, dauerMinuten);
-      if (Dialog
-          .yesNoCancelDialog(
-              International.getString("Boot reserviert"),
-              International.getMessage(
-                  "Das Boot {boat} ist {currently_or_in_x_minutes} für {name} reserviert.",
-                  boatName,
-                  (validInMinutes == 0
-                  ? International.getString("zur Zeit")
-                      : International.getMessage("in {x} Minuten", (int) validInMinutes)),
-                      reservations[0].getPersonAsName())
-                      + "\n"
-                      + (reservations[0].getReason() != null
-                      && reservations[0].getReason().length() > 0 ?
-                          International.getString("Grund") + ": " + reservations[0].getReason() + "\n"
-                          : "")
-                          + (reservations[0].getContact() != null
-                          && reservations[0].getContact().length() > 0 ?
-                              International.getString("Telefon für Rückfragen") + ": "
-                              + reservations[0].getContact() + "\n" : "")
-                              + "\n"
-                              + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
-                                  reservations[0].getReservationTimeDescription()) + "\n"
-                                  + International.getString("Möchtest Du trotzdem reservieren?"))
-                                  != Dialog.YES) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private void setAllowWeeklyReservation(boolean allowWeeklyReservation) throws Exception {
+private void setAllowWeeklyReservation(boolean allowWeeklyReservation) throws Exception {
     if (!allowWeeklyReservation) {
       if (!newRecord && dataRecord != null &&
           BoatReservationRecord.TYPE_WEEKLY.equals(((BoatReservationRecord) dataRecord).getType())) {

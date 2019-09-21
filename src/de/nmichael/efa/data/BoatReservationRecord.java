@@ -460,6 +460,10 @@ public class BoatReservationRecord extends DataRecord {
   
   public boolean isFolgeTagNachUhrzeit(String endZeitFolgeTag) {
     long differenceDays = getDateTo().getDifferenceDays(getDateFrom());
+    if (differenceDays > 2) { // TODO should be > 1
+        // schon zwei Tage überschritten
+        return true;
+      }
     if (differenceDays > 0) {
       DataTypeTime endZeit = DataTypeTime.parseTime(endZeitFolgeTag);
       if (getTimeTo().isAfterOrEqual(endZeit)) {

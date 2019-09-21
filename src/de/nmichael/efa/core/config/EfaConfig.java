@@ -998,11 +998,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*", IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International.getString("regex für Handynummer")));
-      addParameter(maximaleEndUhrzeitFolgetagBeiBootshausReservierung = new ItemTypeString(
-          "maximaleEndUhrzeitFolgetagBeiBootshausReservierung",
-          "11", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International.getString("maximale Enduhrzeit am Folgetag (bei Bootshausreservierung)")));
       
       addParameter(textPrivatMitVertrag = new ItemTypeString(
           "textPrivatMitVertrag",
@@ -1023,7 +1018,12 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "minimumDauerFuerKulanz", 48, 0, 9999, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International.getString("Regeltermin: Minimum Dauer für Kulanz (in Std.)")));
-      
+      addParameter(maximaleEndUhrzeitFolgetagBeiBootshausReservierung = new ItemTypeString(
+          "maximaleEndUhrzeitFolgetagBeiBootshausReservierung",
+          "19:00", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("maximale Endzeit am Folgetag (Bootshaus)")));
+
       // ============================= BOATHOUSE:GUI =============================
       addParameter(efaDirekt_startMaximized = new ItemTypeBoolean("EfaBoathouseWindowMaximized",
           true,

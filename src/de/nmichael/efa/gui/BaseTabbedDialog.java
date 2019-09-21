@@ -61,8 +61,8 @@ public abstract class BaseTabbedDialog extends BaseDialog {
   protected Vector<IItemType> displayedGuiItems;
   protected Hashtable<JPanel, String> panels;
 
-  protected boolean defaultGetGuiItemsOnUpdateGui = false; // true for EfaConfigDialog (req. by
-  // Hashtable); else false
+  protected boolean defaultGetGuiItemsOnUpdateGui = false; 
+  // true for EfaConfigDialog (req. by Hashtable); else false
 
   protected boolean expertModeEnabled = false;
   protected boolean expertModeItems = false;

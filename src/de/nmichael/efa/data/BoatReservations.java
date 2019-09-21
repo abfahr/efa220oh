@@ -231,12 +231,12 @@ public class BoatReservations extends StorageObject {
       }
 
       if (r.isBootshausOH()) {
-        // String maximaleEndZeit = "11"; // Uhr
+        // String maximaleEndZeit = "11:00"; // Uhr
         String maximaleEndZeit = Daten.efaConfig.getMaximaleEndUhrzeitFolgetagBeiBootshausReservierung();
         if (r.isFolgeTagNachUhrzeit(maximaleEndZeit + ":00:00")) {
           throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
               International.getString("Für das Bootshaus bitte täglich einzelne Reservierungen eintragen. " +
-          "Es entstehen separate Nutzungsentgelte bei Reservierung nach " + maximaleEndZeit + " Uhr."),
+          "Es entstehen separate Nutzungsentgelte bei Reservierung nach " + maximaleEndZeit + " Uhr am Folgetag."),
               Thread.currentThread().getStackTrace());          
         }
       }

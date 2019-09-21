@@ -457,6 +457,17 @@ public class BoatReservationRecord extends DataRecord {
     }
     return -1;
   }
+  
+  public boolean isFolgeTagNachUhrzeit(String endZeitFolgeTag) {
+    long differenceDays = getDateTo().getDifferenceDays(getDateFrom());
+    if (differenceDays > 0) {
+      DataTypeTime endZeit = DataTypeTime.parseTime(endZeitFolgeTag);
+      if (getTimeTo().isAfterOrEqual(endZeit)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   public double getDurationInHours() {
     if (this.getType().equals(TYPE_WEEKLY)) {

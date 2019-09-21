@@ -242,6 +242,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_showBootsschadenButton;
   private ItemTypeBoolean boatNotCleanedButton;
   private ItemTypeString uuidBootshaus;
+  private ItemTypeString maximaleEndUhrzeitFolgetagBeiBootshausReservierung;
   private ItemTypeString emailToBootshausnutzungWolle;
   private ItemTypeBoolean reservierungAnMitgliedEmailen;
   private ItemTypeBoolean reservierungAnMitgliedMitKuerzelEmailen;
@@ -997,7 +998,12 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*", IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International.getString("regex für Handynummer")));
-
+      addParameter(maximaleEndUhrzeitFolgetagBeiBootshausReservierung = new ItemTypeString(
+          "maximaleEndUhrzeitFolgetagBeiBootshausReservierung",
+          "11", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("maximale Enduhrzeit am Folgetag (bei Bootshausreservierung)")));
+      
       addParameter(textPrivatMitVertrag = new ItemTypeString(
           "textPrivatMitVertrag",
           "zB. privat, aber mit Bootshausnutzungsvertrag", IItemType.TYPE_PUBLIC,
@@ -2092,6 +2098,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public String getUuidBootshaus() {
     return uuidBootshaus.getValue();
+  }
+
+  public String getMaximaleEndUhrzeitFolgetagBeiBootshausReservierung() {
+    return maximaleEndUhrzeitFolgetagBeiBootshausReservierung.getValue();
   }
 
   public String getEmailToBootshausnutzungWolle() {

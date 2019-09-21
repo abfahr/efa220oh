@@ -924,13 +924,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return null;
   }
 
-  /**
-   * @return true, falls diese Reservierung das Bootshaus betrifft
-   */
-  public boolean isBootshausOH() {
-    return BOOTSHAUS.equals(getId());
-  }
-
   @Override
   public IItemType[] getDefaultItems(String itemName) {
     if (itemName.equals(BoatRecord.GUIITEM_BOATTYPES)) {
@@ -1314,7 +1307,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     TableItemHeader[] header = new TableItemHeader[3];
     header[0] = new TableItemHeader(International.getString("Name"));
     header[1] = new TableItemHeader(International.getString("Bootstyp"));
-    header[2] = new TableItemHeader(International.getString("Eigentümer"));
+    header[2] = new TableItemHeader(International.getString("Ort"));
     return header;
   }
 
@@ -1327,18 +1320,16 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
       type = getDetailedBoatType(0);
     }
     if (getNumberOfVariants() > 1) {
-      type = type + " ...";
+      type = type + "...";
     }
     items[1] = new TableItem(type);
-    items[2] = new TableItem(getOwner());
+    items[2] = new TableItem(getTypeDescription(0));
     return items;
   }
 
   @Override
   public void saveGuiItems(Vector<IItemType> items) {
     BoatStatus boatStatus = getPersistence().getProject().getBoatStatus(false);
-    BoatReservations boatReservations = getPersistence().getProject().getBoatReservations(false);
-    BoatDamages boatDamages = getPersistence().getProject().getBoatDamages(false);
 
     Vector<IItemType> boatStatusItems = null; // changed BoatStatus items
 

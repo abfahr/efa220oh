@@ -158,7 +158,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   JRadioButton toggleAvailableBoatsToSteuermann = new JRadioButton(); // Coxing
 
   // Center Panel GUI Items
-  boolean toggleLangtext = false;
+  boolean toggleF12LangtextF12 = false;
   JLabel infoLabel = new JLabel();
   JLabel logoLabel = new JLabel();
   JButton startSessionButton = new JButton();
@@ -269,7 +269,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (evt.getActionCommand().equals(KEYACTION_F12)) {
       boatsNotAvailableList.requestFocus();
       // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
-      toggleLangtext=!toggleLangtext;
+      toggleF12LangtextF12=!toggleF12LangtextF12;
     }
     if (evt.getActionCommand().equals(KEYACTION_shiftF1)) {
       EfaUtil.gc(); // Garbage Collection
@@ -874,12 +874,19 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       int yHeight = 654; // 704;
       ImageIcon imageIcon = new ImageIcon(strZentralesBild);
       if (imageIcon.getIconHeight() < 0) {
-        strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
-        // strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
+        if (toggleF12LangtextF12) {
+          strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
+        } else {
+          strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild          
+        }
         imageIcon = new ImageIcon(strZentralesBild);
       }
-      Image image = imageIcon.getImage();
-      Image newImage = image.getScaledInstance(xWidth, -1, Image.SCALE_SMOOTH);
+      Image newImage;
+      if (imageIcon.getIconWidth() < xWidth) {
+        newImage = imageIcon.getImage().getScaledInstance(-1, yHeight, Image.SCALE_SMOOTH);
+      } else {
+        newImage = imageIcon.getImage().getScaledInstance(xWidth, -1, Image.SCALE_SMOOTH);        
+      }
       imageIcon = new ImageIcon(newImage, imageIcon.getDescription());
       logoLabel.setIcon(imageIcon);
 
@@ -2196,7 +2203,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           
           StringBuilder s;
           // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
-          if (toggleLangtext) {
+          if (toggleF12LangtextF12) {
             // Text parametrisieren
             s = getInfoString(item, true, false, true, false, 
                 false, false, false, true, true, true, false, true, true);
@@ -2444,7 +2451,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
               + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
                   reservations[0].getReservationTimeDescription())
               + NEWLINE
-              + International.getString("Möchtest Du trotzdem das Boot benutzen?"));
+              + International.getString("Möchtest Du jetzt trotzdem mit diesem Boot starten?"));
       if (ergebnisYesNoCancelDialog != Dialog.YES) {
         return true;
       }

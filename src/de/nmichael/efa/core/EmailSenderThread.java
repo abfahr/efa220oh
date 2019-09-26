@@ -88,6 +88,9 @@ public class EmailSenderThread extends Thread {
       if (serverUrl != null && serverUrl.trim().length() == 0) {
         serverUrl = null;
       }
+      if (serverUrl != null && serverUrl.contains("xxx")) {
+        serverUrl = null;
+      }
       if (serverPort != null && serverPort.trim().length() == 0) {
         serverPort = null;
       }

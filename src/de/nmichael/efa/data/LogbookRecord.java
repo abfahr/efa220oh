@@ -1291,25 +1291,30 @@ public class LogbookRecord extends DataRecord {
   }
 
   public boolean isEndtimeSetAndAlreadyPast(long now) {
-    DataTypeTime timeTo = getEndTime();
-    if (timeTo == null || !timeTo.isSet()) {
-      return false; // keine Endzeit eingetragen
+    DataTypeDate dateFrom = getDate(); // TODO 2019-09-26 abf stimmt das?
+    if (dateFrom == null || !dateFrom.isSet()) {
+      dateFrom = getDate(); // gleicher Tag
     }
     DataTypeTime timeFrom = getStartTime();
     if (timeFrom == null || !timeFrom.isSet()) {
       return false; // keine Startzeit eingetragen
     }
-    // if (timeTo.isBeforeOrEqual(timeFrom)) {
-    // return false; // keine sinnvolle Endzeit eingetragen
-    // }
+    long timestampFrom = dateFrom.getTimestamp(timeFrom);
+
     DataTypeDate dateTo = getEndDate();
     if (dateTo == null || !dateTo.isSet()) {
       dateTo = getDate(); // gleicher Tag
     }
-    if (dateTo == null || !dateTo.isSet()) {
-      return false; // kein Datum eingetragen
+    DataTypeTime timeTo = getEndTime();
+    if (timeTo == null || !timeTo.isSet()) {
+      return false; // keine Endzeit eingetragen
     }
-    return now > dateTo.getTimestamp(timeTo);
+    long timestampTo = dateTo.getTimestamp(timeTo);
+
+    if (timestampFrom > timestampTo) {
+       return false; // keine sinnvolle Endzeit eingetragen
+     }
+    return now > timestampTo;
   }
 
   public void addComments(String kommentar) {

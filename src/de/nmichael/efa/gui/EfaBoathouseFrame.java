@@ -812,7 +812,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (screenSize.getHeight() < 1234) {
       yPlacement = 22;
     }
-    centerPanel.add(logoLabel, new GridBagConstraints(1, yPlacement, 1, 2, 0.0, 0.0,
+    centerPanel.add(logoLabel, new GridBagConstraints(1, yPlacement, 1, 1, 0.0, 0.0,
         GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(logoTop, 0, 0 + logoBottom, 0),
         0, 0));
@@ -2204,19 +2204,33 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           StringBuilder s;
           // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
           if (toggleF12LangtextF12) {
-            // Text parametrisieren
-            s = getInfoString(item, true, false, true, false, 
-                false, false, false, true, true, true, false, true, true);
+            // Text parametrisieren: ausgewählte Felder
+            s = getInfoString(item, 
+                true, // showBootName
+                false, // showOwner
+                true, // showPurchase
+                false, // showSort
+                false, // showType
+                false, // showPaddle
+                false, // showCox
+                true, // showWeight
+                true, // showGroups
+                true, // showOrt
+                false, // showStatus
+                true, // showDamages
+                true); // showLastUsage
           } else {
-            // Text parametrisieren
-            s = getInfoString(item, true, false, false, false, 
-                false, false, false, false, false, false, false, false, false);
+            // Text parametrisieren: nur Bootsname
+            s = getInfoString(item, true, false, false, false, false,
+                false, false, false, false, false, false, false, false);
           }
           
           // Textlänge reduzieren
           String infoStringForDisplay = s.substring(6).toString();
-          if (s.length() > 200) {
-            infoStringForDisplay = s.substring(6, 195) + "...";          
+          double cutLength = 4 * Daten.efaConfig.getMinimumDauerFuerKulanz();
+          cutLength -= 2;
+          if (s.length() > cutLength) {
+            infoStringForDisplay = s.substring(6, (int)cutLength - 4) + "...";          
           }
           updateTopInfoText("<html>" + infoStringForDisplay + "</html>");
         } else {
@@ -3064,8 +3078,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
     s.append(NEWLINE);
     if (showLastUsage) {
-      s.append(International.getString("Letzte Benutzung") + ": " + NEWLINE);
-      String lastUsage = getLastBoatUsageString(item.boat.getId());
+      String lastUsage = International.getString("Letzte Benutzung") + ": " + NEWLINE;
+      lastUsage += getLastBoatUsageString(item.boat.getId());
       lastUsage = EfaUtil.replace(lastUsage, ", null?", "", true);
       lastUsage = EfaUtil.replace(lastUsage, "null?, ", "", true);
       lastUsage = EfaUtil.replace(lastUsage, "null?", "", true);
@@ -3073,6 +3087,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       lastUsage = EfaUtil.replace(lastUsage, ") (efa:", ")" + NEWLINE + "(efa hat", true);
       lastUsage = EfaUtil.replace(lastUsage, " (efa:", NEWLINE + "(efa hat", true);
       lastUsage = EfaUtil.replace(lastUsage, ": ", NEWLINE, true);
+      if (lastUsage.contains("Keinen Eintrag gefunden")) {
+        lastUsage = "Dies Jahr noch nie offiziell ausgeliehen.";
+      }
       s.append(lastUsage + NEWLINE);
     }
     return s;

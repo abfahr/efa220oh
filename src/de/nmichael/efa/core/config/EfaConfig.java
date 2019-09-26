@@ -259,6 +259,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString textPrivatMitVertrag;
   private ItemTypeString textBadMitgliedsname;
   private ItemTypeString textBadHandynummer;
+  private ItemTypeString textlangeAusleiheFachwart;
   private ItemTypeDouble minimumDauerFuerKulanz;
   private ItemTypeBoolean saveAllLogbookToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarFile;
@@ -1014,6 +1015,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "Vorwahl kenntlich machen --", IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International.getString("Fehlermeldung bei BadHandynummer")));
+      addParameter(textlangeAusleiheFachwart = new ItemTypeString(
+          "textlangeAusleiheFachwart",
+          "Lange Ausleihe mit Fachwart abgestimmt?", IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("Fehlermeldung bei langer Ausleihe")));
       addParameter(minimumDauerFuerKulanz = new ItemTypeDouble(
           "minimumDauerFuerKulanz", 48, 0, 9999, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
@@ -2188,6 +2194,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public String getTextBadHandynummer() {
     return textBadHandynummer.getValue();
+  }
+
+  public String getTextLangeAusleiheFachwart() {
+    return textlangeAusleiheFachwart.getValue();
   }
 
   public double getMinimumDauerFuerKulanz() {

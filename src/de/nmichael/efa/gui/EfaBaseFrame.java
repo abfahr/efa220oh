@@ -1683,6 +1683,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         !checkMultiDayTours() ||
         !checkDate() ||
         !checkTime() ||
+        !checkDateTooLong() ||
         !checkAllowedDateForLogbook() ||
         !checkAllDataEntered() ||
         !checkNamesValid() ||
@@ -2581,6 +2582,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   private boolean checkDate() {
     if (date.isSet() && enddate.isSet() && !date.getDate().isBefore(enddate.getDate())) {
       String msg = International.getString("Das Enddatum muß nach dem Startdatum liegen.");
+      Dialog.error(msg);
+      enddate.requestFocus();
+      return false;
+    }
+    return true;
+  }
+
+  private boolean checkDateTooLong() {
+    double minimumDauerFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
+    if (date.isSet() && enddate.isSet() && 
+        enddate.getDate().getDifferenceDays(date.getDate()) * 24 >= minimumDauerFuerKulanz) {
+      String msg = International.getString("So lange?? Ist die Ausleihe mit dem Fachwart abgestimmt? \nBitte trage für lange Fahrten eine Reservierung ein. Sorry!");
       Dialog.error(msg);
       enddate.requestFocus();
       return false;

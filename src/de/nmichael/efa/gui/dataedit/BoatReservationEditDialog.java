@@ -79,6 +79,9 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
       if (item.getName().equals(BoatReservationRecord.TIMEFROM)) {
         item.registerItemListener(this);
       }
+      if (item.getName().equals(BoatReservationRecord.DATETO)) {
+        item.registerItemListener(this);
+      }
       if (item.getName().equals(BoatReservationRecord.PERSONID)) {
         item.registerItemListener(this);
       }
@@ -140,6 +143,35 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
             timeTo.parseValue(newEndtime.toString(false)); // ohne Sekunden
           }
           timeTo.showValue();
+          break;
+        }
+      }
+    }
+
+    // Datum erst zwei Tage später?
+    if (item != null && item.getName().equals(BoatReservationRecord.DATETO) &&
+        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST)
+            || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+      ItemTypeDate dateTo = (ItemTypeDate) item;
+      double anzahlStunden = 0;
+      for (IItemType it : allGuiItems) {
+        if (it.getName().equals(BoatReservationRecord.DATEFROM)) {
+          ItemTypeDate dateFrom = (ItemTypeDate) it;
+          anzahlStunden = dateTo.getDate().getDifferenceDays(dateFrom.getDate()) * 24;
+          break;
+        }
+      }
+      double minimumDauerFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
+      for (IItemType it : allGuiItems) {
+        if (it.getName().equals(BoatReservationRecord.REASON)) {
+          ItemTypeString reason = (ItemTypeString) it;
+          String prangerText = Daten.efaConfig.getTextLangeAusleiheFachwart();
+          String reasonString = reason.getValue().replace(prangerText, "").trim();
+          if (anzahlStunden >= minimumDauerFuerKulanz) {
+            reasonString = prangerText + " " + reasonString;
+          }
+          reason.setValue(reasonString);
+          reason.showValue();
           break;
         }
       }

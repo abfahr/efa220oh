@@ -123,22 +123,22 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   public static final int ACTIONID_BOATINFOS = 8;
   public static final int ACTIONID_LASTBOATUSAGE = 9;
 
+  String KEYACTION_shiftF1;
   String KEYACTION_F2;
   String KEYACTION_F3;
   String KEYACTION_F4;
+  String KEYACTION_shiftF4;
   String KEYACTION_F5;
   String KEYACTION_F6;
   String KEYACTION_F7;
   String KEYACTION_F8;
   String KEYACTION_F9;
-  String KEYACTION_altF10;
-  String KEYACTION_altF11;
   String KEYACTION_F10;
+  String KEYACTION_altF10;
   String KEYACTION_F11;
+  String KEYACTION_altF11;
   String KEYACTION_F12;
-  String KEYACTION_shiftF1;
   String KEYACTION_altX;
-  String KEYACTION_shiftF4;
 
   // Boat List GUI Items
   JPanel boatsAvailablePanel;
@@ -158,6 +158,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   JRadioButton toggleAvailableBoatsToSteuermann = new JRadioButton(); // Coxing
 
   // Center Panel GUI Items
+  boolean toggleLangtext = false;
+  JLabel infoLabel = new JLabel();
   JLabel logoLabel = new JLabel();
   JButton startSessionButton = new JButton();
   JButton finishSessionButton = new JButton();
@@ -221,7 +223,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     if (evt.getActionCommand().equals(KEYACTION_ESCAPE)) {
-      return; // do nothing (and don't invoke _keyAction(evt)!)
+      // do nothing (and don't invoke super._keyAction(evt)!)
+      return;
     }
     if (evt.getActionCommand().equals(KEYACTION_F2)) {
       actionStartSession(null);
@@ -265,9 +268,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
     if (evt.getActionCommand().equals(KEYACTION_F12)) {
       boatsNotAvailableList.requestFocus();
+      // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
+      toggleLangtext=!toggleLangtext;
     }
     if (evt.getActionCommand().equals(KEYACTION_shiftF1)) {
-      EfaUtil.gc();
+      EfaUtil.gc(); // Garbage Collection
     }
     if (evt.getActionCommand().equals(KEYACTION_altX)) {
       cancel();
@@ -325,22 +330,22 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     });
 
     // Key Actions
+    KEYACTION_shiftF1 = addKeyAction("shift F1");
     KEYACTION_F2 = addKeyAction("F2");
     KEYACTION_F3 = addKeyAction("F3");
     KEYACTION_F4 = addKeyAction("F4");
+    KEYACTION_shiftF4 = addKeyAction("shift F4");
     KEYACTION_F5 = addKeyAction("F5");
     KEYACTION_F6 = addKeyAction("F6");
     KEYACTION_F7 = addKeyAction("F7");
     KEYACTION_F8 = addKeyAction("F8");
     KEYACTION_F9 = addKeyAction("F9");
-    KEYACTION_altF10 = addKeyAction("alt F10");
-    KEYACTION_altF11 = addKeyAction("alt F11");
     KEYACTION_F10 = addKeyAction("F10");
+    KEYACTION_altF10 = addKeyAction("alt F10");
     KEYACTION_F11 = addKeyAction("F11");
+    KEYACTION_altF11 = addKeyAction("alt F11");
     KEYACTION_F12 = addKeyAction("F12");
-    KEYACTION_shiftF1 = addKeyAction("shift F1");
     KEYACTION_altX = addKeyAction("alt X");
-    KEYACTION_shiftF4 = addKeyAction("shift F4");
 
     // Mouse Actions
     this.addMouseListener(new MouseListener() {
@@ -385,6 +390,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     updateGuiClock();
     updateGuiNews();
     updateGuiButtonText();
+    updateTopInfoText("Willkommen bei EFA!");
     updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // Standard-Bild
   }
 
@@ -798,7 +804,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         logoBottom = 0;
       }
     }
-    int yPlacement = 0;
+    centerPanel.add(infoLabel, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(0, 0, 0, 0), 0, 0));
+    int yPlacement = 1;
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     if (screenSize.getHeight() < 1234) {
       yPlacement = 22;
@@ -842,6 +851,18 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
   }
 
+  private void updateTopInfoText(String infoText) {
+    infoLabel.setText(infoText);
+  }
+
+  private void updateTopInfoText(String text1, String text2) {
+    if (infoLabel.getText().equals(text1)) {
+      updateTopInfoText(text2);
+    } else {
+      updateTopInfoText(text1);
+    }
+  }
+
   private void updateGuiZentralesLogo(String strZentralesBild) {
     if (strZentralesBild == null || strZentralesBild.length() == 0) {
       logoLabel.setIcon(null);
@@ -881,10 +902,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   private void iniGuiLogo() {
+    infoLabel.setPreferredSize(new Dimension(320, 120));
+    infoLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+    infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    infoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    
     logoLabel.setMinimumSize(new Dimension(200, 80));
     logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-
     updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // wichtig
   }
 
@@ -1832,6 +1857,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       } else {
         statusLabelSetText(International.getString("Keine Person ausgewählt."));
       }
+      clearAllPopups();
       boatsAvailableList.clearSelection();
       personsAvailableList.clearSelection();
       boatsOnTheWaterList.clearSelection();
@@ -1848,6 +1874,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (!toggleAvailableBoatsToPersons.isSelected()) {
           boatsAvailableList.requestFocus();
           boatsAvailableList.setSelectedIndex(0);
+          updateTopInfoText("Boote frisch sortiert!", "Brote frisch gestrichen!");
           updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo());
         } else {
           personsAvailableList.requestFocus();
@@ -1913,47 +1940,46 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         listID = 3;
       }
       return listID;
-    } catch (Exception ex) {
+    } catch (Exception e) {
       return 0;
     }
   }
 
   @Override
-  public void itemListenerAction(IItemType item, AWTEvent e) {
+  public void itemListenerAction(IItemType item, AWTEvent event) {
     int listID = 0;
-    ItemTypeBoatstatusList list = null;
-    ActionEvent ae = null;
-    KeyEvent ke = null;
+    ItemTypeBoatstatusList aMainList = null;
     try {
       listID = getListIdFromItem(item);
-      list = (ItemTypeBoatstatusList) item;
+      aMainList = (ItemTypeBoatstatusList) item;
     } catch (Exception eignore) {
     }
+    if (listID == 0) {
+      return;
+    }
+    
+    ActionEvent actionEvent = null;
     try {
-      ae = (ActionEvent) e;
+      actionEvent = (ActionEvent) event;
     } catch (Exception eignore) {
     }
-    try {
-      ke = (KeyEvent) e;
-    } catch (Exception eignore) {
-    }
-
-    if (listID != 0 && ae != null) {
-      if (ae.getActionCommand().equals(EfaMouseListener.EVENT_MOUSECLICKED_1x)
-          || ae.getActionCommand().equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
-        showBoatStatus(listID, (ItemTypeBoatstatusList) item, 1);
-        if (ae.getActionCommand().equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
-          boatListDoubleClick(listID, list);
-        }
+    if (actionEvent != null) {
+      String actionCommand = actionEvent.getActionCommand();
+      if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_1x)) {
+        showBoatStatus(listID, aMainList, 1);
       }
-      if (ae.getActionCommand().equals(EfaMouseListener.EVENT_POPUP)) {
-        showBoatStatus(listID, (ItemTypeBoatstatusList) item, 1);
+      if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
+        showBoatStatus(listID, aMainList, 1);
+        boatListDoubleClick(listID, aMainList);
+      }
+      if (actionCommand.equals(EfaMouseListener.EVENT_POPUP)) {
+        showBoatStatus(listID, aMainList, 1);
       }
       // Popup clicked?
-      if (ae.getActionCommand().startsWith(EfaMouseListener.EVENT_POPUP_CLICKED)) {
-        int subCmd = EfaUtil.stringFindInt(ae.getActionCommand(), -1);
+      if (actionCommand.startsWith(EfaMouseListener.EVENT_POPUP_CLICKED)) {
+        int subCmd = EfaUtil.stringFindInt(actionCommand, -1);
         if (subCmd >= 0) {
-          ItemTypeBoatstatusList.BoatListItem blitem = getSelectedListItem(list);
+          ItemTypeBoatstatusList.BoatListItem blitem = getSelectedListItem(aMainList);
           if (blitem != null) {
             processListAction(blitem, subCmd);
           }
@@ -1961,24 +1987,40 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
     }
 
-    if (listID != 0 && ke != null) {
+    KeyEvent keyEvent = null;
+    try {
+      keyEvent = (KeyEvent) event;
+    } catch (Exception eignore) {
+    }
+    if (keyEvent != null) {
       clearAllPopups();
-      if (ke.getKeyCode() == KeyEvent.VK_ENTER || ke.getKeyCode() == KeyEvent.VK_SPACE) {
+      int keyCode = keyEvent.getKeyCode();
+      if (keyCode == KeyEvent.VK_ENTER || 
+          keyCode == KeyEvent.VK_SPACE) {
         // don't react if space was pressed as part of an incremental search string
-        if (ke.getKeyCode() == KeyEvent.VK_SPACE) {
-          String s = ((ItemTypeList) list).getIncrementalSearchString();
+        if (keyCode == KeyEvent.VK_SPACE) {
+          String s = ((ItemTypeList) aMainList).getIncrementalSearchString();
           if (s != null && s.length() > 0 && !s.startsWith(" ")) {
             return;
           }
         }
-        boatListDoubleClick(listID, list);
+        boatListDoubleClick(listID, aMainList);
         return;
       }
-      showBoatStatus(listID, list, (ke != null && ke.getKeyCode() == 38 ? -1 : 1));
+      int direction = keyCode == 38 ? -1 : 1;
+      showBoatStatus(listID, aMainList, direction);
+      return;
     }
 
-    if (listID != 0 && e instanceof FocusEvent && e.getID() == FocusEvent.FOCUS_GAINED) {
-      showBoatStatus(listID, list, 1);
+    FocusEvent focusEvent = null;
+    try {
+      focusEvent = (FocusEvent) event;
+    } catch (Exception eignore) {
+    }
+    if (focusEvent != null) {
+      if (focusEvent.getID() == FocusEvent.FOCUS_GAINED) {
+        showBoatStatus(listID, aMainList, 1);
+      }
     }
   }
 
@@ -2060,11 +2102,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
   }
 
-  void clearAllPopups() {
+  public void clearAllPopups() {
     boatsAvailableList.clearPopup();
     personsAvailableList.clearPopup();
     boatsOnTheWaterList.clearPopup();
-    ;
     boatsNotAvailableList.clearPopup();
   }
 
@@ -2086,13 +2127,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           }
         } catch (Exception e) {
           // just to be sure
+          Logger.logwarn(e);
         }
         if (name == null || name.startsWith("---")) {
           item = null;
           try {
             int i = list.getSelectedIndex() + direction;
             if (i < 0) {
-              i = 1; // i<0 kann nur erreicht werden,
+              i = 1; 
+              // i<0 kann nur erreicht werden,
               // wenn vorher i=0 und direction=-1; dann darf
               // nicht auf i=0 gesprungen werden,
               // da wir dort herkommen, sondern auf i=1
@@ -2150,14 +2193,35 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             }
           }
           statusLabelSetText(name + ": " + text + bootstyp + rudererlaubnis);
+          
+          StringBuilder s;
+          // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
+          if (toggleLangtext) {
+            // Text parametrisieren
+            s = getInfoString(item, true, false, true, false, 
+                false, false, false, true, true, true, false, true, true);
+          } else {
+            // Text parametrisieren
+            s = getInfoString(item, true, false, false, false, 
+                false, false, false, false, false, false, false, false, false);
+          }
+          
+          // Textlänge reduzieren
+          String infoStringForDisplay = s.substring(6).toString();
+          if (s.length() > 200) {
+            infoStringForDisplay = s.substring(6, 195) + "...";          
+          }
+          updateTopInfoText("<html>" + infoStringForDisplay + "</html>");
         } else {
           // nach klick auf "<anderes Boot>"
           // gut // reset to Vereinslogo // Standard-Bild
+          updateTopInfoText("Bitte Boot auswählen...");
           updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); 
           statusLabelSetText(International.getString("anderes oder fremdes Boot"));
         }
       } else {
         // nach klick auf Personenliste
+        updateTopInfoText(name);
         statusLabelSetText(name);
       }
 
@@ -2370,7 +2434,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       int minuten = Daten.efaConfig.getValueEfaDirekt_resLookAheadTime();
       long validInMinutes = reservations[0].getReservationValidInMinutes(now, minuten);
       int ergebnisYesNoCancelDialog = Dialog.yesNoCancelDialog(
-          International.getString("Boot reserviert"),
+          International.getString("Boot bereits reserviert"),
           getWarnmeldung(boatStatus.getBoatText(), reservations[0].getPersonAsName(),
               validInMinutes)
               + NEWLINE
@@ -2889,56 +2953,100 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       return;
     }
     try {
-      StringBuilder s = new StringBuilder();
-      String showString;
+      StringBuilder s = getInfoString(item, true, true, true, true, 
+          true, true, true, true, true, true, true, true, true);
+      Dialog.bootsinfoDialog(item.boat.getName(), s.toString());
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      Dialog.error(e.getMessage());
+    }
+  }
+
+  private StringBuilder getInfoString(ItemTypeBoatstatusList.BoatListItem item,
+      boolean showBootName,
+      boolean showOwner,
+      boolean showPurchase,
+      boolean showSort,
+      boolean showType,
+      boolean showPaddle,
+      boolean showCox,
+      boolean showWeight,
+      boolean showGroups,
+      boolean showOrt,
+      boolean showStatus,
+      boolean showDamages,
+      boolean showLastUsage) {
+    StringBuilder s = new StringBuilder();
+    if (item == null || item.boat == null) {
+      return s;
+    }
+    String showString;
+    if (showBootName) {
       s.append(International.getString("Boot") + ": " + item.boat.getQualifiedName() + NEWLINE);
+    }
+    if (showOwner) {
       showString = item.boat.getAsText(BoatRecord.OWNER);
-      showString = showString == null ? "[todo]" : showString;
+      showString = showString == null ? "[todo]" : showString;      
       s.append("Eigentümer: " + showString + NEWLINE);
+    }
+    if (showPurchase) {
       showString = item.boat.getAsText(BoatRecord.PURCHASEDATE);
       showString = showString == null ? "[Jahr]" : showString;
       s.append("Anschaffung: " + showString + NEWLINE);
+    }
+    if (showSort) {
       showString = item.boat.getAsText(BoatRecord.TYPESEATS).split(";")[0];
       s.append("EFA-Sortierung: " + showString + NEWLINE);
+    }
+    if (showType) {
       showString = item.boat.getAsText(BoatRecord.TYPETYPE).split(";")[0];
       if (!showString.contentEquals("andere")) {
         s.append("Bootstyp: " + showString + NEWLINE);
       }
+    }
+    if (showPaddle) {
       showString = item.boat.getAsText(BoatRecord.TYPERIGGING).split(";")[0];
       if (!showString.contentEquals("andere")) {
         s.append("Paddel-Art: " + showString + NEWLINE);
       }
+    }
+    if (showCox) {
       showString = item.boat.getAsText(BoatRecord.TYPECOXING).split(";")[0];
       if (!showString.contentEquals("andere")) {
         s.append("Coxing: " + showString + NEWLINE);
       }
+    }
+    if (showWeight) {
       if (item.boat.getMaxCrewWeight() > 0) {
         s.append(International.getString("Maximales Mannschaftsgewicht") + ": " +
             item.boat.getMaxCrewWeight() + NEWLINE);
       }
+    }
+    if (showGroups) {
       String groups = item.boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
       if (groups.length() > 0) {
         s.append(NEWLINE + International.getString("Gruppen, die dieses Boot benutzen dürfen")
             + ":" + NEWLINE + groups);
       }
+    }
 
-      s.append(NEWLINE);
+    s.append(NEWLINE);
+    if (showOrt) {
       showString = item.boat.getAsText(BoatRecord.TYPEDESCRIPTION).split(";")[0];
       if (showString.length() > 1) {
         showString = "\"" + showString + "\"";
-      } else {
-        showString = "";
+        s.append("Ort am Isekai: " + showString + NEWLINE);
       }
-      s.append("Ort am Isekai: " + showString + NEWLINE);
-      // s.append("Ort: " + "[Liegt im Bootshaus am Isekai] (todo)" + NEWLINE);
-      // String fileName = item.boat.getName() + ".jpg";
-      // s.append("Foto: " + "so sieht das Boot aus ("+ fileName +")" + NEWLINE);
+    }
+    if (showStatus) {
       String currentStatus = item.boatStatus.getCurrentStatus();
       String statusDescription = BoatStatusRecord.getStatusDescription(currentStatus);
       s.append("Bootsstatus: " + statusDescription + NEWLINE);
+    }
+    if (showDamages) {
       BoatDamages boatDamages = Daten.project.getBoatDamages(false);
       BoatDamageRecord[] damages = boatDamages.getBoatDamages(item.boat.getId(), true, true);
-      s.append("Bootsschäden: " + (damages == null ? 0 : damages.length) + NEWLINE);
+      s.append((damages == null ? "Keine Schäden!" : "Anz.Schäden: " + damages.length) + NEWLINE);
       if (damages != null) {
         for (BoatDamageRecord damage : damages) {
           if (!damage.getFixed()) {
@@ -2946,7 +3054,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           }
         }
       }
-      s.append(NEWLINE);
+    }
+    s.append(NEWLINE);
+    if (showLastUsage) {
       s.append(International.getString("Letzte Benutzung") + ": " + NEWLINE);
       String lastUsage = getLastBoatUsageString(item.boat.getId());
       lastUsage = EfaUtil.replace(lastUsage, ", null?", "", true);
@@ -2957,12 +3067,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       lastUsage = EfaUtil.replace(lastUsage, " (efa:", NEWLINE + "(efa hat", true);
       lastUsage = EfaUtil.replace(lastUsage, ": ", NEWLINE, true);
       s.append(lastUsage + NEWLINE);
-
-      Dialog.bootsinfoDialog(item.boat.getName(), s.toString());
-    } catch (Exception e) {
-      Logger.logdebug(e);
-      Dialog.error(e.getMessage());
     }
+    return s;
   }
 
   void actionLastBoatUsage() {

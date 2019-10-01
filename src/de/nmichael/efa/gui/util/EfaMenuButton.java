@@ -1052,17 +1052,22 @@ public class EfaMenuButton {
   }
 
   public static String insufficientRights(AdminRecord admin, String action) {
-    String actionText = (actionMapping != null ? actionMapping.get(action) : action);
+    String actionText = action;
+    if (actionMapping != null) {
+      actionText = actionMapping.get(action);
+    }
     if (actionText == null) {
       actionText = action;
     }
+    String nutzer = "";
+    if (admin != null) {
+      nutzer = International.getString("Admin") + " '" + admin.getName() + "'";
+    } else {
+      nutzer = International.getString("normaler Nutzer");
+    }
     String msg = International.getMessage(
         "Du hast als {user} nicht die Berechtigung, um die Funktion '{function}' auszuführen.",
-        (admin != null ?
-            International.getString("Admin") + " '" + admin.getName() + "'" :
-              International.getString("normaler Nutzer")),
-              actionText
-        );
+        nutzer, actionText);
     if (Daten.isGuiAppl()) {
       Dialog.error(msg);
     }

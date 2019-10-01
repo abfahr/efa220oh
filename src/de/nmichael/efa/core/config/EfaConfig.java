@@ -249,8 +249,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeInteger anzahlTageErinnerungBootshaus;
   private ItemTypeInteger anzahlTageErinnerungBoote;
   private ItemTypeInteger anzahlTageAbgelaufenesBootshausSichtbar;
-  private ItemTypeBoolean showDataRightSideCalendar;
-  private ItemTypeBoolean updateDataRightSideCalendar;
   private ItemTypeBoolean automaticStartLogbookFromReservation;
   private ItemTypeBoolean automaticEndLogbookOnTheWater;
   private ItemTypeBoolean automaticEndLogbookNotAvailable;
@@ -814,23 +812,15 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(anzahlTageErinnerungBootshaus = new ItemTypeInteger(
           "anzahlTageErinnerungBootshaus", 14, 0, 99, false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("Erinnerung wg.BH an das Mitglied emailen. #Tage")));
+          International.getString("Erinnerung wg.BH an das Mitglied emailen")));
       addParameter(anzahlTageErinnerungBoote = new ItemTypeInteger(
           "anzahlTageErinnerungBoote", 0, 0, 99, false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("Erinnerung wg.Boot an das Mitglied emailen. Tage")));
+          International.getString("Erinnerung wg.Boot an das Mitglied emailen")));
       addParameter(anzahlTageAbgelaufenesBootshausSichtbar = new ItemTypeInteger(
           "anzahlTageAbgelaufenesBootshausSichtbar", 30, 0, 99, false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("Reservierungen Bootshaus bleiben sichtbar. #Tage")));
-      addParameter(showDataRightSideCalendar = new ItemTypeBoolean("showDataRightSideCalendar",
-          true, IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("zeige Kalender rechte Seite bei Reservierungen")));
-      addParameter(updateDataRightSideCalendar = new ItemTypeBoolean("updateDataRightSideCalendar",
-          true, IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("fülle Kalender rechte Seite bei Reservierungen")));
+          International.getString("Reservierungen Bootshaus bleiben sichtbar")));
 
       addParameter(automaticStartLogbookFromReservation = new ItemTypeBoolean(
           "automaticStartLogbookFromReservation",
@@ -985,9 +975,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efaDirekt_FindenNachHaeufigsterStattNeuesterReservierung = new ItemTypeBoolean(
           "FindenNachHaeufigsterStattNeuesterReservierung", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International.getString("+ Finden nach häufigster statt neuester Reservierung")));
+          International.getString("Finden nach häufigster statt neuester Reservierung")));
 
-      
       addParameter(regexForVorUndNachname = new ItemTypeString(
           "regexForVorUndNachname",
           "^\\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,} \\p{L}+[\\p{L}\\p{Z}\\p{P}]{0,}$",
@@ -2132,14 +2121,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public int getAnzahlTageAbgelaufenesBootshausSichtbar() {
     return anzahlTageAbgelaufenesBootshausSichtbar.getValue();
-  }
-
-  public boolean isShowDataRightSideCalendar() {
-    return showDataRightSideCalendar.getValue();
-  }
-
-  public boolean isUpdateDataRightSideCalendar() {
-    return updateDataRightSideCalendar.getValue();
   }
 
   public boolean isAutomaticStartLogbookFromReservation() {

@@ -241,7 +241,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     
     northSideCalenderPanel = new JPanel(new BorderLayout());
     if (persistence.getName().equals("boatreservations")
-        && Daten.efaConfig.isShowDataRightSideCalendar()
         && category.equals("BASE_CAT")) {
       northSideCalenderPanel.setBorder(new EmptyBorder(11, 31, 0, 31));
       drawCalendar();
@@ -598,25 +597,22 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       }
                     }
                     persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
+                    String whoUser = admin != null
+                        ? International.getString("Admin") + " '" + admin.getName() + "'"
+                        : International.getString("Normaler Benutzer");
                     if (deleteAt >= 0) {
                       Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETEDAT,
                           records[i].getPersistence().getDescription() + ": "
                               + International.getMessage(
                                   "{name} hat Datensatz '{record}' ab {date} gelöscht.",
-                                  (admin != null
-                                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                                      : International.getString("Normaler Benutzer") + "?"),
-                                  records[i].getQualifiedName(),
+                                  whoUser, records[i].getQualifiedName(),
                                   EfaUtil.getTimeStampDDMMYYYY(deleteAt)));
                     } else {
                       Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
                           records[i].getPersistence().getDescription() + ": "
                               + International.getMessage(
                                   "{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
-                                  (admin != null
-                                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                                      : International.getString("Normaler Benutzer") + "?"),
-                                  records[i].getQualifiedName()));
+                                  whoUser, records[i].getQualifiedName()));
                     }
                   } else {
                     if (records[i] instanceof BoatReservationRecord) {
@@ -631,18 +627,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       BoatReservationRecord reservation = (BoatReservationRecord) records[i];
                       name = " für " + reservation.getPersonAsName();
                     }
-                    String user = "";
+                    String whoUser = "";
                     if (admin != null) {
-                      user = International.getString("Admin") + " '" + admin.getName() + "'";
+                      whoUser = International.getString("Admin") + " '" + admin.getName() + "'";
                     } else {
-                      user = International.getString("Normaler Benutzer");
+                      whoUser = International.getString("Normaler Benutzer");
                     }
                     persistence.data().delete(records[i].getKey());
                     Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
                         records[i].getPersistence().getDescription() + ": "
                             + International.getMessage(
                                 "{name} hat Datensatz '{record}' gelöscht.",
-                                user, records[i].getQualifiedName() + name));
+                                whoUser, records[i].getQualifiedName() + name));
                   }
                 }
               }
@@ -1197,7 +1193,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         mappingDateToReservations = new Hashtable<DataTypeDate, Integer>();
         mappingWeekdayToReservations = new Hashtable<Integer, String>();
         mappingBootshausDateToReservations = new Hashtable<DataTypeDate, String>();
-        updateDataRightSideCalendar = Daten.efaConfig.isUpdateDataRightSideCalendar();
       }
       while (key != null) {
         // avoid duplicate versionized keys for the same record

@@ -651,6 +651,9 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
             DataRecord r = data.get(change.k);
             if (r != null) {
               r.setFromText(change.field, change.newValue);
+              String whoUser = admin != null
+                  ? International.getString("Admin") + " '" + admin.getName() + "'"
+                  : International.getString("Normaler Benutzer");
               if (editRules.versionAction == null ||
                   editRules.versionAction.equals(BatchEditDialog.VA_EDITCURRENT)) {
                 data.update(r);
@@ -658,20 +661,14 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
                     r.getPersistence().getDescription() + ": "
                     + International.getMessage(
                         "{name} hat Datensatz '{record}' geändert.",
-                        (admin != null
-                            ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                            : International.getString("Normaler Benutzer") + "?"),
-                        r.getQualifiedName()));
+                        whoUser, r.getQualifiedName()));
               } else {
                 data.addValidAt(r, editRules.versionValidFrom);
                 Logger.log(Logger.INFO, Logger.MSG_DATAADM_BE_RECORDADDEDVER,
                     r.getPersistence().getDescription() + ": "
                     + International.getMessage(
                         "{name} hat neue Version von Datensatz '{record}' ab {date} erstellt.",
-                        (admin != null
-                            ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                            : International.getString("Normaler Benutzer") + "?"),
-                        r.getQualifiedName(),
+                        whoUser, r.getQualifiedName(),
                         EfaUtil.getTimeStampDDMMYYYY(editRules.versionValidFrom)));
               }
               String newVal = r.getAsText(change.field);

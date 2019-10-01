@@ -325,11 +325,13 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
     ProgressDialog progressDialog = new ProgressDialog(this, International.getMessage(
         "{data} importieren", persistence.getDescription()), dataImport, false);
     dataImport.runImport(progressDialog);
+    String whoUser = admin != null 
+        ? International.getString("Admin") + " '" + admin.getName() + "'"
+        : International.getString("Normaler Benutzer");
     Logger.log(Logger.INFO, Logger.MSG_DATAADM_IMPORT_STARTED,
         persistence.getDescription() + ": "
             + International.getMessage("{name} hat Datenimport gestartet.",
-                (admin != null ? International.getString("Admin") + " '" + admin.getName() + "'"
-                    : International.getString("Normaler Benutzer"))));
+                whoUser));
   }
 
 }

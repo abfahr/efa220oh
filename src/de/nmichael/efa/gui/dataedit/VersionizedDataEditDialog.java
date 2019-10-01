@@ -277,6 +277,9 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
     try {
       // create version
       DataKey key = dataRecord.getPersistence().data().addValidAt(r, newValidFrom);
+      String whoUser = admin != null 
+          ? International.getString("Admin") + " '" + admin.getName() + "'"
+          : International.getString("Normaler Benutzer");
       Logger.log(
           Logger.INFO,
           Logger.MSG_DATAADM_RECORDADDEDVER,
@@ -284,10 +287,8 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
           + ": "
           + International.getMessage(
               "{name} hat neue Version von Datensatz '{record}' ab {date} erstellt.",
-              (admin != null ? International.getString("Admin") + " '" + admin.getName() + "'"
-                  : International.getString("Normaler Benutzer")),
-                  r.getQualifiedName(),
-                  EfaUtil.getTimeStampDDMMYYYY(newValidFrom)));
+              whoUser, r.getQualifiedName(),
+              EfaUtil.getTimeStampDDMMYYYY(newValidFrom)));
 
       // find new record to be shown (if any)
       dataRecord = dataRecord.getPersistence().data().get(key);
@@ -313,6 +314,9 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
 
       // delete version
       dataRecord.getPersistence().data().deleteVersionized(r.getKey(), merge);
+      String whoUser = admin != null 
+          ? International.getString("Admin") + " '" + admin.getName() + "'"
+          : International.getString("Normaler Benutzer");
       Logger.log(
           Logger.INFO,
           Logger.MSG_DATAADM_RECORDDELETEDVER,
@@ -320,10 +324,7 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
           + ": "
           + International.getMessage(
               "{name} hat Version {version} von Datensatz '{record}' gelöscht.",
-              (admin != null ? International.getString("Admin") + " '" + admin.getName() + "'"
-                  : International.getString("Normaler Benutzer")),
-                  ri + 1,
-                  r.getQualifiedName()));
+              whoUser, ri + 1, r.getQualifiedName()));
 
       // find new record to be shown (if any)
       recs = dataRecord.getPersistence().data().getValidAny(dataRecord.getKey());
@@ -490,6 +491,9 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
         try {
           dataRecord.getPersistence().data()
           .changeValidity(dataRecord, newValidFrom, newInvalidFrom);
+          String whoUser = admin != null 
+              ? International.getString("Admin") + " '" + admin.getName() + "'"
+              : International.getString("Normaler Benutzer");
           Logger
           .log(
               Logger.INFO,
@@ -499,11 +503,7 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
               + International
               .getMessage(
                   "{name} hat Gültigkeit von Version {version} von Datensatz '{record}' geändert.",
-                  (admin != null ? International.getString("Admin") + " '"
-                      + admin.getName() + "'"
-                      : International.getString("Normaler Benutzer")),
-                      thisVersion,
-                      dataRecord.getQualifiedName()));
+                  whoUser, thisVersion, dataRecord.getQualifiedName()));
         } catch (EfaException ex) {
           ex.log();
           Dialog.error("Der Datensatz konnte nicht geändert werden." + "\n" + ex.toString());

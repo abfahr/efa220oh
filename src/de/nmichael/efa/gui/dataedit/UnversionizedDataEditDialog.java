@@ -177,35 +177,28 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     try {
       dataRecord.saveGuiItems(getItems());
       if (!_dontSaveRecord) {
+        String whoUser = admin != null 
+        ? International.getString("Admin") + " '" + admin.getName() + "'"
+        : dataRecord instanceof BoatReservationRecord 
+            ? ((BoatReservationRecord) dataRecord).getPersonAsName()                      
+            : International.getString("Normaler Benutzer") + "??";
+        String strTime = "";
+        if (dataRecord instanceof BoatReservationRecord) {
+          strTime= " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription();
+        }
         if (newRecord) {
           warnIfVersionizedRecordOfThatNameAlreadyExists();
           dataRecord.getPersistence().data().add(dataRecord);
           Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
               dataRecord.getPersistence().getDescription() + ": "
               + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                  (admin != null 
-                  ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                  : dataRecord instanceof BoatReservationRecord 
-                      ? ((BoatReservationRecord) dataRecord).getPersonAsName()                      
-                      : International.getString("Normaler Benutzer") + "?"),
-                  dataRecord.getQualifiedName() +
-                  (dataRecord instanceof BoatReservationRecord 
-                  ? " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription()
-                  : "")));
+                  whoUser, dataRecord.getQualifiedName() + strTime));
         } else {
           dataRecord.getPersistence().data().update(dataRecord);
           Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDUPDATED,
               dataRecord.getPersistence().getDescription() + ": "
               + International.getMessage("{name} hat Datensatz '{record}' geändert.",
-                  (admin != null 
-                  ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                  : dataRecord instanceof BoatReservationRecord 
-                      ? ((BoatReservationRecord) dataRecord).getPersonAsName()                      
-                      : International.getString("Normaler Benutzer") + "?"),
-                  dataRecord.getQualifiedName() +
-                  (dataRecord instanceof BoatReservationRecord 
-                  ? " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription()
-                  : "")));
+                  whoUser, dataRecord.getQualifiedName() + strTime));
         }
         for (IItemType item : getItems()) {
           item.setUnchanged();

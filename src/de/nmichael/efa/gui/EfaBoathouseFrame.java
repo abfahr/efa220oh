@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
@@ -391,7 +392,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     updateGuiNews();
     updateGuiButtonText();
     updateTopInfoText("Willkommen bei EFA!");
-    updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // Standard-Bild
   }
 
   public boolean resetSorting() {
@@ -600,21 +600,20 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     Mnemonics.setButton(this, toggleAvailableBoatsToPersons,
         International.getStringWithMnemonic("Personen"));
     if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories()) {
-      Mnemonics.setButton(this, toggleAvailableBoatsToBoats,
-          International.getStringWithMnemonic("EFA"));
+      Mnemonics.setButton(this, toggleAvailableBoatsToBoats, "EFA");
     }
     Mnemonics.setButton(this, toggleAvailableBoatsToDescriptionOrt,
         International.getStringWithMnemonic("Ort"));
     Mnemonics.setButton(this, toggleAvailableBoatsToBoatType,
         International.getStringWithMnemonic("Art"));
     Mnemonics.setButton(this, toggleAvailableBoatsToBoatNameAffix,
-        International.getStringWithMnemonic("Optik")); // Farbe
+        International.getStringWithMnemonic("OptikFarbeKurz"));
     Mnemonics.setButton(this, toggleAvailableBoatsToOwner,
-        International.getStringWithMnemonic("Eigner"));
+        International.getStringWithMnemonic("EigentümerKurz"));
     Mnemonics.setButton(this, toggleAvailableBoatsToPaddelArt,
         International.getStringWithMnemonic("Paddel"));
     Mnemonics.setButton(this, toggleAvailableBoatsToSteuermann,
-        International.getStringWithMnemonic("Steuer"));
+        International.getStringWithMnemonic("SteuermannKurz"));
 
     toggleAvailableBoatsToBoats.setHorizontalAlignment(SwingConstants.RIGHT);
     toggleAvailableBoatsToPersons.setHorizontalAlignment(SwingConstants.LEFT);
@@ -794,6 +793,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     updateGuiClock();
     centerPanel.setLayout(new GridBagLayout());
 
+    Insets noInset = new Insets(0, 0, 0, 0);
+    Insets top10Inset = new Insets(10, 0, 0, 0);
+    centerPanel.add(infoLabel, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, top10Inset, 0, 0));
+
+    int yPlacement = 1;
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    if (screenSize.getHeight() < 1234) {
+      yPlacement = 1;//22;
+    }
     int logoTop = (int) (10.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog
         .getDefaultFontSize());
     int logoBottom = 5;
@@ -803,14 +812,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       if (logoBottom < 0) {
         logoBottom = 0;
       }
-    }
-    centerPanel.add(infoLabel, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 0, 0, 0), 0, 0));
-    int yPlacement = 1;
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    if (screenSize.getHeight() < 1234) {
-      yPlacement = 22;
     }
     centerPanel.add(logoLabel, new GridBagConstraints(1, yPlacement, 1, 1, 0.0, 0.0,
         GridBagConstraints.CENTER, GridBagConstraints.NONE,
@@ -824,35 +825,31 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         new Insets(fahrtbeginnTop, 0, 0, 0),
         0, 0));
     centerPanel.add(finishSessionButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, noInset, 0, 0));
     centerPanel.add(abortSessionButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(lateEntryButton, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(clubworkButton, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(boatReservationButton, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(showLogbookButton, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(statisticsButton, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
-        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, noInset, 0, 0));
     centerPanel.add(messageToAdminButton, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
-        GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(adminButton, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0,
-        GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(specialButton, new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0,
-        GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, top10Inset, 0, 0));
     centerPanel.add(helpButton, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0,
-        GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.SOUTH, GridBagConstraints.NONE, top10Inset, 0, 0));
     centerPanel.add(efaButton, new GridBagConstraints(1, 14, 1, 1, 0.0, 0.0,
-        GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
+        GridBagConstraints.SOUTH, GridBagConstraints.NONE, top10Inset, 0, 0));
     centerPanel.add(clock.getGuiComponent(), new GridBagConstraints(1, 15, 1, 1, 0.0, 0.0,
         GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
-  }
-
-  private void updateTopInfoText(String infoText) {
-    infoLabel.setText(infoText);
   }
 
   private void updateTopInfoText(String text1, String text2) {
@@ -861,6 +858,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     } else {
       updateTopInfoText(text1);
     }
+  }
+
+  private void updateTopInfoText(String infoText) {
+    infoLabel.setText(infoText);
   }
 
   private void updateGuiZentralesLogo(String strZentralesBild) {
@@ -909,15 +910,26 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   private void iniGuiLogo() {
-    infoLabel.setPreferredSize(new Dimension(320, 120));
+    infoLabel.setPreferredSize(new Dimension(320, 170));
     infoLabel.setVerticalAlignment(SwingConstants.BOTTOM);
     infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     infoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-    
-    logoLabel.setMinimumSize(new Dimension(200, 80));
+    infoLabel.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        actionBoatInfosOrEfaAbout();
+      }
+    });
+
+    logoLabel.setPreferredSize(new Dimension(352, 654));
     logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-    updateGuiZentralesLogo(Daten.efaConfig.getValueEfaDirekt_vereinsLogo()); // wichtig
+    logoLabel.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        actionBoatInfosOrEfaAbout();
+      }
+    });
   }
 
   private void iniGuiButtons() {
@@ -1105,7 +1117,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         + (fkey ? " [F7]" : ""));
     this.statisticsButton.setText(International.getString("Statistik erstellen")
         + (fkey ? " [F8]" : ""));
-    this.messageToAdminButton.setText(International.getString("Nachricht an Boris")
+    this.messageToAdminButton.setText(International.getString("Nachricht an Admin")
         + (fkey ? " [F9]" : ""));
     this.adminButton.setText(International.getString("Admin-Modus") + (fkey ? " [Alt-F10]" : ""));
     this.specialButton.setText(Daten.efaConfig.getValueEfaDirekt_butSpezial().getValueText()
@@ -1304,7 +1316,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   public boolean cancel(WindowEvent e, int reason, AdminRecord admin, boolean restart) {
     Dialog.IGNORE_WINDOW_STACK_CHECKS = true;
     int exitCode = 0;
-    String who = "unknown";
+    String whoUser = "unknown";
 
     switch (reason) {
       case EFA_EXIT_REASON_USER: // manuelles Beenden von efa
@@ -1323,10 +1335,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
               admin = null;
             }
           }
-          who = International.getString("Admin") + "=" + admin.getName();
+          whoUser = International.getString("Admin") + "=" + admin.getName();
           byUser = false;
         } else {
-          who = International.getString("Nutzer");
+          whoUser = International.getString("Normaler Benutzer");
           byUser = true;
         }
         if (Daten.efaConfig.getValueEfaDirekt_execOnEfaExit().length() > 0 && byUser) {
@@ -1345,8 +1357,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         break;
       case EFA_EXIT_REASON_TIME:
       case EFA_EXIT_REASON_IDLE:
-        who = International.getString("Zeitsteuerung");
-        who += " (" + (reason == EFA_EXIT_REASON_TIME ? "time" : "idle") + ")";
+        whoUser = International.getString("Zeitsteuerung");
+        whoUser += " (" + (reason == EFA_EXIT_REASON_TIME ? "time" : "idle") + ")";
         if (Daten.efaConfig.getValueEfaDirekt_execOnEfaAutoExit().length() > 0) {
           Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXITEXECCMD,
               International.getMessage(
@@ -1362,13 +1374,13 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
         break;
       case EFA_EXIT_REASON_OOME:
-        who = International.getString("Speicherüberwachung");
+        whoUser = International.getString("Speicherüberwachung");
         break;
       case EFA_EXIT_REASON_AUTORESTART:
-        who = International.getString("Automatischer Neustart");
+        whoUser = International.getString("Automatischer Neustart");
         break;
       case EFA_EXIT_REASON_ONLINEUPDATE:
-        who = International.getString("Online-Update");
+        whoUser = International.getString("Online-Update");
         break;
     }
     if (restart) {
@@ -1379,7 +1391,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     // super.processWindowEvent(e);
     // }
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXIT,
-        International.getMessage("Programmende durch {originator}", who));
+        International.getMessage("Programmende durch {originator}", whoUser));
     super.cancel();
     Daten.haltProgram(exitCode);
     return true;
@@ -2172,7 +2184,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           } else {
             name = International.getString("anderes oder fremdes Boot");
           }
-          updateGuiZentralesLogo(fileName);
+
           String text = "";
           if (status != null) {
             String s = BoatStatusRecord.getStatusDescription(status.getCurrentStatus());
@@ -2224,15 +2236,17 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             s = getInfoString(item, true, false, false, false, false,
                 false, false, false, false, false, false, false, false);
           }
-          
+
           // Textlänge reduzieren
           String infoStringForDisplay = s.substring(6).toString();
           double cutLength = 4 * Daten.efaConfig.getMinimumDauerFuerKulanz();
-          cutLength -= 2;
+          cutLength += 24;
+          // Bootshaus = 4*43-2 = 170 | 168 = 48 * 3 + 24 | 216
           if (s.length() > cutLength) {
             infoStringForDisplay = s.substring(6, (int)cutLength - 4) + "...";          
           }
           updateTopInfoText("<html>" + infoStringForDisplay + "</html>");
+          updateGuiZentralesLogo(fileName); // Boot-Foto
         } else {
           // nach klick auf "<anderes Boot>"
           // gut // reset to Vereinslogo // Standard-Bild
@@ -2958,6 +2972,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
   }
 
+  void actionBoatInfosOrEfaAbout() {
+    ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
+    if (item == null || item.boat == null) {
+      //efaButton_actionPerformed(null);
+    } else {
+      actionBoatInfos();
+    }
+  }
+  
   void actionBoatInfos() {
     alive();
     clearAllPopups();

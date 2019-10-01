@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_42";
-  public final static String VERSIONRELEASEDATE = "27.09.2019"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_43";
+  public final static String VERSIONRELEASEDATE = "01.10.2019"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -382,17 +382,17 @@ public class Daten {
     if (exitCode != 0) {
       if (exitCode == HALT_SHELLRESTART || exitCode == HALT_JAVARESTART) {
         Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
-            International.getString("PROGRAMMENDE") + " (Ver:" + VERSIONID + ")" + " (Exit Code " + exitCode + ")");
+            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Exit Code " + exitCode + ")");
       } else {
         if (applID != APPL_CLI) {
           Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
         }
         Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
-            International.getString("PROGRAMMENDE") + " (Ver:" + VERSIONID + ")" + " (Error Code " + exitCode + ")");
+            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Error Code " + exitCode + ")");
       }
     } else {
       Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
-          International.getString("PROGRAMMENDE") + " (Ver:" + VERSIONID + ")");
+          International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + " vom " + VERSIONRELEASEDATE + ")");
     }
     if (program != null) {
       program.exit(exitCode);
@@ -629,21 +629,18 @@ public class Daten {
     }
 
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
-        International.getString("PROGRAMMSTART"));
+        International.getString("PROGRAMMSTART") + " (Ver:" + VERSIONID + " vom " + VERSIONRELEASEDATE + ")");
     Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
-        "Version efa: " + VERSIONID + " vom " + VERSIONRELEASEDATE + " -- Java: " + javaVersion + " (JVM "
-            + jvmVersion + ") -- OS: " + osName + " " + osVersion);
-
+        "Java " + javaVersion + " (JVM " + jvmVersion + ")"
+            + " -- OS: " + osName + " " + osVersion);
     if (Logger.isDebugLogging()) {
       Logger.log(Logger.INFO, Logger.MSG_LOGGER_DEBUGACTIVATED,
           "Debug Logging activated."); // do not internationalize!
     }
-
     if (baklog != null) {
       Logger.log(Logger.INFO, Logger.MSG_EVT_LOGFILEARCHIVED,
           International.getMessage("Alte Logdatei wurde nach '{filename}' verschoben.", baklog));
     }
-
     if (lastLogEntry != null && lastLogEntry.length() > 0 &&
         !lastLogEntry.contains(International.getString("PROGRAMMENDE"))) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_PREVIOUSEXITIRREGULAR,

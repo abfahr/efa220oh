@@ -232,10 +232,9 @@ public class BoatReservationRecord extends DataRecord {
   public String getReason() {
     String s = getString(REASON);
     if (s == null || s.length() == 0) {
+      s = "";
       if (isBootshausOH()) {
-        s = International.getString(Daten.efaConfig.getTextPrivatMitVertrag());
-      } else {
-        s = International.getString("");
+        s = International.getString("Fehlermeldung PrivatMitVertrag");
       }
 
     }

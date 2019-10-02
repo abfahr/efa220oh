@@ -254,10 +254,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean automaticEndLogbookNotAvailable;
   private ItemTypeString regexForVorUndNachname;
   private ItemTypeString regexForHandynummer;
-  private ItemTypeString textPrivatMitVertrag;
-  private ItemTypeString textBadMitgliedsname;
-  private ItemTypeString textBadHandynummer;
-  private ItemTypeString textlangeAusleiheFachwart;
   private ItemTypeDouble minimumDauerFuerKulanz;
   private ItemTypeBoolean saveAllLogbookToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarFile;
@@ -988,27 +984,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*", IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International.getString("regex für Handynummer")));
-      
-      addParameter(textPrivatMitVertrag = new ItemTypeString(
-          "textPrivatMitVertrag",
-          "zB. privat, aber mit Bootshausnutzungsvertrag", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International.getString("Fehlermeldung PrivatMitVertrag")));
-      addParameter(textBadMitgliedsname = new ItemTypeString(
-          "textBadMitgliedsname",
-          "unmöglicher Mitgliedsname!", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International.getString("Fehlermeldung bei BadMitgliedsname")));
-      addParameter(textBadHandynummer = new ItemTypeString(
-          "textBadHandynummer",
-          "Vorwahl kenntlich machen --", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International.getString("Fehlermeldung bei BadHandynummer")));
-      addParameter(textlangeAusleiheFachwart = new ItemTypeString(
-          "textlangeAusleiheFachwart",
-          "Lange Ausleihe mit Fachwart abgestimmt?", IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International.getString("Fehlermeldung bei langer Ausleihe")));
+
       addParameter(minimumDauerFuerKulanz = new ItemTypeDouble(
           "minimumDauerFuerKulanz", 48, 0, 9999, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
@@ -2163,22 +2139,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   public String getRegexForHandynummer() {
     String retVal = regexForHandynummer.getValue();
     return retVal == "" ? ".*" : retVal;
-  }
-
-  public String getTextPrivatMitVertrag() {
-    return textPrivatMitVertrag.getValue();
-  }
-
-  public String getTextBadMitgliedsname() {
-    return textBadMitgliedsname.getValue();
-  }
-
-  public String getTextBadHandynummer() {
-    return textBadHandynummer.getValue();
-  }
-
-  public String getTextLangeAusleiheFachwart() {
-    return textlangeAusleiheFachwart.getValue();
   }
 
   public double getMinimumDauerFuerKulanz() {

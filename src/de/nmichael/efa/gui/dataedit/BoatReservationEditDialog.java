@@ -165,7 +165,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.REASON)) {
           ItemTypeString reason = (ItemTypeString) it;
-          String prangerText = Daten.efaConfig.getTextLangeAusleiheFachwart();
+          String prangerText = International.getString("Fehlermeldung bei langerAusleihe");
           String reasonString = reason.getValue().replace(prangerText, "").trim();
           if (anzahlStunden >= minimumDauerFuerKulanz) {
             reasonString = prangerText + " " + reasonString;
@@ -187,7 +187,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.REASON)) {
           ItemTypeString reason = (ItemTypeString) it;
-          String prangerText = Daten.efaConfig.getTextBadMitgliedsname();
+          String prangerText = International.getString("Fehlermeldung bei BadMitgliedsname");
           String reasonString = reason.getValue().replace(prangerText, "").trim();
           String myMatch = Daten.efaConfig.getRegexForVorUndNachname();
           if (!eingegebenerName.getValue().matches(myMatch)) {
@@ -217,7 +217,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.REASON)) {
           ItemTypeString reason = (ItemTypeString) it;
-          String prangerText = Daten.efaConfig.getTextBadHandynummer();
+          String prangerText = International.getString("Fehlermeldung bei BadHandynummer");
           prangerText = "Vorwahl kenntlich machen!";
           String reasonString = reason.getValue().replace(prangerText, "").trim();
           String myMatch = Daten.efaConfig.getRegexForHandynummer();

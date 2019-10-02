@@ -931,8 +931,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
 
       ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
-          IItemType.TYPE_INTERNAL, "",
-          International.getString(boatRecord.getQualifiedName()));
+          IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
       item.setDataKey(boatRecord.getKey());
       if (originalBoat.getId().equals(boatRecord.getId())) {
         // das eigene Boot haben wir schon reserviert

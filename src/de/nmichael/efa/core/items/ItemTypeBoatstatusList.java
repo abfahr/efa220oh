@@ -36,6 +36,7 @@ import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.gui.EfaBoathouseFrame;
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
 public class ItemTypeBoatstatusList extends ItemTypeList {
@@ -248,7 +249,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             if (suffix != null &&
                 suffix.length() > 0 &&
                 !suffix.isBlank() &&
-                !suffix.equals(Daten.efaConfig.getTextPrivatMitVertrag()) &&
+                !suffix.contains(International.getString("Fehlermeldung PrivatMitVertrag")) &&
+                !suffix.contains(International.getString("Fehlermeldung bei langerAusleihe")) &&
                 !suffix.equals("null")) {
               myBoatString.name += "     -> \"" + suffix + "\"";
             }
@@ -315,6 +317,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
            */
           s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_OTHER);
           // }
+        }
+        if (s != null) {
+          s = s.trim();
         }
         anz = myBoatStringElement.seats;
         String newSep = "--------- " + s + " -------------";

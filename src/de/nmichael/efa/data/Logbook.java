@@ -182,6 +182,28 @@ public class Logbook extends StorageObject {
     }
   }
 
+  public int countBoatUsage(UUID boatId) {
+    int count = 0;
+    try {
+      DataKeyIterator it = data().getStaticIterator();
+      for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        LogbookRecord r = (LogbookRecord) data().get(k);
+        if (r == null || 
+            r.getBoatId() == null || 
+            !r.getBoatId().equals(boatId)) {
+          continue;
+        }
+        if (r.getDate() != null && 
+            r.getDate().isSet()) {
+          count++;
+        }
+      }
+    } catch (Exception e) {
+      Logger.logdebug(e);
+    }
+    return count;
+  }
+
   public DataTypeIntString getNextEntryNo() {
     int n = 1;
     LogbookRecord lastrec = null;

@@ -197,9 +197,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           myBoatString.name = myBoatRecord.getQualifiedName();
           if (Daten.efaConfig.isValueEfaBoathouseShowOrtDescriptionInAvailableList()) {
             if (sortmode == SortingBy.EfaSorting || sortmode == SortingBy.BoatType) {
-              String postFix = myBoatRecord.getTypeDescription(0);
-              if (postFix != null && !postFix.isBlank()) {
-                myBoatString.name += " \"" + postFix +"\"";
+              String suffix = myBoatRecord.getTypeDescription(0);
+              if (suffix != null &&
+                  !suffix.isBlank() &&
+                  !suffix.equals("null")) {
+                myBoatString.name += " \"" + suffix + "\"";
               }
             }
           }
@@ -242,9 +244,13 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             myBoatStatusRecord.getEntryNo() != null && myBoatStatusRecord.getEntryNo().length() > 0) {
           LogbookRecord lr = logbook.getLogbookRecord(myBoatStatusRecord.getEntryNo());
           if (lr != null) {
-            String dest = lr.getDestinationAndVariantName();
-            if (dest != null && dest.length() > 0) {
-              myBoatString.name += "     -> " + dest;
+            String suffix = lr.getDestinationAndVariantName();
+            if (suffix != null &&
+                suffix.length() > 0 &&
+                !suffix.isBlank() &&
+                !suffix.equals(Daten.efaConfig.getTextPrivatMitVertrag()) &&
+                !suffix.equals("null")) {
+              myBoatString.name += "     -> \"" + suffix + "\"";
             }
           }
         }

@@ -240,6 +240,12 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.colors = colors;
         myBoatString.record = myBoatListItem;
 
+        if (sortmode == SortingBy.BoatType && 
+            efaBoathouseFrame.isToggleF12LangtextF12()) {
+          int frequency = logbook.countBoatUsage(myBoatStatusRecord.getBoatId());
+          myBoatString.name = "(" + String.format("%1$3s", frequency) + "x) " + myBoatString.name;
+        }
+
         if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs() &&
             BoatStatusRecord.STATUS_ONTHEWATER.equals(myBoatStatusRecord.getCurrentStatus()) &&
             myBoatStatusRecord.getEntryNo() != null && myBoatStatusRecord.getEntryNo().length() > 0) {
@@ -472,7 +478,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     public PersonRecord person;
   }
 
-  class BoatString implements Comparable {
+  class BoatString implements Comparable<BoatString> {
 
     public String name;
     public String sortKategorie;
@@ -581,14 +587,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     }
 
     @Override
-    public int compareTo(Object o) {
-      BoatString other = (BoatString) o;
-      String sThis = normalizeString(sortKategorie)
-        //  + (sortBySeats ? (seats < 10 ? "0" : "") + seats : "") 
-          + normalizeString(name);
-      String sOther = normalizeString(other.sortKategorie) 
-        //  + (sortBySeats ? (other.seats < 10 ? "0" : "") + other.seats : "")
-          + normalizeString(other.name);
+    public int compareTo(BoatString other) {
+      String sThis = normalizeString(sortKategorie) + normalizeString(name);
+      String sOther = normalizeString(other.sortKategorie) + normalizeString(other.name);
       return sThis.compareTo(sOther);
     }
   }

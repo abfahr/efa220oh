@@ -285,6 +285,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     super._keyAction(evt);
   }
 
+  public boolean isToggleF12LangtextF12() {
+    return toggleF12LangtextF12;
+  }
+
   @Override
   public void keyAction(ActionEvent evt) {
     _keyAction(evt);

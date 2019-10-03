@@ -2527,18 +2527,24 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       damages = boatDamages.getBoatDamages(boatId, true, true);
     }
     if (damages != null && damages.length > 0) {
-      if (Dialog.yesNoDialog(
-          International.getString("Bootsschaden gemeldet"),
-          International.getMessage("Für das Boot {boat} wurde folgender Bootsschaden gemeldet:",
-              item.boatStatus.getBoatText())
-              + NEWLINE
-              + "\"" + damages[0].getDescription() + "\""
-              + NEWLINE
-              + International.getString("Schwere des Schadens") + ": "
-              + damages[0].getSeverityDescription()
-              + NEWLINE
-              + NEWLINE
-              + questionText) != Dialog.YES) {
+      String bodyText = "";
+      if (damages.length == 1) {
+        bodyText = International.getMessage
+          ("Für das Boot {boat} wurde folgender Bootsschaden gemeldet:",
+          item.boatStatus.getBoatText()) + NEWLINE;
+      } else {
+        bodyText = International.getMessage
+            ("Für das Boot {boat} wurden folgende Bootsschäden gemeldet:",
+            item.boatStatus.getBoatText()) + NEWLINE;
+        }
+      for (int i = 0; i < damages.length; i++) {
+        bodyText +=  (i+1) + ") \"" + damages[i].getDescription() + "\"" + NEWLINE
+          + International.getString("Schwere des Schadens") + ": "
+          + damages[i].getSeverityDescription() + NEWLINE;
+      }
+      bodyText +=  NEWLINE + questionText;
+      int yesNoAnswer = Dialog.yesNoDialog(International.getString("Bootsschaden gemeldet"), bodyText);
+      if (yesNoAnswer != Dialog.YES) {
         return false;
       }
     }

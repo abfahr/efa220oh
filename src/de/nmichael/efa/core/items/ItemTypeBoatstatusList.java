@@ -22,6 +22,8 @@ import javax.swing.JPanel;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.data.BoatDamageRecord;
+import de.nmichael.efa.data.BoatDamages;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.BoatStatusRecord;
 import de.nmichael.efa.data.Boats;
@@ -105,12 +107,17 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           }
         }
       }
-      this.iconWidth = (groupColors.size() > 0 ? Daten.efaConfig.getValueEfaDirekt_fontSize() : 0);
-      this.iconHeight = this.iconWidth;
+      iconWidth = 0;
+      if (groupColors.size() > 0 ||
+          efaBoathouseFrame.isToggleF12LangtextF12()) {
+        iconWidth = Daten.efaConfig.getValueEfaDirekt_fontSize();
+      } 
+      iconHeight = iconWidth;
     } catch (Exception e) {
       Logger.logdebug(e);
     }
 
+    BoatDamages boatDamages = Daten.project.getBoatDamages(false);
     Vector<BoatString> vectorBoatString = new Vector<BoatString>();
     for (int i = 0; i < vectorBoatStatusRecord.size(); i++) {
       BoatStatusRecord myBoatStatusRecord = vectorBoatStatusRecord.get(i);
@@ -164,6 +171,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           // it should *not* appear in the list
         }
       }
+      BoatDamageRecord[] damages = boatDamages.getBoatDamages(myBoatStatusRecord.getBoatId(), true, true);
 
       Integer[] seats = allSeats.keySet().toArray(new Integer[0]);
       for (Integer seat2 : seats) {
@@ -218,6 +226,39 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
 
         // Colors for Groups
         ArrayList<Color> aColors = new ArrayList<Color>();
+        if (damages != null) {
+          int farbe = 236;
+          int count = 0;
+          for (BoatDamageRecord damage : damages) {
+            if (!damage.getFixed()) {
+              count ++;
+              switch (count%6) {
+                case 1:
+                  aColors.add(new Color(farbe, 0, 0));                  
+                  break;
+                case 2:
+                  aColors.add(new Color(0, 0, farbe));                  
+                  break;
+                case 3:
+                  aColors.add(new Color(0, farbe, 0));                  
+                  break;
+                case 4:
+                  aColors.add(new Color(farbe/2, 0, 0));                  
+                  break;
+                case 5:
+                  aColors.add(new Color(0, 0, farbe/2));                  
+                  break;
+                case 0:
+                  aColors.add(new Color(0, farbe/2, 0));                  
+                  break;
+
+                default:
+                  aColors.add(new Color(0, 0, 0));                  
+                  break;
+              }
+            }
+          }
+        }
         if (myBoatRecord != null) {
           DataTypeList<UUID> grps = myBoatRecord.getAllowedGroupIdList();
           if (grps != null && grps.length() > 0) {

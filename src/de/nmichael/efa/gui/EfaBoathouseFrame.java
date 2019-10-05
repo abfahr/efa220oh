@@ -480,7 +480,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     alive();
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFAREADY,
-        International.getString("BEREIT") + " -----------------------------------------");
+        International.getString("BEREIT") + " ------------------------------------");
   }
 
   private void iniGuiRemaining() {
@@ -805,7 +805,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     int yPlacement = 1;
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     if (screenSize.getHeight() < 1234) {
-      yPlacement = 1;//22;
+      yPlacement = 22;
     }
     int logoTop = (int) (10.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog
         .getDefaultFontSize());

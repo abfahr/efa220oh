@@ -107,6 +107,7 @@ import de.nmichael.efa.util.Mnemonics;
 public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
   private static final long serialVersionUID = 1L;
+  private static final String NEWLINE = "\n";
   public static final int MODE_BASE = 0;
   public static final int MODE_BOATHOUSE = 1;
   public static final int MODE_BOATHOUSE_START = 2;
@@ -116,6 +117,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   public static final int MODE_BOATHOUSE_ABORT = 6;
   public static final int MODE_ADMIN = 7;
   public static final int MODE_ADMIN_SESSIONS = 8;
+  public static final String GUIITEM_ADDITIONALWATERS = "GUIITEM_ADDITIONALWATERS";
   private int mode;
 
   // =========================================================================
@@ -160,7 +162,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   ItemTypeString comments;
   ItemTypeStringList sessiontype;
   ItemTypeStringAutoComplete sessiongroup;
-  public static final String GUIITEM_ADDITIONALWATERS = "GUIITEM_ADDITIONALWATERS";
 
   // Supplementary Elements
   ItemTypeButton remainingCrewUpButton;
@@ -178,18 +179,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   AdminRecord remoteAdmin;
   DataKeyIterator iterator; // iterator for this logbook
   LogbookRecord currentRecord; // aktDatensatz = aktuell angezeigter Datensatz
-  LogbookRecord referenceRecord; // refDatensatz = Referenz-Datensatz (zuletzt angezeigter
-  // Datensatz, wenn neuer erstellt wird)
+  LogbookRecord referenceRecord; // refDatensatz = Referenz-Datensatz
+  // (zuletzt angezeigter Datensatz, wenn neuer erstellt wird)
   long logbookValidFrom = 0;
   long logbookInvalidFrom = 0;
-  boolean isNewRecord; // neuerDatensatz = ob akt. Datensatz ein neuer Datensatz, oder ein
-  // bearbeiteter ist
-  boolean isInsertedRecord; // neuerDatensatz_einf = ob der neue Datensatz eingefügt wird (dann beim
-  // Hinzufügen keine Warnung wegen kleiner Lfd. Nr.!)
-  int entryNoForNewEntry = -1; // lfdNrForNewEntry = LfdNr (zzgl. 1), die für den nächsten per "Neu"
-  // erzeugten Datensatz verwendet werden soll; wenn <0, dann wird
-  // "last+1" verwendet
-  BoatRecord currentBoat; // aktBoot = aktuelle Bootsdaten (um nächstes Eingabefeld zu ermitteln)
+
+  boolean isNewRecord; // neuerDatensatz
+  // = ob akt. Datensatz ein neuer Datensatz, oder ein bearbeiteter ist
+  boolean isInsertedRecord; // neuerDatensatz_einf = ob der neue Datensatz eingefügt wird
+  // (dann beim Hinzufügen keine Warnung wegen kleiner Lfd. Nr.!)
+  int entryNoForNewEntry = -1; // lfdNrForNewEntry = LfdNr (zzgl. 1),
+  // die für den nächsten per "Neu" erzeugten Datensatz verwendet werden soll;
+  // wenn <0, dann wird "last+1" verwendet
+
+  BoatRecord currentBoat; // aktBoot = aktuelle Bootsdaten
+  // (um nächstes Eingabefeld zu ermitteln)
   String currentBoatTypeSeats; // boat type for currentBoat
   String currentBoatTypeCoxing; // boat type for currentBoat
   int currentBoatNumberOfSeats; // boat type for currentBoa
@@ -226,8 +230,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     this.mode = mode;
   }
 
-  public EfaBaseFrame(JDialog parent, int mode, AdminRecord admin,
-      Logbook logbook, String entryNo) {
+  public EfaBaseFrame(JDialog parent, int mode,
+      AdminRecord admin, Logbook logbook, String entryNo) {
     super(parent, Daten.EFA_LONGNAME, null);
     this.mode = mode;
     this.logbook = logbook;
@@ -242,38 +246,48 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     this.mode = mode;
   }
 
-  public int getMode() {
-    return this.mode;
+  private int getMode() {
+    return mode;
   }
 
-  public void setMode(int mode) {
+  private void setMode(int mode) {
     this.mode = mode;
   }
 
-  public boolean isModeBase() {
-    return getMode() == MODE_BASE;
+  private boolean isModeBase() {
+    return mode == MODE_BASE;
   }
 
-  public boolean isModeFull() {
-    return getMode() == MODE_BASE ||
-        getMode() == MODE_ADMIN;
+  private boolean isModeBaseOrAdmin() {
+    return mode == MODE_BASE
+        || mode == MODE_ADMIN;
   }
 
-  public boolean isModeBoathouse() {
-    return getMode() == MODE_BOATHOUSE ||
-        getMode() == MODE_BOATHOUSE_START ||
-        getMode() == MODE_BOATHOUSE_START_CORRECT ||
-        getMode() == MODE_BOATHOUSE_FINISH ||
-        getMode() == MODE_BOATHOUSE_LATEENTRY ||
-        getMode() == MODE_BOATHOUSE_ABORT;
+  private boolean isModeBoathouse() {
+    return mode == MODE_BOATHOUSE
+        || mode == MODE_BOATHOUSE_START
+        || mode == MODE_BOATHOUSE_START_CORRECT
+        || mode == MODE_BOATHOUSE_FINISH
+        || mode == MODE_BOATHOUSE_LATEENTRY
+        || mode == MODE_BOATHOUSE_ABORT;
   }
 
-  public boolean isModeAdmin() {
-    return getMode() == MODE_ADMIN ||
-        getMode() == MODE_ADMIN_SESSIONS;
+  private boolean isModeStartOrStartCorrect() {
+    return mode == MODE_BOATHOUSE_START
+        || mode == MODE_BOATHOUSE_START_CORRECT;
   }
 
-  public AdminRecord getAdmin() {
+  private boolean isModeFinishOrLateEntry() {
+    return mode == MODE_BOATHOUSE_FINISH
+        || mode == MODE_BOATHOUSE_LATEENTRY;
+  }
+
+  private boolean isModeAdmin() {
+    return mode == MODE_ADMIN
+        || mode == MODE_ADMIN_SESSIONS;
+  }
+
+  private AdminRecord getAdmin() {
     return (remoteAdmin != null ? remoteAdmin : admin);
   }
 
@@ -324,7 +338,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   public void packFrame(String method) {
-    this.pack();
+    pack();
   }
 
   public void setFixedLocationAndSize() {
@@ -343,7 +357,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (isModeBase()) {
       iniGuiMenu();
     }
-    if (isModeFull()) {
+    if (isModeBaseOrAdmin()) {
       iniGuiToolbar();
     }
     iniGuiMain();
@@ -384,7 +398,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         EfaBaseFrame.class.getResource("/de/nmichael/efa/img/efa_icon.png")));
     mainPanel.setLayout(new BorderLayout());
     setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-    this.addWindowListener(new java.awt.event.WindowAdapter() {
+    addWindowListener(new java.awt.event.WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
         this_windowClosing(e);
@@ -437,7 +451,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
     }
     menuBar.add(menu);
-    this.setJMenuBar(menuBar);
+    setJMenuBar(menuBar);
   }
 
   private void iniGuiToolbar() {
@@ -854,7 +868,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     sessiongroup.setEditable(false);
     sessiongroup.displayOnGui(this, mainInputPanel, 0, 17);
     sessiongroup.registerItemListener(this);
-    sessiongroup.setVisible(isModeFull());
+    sessiongroup.setVisible(isModeBaseOrAdmin());
 
     // Further Fields which are not part of Data Input
 
@@ -936,7 +950,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       setResizable(false);
     }
     if (isModeAdmin()) {
-      this.addWindowListener(new java.awt.event.WindowAdapter() {
+      addWindowListener(new java.awt.event.WindowAdapter() {
         @Override
         public void windowDeactivated(WindowEvent e) {
           this_windowDeactivated(e);
@@ -955,7 +969,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         iniGuiMenu();
       }
     }
-    if (Daten.project != null && isModeBase() && Daten.project.getCurrentLogbookEfaBase() != null) {
+    if (Daten.project != null && isModeBase()
+        && Daten.project.getCurrentLogbookEfaBase() != null) {
       openLogbook(Daten.project.getCurrentLogbookEfaBase());
     }
     if (Daten.project != null && isModeAdmin() && logbook != null) {
@@ -965,7 +980,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       // in the constructor.
       // So we just tweak it a bit so that openLogbook() will accept our logbook as a new one...
       Logbook newLogbook = logbook;
-      this.logbook = null;
+      logbook = null;
       openLogbook(newLogbook);
       if (_jumpToEntryNo != null && _jumpToEntryNo.length() > 0) {
         goToEntry(_jumpToEntryNo, false);
@@ -1034,7 +1049,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   PersonRecord findPerson(ItemTypeString item, long validAt) {
-    PersonRecord p = null;
     try {
       String s = item.getValueFromField().trim();
       if (Daten.efaConfig.getValuePostfixPersonsWithClubName()) {
@@ -1053,7 +1067,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         // "B" of the same record, which is valid. If there is a "B", we will use that.
         // That means, even though the user entered "A", we will save the ID, and display "B".
         if (validAt > 0 && r == null) {
-          PersonRecord r2 = Daten.project.getPersons(false).getPerson(s, this.logbookValidFrom,
+          PersonRecord r2 = Daten.project.getPersons(false).getPerson(s, logbookValidFrom,
               logbookInvalidFrom - 1, validAt);
           if (r2 != null) {
             r = Daten.project.getPersons(false).getPerson(r2.getId(), validAt);
@@ -1084,7 +1098,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         // "B" of the same record, which is valid. If there is a "B", we will use that.
         // That means, even though the user entered "A", we will save the ID, and display "B".
         if (validAt > 0 && r == null) {
-          BoatRecord r2 = Daten.project.getBoats(false).getBoat(s, this.logbookValidFrom,
+          BoatRecord r2 = Daten.project.getBoats(false).getBoat(s, logbookValidFrom,
               logbookInvalidFrom - 1, validAt);
           if (r2 != null) {
             r = Daten.project.getBoats(false).getBoat(r2.getId(), validAt);
@@ -1138,7 +1152,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         // That means, even though the user entered "A", we will save the ID, and display "B".
         if (validAt > 0 && r == null) {
           DestinationRecord r2 = Daten.project.getDestinations(false).getDestination(dest[0],
-              this.logbookValidFrom, logbookInvalidFrom - 1, validAt);
+              logbookValidFrom, logbookInvalidFrom - 1, validAt);
           if (r2 != null) {
             r = Daten.project.getDestinations(false).getDestination(r2.getId(), validAt);
           }
@@ -1330,7 +1344,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (isModeBoathouse()) {
       autoCompleteListDestinations.setPostfixNamesWithBoathouseName(false);
     }
-    if (isModeFull()) {
+    if (isModeBaseOrAdmin()) {
       try {
         LogbookRecord r = (LogbookRecord) logbook.data().getLast();
         if (r != null) {
@@ -1486,7 +1500,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setField(sessiongroup, r);
     // replaced by closesessionButton // opensession.setVisible(isModeFull() && r != null &&
     // r.getSessionIsOpen());
-    closesessionButton.setVisible(isModeFull() && r != null && r.getSessionIsOpen());
+    closesessionButton.setVisible(isModeBaseOrAdmin() && r != null && r.getSessionIsOpen());
     currentBoatUpdateGui((r != null && r.getBoatVariant() > 0 ? r.getBoatVariant() : -1));
     setCrewRangeSelection(0);
     setEntryUnchanged();
@@ -1693,7 +1707,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     if (efaBoathouseAction != null) {
       BoatStatusRecord boatStatus = efaBoathouseAction.boatStatus;
-      if (mode != MODE_BOATHOUSE_FINISH) {
+      if (getMode() != MODE_BOATHOUSE_FINISH) {
         if (efaBoathouseFrame.frageBenutzerWennUeberschneidungReservierung(boatStatus)) {
           return false; // abortNow
         }
@@ -1702,11 +1716,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     boolean success = saveEntryInLogbook();
 
-    if (isModeFull()) {
+    if (isModeBaseOrAdmin()) {
       if (success) {
         setEntryUnchanged();
         boolean createNewRecord = false;
-        if (isModeFull()) { // used to be: getMode() == MODE_BASE
+        if (isModeBaseOrAdmin()) {
           try {
             LogbookRecord rlast = (LogbookRecord) logbook.data().getLast();
             if (currentRecord.getEntryId().equals(rlast.getEntryId())) {
@@ -1745,10 +1759,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       currentRecord = getFields();
 
-      if (mode == MODE_BOATHOUSE_START || mode == MODE_BOATHOUSE_START_CORRECT) {
+      if (isModeStartOrStartCorrect()) {
         currentRecord.setSessionIsOpen(true);
       } else {
-        currentRecord.setSessionIsOpen(false); // all other updates to an open entry (incl. Admin
+        currentRecord.setSessionIsOpen(false);
+        // all other updates to an open entry (incl. Admin
         // Mode) will mark it as finished
       }
 
@@ -1772,7 +1787,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       return false;
     }
 
-    if (isModeFull()) {
+    if (isModeBaseOrAdmin()) {
       logAdminEvent(
           Logger.INFO,
           (isNewRecord ? Logger.MSG_ADMIN_LOGBOOK_ENTRYADDED
@@ -1913,7 +1928,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   void setTime(ItemTypeTime field, int addMinutes, DataTypeTime notBefore) {
     DataTypeTime now = DataTypeTime.now();
 
-    if (mode == MODE_BOATHOUSE_LATEENTRY && field == this.starttime) {
+    if (getMode() == MODE_BOATHOUSE_LATEENTRY 
+        && field == starttime) {
       // for Late Entries, we default to a start time about 100 minutes ago
       now.delete((100 + addMinutes) * 60);
     }
@@ -2040,9 +2056,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         // aus dem Feld verschwinden (ebenso nach der Suche nach unvollständigen Einträgen mit
         // unbekannten
         // Zielen).
-        if (this.isModeBoathouse()
-            && (mode == MODE_BOATHOUSE_START || mode == MODE_BOATHOUSE_START_CORRECT
-                || mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY)) {
+        if (isModeBoathouse()
+            && (isModeStartOrStartCorrect()
+                || isModeFinishOrLateEntry())) {
           distance.parseAndShowValue("");
         }
         lastDestination = "";
@@ -2056,7 +2072,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     DestinationRecord r = findDestination(getValidAtTimestamp(null));
     if (!newDestination.equals(lastDestination) && newDestination.length() != 0
-        && this.isLogbookReady()) {
+        && isLogbookReady()) {
       // die folgende Zeile ist korrekt, da diese Methode nur nach "vervollstaendige" und bei
       // "zielButton.getBackground()!=Color.red" aus "ziel_keyReleased" oder "zielButton_focusLost"
       // aufgerufen wird und somit ein gültiger Datensatz bereits gefunden wurde!
@@ -2252,7 +2268,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   private boolean checkMisspelledInput() {
     PersonRecord r;
     for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
-      ItemTypeStringAutoComplete field = this.getCrewItem(i);
+      ItemTypeStringAutoComplete field = getCrewItem(i);
       String s = field.getValueFromField().trim();
       if (s.length() == 0) {
         continue;
@@ -2271,8 +2287,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
   private boolean checkDuplicatePersons() {
     // Ruderer auf doppelte prüfen
-    Hashtable h = new Hashtable();
-    String s;
+    Hashtable<UUID, String> h = new Hashtable<UUID, String>();
     String doppelt = null; // Ergebnis doppelt==null heißt ok, doppelt!=null heißt Fehler! ;-)
     while (true) { // Unsauber; aber die Alternative wäre ein goto; dies ist keine Schleife!!
       PersonRecord r;
@@ -2300,7 +2315,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
   private boolean checkPersonsForBoatType() {
     // bei steuermannslosen Booten keinen Steuermann eingeben
-    if (cox.getValueFromField().trim().length() > 0 && currentBoatTypeCoxing != null) {
+    if (cox.getValueFromField().trim().length() > 0 
+        && currentBoatTypeCoxing != null) {
       if (currentBoatTypeCoxing.equals(EfaTypes.TYPE_COXING_COXLESS)) {
         int ret = Dialog.yesNoDialog(
             International.getString("Steuermann"),
@@ -2313,18 +2329,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
       }
     }
-
-    // disabled functionality: for unknown boats: If only one person entered as cox, change to crew1
-    if (false &&
-        (getMode() == MODE_BOATHOUSE_START ||
-            getMode() == MODE_BOATHOUSE_START_CORRECT ||
-        getMode() == MODE_BOATHOUSE_LATEENTRY) &&
-        currentBoat == null && cox.getValueFromField().trim().length() > 0 &&
-        getNumberOfPersonsInBoat() == 1 && crew[0].isVisible()) {
-      crew[0].parseAndShowValue(cox.getValueFromField().trim());
-      cox.parseAndShowValue("");
-    }
-
     return true;
   }
 
@@ -2519,7 +2523,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private boolean checkBoatStatus() {
-    if (getMode() == MODE_BOATHOUSE_START || getMode() == MODE_BOATHOUSE_START_CORRECT) {
+    if (isModeStartOrStartCorrect()) {
       int checkMode = 3;
       // checkFahrtbeginnFuerBoot nur bei direkt_boot==null machen, da ansonsten der Check schon in
       // EfaDirektFrame gemacht wurde
@@ -2590,27 +2594,30 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private boolean checkDateTooLong() {
-    double minimumDauerFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
-    if (date.isSet() && enddate.isSet() && 
-        enddate.getDate().getDifferenceDays(date.getDate()) * 24 >= minimumDauerFuerKulanz) {
-      String msg = International.getString("So lange?? Ist die Ausleihe mit dem Fachwart abgestimmt? \nBitte trage für lange Fahrten eine Reservierung ein. Sorry!");
-      Dialog.error(msg);
-      enddate.requestFocus();
-      return false;
+    if (isModeStartOrStartCorrect() && !isModeAdmin()
+        && date.isSet() && enddate.isSet()) {
+      long anzahlTageBeantragt = enddate.getDate().getDifferenceDays(date.getDate());
+      double minimumStundenFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
+      if (anzahlTageBeantragt * 24 >= minimumStundenFuerKulanz) {
+        String msg =""; // So lange??
+        msg += International.getString("Ist die Ausleihe mit dem Fachwart abgestimmt?");
+        msg += NEWLINE;
+        msg += International.getString("Bitte trage für lange Fahrten eine Reservierung ein.");
+        Dialog.error(msg); // Sorry!
+        enddate.requestFocus();
+        return false;
+      }
     }
     return true;
   }
 
   private boolean checkTime() {
     if (isModeBoathouse()) {
-      if (starttime.isVisible()
-          && !starttime.isSet()) {
+      if (starttime.isVisible() && !starttime.isSet()) {
         setTime(starttime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt(), null);
       }
-      if (endtime.isVisible()
-          && !endtime.isSet()
-          && (getMode() == MODE_BOATHOUSE_FINISH
-          || getMode() == EfaBaseFrame.MODE_BOATHOUSE_LATEENTRY)) {
+      if (endtime.isVisible() && !endtime.isSet()
+          && isModeFinishOrLateEntry()) {
         setTime(endtime, -Daten.efaConfig.getValueEfaDirekt_minusMinutenAnkunft(),
             starttime.getTime());
       }
@@ -2776,7 +2783,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
 
       // Ziel vor Fahrtbeginn eintragen
-      if ((mode == MODE_BOATHOUSE_START || mode == MODE_BOATHOUSE_START_CORRECT)
+      if (isModeStartOrStartCorrect()
           && Daten.efaConfig.getValueEfaDirekt_zielBeiFahrtbeginnPflicht()
           && destination.getValue().length() == 0) {
         Dialog.error(International
@@ -2785,7 +2792,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return false;
       }
 
-      if ((mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY) &&
+      if (isModeFinishOrLateEntry() &&
           destination.getValue().length() == 0) {
         Dialog.error(International.getString("Bitte trage ein Fahrtziel/Strecke ein!"));
         destination.requestFocus();
@@ -2793,7 +2800,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
 
       // Waters
-      if ((mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY) &&
+      if (isModeFinishOrLateEntry() &&
           Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht() &&
           waters.isVisible() && waters.getValue().length() == 0) {
         Dialog.error(International.getString("Bitte trage ein Gewässer ein!"));
@@ -2803,14 +2810,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
       // Distance
       if ((!distance.isSet() || distance.getValue().getValueInDefaultUnit() == 0)) {
-        if (mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY) {
+        if (isModeFinishOrLateEntry()) {
           if (!Daten.efaConfig.getValueAllowSessionsWithoutDistance()) {
             Dialog.error(International.getString("Bitte trage die gefahrenen Entfernung ein!"));
             distance.requestFocus();
             return false;
           }
         }
-        if (isModeFull()) {
+        if (isModeBaseOrAdmin()) {
           if (Dialog.yesNoDialog(International.getString("Warnung"),
               International.getString("Keine Kilometer eingetragen.") + "\n"
                   + International.getString("Trotzdem speichern?")) == Dialog.NO) {
@@ -2835,7 +2842,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     String msg = International.getMessage(
         "{type} '{name}' ist zum Zeitpunkt {dateandtime} ungültig.",
         type, name, EfaUtil.getTimeStamp(validAt));
-    if (this.isModeBoathouse()) {
+    if (isModeBoathouse()) {
       // don't prompt, warn only
       LogbookRecord r = getFields();
       Logger.log(Logger.WARNING, Logger.MSG_EVT_ERRORRECORDINVALIDATTIME,
@@ -2954,12 +2961,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private boolean checkAllowedPersons() {
-    if (mode == MODE_BOATHOUSE_START || mode == MODE_BOATHOUSE_START_CORRECT) {
+    if (isModeStartOrStartCorrect()) {
       if (currentBoat == null) {
         return true;
       }
 
-      LogbookRecord myRecord = this.getFields();
+      LogbookRecord myRecord = getFields();
       if (myRecord == null) {
         return true;
       }
@@ -3097,7 +3104,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               International.getString("Trotzdem benutzen"),
               International.getString("Eintrag abbrechen"))) {
             case 0:
-              this.setFieldEnabled(true, true, boat);
+              setFieldEnabled(true, true, boat);
               boat.parseAndShowValue("");
               boat.requestFocus();
               return false;
@@ -3132,7 +3139,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // check and prompt to save changes (except for Help and About)
     if (!cmd.equals(EfaMenuButton.BUTTON_HELP) &&
         !cmd.equals(EfaMenuButton.BUTTON_ABOUT)) {
-      if (!isModeFull() || !promptSaveChangesOk()) {
+      if (!isModeBaseOrAdmin() || !promptSaveChangesOk()) {
         return;
       }
     }
@@ -3298,7 +3305,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (!isLogbookReady()) {
       return;
     }
-    if (isModeFull() && !promptSaveChangesOk()) {
+    if (isModeBaseOrAdmin() && !promptSaveChangesOk()) {
       return;
     }
 
@@ -3334,7 +3341,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       entryno.setUnchanged();
     } else {
       String n;
-      if (isModeFull() && entryNoForNewEntry > 0) {
+      if (isModeBaseOrAdmin() && entryNoForNewEntry > 0) {
         n = Integer.toString(entryNoForNewEntry + 1);
       } else {
         n = logbook.getNextEntryNo().toString();
@@ -3353,13 +3360,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     date.parseAndShowValue(d);
     updateTimeInfoFields();
     date.setUnchanged();
-    if (isModeFull()) {
+    if (isModeBaseOrAdmin()) {
       date.setSelection(0, Integer.MAX_VALUE);
     }
   }
 
   void deleteRecord() {
-    if (!isModeFull() || !isLogbookReady()) {
+    if (!isModeBaseOrAdmin() || !isLogbookReady()) {
       return;
     }
     String entryNo = null;
@@ -3374,7 +3381,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         International.getString("Möchtest Du den aktuellen Eintrag wirklich löschen?")) == Dialog.YES) {
       try {
         logbook.data().delete(currentRecord.getKey());
-        if (isModeFull()) {
+        if (isModeBaseOrAdmin()) {
           logAdminEvent(Logger.INFO, Logger.MSG_ADMIN_LOGBOOK_ENTRYDELETED,
               International.getString("Eintrag gelöscht"), currentRecord);
         }
@@ -3403,7 +3410,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   private void this_windowDeactivated(WindowEvent e) {
     try {
       if (isEnabled() && Dialog.frameCurrent() == this) {
-        this.toFront();
+        toFront();
       }
     } catch (Exception ee) {
       Logger.logdebug(ee);
@@ -3551,22 +3558,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           && item instanceof ItemTypeStringAutoComplete) {
         ((ItemTypeStringAutoComplete) item).showOrRemoveAutoCompletePopupWindow();
       }
-      if (lastFocusedItem != null && isCoxOrCrewItem(lastFocusedItem) &&
-          !isCoxOrCrewItem(item)) {
+      if (lastFocusedItem != null
+          && isCoxOrCrewItem(lastFocusedItem)
+          && !isCoxOrCrewItem(item)) {
         autoSelectBoatCaptain();
       }
       if (item == date) {
-        if (isNewRecord && (isModeFull() || mode == MODE_BOATHOUSE_LATEENTRY)) {
+        if (isNewRecord
+            && (isModeBaseOrAdmin() || getMode() == MODE_BOATHOUSE_LATEENTRY)) {
           date.setSelection(0, Integer.MAX_VALUE);
         }
       }
       if (item == destination) {
-        lastDestination = DestinationRecord.tryGetNameAndVariant(destination.getValueFromField()
-            .trim())[0];
-        ;
+        lastDestination = DestinationRecord.tryGetNameAndVariant(
+            destination.getValueFromField().trim())[0];
       }
       if (item == distance) {
-        if (isModeBoathouse() || (isModeFull() && isNewRecord)) {
+        if (isModeBoathouse() || (isModeBaseOrAdmin() && isNewRecord)) {
           distance.setSelection(0, Integer.MAX_VALUE);
         }
         if (!distance.isEditable() && distance.hasFocus()) {
@@ -3589,8 +3597,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       if (item == cox) {
         if (Daten.efaConfig.getValueAutoObmann() && isNewRecord
-            && cox.getValueFromField().trim().length() > 0 && this.getBoatCaptain() == -1) {
-          this.setBoatCaptain(0, true);
+            && cox.getValueFromField().trim().length() > 0 && getBoatCaptain() == -1) {
+          setBoatCaptain(0, true);
         }
 
       }
@@ -3641,7 +3649,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
       }
       if (item == comments) {
-        ItemTypeHashtable hash = Daten.efaConfig.getValueKeys();
+        ItemTypeHashtable<String> hash = Daten.efaConfig.getValueKeys();
         String[] k = hash.getKeysArray();
         if (k != null && k.length > 0) {
           for (String element : k) {
@@ -3826,7 +3834,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private void setFieldEnabledDistance() {
-    if (mode != MODE_BOATHOUSE_FINISH && mode != MODE_BOATHOUSE_LATEENTRY) {
+    if (!isModeFinishOrLateEntry()) {
       return; // Zielabhängiges Enabled der BootsKm nur bei "Fahrt beenden" und "Nachtrag"
     }
     boolean enabled = !destination.isKnown()
@@ -4469,23 +4477,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   // =========================================================================
 
   public void setDataForAdminAction(Logbook logbook, AdminRecord admin, AdminDialog adminDialog) {
-    this.mode = MODE_ADMIN;
+    setMode(MODE_ADMIN);
     this.logbook = logbook;
     this.admin = admin;
     this.adminDialog = adminDialog;
   }
 
   boolean setDataForBoathouseAction(ItemTypeBoatstatusList.BoatListItem action, Logbook logbook) {
-    this.mode = action.mode;
+    setMode(action.mode);
     openLogbook(logbook);
     if (getMode() == MODE_BOATHOUSE_START_CORRECT) {
       correctSessionLastBoatStatus = action.boatStatus;
     } else {
       correctSessionLastBoatStatus = null;
     }
-    this.efaBoathouseAction = action;
+    efaBoathouseAction = action;
     clearAllBackgroundColors();
-    switch (mode) {
+    switch (getMode()) {
       case MODE_BOATHOUSE_START:
         return efaBoathouseStartSession(action);
       case MODE_BOATHOUSE_START_CORRECT:
@@ -4531,7 +4539,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   boolean efaBoathouseStartSession(ItemTypeBoatstatusList.BoatListItem item) {
-    this.setTitle(International.getString("Neue Fahrt beginnen"));
+    setTitle(International.getString("Neue Fahrt beginnen"));
     saveButton.setDescription(International.getStringWithMnemonic("Fahrt beginnen"));
     createNewRecord(false);
     date.parseAndShowValue(EfaUtil.getCurrentTimeStampDD_MM_YYYY());
@@ -4564,7 +4572,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   boolean efaBoathouseCorrectSession(ItemTypeBoatstatusList.BoatListItem item) {
-    this.setTitle(International.getString("Fahrt korrigieren"));
+    setTitle(International.getString("Fahrt korrigieren"));
     saveButton.setDescription(International.getStringWithMnemonic("Fahrt korrigieren"));
     currentRecord = null;
     try {
@@ -4614,7 +4622,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   boolean efaBoathouseFinishSession(ItemTypeBoatstatusList.BoatListItem item) {
-    this.setTitle(International.getString("Fahrt beenden"));
+    setTitle(International.getString("Fahrt beenden"));
     saveButton.setDescription(International.getStringWithMnemonic("Fahrt beenden"));
     currentRecord = null;
     try {
@@ -4667,7 +4675,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   boolean efaBoathouseLateEntry(ItemTypeBoatstatusList.BoatListItem item) {
-    this.setTitle(International.getString("Nachtrag"));
+    setTitle(International.getString("Nachtrag"));
     saveButton.setDescription(International.getStringWithMnemonic("Nachtrag"));
     createNewRecord(false);
 
@@ -4723,7 +4731,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     return true;
   }
 
-  void updateBoatStatus(boolean success, int mode) {
+  private void updateBoatStatus(boolean success, int mode) {
     // log this action
     if (success) {
       switch (mode) {
@@ -4762,7 +4770,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // Update boat status
     if (success && currentRecord != null &&
         mode != MODE_BOATHOUSE_LATEENTRY &&
-        (efaBoathouseAction != null || this.isModeFull())) {
+        (efaBoathouseAction != null || isModeBaseOrAdmin())) {
       long tstmp = currentRecord.getValidAtTimestamp();
       BoatStatus boatStatus = Daten.project.getBoatStatus(false);
       BoatRecord boatRecord = currentRecord.getBoatRecord(tstmp);
@@ -4779,8 +4787,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         mode = efaBoathouseAction.mode;
       }
       switch (mode) {
-        case EfaBaseFrame.MODE_BOATHOUSE_START:
-        case EfaBaseFrame.MODE_BOATHOUSE_START_CORRECT:
+        case MODE_BOATHOUSE_START:
+        case MODE_BOATHOUSE_START_CORRECT:
           newStatus = BoatStatusRecord.STATUS_ONTHEWATER;
           newEntryNo = currentRecord.getEntryId();
           newComment = BoatStatusRecord.createStatusString(
@@ -4796,12 +4804,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             newShowInList = BoatStatusRecord.STATUS_NOTAVAILABLE;
           }
           break;
-        case EfaBaseFrame.MODE_BOATHOUSE_FINISH:
-        case EfaBaseFrame.MODE_BOATHOUSE_ABORT:
+        case MODE_BOATHOUSE_FINISH:
+        case MODE_BOATHOUSE_ABORT:
           newStatus = BoatStatusRecord.STATUS_AVAILABLE;
           newComment = "";
           break;
-        case EfaBaseFrame.MODE_BOATHOUSE_LATEENTRY:
+        case MODE_BOATHOUSE_LATEENTRY:
           break;
       }
 
@@ -4826,8 +4834,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           }
 
           if (boatStatusRecord == null
-              &&
-              (mode == EfaBaseFrame.MODE_BOATHOUSE_START || mode == EfaBaseFrame.MODE_BOATHOUSE_START_CORRECT)) {
+              && (isModeStartOrStartCorrect())) {
             // create new status record for unknown boat
             boatStatusRecord = boatStatus.createBoatStatusRecord(UUID.randomUUID(),
                 currentRecord.getBoatAsName());
@@ -4898,7 +4905,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   void finishBoathouseAction(boolean success) {
-    updateBoatStatus(success, mode);
+    updateBoatStatus(success, getMode());
     efaBoathouseHideEfaFrame();
   }
 
@@ -4925,10 +4932,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
   void efaBoathouseSetFixedLocation(int x, int y) {
     if (x >= 0 && y >= 0) {
-      this.positionX = x;
-      this.positionY = y;
+      positionX = x;
+      positionY = y;
     }
-    this.setLocation(this.positionX, this.positionY);
+    setLocation(positionX, positionY);
   }
 
   public void efaBoathouseShowEfaFrame() {
@@ -4945,8 +4952,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private void efaBoathouseHideEfaFrame() {
-    if (mode != EfaBaseFrame.MODE_BOATHOUSE_ABORT) {
-      this.setVisible(false);
+    if (getMode() != MODE_BOATHOUSE_ABORT) {
+      setVisible(false);
       Dialog.frameClosed(this);
     }
     efaBoathouseFrame.showEfaBoathouseFrame(efaBoathouseAction, currentRecord);

@@ -744,13 +744,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Titel")));
     ((ItemTypeString) item).setNotAllowedCharacters(",");
+    v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eingabekürzel")));
     v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
         EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
         .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
-    v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geburtstag")));
-    ((ItemTypeDate) item).setAllowYearOnly(true);
 
     if (admin != null && admin.isAllowedEditPersons()) {
       v.add(item = new ItemTypeStringList(PersonRecord.STATUSID,
@@ -766,6 +765,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
       v.add(item = new ItemTypeString(PersonRecord.PASSWORD, getPassword(),
           IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Paßwort")));
+      v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Geburtstag")));
+      ((ItemTypeDate) item).setAllowYearOnly(true);
       v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("50% oder mehr Behinderung")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
@@ -781,8 +783,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
               .getString("von Vereinsarbeit ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
-      v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Eingabekürzel")));
       v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.DEFAULTBOATID, getDefaultBoatId(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA,
           boats, getValidFrom(), getInvalidFrom() - 1,
@@ -879,9 +879,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       header[0] = new TableItemHeader(International.getString("Nachname"));
       header[1] = new TableItemHeader(International.getString("Vorname"));
     }
-    header[2] = new TableItemHeader(International.getString("Geburtstag"));
+    header[2] = new TableItemHeader(International.getString("EingabekürzelKurz"));
     header[3] = new TableItemHeader(International.getString("Status"));
-    header[4] = new TableItemHeader(International.getString("BoatUsageBan"));
+    header[4] = new TableItemHeader(International.getString("BoatUsageBanKurz"));
     return header;
   }
 
@@ -895,7 +895,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       items[0] = new TableItem(getLastName());
       items[1] = new TableItem(getFirstName());
     }
-    items[2] = new TableItem(getBirthday());
+    items[2] = new TableItem(getInputShortcut());
     items[3] = new TableItem(getStatusName());
     items[4] = new TableItem(getBoatUsageBan());
     return items;

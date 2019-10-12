@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeLabel;
+import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
@@ -177,11 +178,16 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     try {
       dataRecord.saveGuiItems(getItems());
       if (!_dontSaveRecord) {
-        String whoUser = admin != null 
-        ? International.getString("Admin") + " '" + admin.getName() + "'"
-        : dataRecord instanceof BoatReservationRecord 
-            ? ((BoatReservationRecord) dataRecord).getPersonAsName()                      
-            : International.getString("Normaler Benutzer") + "??";
+        String whoUser = "";
+        if (admin != null) {
+          whoUser = International.getString("Admin") + " '" + admin.getName() + "'";
+        } else if (dataRecord instanceof BoatReservationRecord) {
+          whoUser = ((BoatReservationRecord) dataRecord).getPersonAsName();
+        } else if (dataRecord instanceof BoatDamageRecord) {
+          whoUser = ((BoatDamageRecord) dataRecord).getReportedByPersonAsName();
+        } else {
+          whoUser = International.getString("Normaler Benutzer") + "??";
+        }
         String strTime = "";
         if (dataRecord instanceof BoatReservationRecord) {
           strTime= " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription();

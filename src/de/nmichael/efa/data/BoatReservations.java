@@ -208,12 +208,12 @@ public class BoatReservations extends StorageObject {
 
         if (r.getDateFrom().isSet() && r.getDateFrom().isBefore(today)) {
           throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-              International.getString("Das Startdatum muss in der Zukunft liegen."),
+              International.getString("Das Startdatum muss in der Zukunft liegen"),
               Thread.currentThread().getStackTrace());
         }
         if (r.getDateTo().isSet() && r.getDateTo().isBefore(today)) {
           throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-              International.getString("Das Enddatum muss in der Zukunft liegen."),
+              International.getString("Das Enddatum muss in der Zukunft liegen"),
               Thread.currentThread().getStackTrace());
         }
         DataTypeDate ferneZukunft = today;

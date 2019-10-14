@@ -684,7 +684,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           continue; // skip invisible
         }
         if (isModifiedAfterStart(boatReservationRecord)) {
-          continue; // skip deleted
+          continue; // skip deleted, ohne Kulanz
         }
         LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
         if (newLogbookRecord != null) {
@@ -704,12 +704,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     long realStart = boatReservationRecord.getDateFrom()
         .getTimestamp(boatReservationRecord.getTimeFrom());
     //boatReservationRecord.get Deleted()
-    long kulanz = 10; // minuten
-    if (lastModified > realStart + kulanz * 60 * 1000) {
+    if (lastModified > realStart) {
       return true;
     }
     return false;
-
   }
 
   private void updateReservation(BoatReservationRecord boatReservationRecord) {

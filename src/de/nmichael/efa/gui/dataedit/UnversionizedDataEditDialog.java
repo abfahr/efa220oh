@@ -25,6 +25,7 @@ import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeLabel;
 import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatReservationRecord;
+import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.ex.EfaModifyException;
@@ -185,6 +186,8 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
           whoUser = ((BoatReservationRecord) dataRecord).getPersonAsName();
         } else if (dataRecord instanceof BoatDamageRecord) {
           whoUser = ((BoatDamageRecord) dataRecord).getReportedByPersonAsName();
+        } else if (dataRecord instanceof MessageRecord) {
+          whoUser = ((MessageRecord) dataRecord).getFrom();
         } else {
           whoUser = International.getString("Normaler Benutzer") + "??";
         }

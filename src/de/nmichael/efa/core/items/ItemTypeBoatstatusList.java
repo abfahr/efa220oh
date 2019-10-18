@@ -109,9 +109,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
       }
       iconWidth = 0;
       if (groupColors.size() > 0 ||
-          efaBoathouseFrame.isToggleF12LangtextF12()) {
+          true) {
         iconWidth = Daten.efaConfig.getValueEfaDirekt_fontSize();
-      } 
+      }
       iconHeight = iconWidth;
     } catch (Exception e) {
       Logger.logdebug(e);
@@ -234,26 +234,26 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
               count ++;
               switch (count%6) {
                 case 1:
-                  aColors.add(new Color(farbe, 0, 0));                  
+                  aColors.add(new Color(farbe, 0, 0));
                   break;
                 case 2:
-                  aColors.add(new Color(0, 0, farbe));                  
+                  aColors.add(new Color(0, 0, farbe));
                   break;
                 case 3:
-                  aColors.add(new Color(0, farbe, 0));                  
+                  aColors.add(new Color(0, farbe, 0));
                   break;
                 case 4:
-                  aColors.add(new Color(farbe/2, 0, 0));                  
+                  aColors.add(new Color(farbe/2, 0, 0));
                   break;
                 case 5:
-                  aColors.add(new Color(0, 0, farbe/2));                  
+                  aColors.add(new Color(0, 0, farbe/2));
                   break;
                 case 0:
-                  aColors.add(new Color(0, farbe/2, 0));                  
+                  aColors.add(new Color(0, farbe/2, 0));
                   break;
 
                 default:
-                  aColors.add(new Color(0, 0, 0));                  
+                  aColors.add(new Color(0, 0, 0));
                   break;
               }
             }

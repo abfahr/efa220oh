@@ -879,7 +879,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       int yHeight = 654; // 704;
       ImageIcon imageIcon = new ImageIcon(strZentralesBild);
       if (imageIcon.getIconHeight() < 0) {
-        if (toggleF12LangtextF12) {
+        if (isToggleF12LangtextF12()) {
           strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
         } else {
           strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild          
@@ -2219,7 +2219,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           
           StringBuilder s;
           // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
-          if (toggleF12LangtextF12) {
+          if (isToggleF12LangtextF12()) {
             // Text parametrisieren: ausgewählte Felder
             s = getInfoString(item, 
                 true, // showBootName

@@ -769,7 +769,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     boatsNotAvailablePanel = new JPanel();
     boatsNotAvailablePanel.setLayout(new BorderLayout());
-    boatsOnTheWaterList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.CENTER, SortingBy.DescriptionOrt);
+    boatsOnTheWaterList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.CENTER, SortingBy.EfaSorting);
     boatsNotAvailableList.displayOnGui(this, boatsNotAvailablePanel, BorderLayout.SOUTH, SortingBy.EfaSorting);
     eastPanel.setLayout(new BorderLayout());
     eastPanel.add(boatsNotAvailablePanel, BorderLayout.CENTER);

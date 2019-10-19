@@ -271,7 +271,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString efadirekt_adminLastOsCommand;
   private ItemTypeLong efadirekt_lastBoatDamangeReminder;
   private ItemTypeImage efaDirekt_vereinsLogo;
+  private ItemTypeBoolean efaBoathouseShowSchadenkreisInAllLists;
   private ItemTypeBoolean efaBoathouseShowOrtDescriptionInAvailableList;
+  private ItemTypeBoolean efaBoathouseShowBoatUsageStatisticsInAllLists;
   private ItemTypeBoolean efaBoathouseShowLastFromWaterNotification;
   private ItemTypeString efaBoathouseShowLastFromWaterNotificationText;
   private ItemTypeBoolean efaDirekt_showUhr;
@@ -760,7 +762,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           International.getString("Melden von ungeputzten Booten erlauben")));
       addParameter(uuidBootshaus = new ItemTypeString(
           "uuidBootshaus", BoatRecord.BOOTSHAUS.toString(),
-          IItemType.TYPE_PUBLIC,
+          IItemType.TYPE_EXPERT,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("aktuelle UUID des Bootshauses")));
       addParameter(saveAllLogbookToCalendarFile = new ItemTypeBoolean(
@@ -1045,11 +1047,21 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efaDirekt_vereinsLogo = new ItemTypeImage("ClubLogo", "", 192, 64,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International.getString("Vereinslogo")));
+      addParameter(efaBoathouseShowSchadenkreisInAllLists = new ItemTypeBoolean(
+          "efaBoathouseShowSchadenkreisInAllLists", true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+          International
+          .getString("Schäden als Farbkreis anzeigen")));
       addParameter(efaBoathouseShowOrtDescriptionInAvailableList = new ItemTypeBoolean(
           "efaBoathouseShowOrtDescriptionInAvailableList", true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International
           .getString("Ort/Beschreibung hinter Bootsname in Liste anzeigen")));
+      addParameter(efaBoathouseShowBoatUsageStatisticsInAllLists = new ItemTypeBoolean(
+          "efaBoathouseShowBoatUsageStatisticsInAllLists", true, IItemType.TYPE_PUBLIC,
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+          International
+          .getString("Statistik der Jahresnutzung für jedes Boot anzeigen (ohne Mo/Do)")));
       addParameter(efaBoathouseShowLastFromWaterNotification = new ItemTypeBoolean(
           "ShowLastFromWaterNotification", true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
@@ -2197,9 +2209,17 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return efaDirekt_vereinsLogo.getValue();
   }
 
-  public boolean isValueEfaBoathouseShowOrtDescriptionInAvailableList() {
+  public boolean isEfaBoathouseShowSchadenkreisInAllLists() {
+    return efaBoathouseShowSchadenkreisInAllLists.getValue();
+  }
+
+  public boolean isEfaBoathouseShowOrtDescriptionInAvailableList() {
     return efaBoathouseShowOrtDescriptionInAvailableList.getValue();
   }
+
+  public boolean isEfaBoathouseShowBoatUsageStatisticsInAllLists() {
+    return efaBoathouseShowBoatUsageStatisticsInAllLists.getValue();
+  } 
 
   public boolean getValueEfaBoathouseShowLastFromWaterNotification() {
     return efaBoathouseShowLastFromWaterNotification.getValue();

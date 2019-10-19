@@ -109,7 +109,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
       }
       iconWidth = 0;
       if (groupColors.size() > 0 ||
-          true) {
+          Daten.efaConfig.isEfaBoathouseShowSchadenkreisInAllLists()) {
         iconWidth = Daten.efaConfig.getValueEfaDirekt_fontSize();
       }
       iconHeight = iconWidth;
@@ -204,7 +204,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.name = "";
         if (myBoatRecord != null ) {
           myBoatString.name = myBoatRecord.getQualifiedName();
-          if (Daten.efaConfig.isValueEfaBoathouseShowOrtDescriptionInAvailableList()) {
+          if (Daten.efaConfig.isEfaBoathouseShowOrtDescriptionInAvailableList()) {
             if (sortmode == SortingBy.EfaSorting || sortmode == SortingBy.BoatType) {
               String suffix = myBoatRecord.getTypeDescription(0);
               if (suffix != null &&
@@ -281,7 +281,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.colors = colors;
         myBoatString.record = myBoatListItem;
 
-        if (sortmode == SortingBy.BoatType && 
+        if (sortmode == SortingBy.BoatType &&
+            Daten.efaConfig.isEfaBoathouseShowBoatUsageStatisticsInAllLists() &&
             efaBoathouseFrame.isToggleF12LangtextF12()) {
           int frequency = logbook.countBoatUsage(myBoatStatusRecord.getBoatId());
           myBoatString.name = "(" + String.format("%1$3s", frequency) + "x) " + myBoatString.name;
@@ -389,32 +390,47 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     if (sortmode == null || aBoatRecord == null) {
       return sortString;
     }
+    String currentStatus = aBoatStatusRecord.getCurrentStatus();
     switch (sortmode) {
       case EfaSorting:
         sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, aBoatRecord.getTypeSeats(0));
+        if (currentStatus == null) {
+          break;
+        }
+        switch (currentStatus) {
+          case BoatStatusRecord.STATUS_AVAILABLE:
+            break;
+          case BoatStatusRecord.STATUS_ONTHEWATER:
+            DataTypeIntString entryNoLogbook = aBoatStatusRecord.getEntryNo();
+            LogbookRecord lr = efaBoathouseFrame.getLogbook().getLogbookRecord(entryNoLogbook);
+            if (lr != null) {
+              sortString = lr.getDestinationAndVariantName();
+            } else {
+              Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTEXECCOMMAND,
+                  "Problem kein Fahrtenbucheintrag für " + entryNoLogbook, false);
+            }
+            break;
+          case BoatStatusRecord.STATUS_NOTAVAILABLE:
+            break;
+          default:
+            break;
+        }
         break;
       case DescriptionOrt:
-        String currentStatus = aBoatStatusRecord.getCurrentStatus();
         if (currentStatus == null) {
-          return sortString;
+          break;
         }
         switch (currentStatus) {
           case BoatStatusRecord.STATUS_AVAILABLE:
             sortString = aBoatRecord.getTypeDescription(0);
             break;
           case BoatStatusRecord.STATUS_ONTHEWATER:
-            LogbookRecord lr = efaBoathouseFrame.getLogbook().getLogbookRecord(aBoatStatusRecord.getEntryNo());
-            if (lr != null) {
-              sortString = lr.getDestinationAndVariantName();
-            } else {
-              System.out.println("Problem");
-            }
+            sortString = aBoatRecord.getTypeDescription(0);
             break;
           case BoatStatusRecord.STATUS_NOTAVAILABLE:
             sortString = aBoatStatusRecord.getComment();
             sortString = aBoatRecord.getTypeDescription(0);
             break;
-
           default:
             sortString = aBoatStatusRecord.getComment();
             sortString = aBoatRecord.getTypeDescription(0);

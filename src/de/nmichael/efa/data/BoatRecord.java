@@ -1304,17 +1304,17 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
   @Override
   public TableItemHeader[] getGuiTableHeader() {
-    TableItemHeader[] header = new TableItemHeader[3];
+    TableItemHeader[] header = new TableItemHeader[4];
     header[0] = new TableItemHeader(International.getString("Name"));
-    header[1] = new TableItemHeader(International.getString("Bootstyp"));
+    header[1] = new TableItemHeader(International.getString("oft?"));
     header[2] = new TableItemHeader(International.getString("Ort"));
+    header[3] = new TableItemHeader(International.getString("Bootstyp"));
     return header;
   }
 
   @Override
   public TableItem[] getGuiTableItems() {
-    TableItem[] items = new TableItem[3];
-    items[0] = new TableItem(getQualifiedName());
+    TableItem[] items = new TableItem[4];
     String type = "";
     if (getNumberOfVariants() > 0) {
       type = getDetailedBoatType(0);
@@ -1322,8 +1322,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     if (getNumberOfVariants() > 1) {
       type = type + "...";
     }
-    items[1] = new TableItem(type);
+    Logbook logbook = Daten.project.getCurrentLogbook();
+    int frequency = logbook.countBoatUsage(getId());
+
+    items[0] = new TableItem(getQualifiedName());
+    items[1] = new TableItem(frequency);
     items[2] = new TableItem(getTypeDescription(0));
+    items[3] = new TableItem(type);
     return items;
   }
 

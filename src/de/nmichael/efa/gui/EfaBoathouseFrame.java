@@ -2290,6 +2290,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
     try {
       SortingBy newSortingWunsch = getSelectedSorting();
+      Logger.log(Logger.INFO, Logger.MSG_DEBUG_STATISTICS, "NewSortingBy: Wechsel auf " + newSortingWunsch);
       if (newSortingWunsch != null) {
         if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()) {
           boatsAvailablePanel.remove(personsAvailableList.getPanel());

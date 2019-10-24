@@ -136,6 +136,10 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
       if (fontSize > 0) {
         table.getRenderer().setFontSize(fontSize);
         table.setRowHeight(fontSize * 2);
+
+        Dimension preferredSize = table.getTableHeader().getPreferredSize();
+        preferredSize.height += 9;
+        table.getTableHeader().setPreferredSize(preferredSize);
       }
       table.setSelectionMode(selectionMode);
       if (sortingEnabled) {

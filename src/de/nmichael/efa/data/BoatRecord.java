@@ -1306,7 +1306,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   public TableItemHeader[] getGuiTableHeader() {
     TableItemHeader[] header = new TableItemHeader[4];
     header[0] = new TableItemHeader(International.getString("Name"));
-    header[1] = new TableItemHeader(International.getString("oft?"));
+    header[1] = new TableItemHeader(International.getString("oft"));
     header[2] = new TableItemHeader(International.getString("Ort"));
     header[3] = new TableItemHeader(International.getString("Bootstyp"));
     return header;

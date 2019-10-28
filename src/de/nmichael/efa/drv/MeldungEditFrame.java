@@ -2661,7 +2661,6 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             String data = Base64.encodeBytes(buf);
             f.keyName = pubkey_alias;
             f.keyDataBase64 = EfaUtil.replace(data, "\n", "", true);
-            ;
           } catch (Exception ee) {
             EfaUtil.foo();
           }

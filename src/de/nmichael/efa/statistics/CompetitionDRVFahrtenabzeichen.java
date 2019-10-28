@@ -350,7 +350,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
 
             int wafaLength;
             for (wafaLength = 0; wafaLength < 7 && wafa[wafaLength][0] != null; wafaLength++) {
-              ;
+              //;
             }
 
             if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {

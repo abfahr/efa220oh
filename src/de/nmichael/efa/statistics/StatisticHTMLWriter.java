@@ -380,7 +380,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
       if (sr.sOutputHtmlUpdateTable) {
         String zz;
         while ((zz = fo.readLine()) != null && !zz.trim().equals("<!--EFA-ENDE-->")) {
-          ;
+          //;
         }
         f.write("\n<!--EFA-ENDE-->\n");
         while ((zz = fo.readLine()) != null) {

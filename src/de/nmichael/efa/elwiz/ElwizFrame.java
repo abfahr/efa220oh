@@ -198,7 +198,6 @@ public class ElwizFrame extends JFrame {
 
   void cancel() {
     Daten.haltProgram(0);
-    ;
   }
 
   void iniItems(Vector options, JPanel optionPanel) {

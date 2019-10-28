@@ -48,11 +48,11 @@ public class AutoCompleteList {
   private long efaConfigSCN = -1;
   private long validFrom = -1;
   private long validUntil = Long.MAX_VALUE;
-  private Vector<String> dataVisible = new Vector<String>();;
+  private Vector<String> dataVisible = new Vector<String>();
   private Hashtable<String, ValidInfo> name2valid = new Hashtable<String, ValidInfo>();
-  private Hashtable<String, String> lower2realVisible = new Hashtable<String, String>();;
-  private Hashtable<String, String> lower2realInvisible = new Hashtable<String, String>();;
-  private Hashtable<String, String> aliases2realVisible = new Hashtable<String, String>();;
+  private Hashtable<String, String> lower2realVisible = new Hashtable<String, String>();
+  private Hashtable<String, String> lower2realInvisible = new Hashtable<String, String>();
+  private Hashtable<String, String> aliases2realVisible = new Hashtable<String, String>();
   private int pos = 0;
   private String lastPrefix;
   private long scn = 0;
@@ -133,7 +133,6 @@ public class AutoCompleteList {
         lower2realInvisible = new Hashtable<String, String>();
         aliases2realVisible = new Hashtable<String, String>();
         DataKeyIterator it = dataAccess.getStaticIterator();
-        ;
         for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
           DataRecord r = dataAccess.get(k);
           if (r != null) {

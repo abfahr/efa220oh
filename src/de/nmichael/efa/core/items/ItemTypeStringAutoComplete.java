@@ -186,7 +186,6 @@ AutoCompletePopupWindowCallback {
     if (button != null) {
       button.setVisible(visible);
     }
-    ;
   }
 
   // used to hide input fields in EfaBoathouseFrame that remain invisible, even if the
@@ -206,7 +205,6 @@ AutoCompletePopupWindowCallback {
     if (button != null) {
       button.setEnabled(enabled);
     }
-    ;
   }
 
   @Override

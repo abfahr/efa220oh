@@ -70,11 +70,8 @@ public class EfaErrorPrintStream extends PrintStream {
             try {
               stack = ((NoClassDefFoundError) o).getStackTrace();
             } catch (Exception e3) {}
-            ;
           }
-          ;
         }
-        ;
         if (stack != null) {
           for (int i = 0; stack != null && i < stack.length; i++) {
             String s = stack[i].toString();

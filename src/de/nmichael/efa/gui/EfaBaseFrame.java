@@ -3255,21 +3255,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         r = logbook.getLogbookRecord(iterator.getPrev());
         if (r == null) {
           r = logbook.getLogbookRecord(iterator.getFirst());
-          ;
         }
         break;
       case 1:
         r = logbook.getLogbookRecord(iterator.getNext());
         if (r == null) {
           r = logbook.getLogbookRecord(iterator.getLast());
-          ;
         }
         break;
       case 0:
         r = logbook.getLogbookRecord(iterator.getCurrent());
         if (r == null) {
           r = logbook.getLogbookRecord(iterator.getLast());
-          ;
         }
         break;
     }

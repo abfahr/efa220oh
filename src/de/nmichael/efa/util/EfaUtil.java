@@ -314,7 +314,7 @@ public class EfaUtil {
         }
         break;
       default:
-        ;
+        break;
     }
     return new TMJ(tag, monat, jahr);
   }

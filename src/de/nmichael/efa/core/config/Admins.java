@@ -62,7 +62,6 @@ public class Admins extends StorageObject {
     StringBuffer password = new StringBuffer();
     for (int i = 0; i < length; i++) {
       password.append(characters.charAt(Math.abs(rand.nextInt()) % characters.length()));
-      ;
     }
     return password.toString();
   }

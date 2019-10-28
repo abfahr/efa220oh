@@ -304,7 +304,6 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     if (getStartIsBoathouse()) {
       if (start == null || start.length() == 0) {
         start = International.getString("Bootshaus");
-        ;
       }
     }
     if (start == null || start.length() == 0) {

@@ -1386,6 +1386,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       case EFA_EXIT_REASON_ONLINEUPDATE:
         whoUser = International.getString("Online-Update");
         break;
+      default:
+        whoUser = "unknown"; // TOOO Logger(WARN, should NEVER happen)
+        break;
     }
     if (restart) {
       exitCode = Daten.program.restart();
@@ -2076,6 +2079,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       case ACTIONID_LASTBOATUSAGE: // boat damages
         actionLastBoatUsage();
         break;
+      default:
+        // TOOO Logger(WARN, should NEVER happen)
+        break;
     }
   }
 
@@ -2224,7 +2230,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             s = getInfoString(item, 
                 true, // showBootName
                 false, // showOwner
-                true, // showPurchase
+                false, // showPurchase
                 false, // showSort
                 false, // showType
                 false, // showPaddle
@@ -2234,7 +2240,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 true, // showOrt
                 false, // showStatus
                 true, // showDamages
-                true); // showLastUsage
+                false); // showLastUsage
           } else {
             // Text parametrisieren: nur Bootsname
             s = getInfoString(item, true, false, false, false, false,
@@ -2756,6 +2762,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
         break;
       case 2:
+        return;
+      default:
+        // TOOO Logger(WARN, should NEVER happen)
         return;
     }
 

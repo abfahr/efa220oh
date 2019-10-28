@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_55";
-  public final static String VERSIONRELEASEDATE = "24.10.2019"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_56";
+  public final static String VERSIONRELEASEDATE = "28.10.2019"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -441,6 +441,10 @@ public class Daten {
         break;
       case APPL_EDDI:
         applName = APPLNAME_EDDI;
+        break;
+      default:
+        applName = APPLNAME_EFADIREKT;
+        // TODO Logger(WARN, should never happen)
         break;
     }
     efaStartTime = System.currentTimeMillis();

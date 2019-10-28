@@ -232,29 +232,26 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           for (BoatDamageRecord damage : damages) {
             if (!damage.getFixed()) {
               count ++;
-              switch (count%6) {
-                case 1:
-                  aColors.add(new Color(farbe, 0, 0));
-                  break;
-                case 2:
-                  aColors.add(new Color(0, 0, farbe));
-                  break;
-                case 3:
-                  aColors.add(new Color(0, farbe, 0));
-                  break;
-                case 4:
-                  aColors.add(new Color(farbe/2, 0, 0));
-                  break;
-                case 5:
-                  aColors.add(new Color(0, 0, farbe/2));
-                  break;
-                case 0:
-                  aColors.add(new Color(0, farbe/2, 0));
-                  break;
-
-                default:
-                  aColors.add(new Color(0, 0, 0));
-                  break;
+              if (efaBoathouseFrame.isToggleF12LangtextF12()) {
+                switch (count%6) {
+                  case 1:  aColors.add(Color.RED);     break;
+                  case 2:  aColors.add(Color.BLUE);    break;
+                  case 3:  aColors.add(Color.ORANGE);  break;
+                  case 4:  aColors.add(Color.GREEN);   break;
+                  case 5:  aColors.add(Color.MAGENTA); break;
+                  case 0:  aColors.add(Color.YELLOW);  break;
+                  default: aColors.add(Color.BLACK);   break;
+                }
+              } else {                
+                switch (count%6) {
+                  case 1:  aColors.add(new Color(farbe, 0, 0));   break;
+                  case 2:  aColors.add(new Color(0, 0, farbe));   break;
+                  case 3:  aColors.add(new Color(0, farbe, 0));   break;
+                  case 4:  aColors.add(new Color(farbe/2, 0, 0)); break;
+                  case 5:  aColors.add(new Color(0, 0, farbe/2)); break;
+                  case 0:  aColors.add(new Color(0, farbe/2, 0)); break;
+                  default: aColors.add(new Color(0, 0, 0));       break;
+                }
               }
             }
           }
@@ -331,7 +328,6 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         lastSep = newSep;
       } else if (myBoatStringElement.seats != anz) {
         String s = null;
-        s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, "" + myBoatStringElement.seats);
         switch (myBoatStringElement.seats) {
           case 1:
             s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1);
@@ -353,6 +349,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             break;
           case 8:
             s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8);
+            break;
+          default:
+            s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, "" + myBoatStringElement.seats);
             break;
         }
         if (s == null || s.equals(EfaTypes.getStringUnknown())) {

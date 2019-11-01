@@ -235,6 +235,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString efaDirekt_butSpezialCmd;
   private ItemTypeBoolean efaDirekt_showButtonHotkey;
   private ItemTypeBoolean efaDirekt_listAllowToggleSortByCategories;
+  private ItemTypeBoolean efaDirekt_groupToggleSortByCategoriesNorth;
   private ItemTypeBoolean efaDirekt_sortByAnzahl;
   private ItemTypeBoolean efaDirekt_autoPopupOnBoatLists;
   private ItemTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
@@ -744,6 +745,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC, 
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("erlaube Auswahl in Bootslisten auch per Kategorien (Ort,..)")));
+      addParameter(efaDirekt_groupToggleSortByCategoriesNorth = new ItemTypeBoolean(
+          "efaDirekt_groupToggleSortByCategoriesNorth", false, IItemType.TYPE_PUBLIC, 
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("Auswahl der Sortierung oberhalb (sonst unten)")));
       addParameter(efaDirekt_resLookAheadTime = new ItemTypeInteger(
           "ReservationLookAheadTime", 120, 0, Integer.MAX_VALUE,
           false, IItemType.TYPE_EXPERT,
@@ -2067,6 +2072,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return efaDirekt_listAllowToggleSortByCategories.getValue();
   }
 
+  public boolean isGroupToggleSortByCategoriesNorth() {
+    return efaDirekt_groupToggleSortByCategoriesNorth.getValue();
+  }
+
   public boolean getValueEfaDirekt_showEingabeInfos() {
     return efaDirekt_showEingabeInfos.getValue();
   }
@@ -2601,6 +2610,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
               item == efaDirekt_fontStyle ||
               item == efaDirekt_listAllowToggleBoatsPersons ||
               item == efaDirekt_listAllowToggleSortByCategories ||
+              item == efaDirekt_groupToggleSortByCategoriesNorth ||
               item == efaDirekt_autoPopupOnBoatLists ||
               item == useFunctionalityRowing ||
               item == useFunctionalityRowingGermany ||

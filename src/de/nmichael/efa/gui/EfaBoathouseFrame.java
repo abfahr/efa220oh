@@ -763,7 +763,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       togglePanel.add(toggleAvailableBoatsToSteuermann);
       togglePanel.setVisible(Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories());
     }
-    boatsAvailablePanel.add(togglePanel, BorderLayout.NORTH);
+    if (Daten.efaConfig.isGroupToggleSortByCategoriesNorth()) {
+      boatsAvailablePanel.add(togglePanel, BorderLayout.NORTH);
+    } else {
+      boatsAvailablePanel.add(togglePanel, BorderLayout.SOUTH);
+    }
     westPanel.setLayout(new BorderLayout());
     westPanel.add(boatsAvailablePanel, BorderLayout.CENTER);
 

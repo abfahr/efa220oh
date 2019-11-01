@@ -232,7 +232,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           for (BoatDamageRecord damage : damages) {
             if (!damage.getFixed()) {
               count ++;
-              if (efaBoathouseFrame.isToggleF12LangtextF12()) {
+              if (!efaBoathouseFrame.isToggleF12LangtextF12()) {
                 switch (count%6) {
                   case 1:  aColors.add(Color.RED);     break;
                   case 2:  aColors.add(Color.BLUE);    break;

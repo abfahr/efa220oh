@@ -216,7 +216,7 @@ public class LogString {
   }
 
   public static String operationStarted(String operationName) {
-    return International.getMessage("Starte {operationname} ... ----------------------------------", operationName);
+    return International.getMessage("Starte {operationname} --------------------------------------", operationName);
   }
 
   public static String operationSuccessfullyCompleted(String operationName) {

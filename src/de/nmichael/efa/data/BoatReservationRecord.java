@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
-import net.fortuna.ical4j.model.DateTime;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
@@ -39,6 +38,7 @@ import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
+import net.fortuna.ical4j.model.DateTime;
 
 // @i18n complete
 public class BoatReservationRecord extends DataRecord {
@@ -459,7 +459,7 @@ public class BoatReservationRecord extends DataRecord {
   
   public boolean isFolgeTagNachUhrzeit(String endZeitFolgeTag) {
     long differenceDays = getDateTo().getDifferenceDays(getDateFrom());
-    if (differenceDays > 2) { // TODO should be > 1
+    if (differenceDays > 1) { // TODO abf 2019-12-07 should be > 1
         // schon zwei Tage überschritten
         return true;
       }

@@ -234,6 +234,7 @@ public class BoatReservations extends StorageObject {
         // String maximaleEndZeit = "11:00"; // Uhr
         String maximaleEndZeit = Daten.efaConfig.getMaximaleEndUhrzeitFolgetagBeiBootshausReservierung();
         if (r.isFolgeTagNachUhrzeit(maximaleEndZeit + ":00:00")) {
+          maximaleEndZeit = "11:00"; // Uhr // TODO abf 2019-12-15 remove this line!
           throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
               International.getString("Für das Bootshaus bitte täglich einzelne Reservierungen eintragen. " +
           "Es entstehen separate Nutzungsentgelte bei Reservierung nach " + maximaleEndZeit + " Uhr am Folgetag."),
@@ -265,7 +266,6 @@ public class BoatReservations extends StorageObject {
                   br[i].getTimeFrom(),
                   r.getDateTo(), // Ersatz
                   br[i].getTimeTo())) {
-                // TODO fahr(16.03.2016) hier reicht eine Warnung, Klärung meist positiv!
                 double anzahlStunden = r.getDurationInHours();
                 double minimumDauerFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
                 if (anzahlStunden < minimumDauerFuerKulanz) {

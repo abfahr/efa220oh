@@ -124,7 +124,6 @@ public class StatisticTask extends ProgressTask {
   private long entryDistanceInDefaultUnit;
   private String entrySessionType;
   private SessionGroupRecord entrySessionGroup;
-  // --- TODO einbinden der Variablen
   private UUID entryClubworkId;
   private ClubworkRecord entryClubworkRecord;
   private UUID entryClubworkPersonId;
@@ -1142,10 +1141,7 @@ public class StatisticTask extends ProgressTask {
   private void calculateEntry(ClubworkRecord r) {
     resetEntryValues();
     getEntryBasic(r);
-    if (!isInRange(r) // ||
-        /*
-         * TODO: !isInFilter(r) || r.getSessionIsOpen()
-         */) {
+    if (!isInRange(r)) {
       if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
         Logger.log(Logger.DEBUG, Logger.MSG_STAT_IGNOREDENTRIES, "ignored (1): " + r.toString());
       }
@@ -1250,8 +1246,8 @@ public class StatisticTask extends ProgressTask {
   }
 
   private void getEntryBasic(ClubworkRecord r) {
-    entryNo = new DataTypeIntString((sr.cNumberOfEntries + 1) + ""); // TODO: new
-    // DataTypeIntString(r.getQualifiedName());
+    entryNo = new DataTypeIntString((sr.cNumberOfEntries + 1) + "");
+    // TODO:: new DataTypeIntString(r.getQualifiedName());
     entryValidAt = r.getWorkDate().getTimestamp(new DataTypeTime(0, 0, 0));
   }
 

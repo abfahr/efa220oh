@@ -762,8 +762,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           International.getString("Melden von Bootsschäden erlauben")));
       addParameter(boatNotCleanedButton = new ItemTypeBoolean("ShowBoatNotCleanedButton", false,
           IItemType.TYPE_EXPERT,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON), // @todo - make
-          // PUBLIC?
+          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("Melden von ungeputzten Booten erlauben")));
       addParameter(uuidBootshaus = new ItemTypeString(
           "uuidBootshaus", BoatRecord.BOOTSHAUS.toString(),

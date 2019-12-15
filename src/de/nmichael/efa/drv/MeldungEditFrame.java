@@ -3186,11 +3186,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   }
 
   void deleteButton_actionPerformed(ActionEvent e) {
-    Dialog.infoDialog("Noch nicht implementiert", "Diese Funktion ist noch nicht implementiert."); // @todo
-    // (P9)
-    // efaDRV
-    // Meldungen
-    // löschen
+    Dialog.infoDialog("Noch nicht implementiert", "Diese Funktion ist noch nicht implementiert.");
+    // @todo (P9) efaDRV Meldungen löschen
   }
 
   void mUnblockButton_actionPerformed(ActionEvent e) {

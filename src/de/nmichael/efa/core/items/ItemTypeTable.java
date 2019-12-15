@@ -274,11 +274,6 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
     dimens.width = 2 * dimens.width;
     scrollPane.getVerticalScrollBar().setPreferredSize(dimens);
 
-    // TODO abf 2019-07-20 
-    // fieldGridAnchor = GridBagConstraints.CENTER; // 10?
-    // fieldGridFill = GridBagConstraints.NONE; // 1?
-    // fieldGridAnchor = GridBagConstraints.CENTER; // 10?
-    // fieldGridFill = GridBagConstraints.BOTH; // 1?
     showValue();
   }
 

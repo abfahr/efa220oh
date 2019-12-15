@@ -273,8 +273,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     centerTableListPanel.add(searchPanel, gridBagConstraints);
     searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, 
         "SEARCH_CAT", International.getString("Suche"));
-    // TODO abf 2019-07-21 braucht man die nächste Zeile? 300,-1 
-    // searchField.setFieldSize(300, -1);
     searchField.registerItemListener(this);
     searchField.displayOnGui(dlg, searchPanel, 0, 0);
     filterBySearch = new ItemTypeBoolean("FILTERBYSEARCH", true, IItemType.TYPE_PUBLIC,
@@ -365,7 +363,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     iniDisplayActionTable(dlg);
     GridBagConstraints gridBagConstraints = new GridBagConstraints(
         x, y,
-        fieldGridWidth, fieldGridHeight, // 1,1 // TODO abf 2019-07-21 
+        fieldGridWidth, fieldGridHeight,
         0.0, 0.0,
         fieldGridAnchor, fieldGridFill,
         new Insets(padYbefore, padXbefore, padYafter, padXafter),
@@ -794,11 +792,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           BoatReservationRecord newReservationsRecord = reservations
               .createBoatReservationsRecordFromClone(boatRecord.getId(), dataRecord);
 
-          // check for conflicts TODO
-          // newReservationsRecord.checkValidValues();
           if (!versionizedRecordOfThatNameAlreadyExists(newReservationsRecord)) {
-
-            // newReservationsRecord.saveRecord();
             reservations.data().add(newReservationsRecord);
             sendEmailMitglied("INSERT", newReservationsRecord);
             Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
@@ -1504,7 +1498,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void mappingDateToName(BoatReservationRecord brr) {
-    // TODO abf 16.6.2016 hier wird viel gerechnet. Unbedingt verbessern
+    // TODO abf 2016-06-16 hier wird viel gerechnet. Unbedingt verbessern
 
     Integer wochentag = getWochentag(brr.getDayOfWeek());
     if (wochentag != null) {

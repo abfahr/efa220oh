@@ -56,7 +56,7 @@ public class CA {
       cmdarr[i] = EfaUtil.replace(cmdarr[i], "\\s", " ", true);
     }
     try {
-      // TODO 2019-07-11 
+      // TODO abf 2019-07-11 
       Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDOPEN, "Konnte Keytool nicht starten: sun.security.tools.KeyTool fehlt");
       if (Daten.isGuiAppl()) {
         Dialog.error("Konnte Keytool nicht starten: sun.security.tools.KeyTool fehlt");

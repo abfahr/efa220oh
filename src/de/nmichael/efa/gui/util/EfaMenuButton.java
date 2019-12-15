@@ -872,11 +872,6 @@ public class EfaMenuButton {
         Dialog.error(International.getString("Kein Projekt geöffnet."));
         return false;
       }
-
-      // TODO abf
-      // new ICalendarExport().saveAllReservationToCalendarFile();
-      // new ICalendarExport().saveAllClubworkToCalendarFile();
-
       if (Daten.project.getCurrentClubwork() == null) {
         Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet."));
         return false;

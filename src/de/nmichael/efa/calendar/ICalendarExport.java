@@ -9,6 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.data.BoatReservationRecord;
+import de.nmichael.efa.data.BoatReservations;
+import de.nmichael.efa.data.Clubwork;
+import de.nmichael.efa.data.ClubworkRecord;
+import de.nmichael.efa.data.Logbook;
+import de.nmichael.efa.data.LogbookRecord;
+import de.nmichael.efa.data.storage.DataExport;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.ex.EfaException;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Date;
@@ -25,20 +39,6 @@ import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
-import de.nmichael.efa.Daten;
-import de.nmichael.efa.data.BoatReservationRecord;
-import de.nmichael.efa.data.BoatReservations;
-import de.nmichael.efa.data.Clubwork;
-import de.nmichael.efa.data.ClubworkRecord;
-import de.nmichael.efa.data.Logbook;
-import de.nmichael.efa.data.LogbookRecord;
-import de.nmichael.efa.data.storage.DataExport;
-import de.nmichael.efa.data.storage.DataKey;
-import de.nmichael.efa.data.storage.DataRecord;
-import de.nmichael.efa.data.storage.StorageObject;
-import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeTime;
-import de.nmichael.efa.ex.EfaException;
 
 public class ICalendarExport {
 
@@ -110,7 +110,6 @@ public class ICalendarExport {
         }
       }
     } catch (EfaException e) {
-      // TODO Auto-generated catch block
       retVal = null;
     }
     return retVal;
@@ -126,7 +125,6 @@ public class ICalendarExport {
         }
       }
     } catch (EfaException e) {
-      // TODO Auto-generated catch block
       retVal = null;
     }
     return retVal;

@@ -1291,7 +1291,7 @@ public class LogbookRecord extends DataRecord {
   }
 
   public boolean isEndtimeSetAndAlreadyPast(long now) {
-    DataTypeDate dateFrom = getDate(); // TODO 2019-09-26 abf stimmt das?
+    DataTypeDate dateFrom = getDate();
     if (dateFrom == null || !dateFrom.isSet()) {
       dateFrom = getDate(); // gleicher Tag
     }

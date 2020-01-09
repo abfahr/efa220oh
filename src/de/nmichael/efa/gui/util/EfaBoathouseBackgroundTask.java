@@ -409,6 +409,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     long now = System.currentTimeMillis();
+    long aktuelleMinute = (now / 1000 / 60);
     try {
       DataKeyIterator it = boatStatus.data().getStaticIterator();
       for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
@@ -444,16 +445,19 @@ public class EfaBoathouseBackgroundTask extends Thread {
             continue;
           }
 
-          long boatReservationReminderTime = RESERVATION_REMINDER_DAY;
-          if (boatStatusRecord.isBootshausOH()) {
-            boatReservationReminderTime *= Daten.efaConfig.getAnzahlTageErinnerungBootshaus();
-          } else {
-            boatReservationReminderTime *= Daten.efaConfig.getAnzahlTageErinnerungBoote();
-          }
-          if (boatReservationReminderTime > 0) {
-            BoatReservationRecord[] br = boatReservations.getBoatReservations(
-                boatStatusRecord.getBoatId(), now + boatReservationReminderTime, 0);
-            sendeEmailAlsErinnerungWennZeitpunktErreicht(br, boatReservationReminderTime);
+          // höchstens alle 10 Minuten, nicht jede Minute
+          if (aktuelleMinute % 10 == 0) {
+            long boatReservationReminderTime = RESERVATION_REMINDER_DAY;
+            if (boatStatusRecord.isBootshausOH()) {
+              boatReservationReminderTime *= Daten.efaConfig.getAnzahlTageErinnerungBootshaus();
+            } else {
+              boatReservationReminderTime *= Daten.efaConfig.getAnzahlTageErinnerungBoote();
+            }
+            if (boatReservationReminderTime > 0) {
+              BoatReservationRecord[] br = boatReservations.getBoatReservations(
+                  boatStatusRecord.getBoatId(), now + boatReservationReminderTime, 0);
+              sendeEmailAlsErinnerungWennZeitpunktErreicht(br, boatReservationReminderTime);
+            }
           }
 
           // delete any obsolete reservations
@@ -649,7 +653,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       try {
         Daten.project.getBoatReservations(false).data().update(boatReservationRecord);
       } catch (EfaException e) {
-        // Auto-generated catch block
+        // TODO abf 2020-01-05 Fehler abfangen
         e.printStackTrace();
       }
     }

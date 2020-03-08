@@ -463,13 +463,12 @@ public class BoatReservationRecord extends DataRecord {
     if (getReservation() == 4042) { return false; } // Entfernen am 2020-09-28
 
     long differenceDays = getDateTo().getDifferenceDays(getDateFrom());
-    if (differenceDays > 1) { // TODO abf 2019-12-07 should be > 1
+    if (differenceDays > 1) {
       // schon zwei Tage überschritten
       return true;
     }
 
     // TODO abf 2019-12-15 hier nur zwei Ausnahmen eingetragen. Entfernen am 2020-10-21
-    if (getReservation() == 4088) { return false; } // Entfernen am 2020-02-20
     if (getReservation() == 3097) { return false; } // Entfernen am 2020-10-21
 
     if (differenceDays > 0) {

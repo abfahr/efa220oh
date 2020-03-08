@@ -654,6 +654,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         Daten.project.getBoatReservations(false).data().update(boatReservationRecord);
       } catch (EfaException e) {
         // TODO abf 2020-01-05 Fehler abfangen
+        Logger.logwarn(e);
         e.printStackTrace();
       }
     }

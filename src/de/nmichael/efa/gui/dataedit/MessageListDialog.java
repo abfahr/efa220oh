@@ -61,6 +61,8 @@ public class MessageListDialog extends DataListDialog {
   }
 
   private void ini() {
+    // Lieblingsbreite der Datumsspalten
+    minColumnWidths = new int[] { 300, 200, 200, 1600 }; // abf
     super.sortAscending = false;
     boolean readAdmin = false;
     boolean readBoatMaintenance = false;

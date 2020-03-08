@@ -113,6 +113,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   public static final int EFA_EXIT_REASON_OOME = 3;
   public static final int EFA_EXIT_REASON_AUTORESTART = 4;
   public static final int EFA_EXIT_REASON_ONLINEUPDATE = 5;
+  public static final int EFA_EXIT_REASON_FILEFOUND = 6;
 
   public static final int ACTIONID_STARTSESSION = 1;
   public static final int ACTIONID_FINISHSESSION = 2;

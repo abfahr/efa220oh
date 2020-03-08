@@ -296,6 +296,7 @@ public class Logger {
   public static final String MSG_EVT_ERRORRECORDINVALIDATTIME = "EVT046";
   public static final String MSG_EVT_PERSONADDED = "EVT047";
   public static final String MSG_EVT_CLUBWORKOPENED = "EVT048";
+  public static final String MSG_EVT_FILEFOUND = "EVT049";
 
   // Backup
   public static final String MSG_BCK_BACKUPSTARTED = "BCK001";

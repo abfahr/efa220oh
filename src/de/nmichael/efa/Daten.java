@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_60";
-  public final static String VERSIONRELEASEDATE = "28.02.2020"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_61";
+  public final static String VERSIONRELEASEDATE = "11.03.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -135,6 +135,7 @@ public class Daten {
 
   public static final String EFA_LICENSE = "license.html"; // <efa>/doc/license.html
   public static final String EFA_JAR = "efa.jar"; // <efa>/program/efa.jar
+  public static final String EFA_NEW_JAR = "efa.new.jar"; // <efa>/program/efa.new.jar
   public static final String EFA_SECFILE = "efa.sec"; // <efa>/program/efa.sec Hash von efa.jar: für
   // Erstellen des Admins
   public static final String EFA_HELPSET = "help/efaHelp";
@@ -737,7 +738,7 @@ public class Daten {
       haltProgram(HALT_DIRECTORIES);
     }
 
-    // ./bak
+    // ./backup
     if (!trySetEfaBackupDirectory(null)) {
       haltProgram(HALT_DIRECTORIES);
     }
@@ -747,6 +748,11 @@ public class Daten {
     if (!checkAndCreateDirectory(efaTmpDirectory)) {
       haltProgram(HALT_DIRECTORIES);
     }
+
+    // remove RestartEfa-Command
+    String filename = "pleaseRestartEfa.txt";
+    new File(Daten.userHomeDir + filename).delete(); // forcedRestartInHome
+    new File(Daten.efaBaseConfig.efaUserDirectory + filename).delete(); // forcedRestartInEFA2
 
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       printEfaInfos(true, false, false, false, false);

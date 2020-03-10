@@ -50,8 +50,9 @@ public abstract class ProgressTask extends Thread {
     setRunning(false);
     setCurrentWorkDone(getAbsoluteWork());
     if (resultSuccess) {
-      if (getSuccessfullyDoneMessage() != null) {
-        Dialog.infoDialog(getSuccessfullyDoneMessage());
+      String successfullyDoneMessage = getSuccessfullyDoneMessage();
+      if (successfullyDoneMessage != null && !autoCloseDialogWhenDone) {
+        Dialog.infoDialog(successfullyDoneMessage);
       }
     } else {
       if (getErrorDoneMessage() != null) {
@@ -93,6 +94,7 @@ public abstract class ProgressTask extends Thread {
         f.write(s);
       } catch (Exception e) {}
     }
+    Logger.log(Logger.INFO, Logger.MSG_EVT_PERSONADDED, s.trim());
   }
 
   public void setCurrentWorkDone(int i) {

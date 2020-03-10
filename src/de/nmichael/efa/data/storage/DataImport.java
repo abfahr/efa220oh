@@ -482,6 +482,8 @@ public class DataImport extends ProgressTask {
       korrigiert = "null"; // wichtig
     } else if (type.equals("Bootshausschlüssel")) {
       korrigiert = "null"; // wichtig
+    } else if (type.equals("Schlüsselvergabe")) {
+      korrigiert = "null"; // neu
     } else if (type.equals("SchlüsselvergabeAm")) {
       korrigiert = "null"; // wichtig
     } else if (type.equals("Schlüsselrückgabe")) {
@@ -493,7 +495,8 @@ public class DataImport extends ProgressTask {
   @Override
   public void run() {
     setRunning(true);
-    this.logInfo(International.getString("Importiere Datensätze ..."));
+    this.logInfo(International.getMessage("Importiere {type}-Datensätze ...", 
+        storageObject.getDescription())); // Personen-
     if (isXmlFile(filename)) {
       runXmlImport();
     } else {
@@ -517,7 +520,8 @@ public class DataImport extends ProgressTask {
 
   @Override
   public String getSuccessfullyDoneMessage() {
-    return International.getMessage("{count} Datensätze erfolgreich importiert.", importCount);
+    return International.getMessage("{count} Datensätze erfolgreich importiert.", 
+        "" + importCount + " " + storageObject.getDescription());
   }
 
   public void runImport(ProgressDialog progressDialog) {

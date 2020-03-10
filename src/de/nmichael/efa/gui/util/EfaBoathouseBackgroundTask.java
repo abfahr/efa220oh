@@ -871,6 +871,43 @@ public class EfaBoathouseBackgroundTask extends Thread {
         }
       }
     }
+    
+    // Neustart wegen Datei im File-System: pleaseReboot.txt, efa.new.jar, auswertung.csv
+    String gefundeneDatei = getDateiImFileSystem();
+    if (!gefundeneDatei.isEmpty()) {
+      Logger.log(Logger.INFO, Logger.MSG_EVT_FILEFOUND,
+          International.getString("Neustart forciert wegen: ") + gefundeneDatei);
+      EfaExitFrame.exitEfa(International.getString("Forcierter Neustart von efa"), true,
+          EfaBoathouseFrame.EFA_EXIT_REASON_FILEFOUND);
+    }
+
+  }
+
+  private String getDateiImFileSystem() {
+    // if (pleaseReboot.txt) {
+    // if (efa.new.jar) {
+    // if (auswertung.csv) {
+    String filenameRestartEfaCmd = "pleaseRestartEfa.txt";
+    String[] filenames = {
+        Daten.efaBaseConfig.efaUserDirectory + filenameRestartEfaCmd, // forcedRestartInEFA2
+        Daten.userHomeDir + filenameRestartEfaCmd, // forcedRestartInHome
+        Daten.efaProgramDirectory + Daten.EFA_NEW_JAR + "TODO.REMOVE.ME", // newEfaVersionToInstall
+        Daten.userHomeDir + "Downloads/Auswertung.Sewobe/" + "auswertung.csv", // newPersonsFromSewobe
+    };
+    for (String filename : filenames) {
+      if (filename.startsWith(Daten.efaProgramDirectory) &&
+          filename.contains("efa220oh")) {
+        continue;
+      }
+      if (!(new java.io.File(filename)).isFile()) {
+        continue;
+      }
+      if (filename.endsWith(filenameRestartEfaCmd)) {
+        new java.io.File(filename).delete();
+      }
+      return filename;
+    }
+    return ""; // nothing found
   }
 
   private void checkForLockEfa() {

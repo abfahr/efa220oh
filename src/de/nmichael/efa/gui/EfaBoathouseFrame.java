@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.net.URL;
 import java.util.ArrayList;
@@ -75,6 +76,7 @@ import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.Project;
+import de.nmichael.efa.data.storage.DataImport;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -471,6 +473,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       EfaUtil.foo();
     }
 
+    // import new contacts
+    String downloadPathName = Daten.userHomeDir + "Downloads/Auswertung.Sewobe/";
+    importNewPersons(downloadPathName, "auswertung.csv");
+    
     // Background Task
     efaBoathouseBackgroundTask = new EfaBoathouseBackgroundTask(this);
     efaBoathouseBackgroundTask.start();
@@ -482,6 +488,35 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     alive();
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFAREADY,
         International.getString("BEREIT") + " ------------------------------------");
+  }
+
+  private void importNewPersons(String pathname, String filename) {
+    File oldName = new File(pathname + filename);
+    if (!oldName.isFile()) {
+      return;
+    }
+
+    Logger.log(Logger.INFO, Logger.MSG_EVT_PERSONADDED,
+        International.getMessage("Neue Personen zum Import aus {filename}", pathname + filename));
+
+    String dateString = DataTypeDate.today().toString();
+    File newName = new File(pathname + dateString + "." + filename);
+    oldName.renameTo(newName);
+ 
+    Persons persistence = Daten.project.getPersons(false);
+    DataImport dataImport = new DataImport(persistence,
+        newName.getAbsolutePath(), "ISO-8859-1", ';', '\"',
+        DataImport.IMPORTMODE_ADDUPD,
+        DataImport.UPDMODE_UPDATEVALIDVERSION,
+        null, // logBookNoHandling, sonst DataImport.ENTRYNO_ALWAYS_ADDEND
+        System.currentTimeMillis()); // validAt
+    ProgressDialog progressDialog = new ProgressDialog(this, 
+        International.getMessage("{data} importieren", persistence.getDescription()), 
+        dataImport, true); // autoCloseDialogWhenDone
+    dataImport.runImport(progressDialog);
+    Logger.log(Logger.INFO, Logger.MSG_EVT_PERSONADDED,
+        International.getString("Neue Personen aus Datei importiert"));
+
   }
 
   private void iniGuiRemaining() {
@@ -1325,7 +1360,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   public boolean cancel(WindowEvent e, int reason, AdminRecord admin, boolean restart) {
     Dialog.IGNORE_WINDOW_STACK_CHECKS = true;
     int exitCode = 0;
-    String whoUser = "unknown";
+    String whoUser = "unknown1";
 
     switch (reason) {
       case EFA_EXIT_REASON_USER: // manuelles Beenden von efa
@@ -1391,8 +1426,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       case EFA_EXIT_REASON_ONLINEUPDATE:
         whoUser = International.getString("Online-Update");
         break;
+      case EFA_EXIT_REASON_FILEFOUND:
+        whoUser = "Forcierung im Dateisystem";
+        break;
       default:
-        whoUser = "unknown"; // TOOO Logger(WARN, should NEVER happen)
+        whoUser = "unknown2"; // TOOO Logger(WARN, should NEVER happen)
         break;
     }
     if (restart) {

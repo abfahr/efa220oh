@@ -78,7 +78,7 @@ public class EfaExitFrame extends BaseFrame {
     sekundenLabel.setText("10");
     jLabel3.setFont(new java.awt.Font("Dialog", 1, 18));
     jLabel3.setForeground(Color.black);
-    jLabel0.setText(" --- " + International.getString("Grund") + " --- ");
+    jLabel0.setText(" --- " + International.getString("Grund") + ": frag Boris" + " --- ");
     Mnemonics.setButton(this, dontExitButton,
         International.getStringWithMnemonic("efa noch nicht beenden"));
     dontExitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -136,9 +136,10 @@ public class EfaExitFrame extends BaseFrame {
   }
 
   private void activateExitFrame(String reason) {
-    jLabel0.setText(reason);
     this.dontExitButton.requestFocus();
     dlg.showFrame();
+    jLabel0.setText(International.getString("Grund") + ": " + reason);
+
     if (thread == null) {
       thread = new CountdownThread(this);
     }

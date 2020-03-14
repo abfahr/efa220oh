@@ -499,7 +499,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     Logger.log(Logger.INFO, Logger.MSG_EVT_PERSONADDED,
         International.getMessage("Neue Personen zum Import aus {filename}", pathname + filename));
 
-    String dateString = DataTypeDate.today().toString();
+    String dateString = DataTypeDate.today().getDateString("YYYY-MM-DD");
     File newName = new File(pathname + dateString + "." + filename);
     oldName.renameTo(newName);
  

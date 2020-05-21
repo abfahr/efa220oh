@@ -891,7 +891,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     String[] filenames = {
         Daten.efaBaseConfig.efaUserDirectory + filenameRestartEfaCmd, // forcedRestartInEFA2
         Daten.userHomeDir + filenameRestartEfaCmd, // forcedRestartInHome
-        Daten.efaProgramDirectory + Daten.EFA_NEW_JAR + "TODO.REMOVE.ME", // newEfaVersionToInstall
+        Daten.efaProgramDirectory + Daten.EFA_NEW_JAR, // ,+ "TODO.REMOVE.ME", // newEfaVersionToInstall
         Daten.userHomeDir + "Downloads/Auswertung.Sewobe/" + "auswertung.csv", // newPersonsFromSewobe
     };
     for (String filename : filenames) {

@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_61";
-  public final static String VERSIONRELEASEDATE = "11.03.2020"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_62";
+  public final static String VERSIONRELEASEDATE = "21.05.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -1029,7 +1029,7 @@ public class Daten {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEmailSenderThread()");
     }
     if ((applID == APPL_EFABASE || applID == APPL_EFABH) 
-        && userName == "pi") {
+        && "pi".equals(userName)) {
       try {
         emailSenderThread = new EmailSenderThread();
         emailSenderThread.start();

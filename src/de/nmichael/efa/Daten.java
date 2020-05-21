@@ -1014,7 +1014,8 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEmailSenderThread()");
     }
-    if (applID == APPL_EFABASE || applID == APPL_EFABH) {
+    if ((applID == APPL_EFABASE || applID == APPL_EFABH) 
+        && userName == "pi") {
       try {
         emailSenderThread = new EmailSenderThread();
         emailSenderThread.start();
@@ -1032,6 +1033,9 @@ public class Daten {
                     "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
                     pluginWebpage));
       }
+    } else {
+      Logger.log(Logger.WARNING, Logger.MSG_CORE_BASICCONFIG,
+          International.getString("Kein Emailversand von diesem Rechner"));
     }
   }
 

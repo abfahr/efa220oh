@@ -66,7 +66,7 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_62";
+  public final static String VERSIONID = "2.2.0_63";
   public final static String VERSIONRELEASEDATE = "21.05.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -76,6 +76,7 @@ public class Daten {
 
   // enable/disable development functions for next version
   public static final boolean NEW_FEATURES = false;
+  public static final String MIT_EMAIL_VERSAND = "undMitEmailVersand.touch.txt";
 
   public final static String EFA = "efa"; // efa program name/ID
   public static String EFA_SHORTNAME = "efa"; // dummy, will be set in International.ininitalize()
@@ -1028,8 +1029,9 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEmailSenderThread()");
     }
+    String touchedEmailFile = Daten.efaBaseConfig.efaUserDirectory + MIT_EMAIL_VERSAND;
     if ((applID == APPL_EFABASE || applID == APPL_EFABH) 
-        && "pi".equals(userName)) {
+        && ("pi".equals(userName) || new File(touchedEmailFile).exists())) {
       try {
         emailSenderThread = new EmailSenderThread();
         emailSenderThread.start();

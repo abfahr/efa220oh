@@ -31,6 +31,7 @@ import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeButton;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.ProjectRecord;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.gui.util.EfaMenuButton;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
@@ -39,9 +40,6 @@ import de.nmichael.efa.util.Mnemonics;
 
 public class AdminDialog extends BaseDialog implements IItemListener {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   private EfaBoathouseFrame efaBoathouseFrame;
   private AdminRecord admin;
@@ -232,10 +230,12 @@ public class AdminDialog extends BaseDialog implements IItemListener {
       ProjectRecord r = Daten.project.getBoathouseRecord();
       if (r.getAutoNewLogbookName() != null && r.getAutoNewLogbookName().length() > 0
           && r.getAutoNewLogbookDate() != null && r.getAutoNewLogbookDate().isSet()) {
-        logbookName.setText(logbookName.getText() + " ["
-            + International.getMessage("ab {timestamp}", r.getAutoNewLogbookDate().toString())
-            + ": "
-            + r.getAutoNewLogbookName() + "]");
+        long daysUntilNewYear = DataTypeDate.today().getDifferenceDays(r.getAutoNewLogbookDate());
+        if (daysUntilNewYear < 30) {
+          logbookName.setText(logbookName.getText() + " ["
+              + International.getMessage("ab {timestamp}", r.getAutoNewLogbookDate().toString())
+              + ": " + r.getAutoNewLogbookName() + "]");          
+        }
       }
       if (r.getAutoNewClubworkName() != null && r.getAutoNewClubworkName().length() > 0
           && r.getAutoNewClubworkDate() != null && r.getAutoNewClubworkDate().isSet()) {

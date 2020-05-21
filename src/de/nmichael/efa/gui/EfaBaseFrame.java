@@ -741,6 +741,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     boatcaptain.registerItemListener(this);
     if (isModeBoathouse()) {
       boatcaptain.setVisible(Daten.efaConfig.getValueShowObmann());
+      // TODO 2020-03-27 abf brauchen wir boatcaptain?
     }
 
     // StartTime
@@ -2644,6 +2645,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
       // check whether the elapsed time is long enough
       String sType = (sessiontype.isVisible() ? sessiontype.getValue() : null);
+      sType = sessiontype.getValue(); // EfaTypes.TYPE_SESSION_NORMAL = Daten.efaConfig.getValueStandardFahrtart()
       if (!sType.equals(EfaTypes.TYPE_SESSION_LATEENTRY) &&
           !sType.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP) &&
           starttime.isVisible() && endtime.isVisible() && distance.isVisible() &&
@@ -4564,6 +4566,15 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     efaBoathouseSetPersonAndBoat(item);
     destination.parseAndShowValue("Alster"); // schon mal ein Ziel eintragen
     distance.parseAndShowValue("");
+    // TODO abf 2020-03-27 Dialog vereinfachen
+    //distance.setVisible(false);
+    //distance.setEditable(false);
+    //boatcaptain.setVisible(false);
+    //boatcaptain.setEditable(false);
+    //cox.setVisible(false);
+    //cox.setEditable(false);
+    //sessiontype.setVisible(false);
+    //sessiontype.setEditable(false);
     updateTimeInfoFields();
     return true;
   }

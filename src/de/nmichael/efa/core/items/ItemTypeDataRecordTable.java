@@ -475,6 +475,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 if (reservation.isBootshausOH()) {
                   sendEmailBootshausnutzungswart("INSERT", reservation);
                 }
+                checkAndDisplayErrors(reservation);
                 try {
                   // allowed for identified Persons with Id
                   // if (reservation.getPersonId() != null) { // validRecord?
@@ -540,6 +541,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       sendEmailBootshausnutzungswart("UPDATE", reservation);
                     }
                   }
+                  // checkAndDisplayErrors(reservation);
                 }
               }
             }
@@ -721,6 +723,20 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         && (event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED && itemType == searchField)
         || (event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED && itemType == filterBySearch)) {
       updateFilter();
+    }
+  }
+
+  private void checkAndDisplayErrors(BoatReservationRecord reservation) {
+    if (reservation.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+      long startTime = reservation.getDateFrom().getTimestamp(reservation.getTimeFrom());
+      // ist die vorliegende Reservierung jetzt schon angefangen?
+      if (System.currentTimeMillis() >= startTime) {
+        String fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
+        fehlermeldung += "Angefangene Reservierungen können NICHT automatisch gestartet werden.\n";
+        fehlermeldung += "a) selber auf Fahrt-beginnen klicken/tippen und alles erneut eingeben oder\n";
+        fehlermeldung += "b) diese Reservierung ändern und eine Minute in sicherer Zukunft eintragen.\n";
+        Dialog.error(fehlermeldung);
+      }
     }
   }
 

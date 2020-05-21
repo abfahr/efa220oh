@@ -304,6 +304,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     iniApplication();
     iniGuiRemaining();
     prepareEfaBaseFrame();
+    if (Daten.isFirstEfaStartAfterCrash()) {
+      // TODO 2020-05-21 Boris möcht gleich F9 drücken = actionMessageToAdmin();
+      actionMessageToAdmin();
+      Daten.setFirstEfaStartAfterCrashToDone();
+    }
   }
 
   private void iniGuiBase() {

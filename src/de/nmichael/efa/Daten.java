@@ -244,9 +244,10 @@ public class Daten {
   public static EmailSenderThread emailSenderThread;
 
   private static StartLogo splashScreen; // Efa Splash Screen
-  private static boolean firstEfaStart = false; // true wenn efa das erste Mal gestartet wurde und
-  // EfaBaseConfig neu erzeugt wurde
 
+  // true wenn efa das erste Mal gestartet wurde und EfaBaseConfig neu erzeugt wurde
+  private static boolean firstEfaStart = false;
+  private static boolean firstEfaStartAfterCrash = false;
   public static Color colorGreen = new Color(0, 150, 0);
   public static Color colorOrange = new Color(255, 100, 0);
   public static String defaultWriteProtectPw = null;
@@ -295,9 +296,9 @@ public class Daten {
     iniEfaBaseConfig();
     iniLanguageSupport();
     iniUserDirectory();
-    iniLogging();
     iniDirectories();
     iniSplashScreen(true);
+    iniLogging();
     iniEnvironmentSettings();
     iniEfaSec();
     boolean createNewAdmin = iniAdmins();
@@ -648,13 +649,26 @@ public class Daten {
     }
     if (lastLogEntry != null && lastLogEntry.length() > 0 &&
         !lastLogEntry.contains(International.getString("PROGRAMMENDE"))) {
-      Logger.log(Logger.WARNING, Logger.MSG_WARN_PREVIOUSEXITIRREGULAR,
-          International.getMessage(
-              "efa wurde zuvor nicht korrekt beendet. Letzer Eintrag in Logdatei: {msg}",
-              lastLogEntry));
+      String text1 = "efa wurde zuvor nicht korrekt beendet. ";
+      String text2 = "Letzer Eintrag in Logdatei: ";
+      String message = International.getMessage(text1 + text2 + "{msg}", lastLogEntry);
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_PREVIOUSEXITIRREGULAR, message);
+      Dialog.error(text1 + "\n" + text2 + "\n" + lastLogEntry + "\n\n"
+          + "Bitte jetzt eine " + International.getString("Nachricht an Admin") + " verfassen: \n"
+          + "- Was ist passiert? \n" 
+          + "- Was war der Grund für den Neustart? \n"
+          + "- Wie ärgerlich ist der Ausfall gewesen? etc... \n");
+      firstEfaStartAfterCrash = true;
     }
   }
 
+  public static boolean isFirstEfaStartAfterCrash() {
+    return firstEfaStartAfterCrash;
+  }
+  public static void setFirstEfaStartAfterCrashToDone() {
+    firstEfaStartAfterCrash = false;
+  }
+  
   private static void iniEnvironmentSettings() {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEnvironmentSettings()");

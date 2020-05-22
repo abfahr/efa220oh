@@ -694,7 +694,7 @@ public class BoatReservationRecord extends DataRecord {
     TableItem[] items = new TableItem[6];
     items[0] = new TableItem(getBoatName());
     items[1] = new TableItem("< " + getDateTimeFromDescription()); // for sorting
-    items[2] = new TableItem("> " + getDateTimeToDescription()); // for sorting
+    items[2] = new TableItem(getDateTimeToDescription() + " >");   // for sorting
     items[3] = new TableItem(getPersonAsName());
     items[4] = new TableItem(getContact());
     items[5] = new TableItem(getReason());

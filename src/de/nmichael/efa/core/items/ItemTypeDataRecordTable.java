@@ -732,11 +732,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       // ist die vorliegende Reservierung jetzt schon angefangen?
       if (System.currentTimeMillis() >= startTime) {
         String fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
-        fehlermeldung += "Angefangene Reservierungen können NICHT automatisch gestartet werden.\n";
-        fehlermeldung += "a) selber auf Fahrt-beginnen klicken/tippen und alles erneut eingeben oder\n";
+        fehlermeldung += "'Angefangene' Reservierungen können NICHT automatisch gestartet werden.\n";
+        fehlermeldung += "Dein Boot wird NICHT auf der rechten Seite als 'unterwegs' angezeigt.\n";
+        fehlermeldung += "--> '" + reservation.getReason() + "' ab " + reservation.getDateTimeFromDescription() + "???\n";
+        fehlermeldung += "a) Selber auf Fahrt-beginnen klicken/tippen und alles erneut eingeben oder\n";
         fehlermeldung += "b) diese Reservierung ändern und eine Minute in sicherer Zukunft eintragen.\n";
-        Dialog.error(fehlermeldung);
+        String warnungTitel = "Hinweis: neue Reservierung in der Vergangenheit ";
+        Dialog.infoDialog(warnungTitel, fehlermeldung);
+        Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART, warnungTitel 
+            + reservation.getBoatName() + " "
+            + reservation.getDateTimeFromDescription());
       }
+      //TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp. Lange-Ausleihe.
     }
   }
 

@@ -910,6 +910,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
   }
 
+  private void updateTopInfoTextUnderlined(String infoText) {
+    updateTopInfoText("<HTML><U>" + infoText + "</U></HTML>");
+  }
+
   private void updateTopInfoText(String infoText) {
     infoLabel.setText(infoText);
   }
@@ -2304,7 +2308,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           if (s.length() > cutLength) {
             infoStringForDisplay = s.substring(6, (int)cutLength - 4) + "...";          
           }
-          updateTopInfoText("<html>" + infoStringForDisplay + "</html>");
+          updateTopInfoTextUnderlined(infoStringForDisplay);
           updateGuiZentralesLogo(fileName); // Boot-Foto
         } else {
           // nach klick auf "<anderes Boot>"

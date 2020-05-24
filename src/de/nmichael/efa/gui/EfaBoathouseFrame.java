@@ -31,6 +31,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileWriter;
 import java.net.URL;
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.CrontabThread;
@@ -306,6 +309,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     prepareEfaBaseFrame();
     if (Daten.isFirstEfaStartAfterCrash()) {
       // TODO 2020-05-21 Boris möcht gleich F9 drücken = actionMessageToAdmin();
+      this.setVisible(true);
       actionMessageToAdmin();
       Daten.setFirstEfaStartAfterCrashToDone();
     }
@@ -921,6 +925,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   private void updateGuiZentralesLogo(String strZentralesBild) {
     if (strZentralesBild == null || strZentralesBild.length() == 0) {
       logoLabel.setIcon(null);
+      logoLabel.setName(null);
+      return;
+    }
+    if (strZentralesBild.equals(logoLabel.getName())) {
       return;
     }
 
@@ -944,6 +952,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       imageIcon = new ImageIcon(newImage, imageIcon.getDescription());
       logoLabel.setIcon(imageIcon);
+      logoLabel.setName(strZentralesBild);
+      Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "IconName " + logoLabel.getName());
 
       int lastIndexSlash = strZentralesBild.lastIndexOf(Daten.fileSep);
       String fileName = strZentralesBild.substring(lastIndexSlash, strZentralesBild.length());
@@ -981,7 +991,21 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     logoLabel.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
-        actionBoatInfosOrEfaAbout();
+        Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, e.getClickCount() + "-fach");
+        if (e.getClickCount()==1) {
+          actionBoatBildRefresh();
+        }
+      }
+
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, e.getClickCount() + "-fach.");
+        if (e.getClickCount()==1) {
+          //actionBoatBildRefresh();
+        }
+        if (e.getClickCount()==2) {
+          actionBoatInfosOrEfaAbout();
+        }
       }
     });
   }
@@ -2045,7 +2069,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (actionEvent != null) {
       String actionCommand = actionEvent.getActionCommand();
       if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_1x)) {
-        showBoatStatus(listID, aMainList, 1);
+        // TODO 2020-05-24 abf Frage: Kann man diese Zeile ersatzlos streichen? Siehe EVENT_POPUP
+        // showBoatStatus(listID, aMainList, 1);
       }
       if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
         showBoatStatus(listID, aMainList, 1);
@@ -2235,81 +2260,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
       if (list != personsAvailableList) {
         if (item.boatStatus != null) {
-          BoatStatusRecord status = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
-          BoatRecord boat = Daten.project.getBoats(false).getBoat(item.boatStatus.getBoatId(),
-              System.currentTimeMillis());
-          String fileName = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
-          if (boat != null) {
-            name = boat.getQualifiedName();
-            fileName = Daten.efaImagesDirectory + boat.getName() + ".jpg"; // Bild vom Boot
-          } else if (status != null) {
-            name = status.getBoatText();
-          } else {
-            name = International.getString("anderes oder fremdes Boot");
-          }
-
-          String text = "";
-          if (status != null) {
-            String s = BoatStatusRecord.getStatusDescription(status.getCurrentStatus());
-            if (s != null) {
-              text = s;
-            }
-            s = status.getComment();
-            if (s != null && s.length() > 0) {
-              text = s;
-              // if a comment is set, then *don't* display
-              // the current status, but only the comment.
-            }
-          }
-          String bootstyp = "";
-          String rudererlaubnis = "";
-          if (listnr == 1) {
-            if (boat != null) {
-              bootstyp = " (" + boat.getDetailedBoatType(boat.getVariantIndex(item.boatVariant))
-                  + ")";
-              String groups = boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
-              if (groups.length() > 0) {
-                rudererlaubnis = (rudererlaubnis.length() > 0 ? rudererlaubnis + ", "
-                    : "; " + International.getMessage("nur für {something}", groups));
-              }
-            }
-          }
-          statusLabelSetText(name + ": " + text + bootstyp + rudererlaubnis);
-          
-          StringBuilder s;
-          // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
-          if (isToggleF12LangtextF12()) {
-            // Text parametrisieren: ausgewählte Felder
-            s = getInfoString(item, 
-                true, // showBootName
-                false, // showOwner
-                false, // showPurchase
-                false, // showSort
-                false, // showType
-                false, // showPaddle
-                false, // showCox
-                true, // showWeight
-                true, // showGroups
-                true, // showOrt
-                false, // showStatus
-                true, // showDamages
-                false); // showLastUsage
-          } else {
-            // Text parametrisieren: nur Bootsname
-            s = getInfoString(item, true, false, false, false, false,
-                false, false, false, false, false, false, false, false);
-          }
-
-          // Textlänge reduzieren
-          String infoStringForDisplay = s.substring(6).toString();
-          double cutLength = 4 * Daten.efaConfig.getMinimumDauerFuerKulanz();
-          cutLength += 24;
-          // Bootshaus = 4*43-2 = 170 | 168 = 48 * 3 + 24 | 216
-          if (s.length() > cutLength) {
-            infoStringForDisplay = s.substring(6, (int)cutLength - 4) + "...";          
-          }
-          updateTopInfoTextUnderlined(infoStringForDisplay);
-          updateGuiZentralesLogo(fileName); // Boot-Foto
+          showBoatStatusExtracted(listnr, item);
         } else {
           // nach klick auf "<anderes Boot>"
           // gut // reset to Vereinslogo // Standard-Bild
@@ -2336,6 +2287,110 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     } catch (Exception e) {
       Logger.logwarn(e);
     }
+  }
+
+  private void showBoatStatusExtracted(int listnr, ItemTypeBoatstatusList.BoatListItem item) {
+    String itemName;
+    BoatStatusRecord boatstatus = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
+    BoatRecord boat = Daten.project.getBoats(false).getBoat(item.boatStatus.getBoatId(),
+        System.currentTimeMillis());
+
+    if (boat != null) {
+      itemName = boat.getQualifiedName();
+    } else if (boatstatus != null) {
+      itemName = boatstatus.getBoatText();
+    } else {
+      itemName = International.getString("anderes oder fremdes Boot");
+    }
+    String statusText = "";
+    if (boatstatus != null) {
+      String s = BoatStatusRecord.getStatusDescription(boatstatus.getCurrentStatus());
+      if (s != null) {
+        statusText = s;
+      }
+      s = boatstatus.getComment();
+      if (s != null && s.length() > 0) {
+        statusText = s;
+        // if a comment is set, then *don't* display the current status, but only the comment.
+      }
+    }
+    String bootstyp = "";
+    String rudererlaubnis = "";
+    if (boat != null) {
+      if (listnr == 1) {
+        bootstyp = " (" + boat.getDetailedBoatType(boat.getVariantIndex(item.boatVariant)) + ")";
+        String groups = boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
+        if (groups.length() > 0) {
+          rudererlaubnis = (rudererlaubnis.length() > 0 ? rudererlaubnis + ", "
+              : "; " + International.getMessage("nur für {something}", groups));
+        }
+      }
+    }
+    statusLabelSetText(itemName + ": " + statusText + bootstyp + rudererlaubnis);
+
+    String infoStringForDisplay = getInfoStringForDisplay(item);
+    updateTopInfoTextUnderlined(infoStringForDisplay);
+
+    String fileName = "";
+    if (boat != null) {
+      fileName = findBoatFilename(boat.getName());
+    } else {
+      fileName = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
+    }
+    updateGuiZentralesLogo(fileName); // Boot-Foto
+  }
+
+  private String getInfoStringForDisplay(ItemTypeBoatstatusList.BoatListItem item) {
+    StringBuilder s;
+    // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
+    if (isToggleF12LangtextF12()) {
+      // Text parametrisieren: ausgewählte Felder
+      s = getInfoString(item, 
+          true, // showBootName
+          false, // showOwner
+          false, // showPurchase
+          false, // showSort
+          false, // showType
+          false, // showPaddle
+          false, // showCox
+          true, // showWeight
+          true, // showGroups
+          true, // showOrt
+          false, // showStatus
+          true, // showDamages
+          false); // showLastUsage
+    } else {
+      // Text parametrisieren: nur Bootsname
+      s = getInfoString(item, true, false, false, false, false,
+          false, false, false, false, false, false, false, false);
+    }
+
+    // Textlänge reduzieren
+    String infoStringForDisplay = s.substring(6).toString();
+    double cutLength = 4 * Daten.efaConfig.getMinimumDauerFuerKulanz();
+    cutLength += 24;
+    // Bootshaus = 4*43-2 = 170 | 168 = 48 * 3 + 24 | 216
+    if (s.length() > cutLength) {
+      infoStringForDisplay = s.substring(6, (int)cutLength - 4) + "...";          
+    }
+    return infoStringForDisplay;
+  }
+
+  private String findBoatFilename(String boatname) {
+    // Liste aufschlüsseln
+    File dir = new File(Daten.efaImagesDirectory);
+    FileFilter fileFilter = new WildcardFileFilter(boatname + "*.jpg");
+    File[] filenames = dir.listFiles(fileFilter);
+
+    // und mit Random eines auswählen: filenames.length
+    String chosenPicture = "";
+    do {
+      int index = (int) (filenames.length * Math.random());
+      chosenPicture = Daten.efaImagesDirectory + filenames[index].getName();
+    } while (filenames.length > 1 && chosenPicture.equals(logoLabel.getName()));
+
+    Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "chosen Picture: " + chosenPicture);
+    return chosenPicture; // Bild vom Boot
   }
 
   private void toggleAvailableBoats_actionPerformed(ActionEvent e) {
@@ -3054,6 +3109,25 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
   }
   
+  void actionBoatBildRefresh() {
+    alive();
+    clearAllPopups();
+    if (Daten.project == null || logbook == null) {
+      return;
+    }
+    ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
+    if (item == null || item.boat == null) {
+      boatListRequestFocus(1);
+      // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+      efaBoathouseBackgroundTask.interrupt();
+      return;
+    }
+
+    String strBoatname = item.boat.getName();
+    String fileName = findBoatFilename(strBoatname);
+    updateGuiZentralesLogo(fileName); // Boot-Foto
+  }
+
   void actionBoatInfos() {
     alive();
     clearAllPopups();
@@ -3154,6 +3228,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         showString = "\"" + showString + "\"";
         s.append("Ort am Isekai: " + showString + NEWLINE);
       }
+      String fileName = item.boat.getName() + ".jpg";
+      s.append("Foto: " + "so sieht das Boot aus ("+ fileName +")" + NEWLINE);
     }
     if (showStatus) {
       String currentStatus = item.boatStatus.getCurrentStatus();

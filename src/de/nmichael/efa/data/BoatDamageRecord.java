@@ -13,6 +13,7 @@ package de.nmichael.efa.data;
 import java.util.UUID;
 import java.util.Vector;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
@@ -532,29 +533,35 @@ public class BoatDamageRecord extends DataRecord {
 
   @Override
   public TableItemHeader[] getGuiTableHeader() {
-    TableItemHeader[] header = new TableItemHeader[5];
+    TableItemHeader[] header = new TableItemHeader[6];
     header[0] = new TableItemHeader(International.getString("Boot"));
-    header[1] = new TableItemHeader(International.getString("Schaden"));
-    header[2] = new TableItemHeader(International.getString("gemeldet am"));
-    header[3] = new TableItemHeader(International.getString("behoben am"));
-    header[4] = new TableItemHeader(International.getString("Priorität"));
+    header[1] = new TableItemHeader(International.getString("oft"));
+    header[2] = new TableItemHeader(International.getString("Schaden"));
+    header[3] = new TableItemHeader(International.getString("gemeldet am"));
+    header[4] = new TableItemHeader(International.getString("behoben am"));
+    header[5] = new TableItemHeader(International.getString("Priorität"));
     return header;
   }
 
   @Override
   public TableItem[] getGuiTableItems() {
-    TableItem[] items = new TableItem[5];
+    Logbook logbook = Daten.project.getCurrentLogbook();
+    int frequency = logbook.countBoatUsage(getBoatId());
+
+    TableItem[] items = new TableItem[6];
     items[0] = new TableItem(getBoatAsName());
-    items[1] = new TableItem(getDescription());
-    items[2] = new TableItem(DataTypeDate.getDateTimeString(getReportDate(), getReportTime()));
-    items[3] = new TableItem(DataTypeDate.getDateTimeString(getFixDate(), getFixTime()));
-    items[4] = new TableItem(Integer.toString(getPriority()));
+    items[1] = new TableItem(Integer.toString(frequency));
+    items[2] = new TableItem(getDescription());
+    items[3] = new TableItem(DataTypeDate.getDateTimeString(getReportDate(), getReportTime()));
+    items[4] = new TableItem(DataTypeDate.getDateTimeString(getFixDate(), getFixTime()));
+    items[5] = new TableItem(Integer.toString(getPriority()));
     if (!getFixed()) {
       items[0].setMarked(true);
       items[1].setMarked(true);
       items[2].setMarked(true);
       items[3].setMarked(true);
       items[4].setMarked(true);
+      items[5].setMarked(true);
     }
     return items;
   }

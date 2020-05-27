@@ -14,7 +14,6 @@ import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -675,7 +674,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     toggleAvailableBoats.add(toggleAvailableBoatsToPaddelArt);
     toggleAvailableBoats.add(toggleAvailableBoatsToSteuermann);
 
-    Font smallerFont = toggleAvailableBoatsToBoats.getFont().deriveFont(12.0f);
+    // Font smallerFont = toggleAvailableBoatsToBoats.getFont().deriveFont(12.0f);
     // toggleAvailableBoatsToBoats.setFont(smallerFont);
     // toggleAvailableBoatsToPersons.setFont(smallerFont);
     // toggleAvailableBoatsToDescriptionOrt.setFont(smallerFont);

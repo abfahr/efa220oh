@@ -1004,10 +1004,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     boolean hatEingabeKuerzel = konkreterInputShortcut != null && !konkreterInputShortcut.isEmpty();
     boolean alleReservierungAnMitgliedEmailenErlaubt =
         Daten.efaConfig.isReservierungAnMitgliedEmailen();
-    boolean mitKuerzelAnMitgliedEmailenErlaubt =
+    boolean mitgliedEmailenEinzelErlaubnisErteilt =
         Daten.efaConfig.isReservierungAnMitgliedMitKuerzelEmailen();
     boolean kombinierteEmailErlaubnis = alleReservierungAnMitgliedEmailenErlaubt
-        || (mitKuerzelAnMitgliedEmailenErlaubt && hatEingabeKuerzel);
+        || (mitgliedEmailenEinzelErlaubnisErteilt && hatEingabeKuerzel);
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
       emailToAdresse = "no." + emailToAdresse + ICalendarExport.ABFX_DE;

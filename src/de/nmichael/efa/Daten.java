@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_66";
-  public final static String VERSIONRELEASEDATE = "27.05.2020"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_67";
+  public final static String VERSIONRELEASEDATE = "01.06.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -765,7 +765,12 @@ public class Daten {
     }
 
     // remove RestartEfa-Command
-    String filename = "pleaseRestartEfa.txt";
+    String filename = "pleaseRestartEfa.touch.txt";
+    new File(Daten.userHomeDir + filename).delete(); // forcedRestartInHome
+    new File(Daten.efaBaseConfig.efaUserDirectory + filename).delete(); // forcedRestartInEFA2
+
+    // remove RestartEfa-Command
+    filename = "pleaseRestartEfa.txt";
     new File(Daten.userHomeDir + filename).delete(); // forcedRestartInHome
     new File(Daten.efaBaseConfig.efaUserDirectory + filename).delete(); // forcedRestartInEFA2
 

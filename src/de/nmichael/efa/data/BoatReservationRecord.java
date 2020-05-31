@@ -727,7 +727,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return EFA + getReservation() + "+" + getPersonAsName().substring(0, 1).toUpperCase();
+    return EFA + getReservation() + "" + getPersonAsName().substring(0, 1).toUpperCase();
   }
 
   @Override
@@ -817,7 +817,7 @@ public class BoatReservationRecord extends DataRecord {
   private String getStornoURL() {
     String url = "https://overfreunde.abfx.de/";
     url += "storno";
-    url += "?efaId=" + getReservation();
+    url += "?efaId=" + getEfaId();
     url += "&code=" + getHashId();
     return url;
   }

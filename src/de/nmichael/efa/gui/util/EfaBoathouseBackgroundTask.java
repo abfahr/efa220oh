@@ -13,9 +13,19 @@ package de.nmichael.efa.gui.util;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -32,10 +42,9 @@ import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.Messages;
-import de.nmichael.efa.data.PersonRecord;
-import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
+import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDecimal;
@@ -173,6 +182,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         // Nach ungelesenen Nachrichten für den Admin suchen
         checkForUnreadMessages();
+
+        // Nach Dateien mit Löschungen für Reservierungen suchen
+        checkForDeleteReservationRequests();
 
         // automatisches Beenden von efa
         checkForExitOrRestart();
@@ -630,24 +642,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         continue;
       }
 
-      UUID personId = boatReservationRecord.getPersonId();
-      if (personId == null) {
-        continue;
-      }
-      PersonRecord personRecord = getPersonRecord(personId);
-      if (personRecord == null) {
-        continue;
-      }
-      String emailAdresse = personRecord.getEmail();
-      if (emailAdresse == null) {
-        continue;
-      }
-      String emailSubject = "OH Reservierung " + aktion + " "
-          + boatReservationRecord.getDateFrom() + " " + boatReservationRecord.getReason();
-      String emailMessage = boatReservationRecord.getFormattedEmailtextMitglied(personRecord);
-
-      Messages messages = Daten.project.getMessages(false);
-      messages.createAndSaveMessageRecord(emailAdresse, emailSubject, emailMessage);
+      boatReservationRecord.sendEmailReminder(aktion);
 
       // update von LastModified, um keine erneuten Erinnerungsmails zu schicken
       try {
@@ -657,18 +652,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
         Logger.logwarn(e);
         e.printStackTrace();
       }
-    }
-  }
-
-  private PersonRecord getPersonRecord(UUID id) {
-    if (id == null) {
-      return null;
-    }
-    try {
-      Persons persons = Daten.project.getPersons(false);
-      return persons.getPerson(id, System.currentTimeMillis());
-    } catch (Exception e) {
-      return null;
     }
   }
 
@@ -761,7 +744,125 @@ public class EfaBoathouseBackgroundTask extends Thread {
     boatStatusRecord.setCurrentStatus(BoatStatusRecord.STATUS_ONTHEWATER);
     boatStatusRecord.setLogbook(efaBoathouseFrame.getLogbook().getName());
     boatStatusRecord.setEntryNo(newLogbookRecord.getEntryId());
-    // boatStatusRecord.setComment(...);
+  }
+
+  private void checkForDeleteReservationRequests() {
+    // Ordner efa2/todoo öffnen
+    String folderTodo = Daten.efaBaseConfig.efaUserDirectory + "todo" + Daten.fileSep;
+    Map<String, String> strMap = getStringMap(folderTodo);
+    
+    String strEfaId = strMap.get("efaId");
+    if (strEfaId == null) {
+      return; // kein File im Folder
+    }
+    strEfaId = strEfaId.replaceAll("\\D+","");
+    int reservierungsnummer = Integer.parseInt(strEfaId);
+    if (reservierungsnummer == 0) {
+      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+          "Storno-Link: keine reservierungsnummer " + reservierungsnummer);
+      return;
+    }
+
+    String strHashId = strMap.get("code");
+    if (strHashId == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+          "Storno-Link: kein Code HashId " + strHashId);
+      return;
+    }
+    strHashId = strHashId.replace("'", "");
+    if (strHashId.isEmpty()) {
+      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+          "Storno-Link: leerer Code HashId " + strHashId);
+      return;
+    }
+
+    // efaId = Reservierung suchen
+    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
+    BoatReservationRecord brr = findBoatReservationRecord(boatReservations, reservierungsnummer);
+    if (brr == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+          "Storno-Link: unbekannte Reservierung " + reservierungsnummer);
+      return;
+    }
+
+    // hashId = code prüfen
+    if (!(strHashId.equals(brr.getHashId()))) {
+      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+          "Storno-Link: falscher Code HashId " + strHashId);
+      return;
+    }
+
+    // Bestätigungsmail verschicken
+    String aktion = "DELETE";
+    brr.sendEmailBeiReservierung(aktion);
+
+    try {
+      // Reservierung löschen
+      boatReservations.data().delete(brr.getKey());
+    } catch (EfaException e) {
+      Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
+    }
+    Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+        brr.getPersistence().getDescription() + ": "
+            + International.getMessage(
+                "{name} hat Datensatz '{record}' gelöscht.",
+                "Storno-Link", brr.getQualifiedName() + 
+                " von " + brr.getPersonAsName()));
+  }
+
+  private Map<String, String> getStringMap(String folderTodo) {
+    Map<String, String> stringMap = new HashMap<String, String>();
+    try {
+      List<Path> listTxtFiles = new ArrayList<Path>();
+      DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folderTodo), "*.{txt,json}");
+      for (Path fileName: stream) {
+        listTxtFiles.add(fileName);
+      }
+      if (!listTxtFiles.isEmpty()) {
+        // erste Datei rausnehmen (älteste) (nur eine)
+        Path firstFilename = listTxtFiles.get(0);
+        Charset charset = Charset.defaultCharset();        
+        List<String> stringList = Files.readAllLines(firstFilename, charset);
+        
+        if (!stringList.isEmpty()) {
+          for (String string : stringList) {
+            String[] array = string.split("=");
+            if (array.length > 1) {
+              stringMap.put(array[0], array[1]);
+            }
+          }
+        }
+        
+        // Datei nach done=backup verschieben into backup
+        Path targetPath = Path.of(Daten.efaBakDirectory + "efa.deletedReservations" + Daten.fileSep);
+        Path targetFilename = targetPath.resolve(firstFilename.getFileName());
+        Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
+      }
+    } catch (IOException e) {
+      Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
+    }
+    return stringMap;
+  }
+
+  private BoatReservationRecord findBoatReservationRecord(
+      BoatReservations boatReservations, int reservierungsnummer) {
+    BoatReservationRecord brr = null;
+    try {
+    @SuppressWarnings("unchecked")
+    DataKey<UUID, Integer, String>[] allKeys = boatReservations.data().getAllKeys();
+    for (DataKey<UUID, Integer, String> dataKey : allKeys) {
+        int reservierungsnummerCandidate = 0;
+        reservierungsnummerCandidate = dataKey.getKeyPart2();
+        if (reservierungsnummer != reservierungsnummerCandidate) {
+          continue;
+        }
+        DataRecord dataRecord = boatReservations.data().get(dataKey);
+        brr = (BoatReservationRecord) dataRecord;
+      }
+    } catch (EfaException e) {
+      Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
+    }
+    return brr;
   }
 
   private void checkForUnreadMessages() {
@@ -887,17 +988,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // if (pleaseReboot.txt) {
     // if (efa.new.jar) {
     // if (auswertung.csv) {
-    String filenameRestartEfaCmd = "pleaseRestartEfa.txt";
+    String filenameRestartEfaCmd = "pleaseRestartEfa.touch.txt";
     String[] filenames = {
         Daten.efaBaseConfig.efaUserDirectory + filenameRestartEfaCmd, // forcedRestartInEFA2
         Daten.userHomeDir + filenameRestartEfaCmd, // forcedRestartInHome
-        Daten.efaProgramDirectory + Daten.EFA_NEW_JAR, // ,+ "TODO.REMOVE.ME", // newEfaVersionToInstall
+        Daten.efaProgramDirectory + Daten.EFA_NEW_JAR, // newEfaVersionToInstall
         Daten.userHomeDir + "Downloads/Auswertung.Sewobe/" + "auswertung.csv", // newPersonsFromSewobe
     };
     for (String filename : filenames) {
       if (filename.startsWith(Daten.efaProgramDirectory) &&
           filename.contains("efa220oh")) {
-        continue;
+        continue; // Entwicklungs-PC
       }
       if (!(new java.io.File(filename)).isFile()) {
         continue;

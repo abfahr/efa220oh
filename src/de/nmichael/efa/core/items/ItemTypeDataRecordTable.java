@@ -52,7 +52,6 @@ import javax.swing.table.TableModel;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.calendar.CalendarString;
 import de.nmichael.efa.calendar.CalendarTableModel;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.calendar.TblCalendarRenderer;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
@@ -61,9 +60,6 @@ import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.ClubworkRecord;
-import de.nmichael.efa.data.Messages;
-import de.nmichael.efa.data.PersonRecord;
-import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.DataRecord;
@@ -225,6 +221,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               break;
             case ACTION_DELETE:
               this.actionIcons[i] = BaseDialog.IMAGE_DELETE;
+              break;
+            default:
               break;
           }
         }
@@ -471,10 +469,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               //reservation saved? persisted? valid?;
               if (!reservation.getContact().isEmpty() // validRecord?
                   && reservation.getLastModified() > 0) {
-                sendEmailMitglied("INSERT", reservation);
-                if (reservation.isBootshausOH()) {
-                  sendEmailBootshausnutzungswart("INSERT", reservation);
-                }
+                String aktion = "INSERT";
+                reservation.sendEmailBeiReservierung(aktion);
                 checkAndDisplayErrors(reservation);
                 try {
                   // allowed for identified Persons with Id
@@ -518,6 +514,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       continue;
                     case Dialog.CANCEL:
                       return;
+                    default:
+                      break;
                   }
                 }
                 dlg = itemListenerActionTable.createNewDataEditDialog(getParentDialog(),
@@ -536,10 +534,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   String afterEdit = reservation.toString();
                   boolean reservationHasBeenChanged = !beforeEdit.equals(afterEdit);
                   if (reservationHasBeenChanged) {
-                    sendEmailMitglied("UPDATE", reservation);
-                    if (reservation.isBootshausOH()) {
-                      sendEmailBootshausnutzungswart("UPDATE", reservation);
-                    }
+                    String aktion = "UPDATE";
+                    reservation.sendEmailBeiReservierung(aktion);
                   }
                   // checkAndDisplayErrors(reservation);
                 }
@@ -591,10 +587,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   if (persistence.data().getMetaData().isVersionized()) {
                     if (records[i] instanceof BoatReservationRecord) {
                       BoatReservationRecord reservation = (BoatReservationRecord) records[i];
-                      sendEmailMitglied("DELETE", reservation);
-                      if (reservation.isBootshausOH()) {
-                        sendEmailBootshausnutzungswart("DELETE", reservation);
-                      }
+                      String aktion = "DELETE";
+                      reservation.sendEmailBeiReservierung(aktion);
                     }
                     persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
                     String whoUser = admin != null
@@ -615,16 +609,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                                   whoUser, records[i].getQualifiedName()));
                     }
                   } else {
-                    if (records[i] instanceof BoatReservationRecord) {
-                      BoatReservationRecord reservation = (BoatReservationRecord) records[i];
-                      sendEmailMitglied("DELETE", reservation);
-                      if (reservation.isBootshausOH()) {
-                        sendEmailBootshausnutzungswart("DELETE", reservation);
-                      }
-                    }
                     String name = "";
                     if (records[i] instanceof BoatReservationRecord) {
                       BoatReservationRecord reservation = (BoatReservationRecord) records[i];
+                      String aktion = "DELETE";
+                      reservation.sendEmailBeiReservierung(aktion);
                       name = " für " + reservation.getPersonAsName();
                     }
                     String whoUser = "";
@@ -648,6 +637,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               Logger.logdebug(ex);
               Dialog.error(ex.toString());
             }
+            break;
+          default:
             break;
         }
       }
@@ -817,7 +808,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
           if (!versionizedRecordOfThatNameAlreadyExists(newReservationsRecord)) {
             reservations.data().add(newReservationsRecord);
-            sendEmailMitglied("INSERT", newReservationsRecord);
+            String aktion = "INSERT";
+            newReservationsRecord.sendEmailBeiReservierung(aktion);
             Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
                 newReservationsRecord.getPersistence().getDescription() + ": "
                     + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
@@ -907,7 +899,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
 
       reservations.data().add(newReservationsRecord);
-      sendEmailMitglied("INSERT", newReservationsRecord);
+      String aktion = "INSERT";
+      newReservationsRecord.sendEmailBeiReservierung(aktion);
       Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
           newReservationsRecord.getPersistence().getDescription() + ": " +
               International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
@@ -971,89 +964,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     });
     IItemType[] items = new IItemType[liste.size()];
     return liste.toArray(items);
-  }
-
-  private void sendEmailBootshausnutzungswart(String aktion, BoatReservationRecord brr) {
-    String emailToAdresse = Daten.efaConfig.getEmailToBootshausnutzungWolle();
-    if (!isValidEmail(emailToAdresse)) {
-      return;
-    }
-    String emailSubject = "OH Reservierung " + aktion + " "
-        + brr.getDateFrom() + " " + brr.getPersonAsName() + " " + brr.getReason();
-    String emailMessage = brr.getFormattedEmailtextBootshausnutzungswart();
-
-    Messages messages = Daten.project.getMessages(false);
-    messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
-  }
-
-  private void sendEmailMitglied(String aktion, BoatReservationRecord brr) {
-    UUID personId = brr.getPersonId();
-    if (personId == null) {
-      return;
-    }
-    PersonRecord personRecord = getPersonRecord(personId);
-    if (personRecord == null) {
-      return;
-    }
-    String emailToAdresse = personRecord.getEmail();
-    if (!isValidEmail(emailToAdresse)) {
-      return;
-    }
-
-    String konkreterInputShortcut = personRecord.getInputShortcut();
-    boolean hatEingabeKuerzel = konkreterInputShortcut != null && !konkreterInputShortcut.isEmpty();
-    boolean alleReservierungAnMitgliedEmailenErlaubt =
-        Daten.efaConfig.isReservierungAnMitgliedEmailen();
-    boolean mitgliedEmailenEinzelErlaubnisErteilt =
-        Daten.efaConfig.isReservierungAnMitgliedMitKuerzelEmailen();
-    boolean kombinierteEmailErlaubnis = alleReservierungAnMitgliedEmailenErlaubt
-        || (mitgliedEmailenEinzelErlaubnisErteilt && hatEingabeKuerzel);
-    if (!kombinierteEmailErlaubnis) {
-      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "no." + emailToAdresse + ICalendarExport.ABFX_DE;
-    }
-    String emailSubject = "OH Reservierung " + aktion;
-    emailSubject += " " + brr.getDateFrom();
-    if (!kombinierteEmailErlaubnis) {
-      emailSubject += " " + brr.getPersonAsName();
-    }
-    emailSubject += " " + brr.getBoatName();
-    String emailMessage = brr.getFormattedEmailtextMitglied(personRecord);
-
-    // bugfixing
-    if (brr.getLastModified() == IDataAccess.UNDEFINED_LONG) {
-      emailToAdresse = "efa.error" + ICalendarExport.ABFX_DE;
-      emailSubject = "Error " + emailSubject;
-    }
-
-    Messages messages = Daten.project.getMessages(false);
-    // Mareike mag das nicht
-    messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
-  }
-
-  private boolean isValidEmail(String emailCandidate) {
-    if (emailCandidate == null) {
-      return false;
-    }
-    if (emailCandidate.isEmpty()) {
-      return false;
-    }
-    if (!emailCandidate.contains("@")) {
-      return false;
-    }
-    return true;
-  }
-
-  private PersonRecord getPersonRecord(UUID id) {
-    if (id == null) {
-      return null;
-    }
-    try {
-      Persons persons = Daten.project.getPersons(false);
-      return persons.getPerson(id, System.currentTimeMillis());
-    } catch (Exception e) {
-      return null;
-    }
   }
 
   private boolean versionizedRecordOfThatNameAlreadyExists(BoatReservationRecord dataRecord) {

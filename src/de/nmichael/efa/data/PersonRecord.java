@@ -913,4 +913,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     return true;
   }
+  
+  public boolean istEmailErlaubnisErteilt() {
+    if (Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
+      return true; // allgemein alle Mitglieder
+    }
+    if (Daten.efaConfig.isReservierungAnMitgliedMitKuerzelEmailen()
+        && getInputShortcut() != null && !getInputShortcut().isEmpty()) {
+      return true; // nur Einzeln durch Kürzelvergabe
+    }
+    return false;
+  }
 }

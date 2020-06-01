@@ -1393,7 +1393,7 @@ public class Audit extends Thread {
           String name = r.getDestinationName();
           r.setDestinationName(null);
           updated = true;
-          auditWarning(
+          auditInfo(
               Logger.MSG_DATA_AUDIT_TEXTTOREF,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch")
@@ -1450,7 +1450,7 @@ public class Audit extends Thread {
           r.setDestinationId(id);
           r.setDestinationName(null);
           updated = true;
-          auditWarning(
+          auditInfo(
               Logger.MSG_DATA_AUDIT_TEXTTOREF,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch")

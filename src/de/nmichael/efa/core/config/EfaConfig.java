@@ -258,7 +258,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString regexForHandynummer;
   private ItemTypeDouble minimumDauerFuerKulanz;
   private ItemTypeBoolean saveAllLogbookToCalendarFile;
-  private ItemTypeBoolean saveAllReservationToCalendarFile;
   private ItemTypeBoolean saveAllReservationToCalendarBackupFile;
   private ItemTypeBoolean saveReservationsWithBackupTask;
   private ItemTypeBoolean saveBootshausReservierungenToCsvFile;
@@ -775,11 +774,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("speichere Fahrten in calender.ics für Google")));
-      addParameter(saveAllReservationToCalendarFile = new ItemTypeBoolean(
-          "saveAllReservationToCalendarFile",
-          true, IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International.getString("speichere Reservierungen in calender.ics für Google")));
       addParameter(saveReservationsWithBackupTask = new ItemTypeBoolean(
           "saveReservationsWithBackupTask",
           true, IItemType.TYPE_PUBLIC,
@@ -2144,10 +2138,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isSaveAllLogbookToCalendarFile() {
     return saveAllLogbookToCalendarFile.getValue();
-  }
-
-  public boolean isSaveAllReservationToCalendarFile() {
-    return saveAllReservationToCalendarFile.getValue();
   }
 
   public boolean isSaveAllReservationToCalendarBackupFile() {

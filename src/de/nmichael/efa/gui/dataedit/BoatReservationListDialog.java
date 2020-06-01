@@ -17,7 +17,6 @@ import java.util.UUID;
 import javax.swing.JDialog;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
@@ -200,14 +199,6 @@ public class BoatReservationListDialog extends DataListDialog {
       Dialog.error(e.getMessage());
       return null;
     }
-  }
-
-  @Override
-  public boolean cancel() {
-    if (Daten.efaConfig.isSaveAllReservationToCalendarFile()) {
-      new ICalendarExport().saveAllReservationToCalendarFile();
-    }
-    return super.cancel();
   }
 
   public String getFilterFieldDescription() {

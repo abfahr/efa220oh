@@ -50,12 +50,13 @@ public class ICalendarExport {
       // Creating a new calendar
       net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 
+      // alte, abgelaufene Fahrten aus dem Fahrtenbuch
       if (Daten.efaConfig.isSaveAllLogbookToCalendarFile()) {
         calendar = saveAllLogbookToCalendarFileIntern(calendar);
       }
-      // if (Daten.efaConfig.isSaveAllReservationToCalendarFile()) {
+      
+      // neue, zukünftige Reservierungen, noch nicht angefangen
       calendar = saveAllReservationToCalendarFileIntern(calendar);
-      // }
 
       // Saving as iCalendar file
       saveCalendarToFile(calendar, "OH-Bootshaus");

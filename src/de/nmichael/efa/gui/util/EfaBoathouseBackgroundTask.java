@@ -760,20 +760,20 @@ public class EfaBoathouseBackgroundTask extends Thread {
     strEfaId = strEfaId.replaceAll("\\D+", "");
     int reservierungsnummer = Integer.parseInt(strEfaId);
     if (reservierungsnummer == 0) {
-      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
           "Storno-Link: keine reservierungsnummer " + reservierungsnummer);
       return;
     }
 
     String strHashId = strMap.get("code");
     if (strHashId == null) {
-      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
           "Storno-Link: kein Code HashId " + strHashId);
       return;
     }
     strHashId = strHashId.replace("'", "");
     if (strHashId.isEmpty()) {
-      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
           "Storno-Link: leerer Code HashId " + strHashId);
       return;
     }
@@ -782,14 +782,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
     BoatReservationRecord brr = findBoatReservationRecord(boatReservations, reservierungsnummer);
     if (brr == null) {
-      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
           "Storno-Link: unbekannte Reservierung " + reservierungsnummer);
       return;
     }
 
     // hashId = code prüfen
     if (!(strHashId.equals(brr.getHashId()))) {
-      Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
           "Storno-Link: falscher Code HashId " + strHashId);
       return;
     }
@@ -802,9 +802,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       // Reservierung löschen
       boatReservations.data().delete(brr.getKey());
     } catch (EfaException e) {
-      Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, e);
     }
-    Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
         brr.getPersistence().getDescription() + ": "
             + International.getMessage(
                 "{name} hat Datensatz '{record}' gelöscht.",
@@ -928,14 +928,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
             International.getString("Eingestellte Uhrzeit zum Beenden von efa erreicht!"));
         if (System.currentTimeMillis() - efaBoathouseFrame
             .getLastUserInteraction() < Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
+          String loggertxt = International.getMessage(
+              "Beenden von efa wird verzögert, da efa innerhalb der letzten {n} Minuten noch benutzt wurde ...",
+              Daten.AUTO_EXIT_MIN_LAST_USED);
           Logger
               .log(
                   Logger.INFO,
                   Logger.MSG_EVT_TIMEBASEDEXITDELAY,
-                  International
-                      .getMessage(
-                          "Beenden von efa wird verzögert, da efa innerhalb der letzten {n} Minuten noch benutzt wurde ...",
-                          Daten.AUTO_EXIT_MIN_LAST_USED));
+                  loggertxt);
         } else {
           EfaExitFrame.exitEfa(International.getString("Zeitgesteuertes Beenden von efa"), false,
               EfaBoathouseFrame.EFA_EXIT_REASON_TIME);

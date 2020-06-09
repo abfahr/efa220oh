@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_68";
-  public final static String VERSIONRELEASEDATE = "01.06.2020"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_69";
+  public final static String VERSIONRELEASEDATE = "09.06.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -1043,26 +1043,24 @@ public class Daten {
     }
     String touchedEmailFile = Daten.efaBaseConfig.efaUserDirectory + MIT_EMAIL_VERSAND;
     if ((applID == APPL_EFABASE || applID == APPL_EFABH)
-        && ("pi".equals(userName) || new File(touchedEmailFile).exists())) {
+        && (new File(touchedEmailFile).exists())) {
       try {
         emailSenderThread = new EmailSenderThread();
         emailSenderThread.start();
       } catch (NoClassDefFoundError e) {
+        String loggertxt = International.getString("Fehlendes Plugin")
+            + ": " + Plugins.PLUGIN_MAIL
+            + " - " + International.getString("Kein email-Versand möglich!")
+            + " " + International.getMessage(
+                "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
+                pluginWebpage);
         Logger.log(
             Logger.WARNING,
             Logger.MSG_CORE_MISSINGPLUGIN,
-            International.getString("Fehlendes Plugin")
-                + ": "
-                + Plugins.PLUGIN_MAIL
-                + " - "
-                + International.getString("Kein email-Versand möglich!")
-                + " "
-                + International.getMessage(
-                    "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
-                    pluginWebpage));
+            loggertxt);
       }
     } else {
-      Logger.log(Logger.WARNING, Logger.MSG_CORE_BASICCONFIG,
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
           International.getString("Kein Emailversand von diesem Rechner"));
     }
   }

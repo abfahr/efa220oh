@@ -69,14 +69,16 @@ public class BoatReservationListDialog extends DataListDialog {
       boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
     super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, null);
-    iniValues(boatId, allowNewReservations, allowNewReservationsWeekly, allowEditDeleteReservations);
+    iniValues(boatId, allowNewReservations, allowNewReservationsWeekly,
+        allowEditDeleteReservations);
   }
 
   public BoatReservationListDialog(JDialog parent, UUID boatId, boolean allowNewReservations,
       boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
     super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, null);
-    iniValues(boatId, allowNewReservations, allowNewReservationsWeekly, allowEditDeleteReservations);
+    iniValues(boatId, allowNewReservations, allowNewReservationsWeekly,
+        allowEditDeleteReservations);
   }
 
   private void iniValues(UUID boatId, boolean allowNewReservations,
@@ -152,8 +154,10 @@ public class BoatReservationListDialog extends DataListDialog {
       ItemTypeStringAutoComplete boat = new ItemTypeStringAutoComplete("BOAT", "",
           IItemType.TYPE_PUBLIC,
           "", International.getString("Boot"), false);
-      boat.setAutoCompleteData(new AutoCompleteList(Daten.project.getBoats(false).data(), now, now));
-      if (SimpleInputDialog.showInputDialog(this, International.getString("Boot auswählen"), boat)) {
+      boat.setAutoCompleteData(
+          new AutoCompleteList(Daten.project.getBoats(false).data(), now, now));
+      if (SimpleInputDialog.showInputDialog(this, International.getString("Boot auswählen"),
+          boat)) {
         String s = boat.toString();
         try {
           if (s != null && s.length() > 0) {
@@ -205,5 +209,4 @@ public class BoatReservationListDialog extends DataListDialog {
     // für zweite Anzeige im Dialog - just to be sure
     return filterFieldDescription;
   }
-  
 }

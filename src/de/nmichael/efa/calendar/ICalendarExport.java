@@ -54,7 +54,7 @@ public class ICalendarExport {
       if (Daten.efaConfig.isSaveAllLogbookToCalendarFile()) {
         calendar = saveAllLogbookToCalendarFileIntern(calendar);
       }
-      
+
       // neue, zukünftige Reservierungen, noch nicht angefangen
       calendar = saveAllReservationToCalendarFileIntern(calendar);
 
@@ -325,7 +325,7 @@ public class ICalendarExport {
             continue;
           }
           wochentermine.add(reservationTimeDescription);
-          termin.getSummary().setValue("OH-Regeltermin" 
+          termin.getSummary().setValue("OH-Regeltermin"
               + "+" + personAsName.substring(0, 1).toUpperCase());
           description += CRLF
               + "Keine Ausleihe möglich!" + CRLF

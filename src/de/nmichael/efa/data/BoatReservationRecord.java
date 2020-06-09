@@ -283,7 +283,7 @@ public class BoatReservationRecord extends DataRecord {
     }
     String strDate = "";
     if (date != null) {
-      strDate =  date.toString();
+      strDate = date.toString();
     } else {
       strDate = EfaTypes.getValueWeekday(weekday);
     }
@@ -391,7 +391,7 @@ public class BoatReservationRecord extends DataRecord {
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION,
           "Cannot compute days between " + getDateFrom() + " and " + getDateTo() + ". "
-          + e.getLocalizedMessage());
+              + e.getLocalizedMessage());
     }
     return daysBetween;
   }
@@ -480,11 +480,15 @@ public class BoatReservationRecord extends DataRecord {
     }
     return -1;
   }
-  
+
   public boolean isFolgeTagNachUhrzeit(String endZeitFolgeTag) {
     // TODO abf 2019-12-15 hier nur zwei Ausnahmen eingetragen. Entfernen am 2021-01-07
-    if (getReservation() == 4110) { return false; } // Entfernen am 2021-01-07
-    if (getReservation() == 4042) { return false; } // Entfernen am 2020-09-28
+    if (getReservation() == 4110) {
+      return false;
+    } // Entfernen am 2021-01-07
+    if (getReservation() == 4042) {
+      return false;
+    } // Entfernen am 2020-09-28
 
     long differenceDays = getDateTo().getDifferenceDays(getDateFrom());
     if (differenceDays > 1) {
@@ -493,7 +497,9 @@ public class BoatReservationRecord extends DataRecord {
     }
 
     // TODO abf 2019-12-15 hier nur zwei Ausnahmen eingetragen. Entfernen am 2020-10-21
-    if (getReservation() == 3097) { return false; } // Entfernen am 2020-10-21
+    if (getReservation() == 3097) {
+      return false;
+    } // Entfernen am 2020-10-21
 
     if (differenceDays > 0) {
       DataTypeTime endZeit = DataTypeTime.parseTime(endZeitFolgeTag);
@@ -592,11 +598,11 @@ public class BoatReservationRecord extends DataRecord {
         (getType() != null && getType().length() > 0 ? getType() : TYPE_ONETIME),
         new String[] { TYPE_ONETIME, TYPE_WEEKLY },
         new String[] {
-      International.getString("einmalig"),
-      International.getString("wöchentlich"),
-    },
-    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-    International.getString("Art der Reservierung"));
+            International.getString("einmalig"),
+            International.getString("wöchentlich"),
+        },
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Art der Reservierung"));
     v.add(item);
 
     item = new ItemTypeStringList(BoatReservationRecord.DAYOFWEEK,
@@ -719,7 +725,7 @@ public class BoatReservationRecord extends DataRecord {
     TableItem[] items = new TableItem[6];
     items[0] = new TableItem(getBoatName());
     items[1] = new TableItem("< " + getDateTimeFromDescription()); // for sorting
-    items[2] = new TableItem(getDateTimeToDescription() + " >");   // for sorting
+    items[2] = new TableItem(getDateTimeToDescription() + " >"); // for sorting
     items[3] = new TableItem(getPersonAsName());
     items[4] = new TableItem(getContact());
     items[5] = new TableItem(getReason());
@@ -763,15 +769,17 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Efa");
     msg.add("");
     if (p != null) {
-      msg.add("PS: Hi Wolle, der nachfolgende Text ist eine Vorlage für eine Antwort an das Mitglied "
-          + p.getEmail());
+      msg.add(
+          "PS: Hi Wolle, der nachfolgende Text ist eine Vorlage für eine Antwort an das Mitglied "
+              + p.getEmail());
       // msg.add("");
       if (p.getGender().equals(EfaTypes.TYPE_GENDER_FEMALE)) {
         msg.add("Liebe " + p.getFirstName() + ",");
       } else {
         msg.add("Lieber " + p.getFirstName() + ",");
       }
-      msg.add("Dein Vertrag ist beim Nutzungswart eingegangen und wurde in die Datenbank eingegeben. Mit der nächsten Abbuchung wird das Nutzungsentgeld abgebucht. Bitte beachte, dass der Verein bis vier Wochen vor dem beantragten Veranstaltungstermin das Vortrittsrecht hat (siehe allgemeine Vertragsinhalte). In diesem Falle wird das Entgelt zurück überwiesen.");
+      msg.add(
+          "Dein Vertrag ist beim Nutzungswart eingegangen und wurde in die Datenbank eingegeben. Mit der nächsten Abbuchung wird das Nutzungsentgeld abgebucht. Bitte beachte, dass der Verein bis vier Wochen vor dem beantragten Veranstaltungstermin das Vortrittsrecht hat (siehe allgemeine Vertragsinhalte). In diesem Falle wird das Entgelt zurück überwiesen.");
       msg.add("Reservierung des " + getBoatName() + " für die Zeit: "
           + getReservationTimeDescription());
       msg.add("Viel Spaß und Gruß");
@@ -792,15 +800,19 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Grund der Reservierung: " + getReason());
     msg.add("");
     if (isBootshausOH()) {
-      msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular umgehend aus (https://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden Dir automatisch 75 Euro berechnet).");
+      msg.add(
+          "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular umgehend aus (https://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden Dir automatisch 75 Euro berechnet).");
     }
-    msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus.");
+    msg.add(
+        "Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus.");
     if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
         && getHashId().length() > 0) {
-      msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: " + getStornoURL());
+      msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: "
+          + getStornoURL());
     }
     if (isBootshausOH()) {
-      msg.add("Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
+      msg.add(
+          "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
     }
     msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
     msg.add("");
@@ -837,7 +849,7 @@ public class BoatReservationRecord extends DataRecord {
     }
     return sb.toString();
   }
-  
+
   public void sendEmailBeiReservierung(String aktion) {
     sendEmailMitglied(aktion);
     if (isBootshausOH()) {
@@ -850,7 +862,7 @@ public class BoatReservationRecord extends DataRecord {
     String emailToAdresse = "";
     String emailSubject = "";
     String anrede = "Name";
-    
+
     PersonRecord personRecord = getPersonRecord();
     if (personRecord != null) {
       kombinierteEmailErlaubnis = personRecord.istEmailErlaubnisErteilt();
@@ -868,7 +880,7 @@ public class BoatReservationRecord extends DataRecord {
       kombinierteEmailErlaubnis = false;
     }
 
-    emailSubject += "OH Reservierung " + aktion 
+    emailSubject += "OH Reservierung " + aktion
         + " " + getDateFrom();
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
@@ -888,7 +900,7 @@ public class BoatReservationRecord extends DataRecord {
     String emailToAdresse = "";
     String emailSubject = "";
     String anrede = "Name";
-    
+
     PersonRecord personRecord = getPersonRecord();
     if (personRecord != null) {
       emailToAdresse = personRecord.getEmail();
@@ -899,8 +911,8 @@ public class BoatReservationRecord extends DataRecord {
       emailToAdresse = "efa.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
       emailSubject = "Error efa.invalidEmail " + getPersonAsName() + " ";
     }
-    emailSubject += "OH Reservierung " + aktion 
-        + " " + getDateFrom() 
+    emailSubject += "OH Reservierung " + aktion
+        + " " + getDateFrom()
         + " " + getReason();
     String emailMessage = getFormattedEmailtextMitglied(anrede);
 
@@ -915,9 +927,9 @@ public class BoatReservationRecord extends DataRecord {
     if (!isValidEmail(emailToAdresse)) {
       return;
     }
-    String emailSubject = "OH Reservierung " + aktion 
-        + " " + getDateFrom() 
-        + " " + getPersonAsName() 
+    String emailSubject = "OH Reservierung " + aktion
+        + " " + getDateFrom()
+        + " " + getPersonAsName()
         + " " + getReason();
     String emailMessage = getFormattedEmailtextBootshausnutzungswart();
 

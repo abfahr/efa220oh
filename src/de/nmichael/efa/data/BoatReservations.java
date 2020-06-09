@@ -107,8 +107,8 @@ public class BoatReservations extends StorageObject {
   public BoatReservationRecord[] getBoatReservationsByPerson(UUID personId) {
     try {
       DataKey<?, ?, ?>[] keys = data().getByFields(
-              new String[] { BoatReservationRecord.PERSONID }, 
-              new Object[] { personId });
+          new String[] { BoatReservationRecord.PERSONID },
+          new Object[] { personId });
       if (keys == null || keys.length == 0) {
         return null;
       }
@@ -181,7 +181,8 @@ public class BoatReservations extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update,
+      boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, BoatReservationRecord.BOATID);
@@ -232,15 +233,18 @@ public class BoatReservations extends StorageObject {
 
       if (r.isBootshausOH()) {
         // String maximaleEndZeit = "11:00"; // Uhr
-        String maximaleEndZeit = Daten.efaConfig.getMaximaleEndUhrzeitFolgetagBeiBootshausReservierung();
+        String maximaleEndZeit = Daten.efaConfig
+            .getMaximaleEndUhrzeitFolgetagBeiBootshausReservierung();
         if (r.isFolgeTagNachUhrzeit(maximaleEndZeit + ":00:00")) {
           throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-              International.getString("Für das Bootshaus bitte täglich einzelne Reservierungen eintragen. " +
-          "Es entstehen separate Nutzungsentgelte bei Reservierung nach " + maximaleEndZeit + " Uhr am Folgetag."),
-              Thread.currentThread().getStackTrace());          
+              International
+                  .getString("Für das Bootshaus bitte täglich einzelne Reservierungen eintragen. " +
+                      "Es entstehen separate Nutzungsentgelte bei Reservierung nach "
+                      + maximaleEndZeit + " Uhr am Folgetag."),
+              Thread.currentThread().getStackTrace());
         }
       }
-      
+
       BoatReservationRecord[] br = this.getBoatReservations(r.getBoatId());
       for (int i = 0; br != null && i < br.length; i++) {
         if (br[i].getReservation() == r.getReservation()) {
@@ -271,9 +275,10 @@ public class BoatReservations extends StorageObject {
                   throw new EfaModifyException(
                       Logger.MSG_DATA_MODIFYEXCEPTION,
                       International
-                      .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
-                          + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
-                          Thread.currentThread().getStackTrace());
+                          .getString(
+                              "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                                  + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                      Thread.currentThread().getStackTrace());
                 }
               }
             }
@@ -292,8 +297,9 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                .getString("Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
-                    + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                    .getString(
+                        "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                            + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
                 Thread.currentThread().getStackTrace());
 
           }
@@ -315,9 +321,9 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International
-                .getString("Die Reservierung überschneidet sich mit einer Reservierung \r\n"
-                    + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
-                    Thread.currentThread().getStackTrace());
+                    .getString("Die Reservierung überschneidet sich mit einer Reservierung \r\n"
+                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                Thread.currentThread().getStackTrace());
           }
         }
       }

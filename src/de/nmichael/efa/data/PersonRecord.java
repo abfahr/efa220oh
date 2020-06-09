@@ -748,14 +748,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eingabekürzel")));
     v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
         EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
 
     if (admin != null && admin.isAllowedEditPersons()) {
       v.add(item = new ItemTypeStringList(PersonRecord.STATUSID,
-          (getStatusId() != null ? getStatusId().toString() : status.getStatusOther().getId()
-              .toString()),
-              status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status
+          (getStatusId() != null ? getStatusId().toString()
+              : status.getStatusOther().getId()
+                  .toString()),
+          status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status
               .makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
 
@@ -769,7 +770,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Geburtstag")));
       ((ItemTypeDate) item).setAllowYearOnly(true);
       v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("50% oder mehr Behinderung")));
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA,
+          International.getString("50% oder mehr Behinderung")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
@@ -907,13 +909,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     if ("Externe Adressen".equals(getStatusName())) {
       return false; // Hauptkategorie
-    }    
+    }
     if (getFirstName() == null) {
       return false; // Vorname fehlt
     }
     return true;
   }
-  
+
   public boolean istEmailErlaubnisErteilt() {
     if (Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
       return true; // allgemein alle Mitglieder

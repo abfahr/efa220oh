@@ -454,6 +454,11 @@ public class Logger {
   public static final String MSG_CLI_OUTPUT = "CLI004";
   public static final String MSG_CLI_DEBUG = "CLI005";
 
+  // ABF
+  public static final String MSG_ABF_INFO = "ABF001";
+  public static final String MSG_ABF_ERROR = "ABF002";
+  public static final String MSG_ABF_WARNING = "ABF003";
+
   // Trace Topics for Debug Logging
   public static final long TT_CORE = Integer.parseInt("0000000000000001", 2); // 0x0001
   public static final long TT_OTHER = Integer.parseInt("0000000000000010", 2); // 0x0002
@@ -543,9 +548,9 @@ public class Logger {
             Logger.ERROR,
             Logger.MSG_LOGGER_FAILEDCREATELOG,
             International.getString("Fehler")
-            + ": "
-            + LogString.fileCreationFailed(Daten.efaLogfile,
-                International.getString("Logdatei")));
+                + ": "
+                + LogString.fileCreationFailed(Daten.efaLogfile,
+                    International.getString("Logdatei")));
       }
     }
 
@@ -567,9 +572,8 @@ public class Logger {
       if (totalLogMessages > lastLogMessages.length) {
         start = nextLogIdx;
       }
-      int end = (nextLogIdx > 0 ?
-          (nextLogIdx - 1) % lastLogMessages.length :
-            lastLogMessages.length - 1);
+      int end = (nextLogIdx > 0 ? (nextLogIdx - 1) % lastLogMessages.length
+          : lastLogMessages.length - 1);
       int i = (start - 1) % lastLogMessages.length;
       int justtobesafe = 0; // had programming errors here already ;)
       do {
@@ -653,7 +657,8 @@ public class Logger {
         logCount[(int) (now % logCount.length)]++;
         lastLog = now;
         if (logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD
-            || (type.equals(ERROR) && logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD_ERR)) {
+            || (type.equals(ERROR)
+                && logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD_ERR)) {
           if (doNotLog) {
             // nothing
           } else {
@@ -676,7 +681,7 @@ public class Logger {
           if (f.length() > 10 * MAX_LOG_FILE_SIZE) {
             log(ERROR, MSG_LOGGER_STOPLOGGING,
                 Daten.efaLogfile + " has reached size of " + f.length() +
-                ". STOP LOGGING.");
+                    ". STOP LOGGING.");
             stopLogging = true;
           }
         } catch (Exception eignore) {}
@@ -700,8 +705,8 @@ public class Logger {
       }
       if (type != null && !type.equals(INPUT) && !type.equals(OUTPUT)) {
         synchronized (lastLogMessages) {
-          lastLogMessages[nextLogIdx] = (t.length() < MAX_LASTLOGMSG_SIZE ?
-              t : t.substring(0, MAX_LASTLOGMSG_SIZE));
+          lastLogMessages[nextLogIdx] = (t.length() < MAX_LASTLOGMSG_SIZE ? t
+              : t.substring(0, MAX_LASTLOGMSG_SIZE));
           nextLogIdx = (nextLogIdx + 1) % lastLogMessages.length;
           totalLogMessages++;
         }
@@ -716,8 +721,9 @@ public class Logger {
 
         Messages messages = (Daten.project != null &&
             !Daten.project.isInOpeningProject() &&
-            Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE ?
-                Daten.project.getMessages(false) : null);
+            Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE
+                ? Daten.project.getMessages(false)
+                : null);
         if (messages == null || !messages.isOpen()) {
           inLogging = false;
           return t;

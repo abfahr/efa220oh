@@ -32,18 +32,17 @@ import de.nmichael.efa.core.items.ItemTypeRadioButtons;
 import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.core.items.ItemTypeTime;
-import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.types.DataTypeTime;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
 // @i18n complete
-public class BoatReservationEditDialog extends UnversionizedDataEditDialog implements IItemListener {
+public class BoatReservationEditDialog extends UnversionizedDataEditDialog
+    implements IItemListener {
 
   private static final long serialVersionUID = 1L;
 
@@ -239,7 +238,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
   }
 
   private void findAnyPreviousReservation(ItemTypeStringAutoComplete item) {
-    boolean isMostStattLatest = Daten.efaConfig.getValueEfaDirekt_FindenNachHaeufigsterStattNeuesterReservierung();
+    boolean isMostStattLatest = Daten.efaConfig
+        .getValueEfaDirekt_FindenNachHaeufigsterStattNeuesterReservierung();
 
     UUID personId = (UUID) item.getAutoCompleteData().getId(item.getValueFromField());
     if (personId == null) {
@@ -252,7 +252,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
       return;
     }
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
-    BoatReservationRecord[] oldReservations = boatReservations.getBoatReservationsByPerson(personId);
+    BoatReservationRecord[] oldReservations = boatReservations
+        .getBoatReservationsByPerson(personId);
     if (oldReservations == null) {
       return;
     }
@@ -272,12 +273,12 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
         bestReason = boatReservationRecord.getReason();
       }
     }
-    if (isMostStattLatest) {      
+    if (isMostStattLatest) {
       Map<String, Long> occurrencesTelnums = listTelnums.stream().collect(
           Collectors.groupingBy(w -> w, Collectors.counting()));
       Map<String, Long> occurrencesReasons = listReasons.stream().collect(
           Collectors.groupingBy(w -> w, Collectors.counting()));
-      
+
       Long previous = 0L;
       for (String telnum : occurrencesTelnums.keySet()) {
         if (occurrencesTelnums.get(telnum) > previous) {
@@ -311,10 +312,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
     }
   }
 
-private void setAllowWeeklyReservation(boolean allowWeeklyReservation) throws Exception {
+  private void setAllowWeeklyReservation(boolean allowWeeklyReservation) throws Exception {
     if (!allowWeeklyReservation) {
       if (!newRecord && dataRecord != null &&
-          BoatReservationRecord.TYPE_WEEKLY.equals(((BoatReservationRecord) dataRecord).getType())) {
+          BoatReservationRecord.TYPE_WEEKLY
+              .equals(((BoatReservationRecord) dataRecord).getType())) {
         throw new Exception(
             International.getString("Diese Reservierung kann nicht bearbeitet werden."));
       }

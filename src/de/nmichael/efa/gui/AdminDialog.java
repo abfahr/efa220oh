@@ -214,13 +214,15 @@ public class AdminDialog extends BaseDialog implements IItemListener {
   public void updateInfos() {
     projectName.setText(International.getString("Projekt")
         + ": "
-        + (Daten.project != null ? Daten.project.getProjectName() : "- "
-            + International.getString("Kein Projekt geöffnet.") + " -"));
+        + (Daten.project != null ? Daten.project.getProjectName()
+            : "- "
+                + International.getString("Kein Projekt geöffnet.") + " -"));
     logbookName.setText(International.getString("Fahrtenbuch")
         + ": "
         + (efaBoathouseFrame.getLogbook() != null && efaBoathouseFrame.getLogbook().isOpen()
-        ? efaBoathouseFrame.getLogbook().getName() : "- "
-        + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
+            ? efaBoathouseFrame.getLogbook().getName()
+            : "- "
+                + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
     if (efaBoathouseFrame.getClubwork() != null && efaBoathouseFrame.getClubwork().isOpen()) {
       clubworkName.setText(International.getString("Vereinsarbeitsbuch") + ": "
           + efaBoathouseFrame.getClubwork().getName());
@@ -234,7 +236,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         if (daysUntilNewYear < 30) {
           logbookName.setText(logbookName.getText() + " ["
               + International.getMessage("ab {timestamp}", r.getAutoNewLogbookDate().toString())
-              + ": " + r.getAutoNewLogbookName() + "]");          
+              + ": " + r.getAutoNewLogbookName() + "]");
         }
       }
       if (r.getAutoNewClubworkName() != null && r.getAutoNewClubworkName().length() > 0

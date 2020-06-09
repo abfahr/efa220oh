@@ -236,7 +236,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   protected void iniDisplayActionTable(Window dlg) {
     this.dlg = dlg;
-    
+
     northSideCalenderPanel = new JPanel(new BorderLayout());
     if (persistence.getName().equals("boatreservations")
         && category.equals("BASE_CAT")) {
@@ -247,8 +247,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
       if (filterFieldValue != null
           && dlg instanceof BoatReservationListDialog) {
-        String filterFieldDescription = 
-            ((BoatReservationListDialog) dlg).getFilterFieldDescription();
+        String filterFieldDescription = ((BoatReservationListDialog) dlg)
+            .getFilterFieldDescription();
         JLabel filterName = new JLabel();
         filterName.setText(filterFieldDescription);
         filterName.setBorder(new EmptyBorder(10, 0, 0, 0));
@@ -269,7 +269,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     centerTableListPanel = new JPanel();
     centerTableListPanel.setLayout(new GridBagLayout());
     centerTableListPanel.add(searchPanel, gridBagConstraints);
-    searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC, 
+    searchField = new ItemTypeString("SEARCH_FIELD", "", IItemType.TYPE_PUBLIC,
         "SEARCH_CAT", International.getString("Suche"));
     searchField.registerItemListener(this);
     searchField.displayOnGui(dlg, searchPanel, 0, 0);
@@ -288,7 +288,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     buttonPanelEastAdditional.setAlignmentY(Component.TOP_ALIGNMENT);
     rightSouthSideButtonPanel = new JPanel(new BorderLayout());
     rightSouthSideButtonPanel.setBorder(new EmptyBorder(15, 100, 15, 100));
-    rightSouthSideButtonPanel.add(buttonPanelWestMain, BorderLayout.CENTER); // CENTER besser als WEST
+    rightSouthSideButtonPanel.add(buttonPanelWestMain, BorderLayout.CENTER); // CENTER besser als
+                                                                             // WEST
     rightSouthSideButtonPanel.add(buttonPanelEastAdditional, BorderLayout.EAST);
 
     myPanel = new JPanel();
@@ -307,12 +308,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       String action = ACTION_BUTTON + "_" + actionTypes[i];
       // >= 2000 just as small buttons without text
       String descriptionAction = actionTypes[i] < 1000 ? actionText[i] : null;
-      ItemTypeButton button = new ItemTypeButton(action, 
+      ItemTypeButton button = new ItemTypeButton(action,
           IItemType.TYPE_PUBLIC, "BUTTON_CAT", descriptionAction);
       button.registerItemListener(this);
       if (actionTypes[i] < 1000) {
         int padYbefore2 = 0;
-        if (i > 0 && actionTypes[i] < 0 && actionTypes[i - 1] >= 0) { 
+        if (i > 0 && actionTypes[i] < 0 && actionTypes[i - 1] >= 0) {
           padYbefore2 = 36;
           isMainButtonsWestGroup = false;
         }
@@ -466,7 +467,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             dlg.showDialog();
             if (dlg instanceof BoatReservationEditDialog) {
               BoatReservationRecord reservation = ((BoatReservationEditDialog) dlg).getDataRecord();
-              //reservation saved? persisted? valid?;
+              // reservation saved? persisted? valid?;
               if (!reservation.getContact().isEmpty() // validRecord?
                   && reservation.getLastModified() > 0) {
                 String aktion = "INSERT";
@@ -571,10 +572,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
             long deleteAt = Long.MAX_VALUE;
             if (persistence.data().getMetaData().isVersionized()) {
-              VersionizedDataDeleteDialog ddlg =
-                  new VersionizedDataDeleteDialog(getParentDialog(),
-                      (records.length == 1 ? records[0].getQualifiedName()
-                          : International.getMessage("{count} Datensätze", records.length)));
+              VersionizedDataDeleteDialog ddlg = new VersionizedDataDeleteDialog(getParentDialog(),
+                  (records.length == 1 ? records[0].getQualifiedName()
+                      : International.getMessage("{count} Datensätze", records.length)));
               ddlg.showDialog();
               deleteAt = ddlg.getDeleteAtResult();
               if (deleteAt == Long.MAX_VALUE || deleteAt < -1) {
@@ -711,8 +711,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
     }
     if (event != null
-        && (event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED && itemType == searchField)
-        || (event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED && itemType == filterBySearch)) {
+        && (event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED
+            && itemType == searchField)
+        || (event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED
+            && itemType == filterBySearch)) {
       updateFilter();
     }
   }
@@ -725,16 +727,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         String fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
         fehlermeldung += "'Angefangene' Reservierungen können NICHT automatisch gestartet werden.\n";
         fehlermeldung += "Dein Boot wird NICHT auf der rechten Seite als 'unterwegs' angezeigt.\n";
-        fehlermeldung += "--> '" + reservation.getReason() + "' ab " + reservation.getDateTimeFromDescription() + "???\n";
+        fehlermeldung += "--> '" + reservation.getReason() + "' ab "
+            + reservation.getDateTimeFromDescription() + "???\n";
         fehlermeldung += "a) Selber auf Fahrt-beginnen klicken/tippen und alles erneut eingeben oder\n";
         fehlermeldung += "b) diese Reservierung ändern und eine Minute in sicherer Zukunft eintragen.\n";
         String warnungTitel = "Hinweis: neue Reservierung in der Vergangenheit ";
         Dialog.infoDialog(warnungTitel, fehlermeldung);
-        Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART, warnungTitel 
+        Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART, warnungTitel
             + reservation.getBoatName() + " "
             + reservation.getDateTimeFromDescription());
       }
-      //TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp. Lange-Ausleihe.
+      // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp.
+      // Lange-Ausleihe.
     }
   }
 
@@ -813,11 +817,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
                 newReservationsRecord.getPersistence().getDescription() + ": "
                     + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                        (admin != null 
-                        ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                        : newReservationsRecord.getPersonAsName()),
-                        newReservationsRecord.getQualifiedName() + " " 
-                        + newReservationsRecord.getReservationTimeDescription()));
+                        (admin != null
+                            ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                            : newReservationsRecord.getPersonAsName()),
+                        newReservationsRecord.getQualifiedName() + " "
+                            + newReservationsRecord.getReservationTimeDescription()));
           }
         }
       }
@@ -907,7 +911,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   (admin != null
                       ? International.getString("Admin") + " '" + admin.getName() + "!'"
                       : newReservationsRecord.getPersonAsName()),
-                      newReservationsRecord.getQualifiedName() + " "
+                  newReservationsRecord.getQualifiedName() + " "
                       + newReservationsRecord.getReservationTimeDescription()));
     } // for loop
     if (!fehlerListe.isEmpty()) {
@@ -957,8 +961,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   private IItemType[] createArraySortedByName(ArrayList<IItemType> liste) {
     Collections.sort(liste, new Comparator<IItemType>() {
       @Override
-      public int compare(IItemType item1, IItemType item2)
-      {
+      public int compare(IItemType item1, IItemType item2) {
         return item1.getName().compareTo(item2.getName());
       }
     });
@@ -992,13 +995,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
     if (conflict != null) {
       if (allowConflicts) {
-        String warn = (identical ?
-            International.getString("Es existiert bereits ein gleichnamiger Datensatz!") :
-            International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
+        String warn = (identical
+            ? International.getString("Es existiert bereits ein gleichnamiger Datensatz!")
+            : International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
         if (Dialog.yesNoDialog(International.getString("Warnung"),
             warn + "\n"
                 + conflict + "\n"
-                + International.getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
+                + International
+                    .getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
           return true;
         }
       } else {
@@ -1155,7 +1159,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             String allFieldsAsLowerText = r.getAllFieldsAsSeparatedText().toLowerCase();
             if (filterByAnyText == null
                 || (filterByAnyText != null && allFieldsAsLowerText.indexOf(filterByAnyText) >= 0)
-                || (wochentagFilter != null && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0)) {
+                || (wochentagFilter != null
+                    && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0)) {
               if (!(r instanceof ClubworkRecord) || Daten.isAdminMode()
                   || isToday(r.getLastModified())) {
                 data.add(r);
@@ -1233,7 +1238,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     // mtblCalendar.setColumnCount(7);
 
     // Add headers
-    String[] headers = { " Montag", " Dienstag", " Mittwoch", " Donnerstag", " Freitag", " Samstag", " Sonntag" }; // All headers
+    String[] headers = { " Montag", " Dienstag", " Mittwoch", " Donnerstag", " Freitag", " Samstag",
+        " Sonntag" }; // All headers
     for (int i = 0; i < 7; i++) {
       mtblCalendar.addColumn(headers[i]);
     }
@@ -1393,8 +1399,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (currentMonth == 0) { // Back one year
         currentMonth = 11;
         currentYear -= 1;
-      }
-      else { // Back one month
+      } else { // Back one month
         currentMonth -= 1;
       }
       refreshCalendar(0, currentMonth, currentYear);
@@ -1409,8 +1414,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (currentMonth == 11) { // Foward one year
         currentMonth = 0;
         currentYear += 1;
-      }
-      else { // Foward one month
+      } else { // Foward one month
         currentMonth += 1;
       }
       refreshCalendar(0, currentMonth, currentYear);

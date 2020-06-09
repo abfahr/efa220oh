@@ -112,7 +112,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Vector<String> warnings = new Vector<String>();
       while ((s = f.readLine()) != null) {
         if (Logger.isWarningLine(s)
-            && Logger.getLineTimestamp(s) > Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime()) {
+            && Logger.getLineTimestamp(s) > Daten.efaConfig
+                .getValueEfaDirekt_bnrWarning_lasttime()) {
           warnings.add(s);
         }
       }
@@ -206,7 +207,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         // Aktivitäten einmal pro Stunde
         if (--onceAnHour <= 0) {
-          System.gc(); 
+          System.gc();
           // Damit Speicherüberwachung funktioniert
           // (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
           onceAnHour = ONCE_AN_HOUR;
@@ -274,7 +275,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
             "EfaBoathouseBackgroundTask: sleep for " + cnt + " times " + REMOTE_SCN_CHECK_INTERVAL
-            + " seconds ...");
+                + " seconds ...");
       }
       BoatStatus boatStatus = null;
       try {
@@ -285,9 +286,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       for (int i = 0; i < cnt; i++) {
         if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
           Logger
-          .log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-              "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL
-              + " seconds ...");
+              .log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                  "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL
+                      + " seconds ...");
         }
         try {
           Thread.sleep(REMOTE_SCN_CHECK_INTERVAL * 1000);
@@ -305,7 +306,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
                 "EfaBoathouseBackgroundTask: BoatStatus scn is " + newBoatStatusScn
-                + " (previously " + lastBoatStatusScn + ")");
+                    + " (previously " + lastBoatStatusScn + ")");
           }
           if (newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn) {
             // do NOT set lastBoatStatusScn = scn here!
@@ -397,7 +398,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     boolean listChanged = false;
-    if (newBoatStatusScn != -1 && 
+    if (newBoatStatusScn != -1 &&
         newBoatStatusScn != lastBoatStatusScn) {
       listChanged = true;
     }
@@ -515,7 +516,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 }
               }
               if (Daten.efaConfig.getValueEfaDirekt_resBooteNichtVerfuegbar()) {
-                if (!boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
+                if (!boatStatusRecord.getShowInList()
+                    .equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
                   boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_NOTAVAILABLE);
                 }
               } else {
@@ -570,11 +572,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
               || !oldShowInList.equals(boatStatusRecord.getShowInList())) {
             statusRecordChanged = true;
           }
-          if ((oldComment == null && 
-              boatStatusRecord.getComment() != null && 
+          if ((oldComment == null &&
+              boatStatusRecord.getComment() != null &&
               boatStatusRecord.getComment().length() > 0)
-              || (oldComment != null && 
-                 !oldComment.equals(boatStatusRecord.getComment()))) {
+              || (oldComment != null &&
+                  !oldComment.equals(boatStatusRecord.getComment()))) {
             statusRecordChanged = true;
           }
 
@@ -585,7 +587,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (statusRecordChanged && Logger.isTraceOn(Logger.TT_BACKGROUND, 2)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
                 "BoatStatus changed for Boat " + boatStatusRecord.getBoatNameAsString(now)
-                + ", new Status: " + boatStatusRecord.toString());
+                    + ", new Status: " + boatStatusRecord.toString());
           }
         } catch (Exception ee) {
           Logger.logwarn(ee);
@@ -691,7 +693,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     long lastModified = boatReservationRecord.getLastModified();
     long realStart = boatReservationRecord.getDateFrom()
         .getTimestamp(boatReservationRecord.getTimeFrom());
-    //boatReservationRecord.get Deleted()
+    // boatReservationRecord.get Deleted()
     if (lastModified > realStart) {
       return true;
     }
@@ -750,12 +752,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // Ordner efa2/todoo öffnen
     String folderTodo = Daten.efaBaseConfig.efaUserDirectory + "todo" + Daten.fileSep;
     Map<String, String> strMap = getStringMap(folderTodo);
-    
+
     String strEfaId = strMap.get("efaId");
     if (strEfaId == null) {
       return; // kein File im Folder
     }
-    strEfaId = strEfaId.replaceAll("\\D+","");
+    strEfaId = strEfaId.replaceAll("\\D+", "");
     int reservierungsnummer = Integer.parseInt(strEfaId);
     if (reservierungsnummer == 0) {
       Logger.log(Logger.WARNING, Logger.MSG_DATAADM_RECORDDELETED,
@@ -806,8 +808,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
         brr.getPersistence().getDescription() + ": "
             + International.getMessage(
                 "{name} hat Datensatz '{record}' gelöscht.",
-                "Storno-Link", brr.getQualifiedName() + 
-                " von " + brr.getPersonAsName()));
+                "Storno-Link", brr.getQualifiedName() +
+                    " von " + brr.getPersonAsName()));
   }
 
   private Map<String, String> getStringMap(String folderTodo) {
@@ -815,15 +817,15 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       List<Path> listTxtFiles = new ArrayList<Path>();
       DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folderTodo), "*.{txt,json}");
-      for (Path fileName: stream) {
+      for (Path fileName : stream) {
         listTxtFiles.add(fileName);
       }
       if (!listTxtFiles.isEmpty()) {
         // erste Datei rausnehmen (älteste) (nur eine)
         Path firstFilename = listTxtFiles.get(0);
-        Charset charset = Charset.defaultCharset();        
+        Charset charset = Charset.defaultCharset();
         List<String> stringList = Files.readAllLines(firstFilename, charset);
-        
+
         if (!stringList.isEmpty()) {
           for (String string : stringList) {
             String[] array = string.split("=");
@@ -832,9 +834,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
             }
           }
         }
-        
+
         // Datei nach done=backup verschieben into backup
-        Path targetPath = Path.of(Daten.efaBakDirectory + "efa.deletedReservations" + Daten.fileSep);
+        Path targetPath = Path
+            .of(Daten.efaBakDirectory + "efa.deletedReservations" + Daten.fileSep);
         Path targetFilename = targetPath.resolve(firstFilename.getFileName());
         Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
       }
@@ -848,9 +851,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       BoatReservations boatReservations, int reservierungsnummer) {
     BoatReservationRecord brr = null;
     try {
-    @SuppressWarnings("unchecked")
-    DataKey<UUID, Integer, String>[] allKeys = boatReservations.data().getAllKeys();
-    for (DataKey<UUID, Integer, String> dataKey : allKeys) {
+      @SuppressWarnings("unchecked")
+      DataKey<UUID, Integer, String>[] allKeys = boatReservations.data().getAllKeys();
+      for (DataKey<UUID, Integer, String> dataKey : allKeys) {
         int reservierungsnummerCandidate = 0;
         reservierungsnummerCandidate = dataKey.getKeyPart2();
         if (reservierungsnummer != reservierungsnummerCandidate) {
@@ -912,25 +915,27 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // automatisches, zeitgesteuertes Beenden von efa ?
     if (Daten.efaConfig.getValueEfaDirekt_exitTime().isSet()
         && System.currentTimeMillis() > Daten.efaStartTime + (Daten.AUTO_EXIT_MIN_RUNTIME + 1) * 60
-        * 1000) {
+            * 1000) {
       date.setTime(System.currentTimeMillis());
       cal.setTime(date);
       int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
       int exitTime = Daten.efaConfig.getValueEfaDirekt_exitTime().getHour() * 60
           + Daten.efaConfig.getValueEfaDirekt_exitTime().getMinute();
       if ((now >= exitTime && now < exitTime + Daten.AUTO_EXIT_MIN_RUNTIME) ||
-          (now + (24 * 60) >= exitTime && now + (24 * 60) < exitTime + Daten.AUTO_EXIT_MIN_RUNTIME)) {
+          (now + (24 * 60) >= exitTime
+              && now + (24 * 60) < exitTime + Daten.AUTO_EXIT_MIN_RUNTIME)) {
         Logger.log(Logger.INFO, Logger.MSG_EVT_TIMEBASEDEXIT,
             International.getString("Eingestellte Uhrzeit zum Beenden von efa erreicht!"));
-        if (System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() < Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
+        if (System.currentTimeMillis() - efaBoathouseFrame
+            .getLastUserInteraction() < Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
           Logger
-          .log(
-              Logger.INFO,
-              Logger.MSG_EVT_TIMEBASEDEXITDELAY,
-              International
-              .getMessage(
-                  "Beenden von efa wird verzögert, da efa innerhalb der letzten {n} Minuten noch benutzt wurde ...",
-                  Daten.AUTO_EXIT_MIN_LAST_USED));
+              .log(
+                  Logger.INFO,
+                  Logger.MSG_EVT_TIMEBASEDEXITDELAY,
+                  International
+                      .getMessage(
+                          "Beenden von efa wird verzögert, da efa innerhalb der letzten {n} Minuten noch benutzt wurde ...",
+                          Daten.AUTO_EXIT_MIN_LAST_USED));
         } else {
           EfaExitFrame.exitEfa(International.getString("Zeitgesteuertes Beenden von efa"), false,
               EfaBoathouseFrame.EFA_EXIT_REASON_TIME);
@@ -941,7 +946,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // automatisches Beenden nach Inaktivität ?
     if (Daten.efaConfig.getValueEfaDirekt_exitIdleTime() > 0
         && System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() > Daten.efaConfig
-        .getValueEfaDirekt_exitIdleTime() * 60 * 1000) {
+            .getValueEfaDirekt_exitIdleTime() * 60 * 1000) {
       Logger.log(Logger.INFO, Logger.MSG_EVT_INACTIVITYBASEDEXIT,
           International.getString("Eingestellte Inaktivitätsdauer zum Beenden von efa erreicht!"));
       EfaExitFrame.exitEfa(International.getString("Zeitgesteuertes Beenden von efa"), false,
@@ -951,7 +956,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // automatischer, zeitgesteuerter Neustart von efa ?
     if (Daten.efaConfig.getValueEfaDirekt_restartTime().isSet()
         && System.currentTimeMillis() > Daten.efaStartTime + (Daten.AUTO_EXIT_MIN_RUNTIME + 1) * 60
-        * 1000) {
+            * 1000) {
       date.setTime(System.currentTimeMillis());
       cal.setTime(date);
       int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
@@ -959,10 +964,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
           + Daten.efaConfig.getValueEfaDirekt_restartTime().getMinute();
       if ((now >= restartTime && now < restartTime + Daten.AUTO_EXIT_MIN_RUNTIME)
           || (now + (24 * 60) >= restartTime && now + (24 * 60) < restartTime
-          + Daten.AUTO_EXIT_MIN_RUNTIME)) {
+              + Daten.AUTO_EXIT_MIN_RUNTIME)) {
         Logger.log(Logger.INFO, Logger.MSG_EVT_TIMEBASEDRESTART,
             "Automatischer Neustart von efa (einmal täglich).");
-        if (System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() < Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
+        if (System.currentTimeMillis() - efaBoathouseFrame
+            .getLastUserInteraction() < Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
           Logger.log(Logger.INFO, Logger.MSG_EVT_TIMEBASEDRESTARTDELAY,
               "Neustart von efa wird verzögert, da efa innerhalb der letzten "
                   + Daten.AUTO_EXIT_MIN_LAST_USED + " Minuten noch benutzt wurde ...");
@@ -972,7 +978,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         }
       }
     }
-    
+
     // Neustart wegen Datei im File-System: pleaseReboot.txt, efa.new.jar, auswertung.csv
     String gefundeneDatei = getDateiImFileSystem();
     if (!gefundeneDatei.isEmpty()) {
@@ -1070,7 +1076,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
           "EfaBoathouseBackgroundTask: checkAlwaysInFront()");
     }
-    if (Daten.efaConfig.getValueEfaDirekt_immerImVordergrund() && 
+    if (Daten.efaConfig.getValueEfaDirekt_immerImVordergrund() &&
         efaBoathouseFrame != null
         && Dialog.frameCurrent() == efaBoathouseFrame) {
       Window[] windows = efaBoathouseFrame.getOwnedWindows();
@@ -1128,7 +1134,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (System.currentTimeMillis() >= Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime() + 7l
         * 24l * 60l * 60l * 1000l
         && (Daten.efaConfig.getValueEfaDirekt_bnrWarning_admin() || Daten.efaConfig
-            .getValueEfaDirekt_bnrWarning_bootswart()) && Daten.efaLogfile != null) {
+            .getValueEfaDirekt_bnrWarning_bootswart())
+        && Daten.efaLogfile != null) {
       mailWarnings();
     }
   }
@@ -1168,7 +1175,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                   && damage.getReportDate().isSet()
                   && damage.getReportTime().isSet()
                   && damage.getReportDate().getTimestamp(damage.getReportTime()) < now
-                  - BOAT_DAMAGE_REMINDER_INTERVAL) {
+                      - BOAT_DAMAGE_REMINDER_INTERVAL) {
                 damagesOlderThanAWeek = true;
               }
             }
@@ -1217,20 +1224,21 @@ public class EfaBoathouseBackgroundTask extends Thread {
               if (!currentLogbook.getName().equals(lastReminderForLogbook)) {
                 // ok, it's due for a reminder
                 Daten.project
-                .getMessages(false)
-                .createAndSaveMessageRecord(
-                    MessageRecord.TO_ADMIN,
-                    International.getString("Erinnerung an Fahrtenbuchwechsel"),
-                    International
-                    .getMessage(
-                        "Der Gültigkeitszeitraum des aktuellen Fahrtenbuchs {name} endet am {datum}.",
-                        currentLogbook.getName(), currentLogbook.getEndDate().toString())
-                        + "\n"
-                        +
+                    .getMessages(false)
+                    .createAndSaveMessageRecord(
+                        MessageRecord.TO_ADMIN,
+                        International.getString("Erinnerung an Fahrtenbuchwechsel"),
                         International
-                        .getString("Um anschließend automatisch ein neues Fahrtenbuch zu öffnen, erstelle bitte "
+                            .getMessage(
+                                "Der Gültigkeitszeitraum des aktuellen Fahrtenbuchs {name} endet am {datum}.",
+                                currentLogbook.getName(), currentLogbook.getEndDate().toString())
+                            + "\n"
                             +
-                            "im Admin-Modus ein neues Fahrtenbuch und aktiviere den automatischen Fahrtenbuchwechsel."));
+                            International
+                                .getString(
+                                    "Um anschließend automatisch ein neues Fahrtenbuch zu öffnen, erstelle bitte "
+                                        +
+                                        "im Admin-Modus ein neues Fahrtenbuch und aktiviere den automatischen Fahrtenbuchwechsel."));
                 Daten.efaConfig.setValueEfaBoathouseChangeLogbookReminder(currentLogbook.getName());
               }
             }
@@ -1262,8 +1270,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     // Logswitch Key (to identify whether we already switched logbooks)
     String date = (Daten.project.getAutoNewLogbookDate() != null &&
-        Daten.project.getAutoNewLogbookDate().isSet() ?
-            Daten.project.getAutoNewLogbookDate().toString() : "");
+        Daten.project.getAutoNewLogbookDate().isSet()
+            ? Daten.project.getAutoNewLogbookDate().toString()
+            : "");
     String key = newLogbookName + "~" + date;
     if (key.equals(Daten.project.getLastLogbookSwitch())) {
       // it seems the admin has explicitly opened another (maybe the previous) logbook
@@ -1323,9 +1332,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       // Step 3: Activate the new Logbook
       if (efaBoathouseFrame.openLogbook(newLogbook.getName())) {
         Logger
-        .log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
-            LogString.operationSuccessfullyCompleted(International
-                .getString("Fahrtenbuchwechsel")));
+            .log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
+                LogString.operationSuccessfullyCompleted(International
+                    .getString("Fahrtenbuchwechsel")));
         Daten.project.setLastLogbookSwitch(key);
       } else {
         throw new Exception("Failed to open new Logbook");
@@ -1333,26 +1342,27 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
       Messages messages = Daten.project.getMessages(false);
       messages
-      .createAndSaveMessageRecord(
-          MessageRecord.TO_ADMIN,
-          International.getString("Fahrtenbuchwechsel"),
-          International
-          .getString("efa hat soeben wie konfiguriert ein neues Fahrtenbuch geöffnet.")
-          + "\n"
-          + International
-          .getMessage(
-              "Das neue Fahrtenbuch heißt {name} und ist gültig vom {fromdate} bis {todate}.",
-              newLogbook.getName(), newLogbook.getStartDate().toString(), newLogbook
-              .getEndDate().toString())
-              + "\n"
-              + LogString.operationSuccessfullyCompleted(International
-                  .getString("Fahrtenbuchwechsel"))
+          .createAndSaveMessageRecord(
+              MessageRecord.TO_ADMIN,
+              International.getString("Fahrtenbuchwechsel"),
+              International
+                  .getString("efa hat soeben wie konfiguriert ein neues Fahrtenbuch geöffnet.")
+                  + "\n"
+                  + International
+                      .getMessage(
+                          "Das neue Fahrtenbuch heißt {name} und ist gültig vom {fromdate} bis {todate}.",
+                          newLogbook.getName(), newLogbook.getStartDate().toString(), newLogbook
+                              .getEndDate().toString())
+                  + "\n"
+                  + LogString.operationSuccessfullyCompleted(International
+                      .getString("Fahrtenbuchwechsel"))
                   + "\n\n"
                   + (sessionsAborted ? International
-                      .getString("Zum Zeitpunkt des Fahrtenbuchwechsels befanden sich noch einige Boote "
-                          + "auf dem Wasser. Diese Fahrten wurden ABGEBROCHEN. Die abgebrochenen "
-                          + "Fahrten sind in der Logdatei verzeichnet.")
-                          : ""));
+                      .getString(
+                          "Zum Zeitpunkt des Fahrtenbuchwechsels befanden sich noch einige Boote "
+                              + "auf dem Wasser. Diese Fahrten wurden ABGEBROCHEN. Die abgebrochenen "
+                              + "Fahrten sind in der Logdatei verzeichnet.")
+                      : ""));
       EfaUtil.sleep(500);
       efaBoathouseFrame.updateBoatLists(true);
       EfaUtil.sleep(500);
@@ -1363,16 +1373,18 @@ public class EfaBoathouseBackgroundTask extends Thread {
           LogString.operationAborted(International.getString("Fahrtenbuchwechsel")));
       Messages messages = Daten.project.getMessages(false);
       messages
-      .createAndSaveMessageRecord(
-          MessageRecord.TO_ADMIN,
-          International.getString("Fahrtenbuchwechsel"),
-          International
-          .getString("efa hat soeben versucht, wie konfiguriert ein neues Fahrtenbuch anzulegen.")
-          + "\n"
-          + International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.")
-          + "\n\n"
-          + International
-          .getString("Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
+          .createAndSaveMessageRecord(
+              MessageRecord.TO_ADMIN,
+              International.getString("Fahrtenbuchwechsel"),
+              International
+                  .getString(
+                      "efa hat soeben versucht, wie konfiguriert ein neues Fahrtenbuch anzulegen.")
+                  + "\n"
+                  + International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.")
+                  + "\n\n"
+                  + International
+                      .getString(
+                          "Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
     } finally {
       if (boatStatus != null && lockStatus >= 0) {
         boatStatus.data().releaseGlobalLock(lockStatus);

@@ -123,18 +123,18 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   // some default values
   private static final String[] DEFAULT_BROWSER = {
-    "/usr/bin/firefox",
-    "/usr/bin/mozilla",
-    "/usr/bin/netscape",
-    "c:\\Programme\\Mozilla Firefox\\firefox.exe",
-    "c:\\Programme\\Internet Explorer\\iexplore.exe",
-    "c:\\Program Files\\Mozilla Firefox\\firefox.exe",
-    "c:\\Program Files\\Internet Explorer\\iexplore.exe"
+      "/usr/bin/firefox",
+      "/usr/bin/mozilla",
+      "/usr/bin/netscape",
+      "c:\\Programme\\Mozilla Firefox\\firefox.exe",
+      "c:\\Programme\\Internet Explorer\\iexplore.exe",
+      "c:\\Program Files\\Mozilla Firefox\\firefox.exe",
+      "c:\\Program Files\\Internet Explorer\\iexplore.exe"
   };
   private static final String[] DEFAULT_ACROBAT = {
-    "/usr/bin/acroread",
-    "c:\\Programme\\Adobe\\Reader 9.0\\Reader\\AcroRd32.exe",
-    "c:\\Program Files\\Adobe\\Reader 9.0\\Reader\\AcroRd32.exe"
+      "/usr/bin/acroread",
+      "c:\\Programme\\Adobe\\Reader 9.0\\Reader\\AcroRd32.exe",
+      "c:\\Program Files\\Adobe\\Reader 9.0\\Reader\\AcroRd32.exe"
   };
 
   // private configuration data
@@ -528,7 +528,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         addParameter(new ItemTypeLabel("_EfaRemoteLabel",
             IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
             International.getString("efa-Konfiguration") +
-            " (" + International.getString("remote") + ")"));
+                " (" + International.getString("remote") + ")"));
       }
       addParameter(lastProjectEfaBase = new ItemTypeString("LastProjectEfaBase", "",
           IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
@@ -570,8 +570,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
               + International.getString("Nachname"),
               International.getString("Nachname") + ", "
                   + International.getString("Vorname"), },
-                  IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
-                  International.getString("Namensformat")));
+          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+          International.getString("Namensformat")));
 
       addParameter(standardFahrtart = new ItemTypeStringList("SessionTypeDefault",
           EfaTypes.TYPE_SESSION_NORMAL,
@@ -643,7 +643,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(autogenAlias = new ItemTypeBoolean("InputShortcutAutoGenerate", false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International
-          .getString("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren")));
+              .getString("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren")));
       addParameter(touchscreenSupport = new ItemTypeBoolean("TouchScreenSupport", false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getString("Touchscreen-Support") + " (EXPERIMENTAL!)"));
@@ -676,22 +676,22 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
           International.getString("Bildschirmbreite")
-          + " (" + International.getString("Pixel") + ")"));
+              + " (" + International.getString("Pixel") + ")"));
       addParameter(screenHeight = new ItemTypeInteger("WindowScreenHeight", 0, 0,
           Integer.MAX_VALUE, false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
           International.getString("Bildschirmhöhe")
-          + " (" + International.getString("Pixel") + ")"));
+              + " (" + International.getString("Pixel") + ")"));
       addParameter(maxDialogWidth = new ItemTypeInteger("WindowDialogMaxWidth", 0, 0,
           Integer.MAX_VALUE, false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
           International.getString("maximale Dialog-Breite")
-          + " (" + International.getString("Pixel") + ")"));
+              + " (" + International.getString("Pixel") + ")"));
       addParameter(maxDialogHeight = new ItemTypeInteger("WindowDialogMaxHeight", 0, 0,
           Integer.MAX_VALUE, false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
           International.getString("maximale Dialog-Höhe")
-          + " (" + International.getString("Pixel") + ")"));
+              + " (" + International.getString("Pixel") + ")"));
 
       // ============================= COMMON:EXTTOOLS =============================
       addParameter(browser = new ItemTypeFile("ProgramWebbrowser",
@@ -740,13 +740,14 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International
-          .getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
-      addParameter(efaDirekt_listAllowToggleSortByCategories = new ItemTypeBoolean("efaDirekt_listAllowToggleSortByCategories", false,
-          IItemType.TYPE_PUBLIC, 
+              .getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
+      addParameter(efaDirekt_listAllowToggleSortByCategories = new ItemTypeBoolean(
+          "efaDirekt_listAllowToggleSortByCategories", false,
+          IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("erlaube Auswahl in Bootslisten auch per Kategorien (Ort,..)")));
       addParameter(efaDirekt_groupToggleSortByCategoriesNorth = new ItemTypeBoolean(
-          "efaDirekt_groupToggleSortByCategoriesNorth", false, IItemType.TYPE_PUBLIC, 
+          "efaDirekt_groupToggleSortByCategoriesNorth", false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("Auswahl der Sortierung oberhalb (sonst unten)")));
       addParameter(efaDirekt_resLookAheadTime = new ItemTypeInteger(
@@ -754,7 +755,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           false, IItemType.TYPE_EXPERT,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International
-          .getString("Bei Fahrtbeginn auf Reservierungen bis zu x Minuten in der Zukunft prüfen")));
+              .getString(
+                  "Bei Fahrtbeginn auf Reservierungen bis zu x Minuten in der Zukunft prüfen")));
       addParameter(efaDirekt_showBootsschadenButton = new ItemTypeBoolean(
           "BoatDamageEnableReporting", true,
           IItemType.TYPE_PUBLIC,
@@ -798,14 +800,15 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "reservierungAnMitgliedEmailen", false, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International
-          .getString("jede Reservierung an das Mitglied emailen. Insert, Update, Delete")));
+              .getString("jede Reservierung an das Mitglied emailen. Insert, Update, Delete")));
       addParameter(reservierungAnMitgliedMitKuerzelEmailen = new ItemTypeBoolean(
           "reservierungAnMitgliedMitKuerzelEmailen",
           true,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International
-          .getString("jede Reservierung an Mitglieder mit Kürzel emailen. Insert, Update, Delete")));
+              .getString(
+                  "jede Reservierung an Mitglieder mit Kürzel emailen. Insert, Update, Delete")));
       addParameter(reservierungsEmailMitStornoLink = new ItemTypeBoolean(
           "reservierungsEmailMitStornoLink",
           false,
@@ -886,7 +889,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efadirekt_adminLastOsCommand = new ItemTypeString("AdminLastOsCommand", "",
           IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_COMMON),
-              International.getString("Betriebssystemkommando")));
+          International.getString("Betriebssystemkommando")));
       addParameter(efadirekt_lastBoatDamangeReminder = new ItemTypeLong("LastBoatDamageReminder",
           0,
           0, Long.MAX_VALUE,
@@ -929,11 +932,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_EXPERT,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International
-          .getString("Bei Bootsbenutzung warnen, wenn nicht mindestens eine Person aus geforderter Gruppe")));
+              .getString(
+                  "Bei Bootsbenutzung warnen, wenn nicht mindestens eine Person aus geforderter Gruppe")));
       addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean(
           "InputAllowOnlyMaxCrewNumber", true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
-          International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
+          International
+              .getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
       addParameter(efaDirekt_eintragErzwingeObmann = new ItemTypeBoolean(
           "InputMustSelectBoatCaptain", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
@@ -968,7 +973,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen = new ItemTypeBoolean(
           "InputDistanceNotEditableForKnownDestinations", false, IItemType.TYPE_EXPERT,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT), International
-          .getString("Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert werden")));
+              .getString(
+                  "Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert werden")));
 
       // abf 2019-07-23
       addParameter(efaDirekt_AlteReservierungDurchsuchen = new ItemTypeBoolean(
@@ -1037,7 +1043,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International
-          .getString("Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als 'nicht verfügbar' anzeigen")));
+              .getString(
+                  "Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als 'nicht verfügbar' anzeigen")));
       addParameter(efaDirekt_showZielnameFuerBooteUnterwegs = new ItemTypeBoolean(
           "BoatListDisplayDestinationForBoatsOnTheWater", false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
@@ -1056,28 +1063,29 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "efaBoathouseShowSchadenkreisInAllLists", true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International
-          .getString("Schäden als Farbkreis anzeigen")));
+              .getString("Schäden als Farbkreis anzeigen")));
       addParameter(efaBoathouseShowOrtDescriptionInAvailableList = new ItemTypeBoolean(
           "efaBoathouseShowOrtDescriptionInAvailableList", true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International
-          .getString("Ort/Beschreibung hinter Bootsname in Liste anzeigen")));
+              .getString("Ort/Beschreibung hinter Bootsname in Liste anzeigen")));
       addParameter(efaBoathouseShowBoatUsageStatisticsInAllLists = new ItemTypeBoolean(
           "efaBoathouseShowBoatUsageStatisticsInAllLists", true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International
-          .getString("Statistik der Jahresnutzung für jedes Boot anzeigen (ohne Mo/Do)")));
+              .getString("Statistik der Jahresnutzung für jedes Boot anzeigen (ohne Mo/Do)")));
       addParameter(efaBoathouseShowLastFromWaterNotification = new ItemTypeBoolean(
           "ShowLastFromWaterNotification", true, IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
           International
-          .getString("Nach Beenden letzter Fahrt Erinnerung zum Schließen der Bootshalle anzeigen")));
+              .getString(
+                  "Nach Beenden letzter Fahrt Erinnerung zum Schließen der Bootshalle anzeigen")));
       addParameter(efaBoathouseShowLastFromWaterNotificationText = new ItemTypeString(
           "ShowLastFromWaterNotificationText",
           International.getString("Alle Boote sind zurück.") + "<br>"
               + International.getString("Bitte schließe die Hallentore."),
-              IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
-              International.getString("Erinnerungstext zum Schließen der Bootshalle")));
+          IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+          International.getString("Erinnerungstext zum Schließen der Bootshalle")));
       addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger(
           "LogbookDisplayEntriesMaxNumber", 100, 1, Integer.MAX_VALUE, false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
@@ -1103,112 +1111,112 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           International.getString("Fahrt beginnen"), "CCFFCC", true, false, true, false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Fahrt beginnen"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Fahrt beginnen"))));
       addParameter(efaDirekt_butFahrtBeenden = new ItemTypeConfigButton("ButtonFinishSession",
           International.getString("Fahrt beenden"), "CCFFCC", true, false, true, false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Fahrt beenden"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Fahrt beenden"))));
       addParameter(efaDirekt_butFahrtAbbrechen = new ItemTypeConfigButton("ButtonCancelSession",
           International.getString("Fahrt abbrechen"), "FFCCCC", true, false, true, false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Fahrt abbrechen"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Fahrt abbrechen"))));
       addParameter(efaDirekt_butNachtrag = new ItemTypeConfigButton("ButtonLateEntry",
           International.getString("Nachtrag"), "CCFFFF", true, false, true, false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Nachtrag"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Nachtrag"))));
       addParameter(efaDirekt_butBootsreservierungen = new ItemTypeConfigButton(
           "ButtonBoatReservations",
           International.getString("Bootsreservierungen"), "FFFFCC", true, false, true, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Bootsreservierungen"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Bootsreservierungen"))));
       addParameter(efaDirekt_butFahrtenbuchAnzeigen = new ItemTypeConfigButton("ButtonShowLogbook",
           International.getString("Fahrtenbuch anzeigen"), "CCCCFF", true, false, true, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Fahrtenbuch anzeigen"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Fahrtenbuch anzeigen"))));
       addParameter(efaDirekt_butStatistikErstellen = new ItemTypeConfigButton(
           "ButtonCreateStatistics",
           International.getString("Statistiken erstellen"), "CCCCFF", true, false, true, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Statistiken erstellen"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Statistiken erstellen"))));
       addParameter(efaDirekt_butVereinsarbeit = new ItemTypeConfigButton("ButtonClubwork",
           International.getString("Vereinsarbeit"), "CCFFCC", true, false, true, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Vereinsarbeit erfassen"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Vereinsarbeit erfassen"))));
       addParameter(efaDirekt_butNachrichtAnAdmin = new ItemTypeConfigButton("ButtonMessageToAdmin",
           International.getString("Nachricht an Admin"), "FFF197", true, false, true, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Nachricht an Admin"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Nachricht an Admin"))));
       addParameter(efaDirekt_butAdminModus = new ItemTypeConfigButton("ButtonAdminMode",
           International.getString("Admin-Modus"), "CCCCCC", true, false, true, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Admin-Modus"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Admin-Modus"))));
       addParameter(efaDirekt_butSpezial = new ItemTypeConfigButton("ButtonSpecial",
           International.getString("Spezial-Button"), "CCCCCC", false, true, true, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Spezial-Button"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Spezial-Button"))));
       addParameter(efaDirekt_butSpezialCmd = new ItemTypeString("ButtonSpecialCommand", "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Auszuführendes Kommando für '{button}'",
-                  International.getString("Spezial-Button"))));
+          International.getMessage("Auszuführendes Kommando für '{button}'",
+              International.getString("Spezial-Button"))));
       addParameter(efaDirekt_butHelp = new ItemTypeConfigButton("ButtonHelp",
           International.getString("Hilfe-Button"), null, true, false, false, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getMessage("Button '{button}'",
-                  International.getString("Hilfe-Button"))));
+          International.getMessage("Button '{button}'",
+              International.getString("Hilfe-Button"))));
       addParameter(efaDirekt_showButtonHotkey = new ItemTypeBoolean("ButtonShowHotkeys", false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_GUIBUTTONS),
-              International.getString("Hotkeys für Buttons anzeigen")));
+          International.getString("Hotkeys für Buttons anzeigen")));
 
       // ============================= BOATHOUSE:STARTSTOP =============================
       addParameter(efaDirekt_restartTime = new ItemTypeTime("EfaExitRestartTime", new DataTypeTime(
           4, 0, 0),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_STARTSTOP),
-              International.getString("Uhrzeit zum automatischen Neustart von efa")));
+          International.getString("Uhrzeit zum automatischen Neustart von efa")));
       addParameter(efaDirekt_exitTime = new ItemTypeTime("EfaExitExitTime", new DataTypeTime(-1,
           -1, -1),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_STARTSTOP),
-              International.getString("Uhrzeit zum automatischen Beenden von efa")));
+          International.getString("Uhrzeit zum automatischen Beenden von efa")));
       addParameter(efaDirekt_exitIdleTime = new ItemTypeInteger("EfaExitIdleTime",
           ItemTypeInteger.UNSET, 0, Integer.MAX_VALUE, true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_STARTSTOP),
-              International.getString("efa automatisch nach Inaktivität beenden")
+          International.getString("efa automatisch nach Inaktivität beenden")
               + " [" + International.getString("Minuten") + "]"));
       addParameter(efaDirekt_execOnEfaAutoExit = new ItemTypeString("EfaExitExecOnAutoExit", "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_STARTSTOP),
-              International
+          International
               .getString("Folgendes Kommando beim automatischen Beenden von efa ausführen")));
       addParameter(efaDirekt_execOnEfaExit = new ItemTypeString("EfaExitExecOnExit", "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_STARTSTOP),
-              International
+          International
               .getString("Folgendes Kommando beim Beenden von efa durch Mitglieder ausführen")));
 
       // ============================= BOATHOUSE:PERMISSIONS =============================
@@ -1216,33 +1224,33 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_PERMISSIONS),
-              International.getString("Mitglieder dürfen Boote reservieren")));
+          International.getString("Mitglieder dürfen Boote reservieren")));
       addParameter(membersMayReserveBoatsWeekly = new ItemTypeBoolean(
           "AllowMembersBoatReservationWeekly", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_PERMISSIONS),
-              International.getString("Mitglieder dürfen Boote reservieren")
+          International.getString("Mitglieder dürfen Boote reservieren")
               + " (" + International.getString("wöchentliche Reservierungen") + ")"));
       addParameter(membersMayEditBoatsReservations = new ItemTypeBoolean(
           "AllowMembersBoatReservationEdit", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_PERMISSIONS),
-              International.getString("Mitglieder dürfen Bootsreservierungen verändern und löschen")));
+          International.getString("Mitglieder dürfen Bootsreservierungen verändern und löschen")));
       addParameter(membersMayReservePrivateBoats = new ItemTypeBoolean(
           "AllowMembersPrivateBoatReservation", true,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_PERMISSIONS),
-              International.getString("Mitglieder dürfen Privatboote reservieren")));
+          International.getString("Mitglieder dürfen Privatboote reservieren")));
       addParameter(efaDirekt_mitgliederDuerfenNamenHinzufuegen = new ItemTypeBoolean(
           "AllowMembersAddNames", false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_PERMISSIONS),
-              International.getString("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen")));
+          International.getString("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen")));
       addParameter(efaDirekt_mitgliederDuerfenEfaBeenden = new ItemTypeBoolean(
           "AllowMembersExitEfa", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_PERMISSIONS),
-              International.getString("Mitglieder dürfen efa beenden")));
+          International.getString("Mitglieder dürfen efa beenden")));
 
       // ============================= BOATHOUSE:NOTIFICATIONS =============================
       addParameter(efaDirekt_bnrMsgToAdminDefaultRecipient = new ItemTypeStringList(
@@ -1253,120 +1261,120 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           },
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("Standardempfänger für 'Nachricht an Admin'")));
+          International.getString("Standardempfänger für 'Nachricht an Admin'")));
       addParameter(efaDirekt_bnrError_admin = new ItemTypeBoolean("NotificationErrorAdmin", true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                  International.getString("Admins"), International.getString("bei Fehlern")
+          International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+              International.getString("Admins"), International.getString("bei Fehlern")
                   + " (ERROR)")));
       addParameter(efaDirekt_bnrWarning_admin = new ItemTypeBoolean("NotificationWarningAdmin",
           true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                  International.getString("Admins"),
-                  International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
+          International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+              International.getString("Admins"),
+              International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
       addParameter(efaDirekt_bnrBootsstatus_admin = new ItemTypeBoolean(
           "NotificationBoatstatusAdmin", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                  International.getString("Admins"),
-                  International.getString("bei Bootsstatus-Änderungen"))));
+          International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+              International.getString("Admins"),
+              International.getString("bei Bootsstatus-Änderungen"))));
       addParameter(efaDirekt_bnrError_bootswart = new ItemTypeBoolean(
           "NotificationErrorBoatMaintenance", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                  International.getString("Bootswarte"), International.getString("bei Fehlern")
+          International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+              International.getString("Bootswarte"), International.getString("bei Fehlern")
                   + " (ERROR)")));
       addParameter(efaDirekt_bnrWarning_bootswart = new ItemTypeBoolean(
           "NotificationWarningBoatMaintenance", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                  International.getString("Bootswarte"),
-                  International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
+          International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+              International.getString("Bootswarte"),
+              International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
       addParameter(efaDirekt_bnrBootsstatus_bootswart = new ItemTypeBoolean(
           "NotificationBoatstatusBoatMaintenance", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                  International.getString("Bootswarte"),
-                  International.getString("bei Bootsstatus-Änderungen"))));
+          International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+              International.getString("Bootswarte"),
+              International.getString("bei Bootsstatus-Änderungen"))));
       addParameter(efaDirekt_bnrWarning_lasttime = new ItemTypeLong("NotificationLastWarnings",
           System.currentTimeMillis() - 7l * 24l * 60l * 60l * 1000l, 0, Long.MAX_VALUE, // one week
           // ago
           IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("letzte Benachrichtigungen")));
+          International.getString("letzte Benachrichtigungen")));
       addParameter(notificationMarkReadAdmin = new ItemTypeBoolean("NotificationMarkReadAdmin",
           false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
-                  International.getString("Admin"))));
+          International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
+              International.getString("Admin"))));
       addParameter(notificationMarkReadBoatMaintenance = new ItemTypeBoolean(
           "NotificationMarkReadBoatMaintenance", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
-                  International.getString("Bootswart"))));
+          International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
+              International.getString("Bootswart"))));
       addParameter(efaDirekt_emailServer = new ItemTypeString("NotificationEmailServer", "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("SMTP-Server")));
+          International.getString("email") + ": "
+              + International.getString("SMTP-Server")));
       addParameter(efaDirekt_emailPort = new ItemTypeInteger("NotificationEmailPort", 25, 0, 65535,
           false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("SMTP-Port")));
+          International.getString("email") + ": "
+              + International.getString("SMTP-Port")));
       addParameter(efaDirekt_emailUsername = new ItemTypeString("NotificationEmailUsername", "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("Username")));
+          International.getString("email") + ": "
+              + International.getString("Username")));
       addParameter(efaDirekt_emailPassword = new ItemTypePassword("NotificationEmailPassword", "",
           true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("Paßwort")));
+          International.getString("email") + ": "
+              + International.getString("Paßwort")));
       addParameter(efaDirekt_emailAbsenderName = new ItemTypeString("NotificationEmailFromName",
           Daten.EFA_SHORTNAME,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("Absender-Name")));
+          International.getString("email") + ": "
+              + International.getString("Absender-Name")));
       addParameter(efaDirekt_emailAbsender = new ItemTypeString("NotificationEmailFromEmail", "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("Absender-Adresse")));
+          International.getString("email") + ": "
+              + International.getString("Absender-Adresse")));
       addParameter(efaDirekt_emailBetreffPraefix = new ItemTypeString(
           "NotificationEmailSubjectPrefix", Daten.EFA_SHORTNAME,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("Betreff")
-                  + " (" + International.getString("Präfix") + ")"));
+          International.getString("email") + ": "
+              + International.getString("Betreff")
+              + " (" + International.getString("Präfix") + ")"));
       addParameter(efaDirekt_emailSignatur = new ItemTypeString("NotificationEmailSignature",
           International.getString("Diese Nachricht wurde von efa verschickt."),
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("Signatur")));
+          International.getString("email") + ": "
+              + International.getString("Signatur")));
       addParameter(efaDirekt_emailSecurity = new ItemTypeRadioButtons("NotificationEmailSecurity",
           SECURITY_STARTTLS,
           new String[] { SECURITY_STARTTLS, SECURITY_SSL },
           new String[] { SECURITY_STARTTLS, SECURITY_SSL },
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
-              International.getString("email") + ": "
-                  + International.getString("Sicherheit")));
+          International.getString("email") + ": "
+              + International.getString("Sicherheit")));
 
       // ============================= SYNC =============================
       addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbUrlLogin",
@@ -1402,13 +1410,14 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           International.getMessage("Funktionalitäten aktivieren für {sport}",
               International.getString("Rudern"))));
       addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("CustUsageRowingGermany",
-          (custSettings != null ? custSettings.activateGermanRowingOptions : International
-              .getLanguageID().startsWith("de")),
-              IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
-              International.getMessage("Funktionalitäten aktivieren für {sport}",
-                  International.getString("Rudern")) + " "
-                  + International.getMessage("in {region}",
-                      International.getString("Deutschland"))));
+          (custSettings != null ? custSettings.activateGermanRowingOptions
+              : International
+                  .getLanguageID().startsWith("de")),
+          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
+          International.getMessage("Funktionalitäten aktivieren für {sport}",
+              International.getString("Rudern")) + " "
+              + International.getMessage("in {region}",
+                  International.getString("Deutschland"))));
       addParameter(useFunctionalityRowingBerlin = new ItemTypeBoolean("CustUsageRowingBerlin",
           (custSettings != null ? custSettings.activateBerlinRowingOptions : false),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
@@ -1459,17 +1468,17 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efaDirekt_showUhr = new ItemTypeBoolean("WidgetClockEnabled", true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_WIDGETS, CATEGORY_WIDGET_CLOCK),
-              International.getMessage("{item} anzeigen",
-                  International.getString("Uhr"))));
+          International.getMessage("{item} anzeigen",
+              International.getString("Uhr"))));
       addParameter(efaDirekt_showNews = new ItemTypeBoolean("WidgetNewsEnabled", true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_WIDGETS, CATEGORY_WIDGET_NEWS),
-              International.getMessage("{item} anzeigen",
-                  International.getString("News"))));
+          International.getMessage("{item} anzeigen",
+              International.getString("News"))));
       addParameter(efaDirekt_newsText = new ItemTypeString("WidgetNewsText", "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_WIDGETS, CATEGORY_WIDGET_NEWS),
-              International.getString("News-Text")));
+          International.getString("News-Text")));
       addParameter(efaDirekt_newsScrollSpeed = new ItemTypeInteger("WidgetNewsScrollSpeed", 250,
           100, Integer.MAX_VALUE,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
@@ -1521,25 +1530,25 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
               CATEGORY_DATAXML),
-              International.getString("Backup-Verzeichnis")));
+          International.getString("Backup-Verzeichnis")));
       addParameter(dataMirrorDirectory = new ItemTypeFile("DataMirrorDirectory", "",
           International.getString("Spiegelverzeichnis für Datenkopie"),
           International.getString("Verzeichnisse"),
           null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
               CATEGORY_DATAXML),
-              International.getString("Spiegelverzeichnis für Datenkopie")));
+          International.getString("Spiegelverzeichnis für Datenkopie")));
 
       addParameter(dataRemoteEfaServerEnabled = new ItemTypeBoolean("DataRemoteEfaServerEnabled",
           false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
               CATEGORY_DATAREMOTE),
-              International.getString("Remote-Zugriff erlauben")));
+          International.getString("Remote-Zugriff erlauben")));
       addParameter(dataRemoteEfaServerPort = new ItemTypeInteger("DataRemoteEfaServerPort", 0xEFA,
           1, 65535,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
               CATEGORY_DATAREMOTE),
-              International.getString("Server Port")));
+          International.getString("Server Port")));
       addParameter(dataRemoteCacheExpiryTime = new ItemTypeLong("DataRemoteCacheExpiryTime", 10, 1,
           3600,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
@@ -1565,21 +1574,21 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
               CATEGORY_DATAREMOTE),
-              International.getString("efaOnline aktivieren")));
+          International.getString("efaOnline aktivieren")));
       addParameter(dataRemoteEfaOnlineUsername = new ItemTypeString("DataRemoteEfaOnlineUsername",
           "",
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
               CATEGORY_DATAREMOTE),
-              Daten.EFA_ONLINE + " - " +
-                  International.getString("Benutzername") +
-                  " (" + International.getString("Server") + ")"));
+          Daten.EFA_ONLINE + " - " +
+              International.getString("Benutzername") +
+              " (" + International.getString("Server") + ")"));
       addParameter(dataRemoteEfaOnlinePassword = new ItemTypePassword(
           "DataRemoteEfaOnlinePassword", "", true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
               CATEGORY_DATAREMOTE),
-              Daten.EFA_ONLINE + " - " +
-                  International.getString("Paßwort") +
-                  " (" + International.getString("Server") + ")"));
+          Daten.EFA_ONLINE + " - " +
+              International.getString("Paßwort") +
+              " (" + International.getString("Server") + ")"));
       addParameter(dataRemoteEfaOnlineUrl = new ItemTypeString("DataRemoteEfaOnlineUrl",
           "http://efa-online.nmichael.de/efa",
           IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS,
@@ -1928,6 +1937,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   public boolean getValueEfaDirekt_AlteReservierungDurchsuchen() {
     return efaDirekt_AlteReservierungDurchsuchen.getValue();
   }
+
   public boolean getValueEfaDirekt_FindenNachHaeufigsterStattNeuesterReservierung() {
     return efaDirekt_FindenNachHaeufigsterStattNeuesterReservierung.getValue();
   }
@@ -2111,7 +2121,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   public boolean isReservierungsEmailMitStornoLink() {
     return reservierungsEmailMitStornoLink.getValue();
   }
-  
+
   public int getAnzahlTageErinnerungBootshaus() {
     return anzahlTageErinnerungBootshaus.getValue();
   }
@@ -2228,7 +2238,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public boolean isEfaBoathouseShowBoatUsageStatisticsInAllLists() {
     return efaBoathouseShowBoatUsageStatisticsInAllLists.getValue();
-  } 
+  }
 
   public boolean getValueEfaBoathouseShowLastFromWaterNotification() {
     return efaBoathouseShowLastFromWaterNotification.getValue();
@@ -2633,7 +2643,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       }
       Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
           LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen")) +
-          "\n" + s);
+              "\n" + s);
     }
   }
 
@@ -2681,8 +2691,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       if (changed) {
         Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
             LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen"))
-            +
-            "\n" + International.getString("Bezeichnungen"));
+                +
+                "\n" + International.getString("Bezeichnungen"));
       }
     }
 
@@ -2711,10 +2721,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
               Daten.efaProgramDirectory + Daten.EFA_JAR);
         } else {
           Dialog
-          .infoDialog(
-              International.getString("Verzeichnis für Nutzerdaten"),
-              International
-              .getString("efa kann in dem geänderten Verzeichnis für Nutzerdaten nicht schreiben. Die Änderung wird ignoriert."));
+              .infoDialog(
+                  International.getString("Verzeichnis für Nutzerdaten"),
+                  International
+                      .getString(
+                          "efa kann in dem geänderten Verzeichnis für Nutzerdaten nicht schreiben. Die Änderung wird ignoriert."));
           changedUserDir = false;
         }
       }
@@ -2725,8 +2736,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         myEfaTypes.setToLanguage(newLang);
         Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
             LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen"))
-            +
-            "\n" + International.getString("Sprache"));
+                +
+                "\n" + International.getString("Sprache"));
       }
       if (changedUserDir) {
         Dialog.infoDialog(International.getString("Verzeichnis für Nutzerdaten"),
@@ -2771,10 +2782,12 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public String getRowingAndOrPaddlingString() {
     return (getValueUseFunctionalityRowing()
-        ? International.getString("Ruder", "wie in Ruder-Km") : "")
+        ? International.getString("Ruder", "wie in Ruder-Km")
+        : "")
         + (getValueUseFunctionalityCanoeing()
             ? (getValueUseFunctionalityRowing() ? "/" : "")
-                + International.getString("Paddel", "wie in Paddel-Km") : "");
+                + International.getString("Paddel", "wie in Paddel-Km")
+            : "");
   }
 
   private String[] makeLookAndFeelArray(int type) {
@@ -2864,8 +2877,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
         EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         getValueUseFunctionalityCanoeingGermany() ? IItemType.TYPE_PUBLIC : IItemType.TYPE_EXPERT,
-            BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
-            International
+        BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
+        International
             .onlyFor("Fahrten mit folgenden Bootstypen mit Kanu-eFB synchronisieren", "de")));
     String myValue = getValue("KanuEfbBoatTypes");
     if (myValue != null && myValue.length() > 0) {

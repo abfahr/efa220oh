@@ -62,7 +62,7 @@ public class Daten {
 
   // Version für die Ausgabe (z.B. 2.1.0, kann aber
   // auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSION = "2.2.0"; 
+  public final static String VERSION = "2.2.0";
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
@@ -385,17 +385,20 @@ public class Daten {
     if (exitCode != 0) {
       if (exitCode == HALT_SHELLRESTART || exitCode == HALT_JAVARESTART) {
         Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
-            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Exit Code " + exitCode + ")");
+            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Exit Code "
+                + exitCode + ")");
       } else {
         if (applID != APPL_CLI) {
           Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
         }
         Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
-            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Error Code " + exitCode + ")");
+            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Error Code "
+                + exitCode + ")");
       }
     } else {
       Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
-          International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + " vom " + VERSIONRELEASEDATE + ")");
+          International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + " vom "
+              + VERSIONRELEASEDATE + ")");
     }
     if (program != null) {
       program.exit(exitCode);
@@ -568,7 +571,8 @@ public class Daten {
         if (SimpleInputDialog.showInputDialog((Frame) null,
             International.getString("Verzeichnis für Nutzerdaten"), dir)) {
           dir.getValueFromGui();
-          if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+          if (Logger.isTraceOn(Logger.TT_CORE, 9)
+              || Logger.isDebugLoggingActivatedByCommandLine()) {
             Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
                 "iniUserDirectory(): input=" + dir.getValue());
           }
@@ -595,7 +599,8 @@ public class Daten {
             break;
           }
         } else {
-          if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+          if (Logger.isTraceOn(Logger.TT_CORE, 9)
+              || Logger.isDebugLoggingActivatedByCommandLine()) {
             Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
                 "iniUserDirectory(): input aborted.");
           }
@@ -636,7 +641,8 @@ public class Daten {
     }
 
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
-        International.getString("PROGRAMMSTART") + " (Ver:" + VERSIONID + " vom " + VERSIONRELEASEDATE + ")");
+        International.getString("PROGRAMMSTART") + " (Ver:" + VERSIONID + " vom "
+            + VERSIONRELEASEDATE + ")");
     Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
         "Java " + javaVersion + " (JVM " + jvmVersion + ")"
             + " -- OS: " + osName + " " + osVersion);
@@ -656,7 +662,7 @@ public class Daten {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_PREVIOUSEXITIRREGULAR, message);
       Dialog.error(text1 + "\n" + text2 + "\n" + lastLogEntry + "\n\n"
           + "Bitte jetzt eine " + International.getString("Nachricht an Admin") + " verfassen: \n"
-          + "- Was ist passiert? \n" 
+          + "- Was ist passiert? \n"
           + "- Was war der Grund für den Neustart? \n"
           + "- Wie ärgerlich ist der Ausfall gewesen? etc... \n");
       firstEfaStartAfterCrash = true;
@@ -666,10 +672,11 @@ public class Daten {
   public static boolean isFirstEfaStartAfterCrash() {
     return firstEfaStartAfterCrash;
   }
+
   public static void setFirstEfaStartAfterCrashToDone() {
     firstEfaStartAfterCrash = false;
   }
-  
+
   private static void iniEnvironmentSettings() {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEnvironmentSettings()");
@@ -781,7 +788,7 @@ public class Daten {
 
   public static void iniSplashScreen(boolean show) {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-      Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, 
+      Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
           "iniSplashScreen(" + show + ")");
     }
     if (!isGuiAppl()) {
@@ -1014,9 +1021,9 @@ public class Daten {
     }
     wettDefs = new WettDefs(efaCfgDirectory + WETTDEFS);
     iniDataFile(wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
-    keyStore = (applID != APPL_DRV ?
-        new EfaKeyStore(efaDataDirectory + PUBKEYSTORE, "efa".toCharArray()) :
-        new EfaKeyStore(efaDataDirectory + DRVKEYSTORE, "efa".toCharArray()));
+    keyStore = (applID != APPL_DRV
+        ? new EfaKeyStore(efaDataDirectory + PUBKEYSTORE, "efa".toCharArray())
+        : new EfaKeyStore(efaDataDirectory + DRVKEYSTORE, "efa".toCharArray()));
   }
 
   public static void iniRemoteEfaServer() {
@@ -1035,7 +1042,7 @@ public class Daten {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEmailSenderThread()");
     }
     String touchedEmailFile = Daten.efaBaseConfig.efaUserDirectory + MIT_EMAIL_VERSAND;
-    if ((applID == APPL_EFABASE || applID == APPL_EFABH) 
+    if ((applID == APPL_EFABASE || applID == APPL_EFABH)
         && ("pi".equals(userName) || new File(touchedEmailFile).exists())) {
       try {
         emailSenderThread = new EmailSenderThread();
@@ -1100,8 +1107,7 @@ public class Daten {
         // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6753637
         Dialog.getUiDefaults().put("PopupMenu.consumeEventOnClose", false);
       }
-      Color buttonFocusColor = (efaConfig != null ?
-          efaConfig.getLafButtonFocusColor() : null);
+      Color buttonFocusColor = (efaConfig != null ? efaConfig.getLafButtonFocusColor() : null);
       if (buttonFocusColor != null) {
         // colored square around text of selected button
         Dialog.getUiDefaults().put("Button.focus", new ColorUIResource(buttonFocusColor));
@@ -1410,8 +1416,9 @@ public class Daten {
               while (_enum.hasMoreElements() && (o = _enum.nextElement()) != null) {
                 infos.add("java.jar.content="
                     + o + ":"
-                    + (jar.getEntry(o.toString()) == null ? "null" : Long.toString(jar.getEntry(
-                        o.toString()).getSize())));
+                    + (jar.getEntry(o.toString()) == null ? "null"
+                        : Long.toString(jar.getEntry(
+                            o.toString()).getSize())));
               }
               jar.close();
             } catch (Exception e) {
@@ -1440,10 +1447,14 @@ public class Daten {
 
   public static String getEfaImage(int size) {
     switch (size) {
-      case 1:  return IMAGEPATH + "efa_small.png";
-      case 2:  return IMAGEPATH + "efa_logo.png";
-      case 3:  return IMAGEPATH + "efa_large.png";
-      default: return IMAGEPATH + "efa_logo.png";
+      case 1:
+        return IMAGEPATH + "efa_small.png";
+      case 2:
+        return IMAGEPATH + "efa_logo.png";
+      case 3:
+        return IMAGEPATH + "efa_large.png";
+      default:
+        return IMAGEPATH + "efa_logo.png";
     }
   }
 

@@ -35,8 +35,7 @@ public class EmailSenderThread extends Thread {
   private long lastScnAdmins = -1;
   private Vector<String> emailAddressesAdmin;
   private Vector<String> emailAddressesBoatMaintenance;
-  private Vector<MultiPartMessage> multipartMessages =
-      new Vector<MultiPartMessage>();
+  private Vector<MultiPartMessage> multipartMessages = new Vector<MultiPartMessage>();
 
   private long lastScnEfaConfig = -1;
   private String serverUrl;
@@ -162,7 +161,7 @@ public class EmailSenderThread extends Thread {
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 3)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SENDMAIL,
             "Trying to send message " + msg.getMessageId() + " to " + recipients.toString()
-            + " ...");
+                + " ...");
       }
       boolean auth = (serverUsername != null && serverPassword != null);
       String protocol = Daten.efaConfig.getValueEmailSSL() ? "smtps" : "smtp";
@@ -212,9 +211,10 @@ public class EmailSenderThread extends Thread {
           + "## " + International.getString("Betreff") + " : " + msg.getSubject() + "\n\n"
           + msg.getText()
           + (mailSignature != null ? "\n\n-- \n"
-              + EfaUtil.replace(mailSignature, "$$", "\n", true) : ""), charset);
-      com.sun.mail.smtp.SMTPTransport t = (com.sun.mail.smtp.SMTPTransport)
-          session.getTransport(protocol);
+              + EfaUtil.replace(mailSignature, "$$", "\n", true) : ""),
+          charset);
+      com.sun.mail.smtp.SMTPTransport t = (com.sun.mail.smtp.SMTPTransport) session
+          .getTransport(protocol);
       if (auth) {
         t.connect(serverUrl, serverUsername, serverPassword);
       } else {
@@ -287,7 +287,8 @@ public class EmailSenderThread extends Thread {
       }
       t.sendMessage(mail, mail.getAllRecipients());
       if (msg.deleteAttachmentFiles) {
-        for (int i = 0; msg.attachmentFileNames != null && i < msg.attachmentFileNames.length; i++) {
+        for (int i = 0; msg.attachmentFileNames != null
+            && i < msg.attachmentFileNames.length; i++) {
           EfaUtil.deleteFile(msg.attachmentFileNames[i]);
         }
       }

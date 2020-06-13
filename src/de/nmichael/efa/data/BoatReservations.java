@@ -320,9 +320,8 @@ public class BoatReservations extends StorageObject {
               br[i].getTimeTo())) {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
-                International
-                    .getString("Die Reservierung überschneidet sich mit einer Reservierung \r\n"
-                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                "Die Reservierung überschneidet sich mit einer Reservierung \n"
+                    + "von " + br[i].getPersonAsName() + " " + br[i].getContact(),
                 Thread.currentThread().getStackTrace());
           }
         }

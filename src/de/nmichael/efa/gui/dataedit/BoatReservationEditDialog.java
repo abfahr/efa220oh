@@ -37,6 +37,8 @@ import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.ex.InvalidValueException;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
@@ -89,6 +91,37 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       }
     }
     itemListenerAction(itemType, null);
+  }
+
+  @Override
+  protected boolean saveRecord() throws InvalidValueException {
+    if (newRecord) {
+      String errorText = "";
+      String reasonString = this.getItem("Reason").getValueFromField();
+      if (reasonString == null) {
+        errorText = "kein Reservierungsgrund angegeben??";
+      }
+      if (reasonString.trim().isEmpty()) {
+        errorText = "Bitte Reservierungsgrund angegeben,\n" + "Damit andere Beneidisch wissen!";
+      }
+      String templatePrivatMitVertrag = International.getString("Fehlermeldung PrivatMitVertrag");
+      if (reasonString.contains(templatePrivatMitVertrag)) {
+        errorText = "Bitte eigenen Reservierungsgrund angeben:\n" + templatePrivatMitVertrag;
+      }
+      String templatePrangerText = International.getString("Fehlermeldung bei langerAusleihe");
+      if (reasonString.equals(templatePrangerText)) {
+        errorText = "Bitte Absprache angeben.\n" + templatePrangerText;
+      }
+      if (reasonString.contains(templatePrangerText)) {
+        errorText = "Bitte Absprache statt Frage angeben:\n" + templatePrangerText;
+      }
+
+      if (!errorText.isEmpty()) {
+        Dialog.error(errorText);
+        return false;
+      }
+    }
+    return super.saveRecord();
   }
 
   @Override

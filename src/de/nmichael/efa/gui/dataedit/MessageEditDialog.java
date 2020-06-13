@@ -23,6 +23,7 @@ import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.ex.InvalidValueException;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
@@ -104,21 +105,29 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
       IItemType item = getItem(MessageRecord.TO);
       if (item != null) {
         String to = item.getValueFromField();
+        MessageRecord msgRecord = (MessageRecord) dataRecord;
         if (Daten.efaConfig.getValueNotificationMarkReadAdmin()
             && MessageRecord.TO_ADMIN.equals(to)) {
-          ((MessageRecord) dataRecord).setRead(true);
+          msgRecord.setRead(true);
         }
         if (Daten.efaConfig.getValueNotificationMarkReadBoatMaintenance()
             && MessageRecord.TO_BOATMAINTENANCE.equals(to)) {
-          ((MessageRecord) dataRecord).setRead(true);
+          msgRecord.setRead(true);
         }
 
         try {
-          ItemTypeStringAutoComplete from = (ItemTypeStringAutoComplete) getItem(MessageRecord.FROM);
-          PersonRecord p = Daten.project.getPersons(false).getPerson(
+          ItemTypeStringAutoComplete from = (ItemTypeStringAutoComplete) getItem(
+              MessageRecord.FROM);
+          Persons persons = Daten.project.getPersons(false);
+          PersonRecord p = persons.getPerson(
               (UUID) from.getId(from.getValueFromField()), System.currentTimeMillis());
-          if (p != null && p.getEmail() != null && p.getEmail().trim().length() > 0) {
-            ((MessageRecord) dataRecord).setReplyTo(p.getEmail().trim());
+          if (p != null
+              && p.getEmail() != null) {
+            String personEmail = p.getEmail().trim();
+            if (personEmail.length() > 0) {
+              msgRecord.setReplyTo(personEmail);
+              msgRecord.setTo(personEmail);
+            }
           }
         } catch (Exception e) {
           Logger.logdebug(e);

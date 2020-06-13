@@ -338,7 +338,12 @@ public class EmailSenderThread extends Thread {
                       && mailFromEmail != null && mailFromName != null) {
                     // server properly configured
                     if (MessageRecord.TO_ADMIN.equals(msg.getTo()) && emailAddressesAdmin != null) {
-                      markDone = sendMail(msg, emailAddressesAdmin);
+                      Vector<String> emailListe = new Vector<String>();
+                      emailListe.addAll(emailAddressesAdmin);
+                      if (isValidEmailAdress(msg.getReplyTo())) {
+                        emailListe.add(msg.getReplyTo());
+                      }
+                      markDone = sendMail(msg, emailListe);
                       if (markDone) {
                         countSuccess++;
                       }

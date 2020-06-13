@@ -88,28 +88,31 @@ public class AdminTask extends Thread {
 
   private void checkForClubworkCarryOver() {
     String[] clubworkNames = Daten.project.getAllClubworkNames();
-    if (clubworkNames != null && clubworkNames.length > 0) {
-      Clubwork clubwork = Daten.project.getCurrentClubwork();
-      if (clubwork != null && clubwork.isOpen()) {
-        DataTypeDate date = clubwork.getEndDate();
-        if (date != null && DataTypeDate.today().isAfterOrEqual(date)) {
-          int res = Dialog
-              .yesNoDialog(
-                  International.getString("Übertrag berechnen"),
-                  International
-                  .getMessage(
-                      "Möchtest Du den Übertrag für das Vereinsarbeitsbuch '{record}' wirklich berechnen?",
-                      clubwork.getName()));
-          if (res == Dialog.YES) {
-            clubwork.doCarryOver(1, parent);
-            ((AdminDialog) parent).updateInfos();
-          }
-        }
-      } else {
-        Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet.")
-            + International.getMessage("Berechnen des {verb}s nicht möglich.",
-                International.getString("Übertrag")));
-      }
+    if (clubworkNames == null || clubworkNames.length == 0) {
+      return;
+    }
+    Clubwork clubwork = Daten.project.getCurrentClubwork();
+    if (clubwork == null) {
+      return;
+    }
+    if (!clubwork.isOpen()) {
+      Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet.")
+          + " " + International.getMessage("Berechnen des {verb}s nicht möglich.",
+              International.getString("Übertrag")));
+      return;
+    }
+    DataTypeDate date = clubwork.getEndDate();
+    if (date == null || DataTypeDate.today().isBefore(date)) {
+      return;
+    }
+    int res = Dialog.yesNoDialog(
+        International.getString("Übertrag berechnen"),
+        International.getMessage(
+            "Möchtest Du den Übertrag für das Vereinsarbeitsbuch '{record}' wirklich berechnen?",
+            clubwork.getName()));
+    if (res == Dialog.YES) {
+      clubwork.doCarryOver(1, parent);
+      ((AdminDialog) parent).updateInfos();
     }
   }
 }

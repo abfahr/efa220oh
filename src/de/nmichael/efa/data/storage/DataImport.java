@@ -258,7 +258,8 @@ public class DataImport extends ProgressTask {
         r.set(keyFields[0], ((Logbook) storageObject).getNextEntryNo());
       }
 
-      if (isLogbook && (importMode.equals(IMPORTMODE_ADD) || importMode.equals(IMPORTMODE_ADDUPD))) {
+      if (isLogbook
+          && (importMode.equals(IMPORTMODE_ADD) || importMode.equals(IMPORTMODE_ADDUPD))) {
         LogbookRecord lr = ((LogbookRecord) r);
         if (lr.getEntryId() == null || !lr.getEntryId().isSet()
             || lr.getEntryId().toString().length() == 0) {
@@ -469,8 +470,15 @@ public class DataImport extends ProgressTask {
     String korrigiert = candidate;
     if (type.equals(PersonRecord.GENDER)) { // "Gender"
       korrigiert = candidate.toLowerCase();
+      if ("M?nnlich".equals(candidate)) {
+        korrigiert = "männlich"; // Umlaute
+      }
       if ("nicht bekannt".equals(candidate)) {
         korrigiert = "null"; // Firmenkontakte
+      }
+    } else if (type.equals(PersonRecord.STATUSID)) { // "StatusId"
+      if ("Mitglieder gek?ndigt".equals(candidate)) {
+        korrigiert = "Mitglieder gekündigt"; // Umlaute
       }
     } else if (type.equals(PersonRecord.BOATUSAGEBAN)) { // "BoatUsageBan"
       if ("Nein".equals(candidate)) { // hat Schlüssel NEIN
@@ -482,12 +490,20 @@ public class DataImport extends ProgressTask {
       korrigiert = "null"; // wichtig
     } else if (type.equals("Bootshausschlüssel")) {
       korrigiert = "null"; // wichtig
+    } else if (type.equals("Bootshausschl?ssel")) {
+      korrigiert = "null"; // Umlaute
     } else if (type.equals("Schlüsselvergabe")) {
       korrigiert = "null"; // neu
+    } else if (type.equals("Schl?sselvergabe")) {
+      korrigiert = "null"; // Umlaute
     } else if (type.equals("SchlüsselvergabeAm")) {
       korrigiert = "null"; // wichtig
+    } else if (type.equals("Schl?sselvergabeAm")) {
+      korrigiert = "null"; // Umlaute
     } else if (type.equals("Schlüsselrückgabe")) {
       korrigiert = "null"; // wichtig
+    } else if (type.equals("Schl?sselr?ckgabe")) {
+      korrigiert = "null"; // Umlaute
     }
     return korrigiert;
   }
@@ -495,7 +511,7 @@ public class DataImport extends ProgressTask {
   @Override
   public void run() {
     setRunning(true);
-    this.logInfo(International.getMessage("Importiere {type}-Datensätze ...", 
+    this.logInfo(International.getMessage("Importiere {type}-Datensätze ...",
         storageObject.getDescription())); // Personen-
     if (isXmlFile(filename)) {
       runXmlImport();
@@ -520,7 +536,7 @@ public class DataImport extends ProgressTask {
 
   @Override
   public String getSuccessfullyDoneMessage() {
-    return International.getMessage("{count} Datensätze erfolgreich importiert.", 
+    return International.getMessage("{count} Datensätze erfolgreich importiert.",
         "" + importCount + " " + storageObject.getDescription());
   }
 

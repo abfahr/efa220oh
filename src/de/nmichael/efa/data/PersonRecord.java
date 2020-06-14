@@ -904,6 +904,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   public boolean isValidMemberOH() {
+    if (getMembershipNo() == null) {
+      return false; // Mitgliedsnummer
+    }
     if (getMembershipNo().isEmpty()) {
       return false; // Mitgliedsnummer
     }

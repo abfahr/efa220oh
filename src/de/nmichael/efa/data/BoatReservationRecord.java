@@ -746,6 +746,37 @@ public class BoatReservationRecord extends DataRecord {
     return IDX_BOATID;
   }
 
+  public boolean isModifiedAfterStartAndChangedOften() {
+    long realStart = getDateFrom().getTimestamp(getTimeFrom());
+    if (getLastModified() > realStart) {
+      if (getChangeCount() > 1) {
+        // isModifiedAfterStart und leider mehrfach bearbeitet
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public String checkAndDisplayWarning() {
+    String fehlermeldung = "";
+    if (getType().equals(TYPE_ONETIME)) {
+      long startTime = getDateFrom().getTimestamp(getTimeFrom());
+      // ist die vorliegende Reservierung jetzt schon angefangen?
+      if (System.currentTimeMillis() >= startTime) {
+        fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
+        fehlermeldung += "'Angefangene' Reservierungen können NICHT automatisch gestartet werden.\n";
+        fehlermeldung += "Dein Boot wird NICHT auf der rechten Seite als 'unterwegs' angezeigt.\n";
+        fehlermeldung += "--> '" + getReason() + "' ab " + getDateTimeFromDescription() + "???\n";
+        fehlermeldung += "a) Selber auf Fahrt-beginnen klicken/tippen und alles erneut eingeben oder\n";
+        fehlermeldung += "b) diese Reservierung ändern und eine Minute in sicherer Zukunft eintragen\n";
+        fehlermeldung += "c) oder... eine Minute warten, vielleicht fängt sich EFA von selbst. Magic!\n";
+      }
+      // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp.
+      // Lange-Ausleihe.
+    }
+    return fehlermeldung;
+  }
+
   private String getFormattedEmailtextBootshausnutzungswart() {
     PersonRecord p = getPersonRecord();
 

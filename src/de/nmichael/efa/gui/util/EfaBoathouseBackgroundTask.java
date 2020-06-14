@@ -673,31 +673,20 @@ public class EfaBoathouseBackgroundTask extends Thread {
         if (boatReservationRecord.getInvisible()) {
           continue; // skip invisible
         }
-        if (isModifiedAfterStart(boatReservationRecord)) {
-          continue; // skip deleted, ohne Kulanz
+        if (boatReservationRecord.isModifiedAfterStartAndChangedOften()) {
+          continue; // skip autom.Start
         }
         LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
         if (newLogbookRecord != null) {
           EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
               International.getString("Fahrtbeginn") + " (reserv)", newLogbookRecord);
-          boatReservationRecord.setInvisible(true);
+          boatReservationRecord.setInvisible(true); // unnötig - kann raus!
           updateReservation(boatReservationRecord);
           return newLogbookRecord;
         }
       }
     }
     return null;
-  }
-
-  private boolean isModifiedAfterStart(BoatReservationRecord boatReservationRecord) {
-    long lastModified = boatReservationRecord.getLastModified();
-    long realStart = boatReservationRecord.getDateFrom()
-        .getTimestamp(boatReservationRecord.getTimeFrom());
-    // boatReservationRecord.get Deleted()
-    if (lastModified > realStart) {
-      return true;
-    }
-    return false;
   }
 
   private void updateReservation(BoatReservationRecord boatReservationRecord) {

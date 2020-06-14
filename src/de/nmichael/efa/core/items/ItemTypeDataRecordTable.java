@@ -472,20 +472,27 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   && reservation.getLastModified() > 0) {
                 String aktion = "INSERT";
                 reservation.sendEmailBeiReservierung(aktion);
-                checkAndDisplayErrors(reservation);
-                try {
-                  // allowed for identified Persons with Id
-                  // if (reservation.getPersonId() != null) { // validRecord?
-                  if (admin != null) {
-                    uebertragenAufAndereBoote(reservation);
-                  } else {
-                    uebertragenAufAndereBooteDieserGruppe(reservation);
+                String fehlermeldung = reservation.checkAndDisplayWarning();
+                if (!fehlermeldung.isEmpty()) {
+                  String warnungTitel = "Hinweis: neue Reservierung in der Vergangenheit ";
+                  Dialog.infoDialog(warnungTitel, fehlermeldung);
+                  Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART, warnungTitel
+                      + reservation.getBoatName() + " "
+                      + reservation.getDateTimeFromDescription());
+                } else {
+                  try {
+                    // allowed for identified Persons with Id
+                    // if (reservation.getPersonId() != null) { // validRecord?
+                    if (admin != null) {
+                      uebertragenAufAndereBoote(reservation);
+                    } else {
+                      uebertragenAufAndereBooteDieserGruppe(reservation);
+                    }
+                  } catch (EfaException e1) {
+                    Logger.log(Logger.ERROR, Logger.MSG_ERR_PANIC, e1);
                   }
-                } catch (EfaException e1) {
-                  Logger.log(Logger.ERROR, Logger.MSG_ERR_PANIC, e1);
                 }
               }
-
             }
             break;
           case ACTION_EDIT:
@@ -716,29 +723,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         || (event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED
             && itemType == filterBySearch)) {
       updateFilter();
-    }
-  }
-
-  private void checkAndDisplayErrors(BoatReservationRecord reservation) {
-    if (reservation.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
-      long startTime = reservation.getDateFrom().getTimestamp(reservation.getTimeFrom());
-      // ist die vorliegende Reservierung jetzt schon angefangen?
-      if (System.currentTimeMillis() >= startTime) {
-        String fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
-        fehlermeldung += "'Angefangene' Reservierungen können NICHT automatisch gestartet werden.\n";
-        fehlermeldung += "Dein Boot wird NICHT auf der rechten Seite als 'unterwegs' angezeigt.\n";
-        fehlermeldung += "--> '" + reservation.getReason() + "' ab "
-            + reservation.getDateTimeFromDescription() + "???\n";
-        fehlermeldung += "a) Selber auf Fahrt-beginnen klicken/tippen und alles erneut eingeben oder\n";
-        fehlermeldung += "b) diese Reservierung ändern und eine Minute in sicherer Zukunft eintragen.\n";
-        String warnungTitel = "Hinweis: neue Reservierung in der Vergangenheit ";
-        Dialog.infoDialog(warnungTitel, fehlermeldung);
-        Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART, warnungTitel
-            + reservation.getBoatName() + " "
-            + reservation.getDateTimeFromDescription());
-      }
-      // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp.
-      // Lange-Ausleihe.
     }
   }
 

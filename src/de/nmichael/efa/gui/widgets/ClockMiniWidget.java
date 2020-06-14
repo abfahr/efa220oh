@@ -42,7 +42,7 @@ public class ClockMiniWidget {
     public void run() {
       while (keepRunning) {
         try {
-          label.setText(EfaUtil.getCurrentTimeStampDD_MM_YYYY_HH_MM());
+          label.setText(EfaUtil.getCurrentTimeStampDD_MM_YYYY_HH_MM_SS());
           Thread.sleep(60000);
         } catch (Exception e) {
           EfaUtil.foo();

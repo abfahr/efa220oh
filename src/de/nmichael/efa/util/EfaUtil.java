@@ -696,7 +696,8 @@ public class EfaUtil {
     GregorianCalendar von = new GregorianCalendar(v.jahr, v.monat - 1, v.tag);
     GregorianCalendar bis = new GregorianCalendar(b.jahr, b.monat - 1, b.tag);
     int tmp = Math
-        .round((((float) bis.getTime().getTime() - (float) von.getTime().getTime()) / 86400000) + 1);
+        .round(
+            (((float) bis.getTime().getTime() - (float) von.getTime().getTime()) / 86400000) + 1);
     if (tmp > 0) {
       return tmp;
     } else {
@@ -1267,6 +1268,16 @@ public class EfaUtil {
         + makeTimeString(cal.get(Calendar.MINUTE), 2);
   }
 
+  public static String getCurrentTimeStampDD_MM_YYYY_HH_MM_SS() {
+    Calendar cal = new GregorianCalendar();
+    return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
+        + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+        + makeTimeString(cal.get(Calendar.YEAR), 4) + " "
+        + makeTimeString(cal.get(Calendar.HOUR_OF_DAY), 2) + ":"
+        + makeTimeString(cal.get(Calendar.MINUTE), 2) + ":"
+        + makeTimeString(cal.get(Calendar.SECOND), 2);
+  }
+
   public static String getCurrentTimeStampDD_MM_YYYY() {
     Calendar cal = new GregorianCalendar();
     return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
@@ -1556,7 +1567,7 @@ public class EfaUtil {
         for (String file : files) {
           if ((new File(dir + file)).isDirectory()) {
             if (j >= inclSubdirs.size() || // j >= inclSubdirs.size() == true, wenn das Verzeichnis
-                // zuvor durch folgende Zeile dynamisch hinzugefügt wurde
+            // zuvor durch folgende Zeile dynamisch hinzugefügt wurde
                 inclSubdirs.get(j).booleanValue()) {
               sourceDirs.add(dir + file);
             }
@@ -1809,8 +1820,7 @@ public class EfaUtil {
     if (s.length() <= maxchar) {
       return s;
     }
-    return (addDots ?
-        s.substring(0, maxchar - 3) + "..."
+    return (addDots ? s.substring(0, maxchar - 3) + "..."
         : s.substring(0, maxchar));
   }
 

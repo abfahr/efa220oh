@@ -788,7 +788,7 @@ public class BoatReservationRecord extends DataRecord {
     return join(msg);
   }
 
-  private String getFormattedEmailtextMitglied(String anrede) {
+  private String getFormattedEmailtextMitglied(String anrede, String aktion) {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo " + anrede + "!");
     msg.add("");
@@ -799,22 +799,32 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("für die Zeit: " + getReservationTimeDescription() + " für " + getPersonAsName());
     msg.add("Grund der Reservierung: " + getReason());
     msg.add("");
-    if (isBootshausOH()) {
+
+    if (aktion.contains("DELETE")) {
+      msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
+    } else {
+      if (isBootshausOH()) {
+        msg.add(
+            "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
+                + "dann fülle das Formular umgehend aus (https://www.overfreunde.de/downloads.html) "
+                + "und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab "
+                + "(ansonsten werden Dir automatisch 75 Euro berechnet).");
+      }
       msg.add(
-          "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, dann fülle das Formular umgehend aus (https://www.overfreunde.de/downloads.html) und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab (ansonsten werden Dir automatisch 75 Euro berechnet).");
+          "Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
+              + "dann trage Dich bitte im Bootshaus wieder aus.");
+      if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
+          && getHashId().length() > 0) {
+        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: "
+            + getStornoURL());
+      }
+      if (isBootshausOH()) {
+        msg.add(
+            "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
+      }
+      msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
     }
-    msg.add(
-        "Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, dann trage Dich bitte im Bootshaus wieder aus.");
-    if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
-        && getHashId().length() > 0) {
-      msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: "
-          + getStornoURL());
-    }
-    if (isBootshausOH()) {
-      msg.add(
-          "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
-    }
-    msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
+
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("i.A. Efa-PC im Bootshaus");
@@ -888,7 +898,7 @@ public class BoatReservationRecord extends DataRecord {
       emailSubject += " " + getPersonAsName();
     }
     emailSubject += " " + getBoatName();
-    String emailMessage = getFormattedEmailtextMitglied(anrede);
+    String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);
 
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
@@ -914,7 +924,7 @@ public class BoatReservationRecord extends DataRecord {
     emailSubject += "OH Reservierung " + aktion
         + " " + getDateFrom()
         + " " + getReason();
-    String emailMessage = getFormattedEmailtextMitglied(anrede);
+    String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);
 
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);

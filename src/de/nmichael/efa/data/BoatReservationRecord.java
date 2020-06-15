@@ -869,7 +869,7 @@ public class BoatReservationRecord extends DataRecord {
 
   private String getStornoURL() {
     String url = "https://overfreunde.abfx.de/";
-    url += "storno";
+    url += "storno/";
     url += "?efaId=" + getEfaId();
     url += "&code=" + getHashId();
     return url;

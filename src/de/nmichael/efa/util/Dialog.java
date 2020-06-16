@@ -647,10 +647,10 @@ public class Dialog {
 
       // add offset
       if (Daten.efaConfig != null && Daten.efaConfig.getValueWindowXOffset() > 0) {
-        x += Daten.efaConfig.getValueWindowXOffset();
+        x += Daten.efaConfig.getValueWindowXOffset() - 1;
       }
       if (Daten.efaConfig != null && Daten.efaConfig.getValueWindowYOffset() > 0) {
-        y += Daten.efaConfig.getValueWindowYOffset();
+        y += Daten.efaConfig.getValueWindowYOffset() - 1;
       }
     }
 

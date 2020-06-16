@@ -524,7 +524,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     dataImport.runImport(progressDialog);
     Logger.log(Logger.INFO, Logger.MSG_EVT_PERSONADDED,
         International.getString("Neue Personen aus Datei importiert"));
-
+    boolean isDeleted = newName.delete();
+    if (isDeleted == false) {
+      Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECLOSEFAILED,
+          "Datei konnte nicht gelöscht werden: " + newName.getName());
+    }
   }
 
   private void iniGuiRemaining() {

@@ -1053,6 +1053,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     boatReservationButton.addActionListener(new java.awt.event.ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
+        updateBoatLists(false); // select KEIN Boot
         actionBoatReservations();
       }
     });
@@ -2924,8 +2925,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (item == null) {
       Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
       boatListRequestFocus(1);
-      efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt
-      // der Thread ihn richtig!
+      // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+      efaBoathouseBackgroundTask.interrupt();
       return;
     }
     if (item.boat != null && item.boat.getOwner() != null && item.boat.getOwner().length() > 0 &&

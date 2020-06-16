@@ -102,7 +102,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         errorText = "kein Reservierungsgrund angegeben??";
       }
       if (reasonString.trim().isEmpty()) {
-        errorText = "Bitte Reservierungsgrund angegeben,\n" + "Damit andere Beneidisch wissen!";
+        errorText = "Bitte Reservierungsgrund angegeben,\n"
+            + "damit andere Beneidisch wissen!";
       }
       String templatePrivatMitVertrag = International.getString("Fehlermeldung PrivatMitVertrag");
       if (reasonString.contains(templatePrivatMitVertrag)) {

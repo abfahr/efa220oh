@@ -71,7 +71,7 @@ public class Dialog {
   public static void initializeScreenSize() {
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     if (Daten.isOsLinux()) {
-      // Workaround für Linux: Fenster verschwinden oder werden falsch positioniert, 
+      // Workaround für Linux: Fenster verschwinden oder werden falsch positioniert,
       // wenn sie die volle Bildschirmgröße haben
       Dialog.screenSize = new Dimension(screenSize.width - 1, screenSize.height - 1);
     } else {
@@ -87,7 +87,8 @@ public class Dialog {
       Dialog.screenSize.height = Daten.efaConfig.getValueScreenHeight();
     }
     initializeMaxDialogSizes();
-    if ((Daten.efaConfig.getValueMaxDialogWidth() > 0 || Daten.efaConfig.getValueMaxDialogHeight() > 0)) {
+    if ((Daten.efaConfig.getValueMaxDialogWidth() > 0
+        || Daten.efaConfig.getValueMaxDialogHeight() > 0)) {
       Dialog.setMaxDialogSizes(Daten.efaConfig.getValueMaxDialogWidth(),
           Daten.efaConfig.getValueMaxDialogHeight());
     }
@@ -124,7 +125,7 @@ public class Dialog {
       return; // should never happen
     }
     int fontSize = (FONT_SIZE > 0 ? FONT_SIZE : 12);
-    MAX_DIALOG_WIDTH  = (int) (Dialog.screenSize.width  / (fontSize * 0.7));
+    MAX_DIALOG_WIDTH = (int) (Dialog.screenSize.width / (fontSize * 0.7));
     MAX_DIALOG_HEIGHT = (int) (Dialog.screenSize.height / (fontSize * 1.6)) - 5;
   }
 
@@ -138,9 +139,12 @@ public class Dialog {
         International.getString("Fehler"),
         LogString.fileNotFound(dat, International.getString("Datei")) + "\n"
             + International.getString("Soll die Datei neu erstellt werden?"))) {
-      case Dialog.YES:       return YES;
-      case Dialog.NO:        return NO;
-      default:        return INVALID;
+      case Dialog.YES:
+        return YES;
+      case Dialog.NO:
+        return NO;
+      default:
+        return INVALID;
     }
   }
 
@@ -253,7 +257,7 @@ public class Dialog {
   public static int yesNoDialog(String title, String s) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame, 
+    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame,
         chopDialogString(s), title, JOptionPane.YES_NO_OPTION);
     if (answerConfirmDialog == JOptionPane.YES_OPTION) {
       return YES;
@@ -265,13 +269,16 @@ public class Dialog {
   public static int yesNoCancelDialog(String title, String s) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame, 
+    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame,
         chopDialogString(s), title,
         JOptionPane.YES_NO_CANCEL_OPTION);
     switch (answerConfirmDialog) {
-      case JOptionPane.YES_OPTION:       return YES;
-      case JOptionPane.NO_OPTION:        return NO;
-      default:        return CANCEL;
+      case JOptionPane.YES_OPTION:
+        return YES;
+      case JOptionPane.NO_OPTION:
+        return NO;
+      default:
+        return CANCEL;
     }
   }
 
@@ -280,10 +287,10 @@ public class Dialog {
     prepareWindow(frame);
     int iLen = options.length; // count options
     if (iLen > 5) {
-      //JList<JButton> blist = new JList<JButton>();
-      String strFromInputDialog = JOptionPane.showInputDialog(frame, 
-          new JList<String>(options), 
-          chopDialogString(messagebody), 
+      // JList<JButton> blist = new JList<JButton>();
+      String strFromInputDialog = JOptionPane.showInputDialog(frame,
+          new JList<String>(options),
+          chopDialogString(messagebody),
           JOptionPane.QUESTION_MESSAGE);
       if (strFromInputDialog != null) {
         String numbers = strFromInputDialog.replaceAll("[^0-9]", "");
@@ -297,16 +304,16 @@ public class Dialog {
           }
         }
       }
-      return JOptionPane.showOptionDialog(frame, 
+      return JOptionPane.showOptionDialog(frame,
           chopDialogString(messagebody), title + " /" + iLen,
           JOptionPane.YES_NO_OPTION,
           JOptionPane.QUESTION_MESSAGE,
           null, options, options[0]);
     }
-    return JOptionPane.showOptionDialog(frame, 
+    return JOptionPane.showOptionDialog(frame,
         chopDialogString(messagebody), title,
-        JOptionPane.YES_NO_OPTION, 
-        JOptionPane.QUESTION_MESSAGE, 
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE,
         null, options, options[0]);
   }
 
@@ -347,7 +354,7 @@ public class Dialog {
   public static boolean okAbbrDialog(String title, String s) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame, 
+    int answerConfirmDialog = JOptionPane.showConfirmDialog(frame,
         chopDialogString(s), title,
         JOptionPane.OK_CANCEL_OPTION);
     return answerConfirmDialog == JOptionPane.OK_OPTION;
@@ -360,7 +367,7 @@ public class Dialog {
       // ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efa_large.png");
       // ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png");
       ImageIcon icon = BaseDialog.getIcon(Daten.IMAGEPATH + "notification_closedoors.png");
-      JOptionPane.showConfirmDialog(frame, 
+      JOptionPane.showConfirmDialog(frame,
           chopDialogString(s), title, -1,
           JOptionPane.QUESTION_MESSAGE, icon);
     } else {
@@ -377,7 +384,7 @@ public class Dialog {
         String fileName = Daten.efaImagesDirectory + title + ".jpg"; // Bild vom Boot
         icon = new ImageIcon(fileName);
         if (icon.getIconHeight() < 0) {
-          Logger.log(Logger.WARNING, 
+          Logger.log(Logger.WARNING,
               Logger.MSG_FILE_FILENOTFOUND,
               "icon nicht gefunden: " + fileName);
           fileName = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
@@ -387,7 +394,7 @@ public class Dialog {
         icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png"); // alternatives Bild
       }
       icon = scale(icon, 240);
-      JOptionPane.showConfirmDialog(frame, 
+      JOptionPane.showConfirmDialog(frame,
           chopDialogString(s), title, -1,
           JOptionPane.INFORMATION_MESSAGE, icon);
     } else {
@@ -402,17 +409,17 @@ public class Dialog {
     int newHeight;
     int newWidth;
     if (factor > 1) {
-      //portrait
+      // portrait
       newHeight = maxSize;
-      newWidth =  (int) (maxSize / factor);
+      newWidth = (int) (maxSize / factor);
     } else {
-      //Landscape
+      // Landscape
       newWidth = maxSize;
       newHeight = (int) (maxSize * factor);
     }
-    // scale it the smooth way   
+    // scale it the smooth way
     Image image = imageIcon.getImage();
-    Image newImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH); 
+    Image newImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
     return new ImageIcon(newImage, imageIcon.getDescription());
   }
 
@@ -424,16 +431,16 @@ public class Dialog {
     Window frame = frameCurrent();
     prepareWindow(frame);
     return JOptionPane.showInputDialog(frame,
-        chopDialogString(s), title, 
+        chopDialogString(s), title,
         JOptionPane.PLAIN_MESSAGE);
   }
 
   public static String inputDialog(String title, String s, String vorbelegung) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    Object answerInputDialog = JOptionPane.showInputDialog(frame, 
+    Object answerInputDialog = JOptionPane.showInputDialog(frame,
         chopDialogString(s), title,
-        JOptionPane.PLAIN_MESSAGE, 
+        JOptionPane.PLAIN_MESSAGE,
         null, null, vorbelegung);
     return (String) answerInputDialog;
   }
@@ -515,7 +522,8 @@ public class Dialog {
     return (Window) frameStack.peek();
   }
 
-  // (this,"Fahrtenbuchdatei erstellen","efa Fahrtenbuch (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
+  // (this,"Fahrtenbuchdatei erstellen","efa Fahrtenbuch
+  // (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
   public static String dateiDialog(Window frame, String titel, String typen, String extension,
       String startdir, boolean save) {
     return dateiDialog(frame, titel, typen, extension, startdir, null, null, save, false);
@@ -573,13 +581,12 @@ public class Dialog {
         return null;
       }
     } catch (Exception e) {
-      String input =
-          (String) JOptionPane
-              .showInputDialog(frame,
-                  International.getMessage("Bitte gib einen Dateinamen für '{types}' ein", typen)
-                      + ":",
-                  titel, JOptionPane.QUESTION_MESSAGE,
-                  null, null, startdir);
+      String input = (String) JOptionPane
+          .showInputDialog(frame,
+              International.getMessage("Bitte gib einen Dateinamen für '{types}' ein", typen)
+                  + ":",
+              titel, JOptionPane.QUESTION_MESSAGE,
+              null, null, startdir);
       if (input != null && input.trim().length() == 0) {
         input = null;
       }
@@ -589,13 +596,13 @@ public class Dialog {
 
   // Methoden zum Setzen der Position eines neuen JDialogs
   public static void setDlgLocation(JDialog dlg, Frame parent) {
-    dlg.setLocation(getLocation(dlg.getSize(), 
+    dlg.setLocation(getLocation(dlg.getSize(),
         (parent != null ? parent.getSize() : null),
         (parent != null ? parent.getLocation() : null)));
   }
 
   public static void setDlgLocation(JDialog dlg, Window parent) {
-    dlg.setLocation(getLocation(dlg.getSize(), 
+    dlg.setLocation(getLocation(dlg.getSize(),
         (parent != null ? parent.getSize() : null),
         (parent != null ? parent.getLocation() : null)));
   }

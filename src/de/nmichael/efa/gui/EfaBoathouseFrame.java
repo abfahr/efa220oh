@@ -861,6 +861,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     int yPlacement = 1;
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     if (screenSize.getHeight() < 1234) {
+      // offenbar kein Hochkant-Monitor
       yPlacement = 22;
     }
     int logoTop = (int) (10.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog
@@ -2394,12 +2395,17 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     FileFilter fileFilter = new WildcardFileFilter(boatname + "*.jpg");
     File[] filenames = dir.listFiles(fileFilter);
 
+    int anzahlBildDateien = filenames.length;
+    if (anzahlBildDateien == 0) {
+      return null;
+    }
+
     // und mit Random eines auswählen: filenames.length
     String chosenPicture = "";
     do {
-      int index = (int) (filenames.length * Math.random());
+      int index = (int) (anzahlBildDateien * Math.random());
       chosenPicture = Daten.efaImagesDirectory + filenames[index].getName();
-    } while (filenames.length > 1 && chosenPicture.equals(logoLabel.getName()));
+    } while (anzahlBildDateien > 1 && chosenPicture.equals(logoLabel.getName()));
 
     Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "chosen Picture: " + chosenPicture);
     return chosenPicture; // Bild vom Boot

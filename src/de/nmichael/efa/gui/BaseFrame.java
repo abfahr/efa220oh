@@ -203,7 +203,8 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     if (dim.height < 50) {
       dim.height = 50;
     }
-    dim.width += mainScrollPane.getVerticalScrollBar().getPreferredSize().getWidth() + 40;
+    dim.width += mainScrollPane.getVerticalScrollBar().getPreferredSize().getWidth()
+        + Daten.efaConfig.getPixelsForScrollbar(); // + 40;
     dim.height += mainScrollPane.getHorizontalScrollBar().getPreferredSize().getHeight() + 20;
     mainScrollPane.setPreferredSize(Dialog.getMaxSize(dim));
 
@@ -279,8 +280,9 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
   }
 
   public String[] getHelpTopics() {
-    return (helpTopic2 != null ? new String[] { helpTopic1, helpTopic2 }
-    : new String[] { helpTopic1 });
+    return (helpTopic2 != null
+        ? new String[] { helpTopic1, helpTopic2 }
+        : new String[] { helpTopic1 });
   }
 
 }

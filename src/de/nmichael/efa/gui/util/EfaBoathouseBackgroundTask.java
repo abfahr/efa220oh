@@ -750,7 +750,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     int reservierungsnummer = Integer.parseInt(strEfaId);
     if (reservierungsnummer == 0) {
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "Storno-Link: keine reservierungsnummer " + reservierungsnummer);
+          "Storno-Link: keine Reservierungsnummer " + reservierungsnummer);
       return;
     }
 

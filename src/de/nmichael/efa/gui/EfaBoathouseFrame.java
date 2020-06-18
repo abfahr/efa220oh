@@ -2356,27 +2356,21 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   private String getInfoStringForDisplay(ItemTypeBoatstatusList.BoatListItem item) {
     StringBuilder s;
     // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
-    if (isToggleF12LangtextF12()) {
-      // Text parametrisieren: ausgewählte Felder
-      s = getInfoString(item,
-          true, // showBootName
-          false, // showOwner
-          false, // showPurchase
-          false, // showSort
-          false, // showType
-          false, // showPaddle
-          false, // showCox
-          true, // showWeight
-          true, // showGroups
-          true, // showOrt
-          false, // showStatus
-          true, // showDamages
-          false); // showLastUsage
-    } else {
-      // Text parametrisieren: nur Bootsname
-      s = getInfoString(item, true, false, false, false, false,
-          false, false, false, false, false, false, false, false);
-    }
+    // Text parametrisieren: ausgewählte Felder
+    s = getInfoString(item,
+        true, // showBootName
+        false, // showOwner
+        false, // showPurchase
+        false, // showSort
+        false, // showType
+        false, // showPaddle
+        false, // showCox
+        false, // showWeight
+        false, // showGroups
+        false, // showOrt
+        false, // showStatus
+        false, // showDamages
+        false); // showLastUsage
 
     // Textlänge reduzieren
     String infoStringForDisplay = s.substring(6).toString();

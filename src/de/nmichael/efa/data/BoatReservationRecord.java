@@ -496,11 +496,6 @@ public class BoatReservationRecord extends DataRecord {
       return true;
     }
 
-    // TODO abf 2019-12-15 hier nur zwei Ausnahmen eingetragen. Entfernen am 2020-10-21
-    if (getReservation() == 3097) {
-      return false;
-    } // Entfernen am 2020-10-21
-
     if (differenceDays > 0) {
       DataTypeTime endZeit = DataTypeTime.parseTime(endZeitFolgeTag);
       if (getTimeTo().isAfterOrEqual(endZeit)) {
@@ -823,8 +818,12 @@ public class BoatReservationRecord extends DataRecord {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo " + anrede + "!");
     msg.add("");
-    msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. "
-        + "(" + getStringEingabeAm(getLastModified()) + ")");
+    if (aktion.contains("DELETE")) {
+      msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
+    } else {
+      msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. "
+          + "(" + getStringEingabeAm(getLastModified()) + ")");
+    }
     msg.add("");
     msg.add("Reservierung des " + getBoatName());
     msg.add("für die Zeit: " + getReservationTimeDescription() + " für " + getPersonAsName());
@@ -846,7 +845,7 @@ public class BoatReservationRecord extends DataRecord {
               + "dann trage Dich bitte im Bootshaus wieder aus.");
       if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
           && getHashId().length() > 0) {
-        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: "
+        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: \n"
             + getStornoURL());
       }
       if (isBootshausOH()) {

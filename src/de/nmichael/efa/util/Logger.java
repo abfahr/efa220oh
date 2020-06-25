@@ -31,7 +31,7 @@ public class Logger {
   // per second
   private static final int LOGGING_CHECK_FILESIZE = 1000; // number of log messages after which to
   // check file size
-  private static final int MAX_LOG_FILE_SIZE = 1048576;
+  private static final int MAX_LOG_FILE_SIZE = 512 * 1024; // 1024 * 1024; 1048576; 1MB?
 
   private static final int MAX_LOGMSG_SIZE = 10 * 1024; // max. 10 Kb for log message
   private static final int MAX_LASTLOGMSG_SIZE = 1024; // max. 1 Kb to remember last log messages

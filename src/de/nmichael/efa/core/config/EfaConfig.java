@@ -1981,7 +1981,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   }
 
   public boolean getValueEfaDirekt_mitgliederDuerfenEfaBeenden() {
-    return efaDirekt_mitgliederDuerfenEfaBeenden.getValue();
+    return efaDirekt_mitgliederDuerfenEfaBeenden.getValue()
+        || new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_ALWAYS).exists()
+        || new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_SPECIAL).exists();
   }
 
   public boolean getValueEfaDirekt_mitgliederDuerfenNamenHinzufuegen() {
@@ -2275,15 +2277,18 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   }
 
   public boolean getValueEfaDirekt_startMaximized() {
-    return efaDirekt_startMaximized.getValue();
+    return efaDirekt_startMaximized.getValue()
+        && !((new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_ALWAYS)).exists());
   }
 
   public boolean getValueEfaDirekt_fensterNichtVerschiebbar() {
-    return efaDirekt_fensterNichtVerschiebbar.getValue();
+    return efaDirekt_fensterNichtVerschiebbar.getValue()
+        && !((new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_ALWAYS)).exists());
   }
 
   public boolean getValueEfaDirekt_immerImVordergrund() {
-    return efaDirekt_immerImVordergrund.getValue();
+    return efaDirekt_immerImVordergrund.getValue()
+        && !((new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_ALWAYS)).exists());
   }
 
   public boolean getValueEfaDirekt_immerImVordergrundBringToFront() {

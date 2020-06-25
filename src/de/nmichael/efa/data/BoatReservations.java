@@ -55,11 +55,12 @@ public class BoatReservations extends StorageObject {
 
   public BoatReservationRecord createBoatReservationsRecordFromClone(UUID id,
       BoatReservationRecord original) {
-    int reservation = getNextReservation(id);
-    if (reservation > 0) {
+    int reservationId = getNextReservation(id);
+    if (reservationId > 0) {
       BoatReservationRecord r = (BoatReservationRecord) original.cloneRecord();
       r.setBoatId(id);
-      r.setReservation(reservation);
+      r.setReservation(reservationId);
+      r.resetHashId();
       return r;
     }
     return null;

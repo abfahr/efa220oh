@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -258,15 +259,22 @@ public class BoatReservationRecord extends DataRecord {
     return s;
   }
 
-  private void setHashId(String hashId) {
-    String s = getString(HASHID);
-    if (s != null && s.length() > 0) {
+  private void setHashId(Long seed) {
+    String bisherigerHash = getString(HASHID);
+    if (bisherigerHash != null &&
+        bisherigerHash.length() > 0) {
       return; // already assigned
     }
-    Adler32 a = new Adler32();
-    a.update(this.data.toString().getBytes());
-    hashId = Long.toHexString(a.getValue());
+    String tmpString = this.data.toString() + seed;
+    Adler32 adler32 = new Adler32();
+    adler32.update(tmpString.getBytes());
+    String hashId = Long.toHexString(adler32.getValue());
     setString(HASHID, hashId);
+  }
+
+  public void resetHashId() {
+    setString(HASHID, "");
+    setHashId(new SecureRandom().nextLong());
   }
 
   public String getHashId() {
@@ -699,7 +707,7 @@ public class BoatReservationRecord extends DataRecord {
 
   @Override
   public void saveGuiItems(Vector<IItemType> items) {
-    setHashId("aSeed");
+    setHashId(new SecureRandom().nextLong());
     super.saveGuiItems(items);
   }
 

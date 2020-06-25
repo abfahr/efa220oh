@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_76";
-  public final static String VERSIONRELEASEDATE = "23.06.2020"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_77";
+  public final static String VERSIONRELEASEDATE = "25.06.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -76,7 +76,11 @@ public class Daten {
 
   // enable/disable development functions for next version
   public static final boolean NEW_FEATURES = false;
+  private static final String EFA_LOG_FILE = "efa.log";
+  public static final String PLEASE_RESTART_EFA = "pleaseRestartEfa.touch.txt";
   public static final String MIT_EMAIL_VERSAND = "undMitEmailVersand.touch.txt";
+  public static final String DEBUG_MODE_ALWAYS = "mit.Debug.immer.touch.txt";
+  public static final String DEBUG_MODE_SPECIAL = "mit.Debug.heute.touch.txt";
 
   public final static String EFA = "efa"; // efa program name/ID
   public static String EFA_SHORTNAME = "efa"; // dummy, will be set in International.ininitalize()
@@ -623,17 +627,17 @@ public class Daten {
     }
     String lastLogEntry = null;
     if (applID == APPL_EFABH) {
-      lastLogEntry = Logger.getLastLogEntry("efa.log");
+      lastLogEntry = Logger.getLastLogEntry(EFA_LOG_FILE);
     }
     String baklog = null; // backup'ed logfile
     switch (applID) {
       case APPL_EFABASE:
       case APPL_EFABH:
       case APPL_DRV:
-        baklog = Logger.ini("efa.log", true, false);
+        baklog = Logger.ini(EFA_LOG_FILE, true, false);
         break;
       case APPL_CLI:
-        baklog = Logger.ini("efa.log", true, true);
+        baklog = Logger.ini(EFA_LOG_FILE, true, true);
         break;
       default:
         baklog = Logger.ini(null, true, false);
@@ -772,7 +776,7 @@ public class Daten {
     }
 
     // remove RestartEfa-Command
-    String filename = "pleaseRestartEfa.touch.txt";
+    String filename = Daten.PLEASE_RESTART_EFA;
     new File(Daten.userHomeDir + filename).delete(); // forcedRestartInHome
     new File(Daten.efaBaseConfig.efaUserDirectory + filename).delete(); // forcedRestartInEFA2
 
@@ -796,8 +800,10 @@ public class Daten {
     }
     if (show) {
       try {
-        splashScreen = new StartLogo(efaCfgDirectory + "efa.intro.png");
-        splashScreen.show();
+        if (!(new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_SPECIAL).exists())) {
+          splashScreen = new StartLogo(efaCfgDirectory + "efa.intro.png");
+          splashScreen.show();
+        }
       } catch (Exception e) {
         splashScreen = new StartLogo(IMAGEPATH + "efaIntro.png");
         splashScreen.show();
@@ -1041,7 +1047,7 @@ public class Daten {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEmailSenderThread()");
     }
-    String touchedEmailFile = Daten.efaBaseConfig.efaUserDirectory + MIT_EMAIL_VERSAND;
+    String touchedEmailFile = Daten.efaBaseConfig.efaUserDirectory + Daten.MIT_EMAIL_VERSAND;
     if ((applID == APPL_EFABASE || applID == APPL_EFABH)
         && (new File(touchedEmailFile).exists())) {
       try {

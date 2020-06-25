@@ -983,7 +983,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // if (pleaseReboot.txt) {
     // if (efa.new.jar) {
     // if (auswertung.csv) {
-    String filenameRestartEfaCmd = "pleaseRestartEfa.touch.txt";
+    String filenameRestartEfaCmd = Daten.PLEASE_RESTART_EFA;
     String[] filenames = {
         Daten.efaBaseConfig.efaUserDirectory + filenameRestartEfaCmd, // forcedRestartInEFA2
         Daten.userHomeDir + filenameRestartEfaCmd, // forcedRestartInHome

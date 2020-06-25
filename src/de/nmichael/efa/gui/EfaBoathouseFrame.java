@@ -217,7 +217,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   boolean isLocked = false;
 
   public EfaBoathouseFrame() {
-    super(null, Daten.EFA_LONGNAME);
+    super(null, Daten.EFA_LONGNAME); // visible x=455 y=1
     EfaBoathouseFrame.efaBoathouseFrame = this;
   }
 
@@ -931,14 +931,19 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   private void updateGuiZentralesLogo(String strZentralesBild) {
     if (strZentralesBild == null || strZentralesBild.length() == 0) {
-      logoLabel.setIcon(null);
-      logoLabel.setName(null);
-      return;
+      // logoLabel.setIcon(null);
+      // logoLabel.setName(null);
+      if (isToggleF12LangtextF12()) {
+        strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
+      } else {
+        strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
+      }
     }
     if (strZentralesBild.equals(logoLabel.getName())) {
       return;
     }
 
+    long t = System.currentTimeMillis();
     try {
       int xWidth = 352;
       int yHeight = 654; // 704;
@@ -963,7 +968,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "IconName " + logoLabel.getName());
 
       int lastIndexSlash = strZentralesBild.lastIndexOf(Daten.fileSep);
-      String fileName = strZentralesBild.substring(lastIndexSlash, strZentralesBild.length());
+      String fileName = strZentralesBild.substring(lastIndexSlash + 1, strZentralesBild.length());
       Pattern regexPattern = Pattern.compile("\\D*(\\d\\d*)x(\\d*).*");
       Matcher matcher = regexPattern.matcher(fileName);
       if (matcher.matches() && matcher.groupCount() == 2) {
@@ -975,6 +980,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         // yHeight = 704;
       }
       logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, "ABF: zentrales Bild geladen"
+          + " t=" + (System.currentTimeMillis() - t) + "ms für " + fileName);
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
     }
@@ -1000,7 +1007,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       public void mousePressed(MouseEvent e) {
         Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, e.getClickCount() + "-fach");
         if (e.getClickCount() == 1) {
-          actionBoatBildRefresh();
+          actionBoatBildRefreshAfterMousePressed();
         }
       }
 
@@ -2084,11 +2091,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         // showBoatStatus(listID, aMainList, 1);
       }
       if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
-        showBoatStatus(listID, aMainList, 1);
+        showBoatStatusAfterDoubleClick(listID, aMainList, 1);
         boatListDoubleClick(listID, aMainList);
       }
       if (actionCommand.equals(EfaMouseListener.EVENT_POPUP)) {
-        showBoatStatus(listID, aMainList, 1);
+        showBoatStatusAfterDoubleClick(listID, aMainList, 1);
       }
       // Popup clicked?
       if (actionCommand.startsWith(EfaMouseListener.EVENT_POPUP_CLICKED)) {
@@ -2124,7 +2131,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         return;
       }
       int direction = keyCode == 38 ? -1 : 1;
-      showBoatStatus(listID, aMainList, direction);
+      showBoatStatusAfterDoubleClick(listID, aMainList, direction);
       return;
     }
 
@@ -2136,7 +2143,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
     if (focusEvent != null) {
       if (focusEvent.getID() == FocusEvent.FOCUS_GAINED) {
-        showBoatStatus(listID, aMainList, 1);
+        showBoatStatusAfterDoubleClick(listID, aMainList, 1);
       }
     }
   }
@@ -2229,7 +2236,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     boatsNotAvailableList.clearPopup();
   }
 
-  void showBoatStatus(int listnr, ItemTypeBoatstatusList list, int direction) {
+  void showBoatStatusAfterDoubleClick(int listnr, ItemTypeBoatstatusList list, int direction) {
     if (Daten.project == null) {
       return;
     }
@@ -2273,7 +2280,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
       if (list != personsAvailableList) {
         if (item.boatStatus != null) {
-          showBoatStatusExtracted(listnr, item);
+          showBoatPicAndStatusAfterDoubleClick(listnr, item);
         } else {
           // nach klick auf "<anderes Boot>"
           // gut // reset to Vereinslogo // Standard-Bild
@@ -2302,7 +2309,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
   }
 
-  private void showBoatStatusExtracted(int listnr, ItemTypeBoatstatusList.BoatListItem item) {
+  private void showBoatPicAndStatusAfterDoubleClick(int listnr,
+      ItemTypeBoatstatusList.BoatListItem item) {
     String itemName;
     BoatStatusRecord boatstatus = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
     BoatRecord boat = Daten.project.getBoats(false).getBoat(item.boatStatus.getBoatId(),
@@ -2736,7 +2744,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   void prepareEfaBaseFrame() {
-    efaBaseFrame = new EfaBaseFrame(this, EfaBaseFrame.MODE_BOATHOUSE);
+    efaBaseFrame = new EfaBaseFrame(this, EfaBaseFrame.MODE_BOATHOUSE); // x=546 y=160
     efaBaseFrame.prepareDialog();
     efaBaseFrame.setFixedLocationAndSize();
   }
@@ -3127,7 +3135,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
   }
 
-  void actionBoatBildRefresh() {
+  void actionBoatBildRefreshAfterMousePressed() {
     alive();
     clearAllPopups();
     if (Daten.project == null || logbook == null) {

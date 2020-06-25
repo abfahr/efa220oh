@@ -97,7 +97,7 @@ public class Help {
       }
       Dimension dim = Dialog.getMaxSize(new Dimension(1000, 600));
       Help.getHelpBroker().setSize(dim);
-      Help.getHelpBroker().setLocation(Dialog.getLocation(dim, null, null));
+      Help.getHelpBroker().setLocation(Dialog.getLocation("Help", dim, null, null));
       Help.getHelpBroker().setDisplayed(true);
       if (Logger.isTraceOn(Logger.TT_HELP, 9)) {
         try {
@@ -112,7 +112,7 @@ public class Help {
         }
         text.append("Showing: " + Help.getHelpBroker().getCurrentID().getIDString() + "\n");
         debugDlg.getRootPane().add(text, BorderLayout.CENTER);
-        Dialog.setDlgLocation(debugDlg);
+        Dialog.setDlgLocation(debugDlg, null);
         debugDlg.setPreferredSize(new Dimension(500, 100));
         debugDlg.setMinimumSize(new Dimension(500, 100));
         debugDlg.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);

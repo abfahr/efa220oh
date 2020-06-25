@@ -12,7 +12,6 @@ package de.nmichael.efa.util;
 
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -69,27 +68,27 @@ public class Dialog {
   private static int MAX_DIALOG_HEIGHT = 50; // Number of Lines
 
   public static void initializeScreenSize() {
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    Dimension toolkitScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
     if (Daten.isOsLinux()) {
       // Workaround für Linux: Fenster verschwinden oder werden falsch positioniert,
       // wenn sie die volle Bildschirmgröße haben
-      Dialog.screenSize = new Dimension(screenSize.width - 1, screenSize.height - 1);
+      screenSize = new Dimension(toolkitScreenSize.width - 1, toolkitScreenSize.height - 1);
     } else {
-      Dialog.screenSize = screenSize;
+      screenSize = toolkitScreenSize;
     }
     if (Daten.efaConfig == null) {
       return;
     }
     if (Daten.efaConfig.getValueScreenWidth() > 0) {
-      Dialog.screenSize.width = Daten.efaConfig.getValueScreenWidth();
+      screenSize.width = Daten.efaConfig.getValueScreenWidth();
     }
     if (Daten.efaConfig.getValueScreenHeight() > 0) {
-      Dialog.screenSize.height = Daten.efaConfig.getValueScreenHeight();
+      screenSize.height = Daten.efaConfig.getValueScreenHeight();
     }
     initializeMaxDialogSizes();
     if ((Daten.efaConfig.getValueMaxDialogWidth() > 0
         || Daten.efaConfig.getValueMaxDialogHeight() > 0)) {
-      Dialog.setMaxDialogSizes(Daten.efaConfig.getValueMaxDialogWidth(),
+      setMaxDialogSizes(Daten.efaConfig.getValueMaxDialogWidth(),
           Daten.efaConfig.getValueMaxDialogHeight());
     }
   }
@@ -182,7 +181,7 @@ public class Dialog {
     int width = (int) dlgSize.getWidth() + 50;
     int height = (int) dlgSize.getHeight() + 50;
     dlg.setSize(width, height);
-    Dialog.setDlgLocation(dlg);
+    Dialog.setDlgLocation(dlg, null);
     dlg.setModal(false);
     dlg.show();
     dlg.toFront();
@@ -595,27 +594,18 @@ public class Dialog {
   }
 
   // Methoden zum Setzen der Position eines neuen JDialogs
-  public static void setDlgLocation(JDialog dlg, Frame parent) {
-    dlg.setLocation(getLocation(dlg.getSize(),
-        (parent != null ? parent.getSize() : null),
-        (parent != null ? parent.getLocation() : null)));
-  }
-
   public static void setDlgLocation(JDialog dlg, Window parent) {
-    dlg.setLocation(getLocation(dlg.getSize(),
+    dlg.setLocation(getLocation(dlg.getTitle(), dlg.getSize(),
         (parent != null ? parent.getSize() : null),
         (parent != null ? parent.getLocation() : null)));
-  }
-
-  public static void setDlgLocation(JDialog dlg) {
-    dlg.setLocation(getLocation(dlg.getSize(), null, null));
   }
 
   public static void setDlgLocation(JFrame dlg) {
-    dlg.setLocation(getLocation(dlg.getSize(), null, null));
+    dlg.setLocation(getLocation(dlg.getTitle(), dlg.getSize(), null, null));
   }
 
-  public static Point getLocation(Dimension dlgSize, Dimension parentSize, Point loc) {
+  public static Point getLocation(String windowName,
+      Dimension dlgSize, Dimension parentSize, Point loc) {
     int x, y;
 
     // fix dlgSize, if necessary
@@ -661,6 +651,8 @@ public class Dialog {
       y = 0;
     }
 
+    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+        "ABF: Dialog.getLocation " + windowName + " x=" + x + " y=" + y);
     return new Point(x, y);
   }
 

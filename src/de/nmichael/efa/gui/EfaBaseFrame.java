@@ -241,7 +241,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   public EfaBaseFrame(EfaBoathouseFrame efaBoathouseFrame, int mode) {
-    super(efaBoathouseFrame, Daten.EFA_LONGNAME, null);
+    super(efaBoathouseFrame, Daten.EFA_LONGNAME, null); // invisible BaseFrame x=546 y=160
     this.efaBoathouseFrame = efaBoathouseFrame;
     this.mode = mode;
   }
@@ -343,7 +343,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   public void setFixedLocationAndSize() {
-    Dialog.setDlgLocation(this);
+    Dialog.setDlgLocation(this, null);
     Dimension dlgSize = getSize();
     setMinimumSize(dlgSize);
     setMaximumSize(dlgSize);

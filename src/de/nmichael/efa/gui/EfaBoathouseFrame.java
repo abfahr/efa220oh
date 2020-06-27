@@ -34,7 +34,9 @@ import java.io.FileFilter;
 import java.io.FileWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
@@ -2396,20 +2398,33 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   private String findBoatFilename(String boatname) {
     // Liste aufschlüsseln
-    File dir = new File(Daten.efaImagesDirectory);
     FileFilter fileFilter = new WildcardFileFilter(boatname + "*.jpg");
-    File[] filenames = dir.listFiles(fileFilter);
+    List<File> filenames = new ArrayList<File>();
 
-    int anzahlBildDateien = filenames.length;
+    File dir = new File(Daten.efaImagesDirectory);
+    File[] arrayFilenames = dir.listFiles(fileFilter);
+    if (arrayFilenames != null) {
+      filenames.addAll(Arrays.asList(arrayFilenames));
+    }
+
+    String strUnterOrdner = "webUploads/";
+    dir = new File(Daten.efaImagesDirectory + strUnterOrdner);
+    fileFilter = new WildcardFileFilter(boatname + "*.*");
+    arrayFilenames = dir.listFiles(fileFilter);
+    if (arrayFilenames != null) {
+      filenames.addAll(Arrays.asList(arrayFilenames));
+    }
+
+    int anzahlBildDateien = filenames.size();
     if (anzahlBildDateien == 0) {
       return null;
     }
 
-    // und mit Random eines auswählen: filenames.length
+    // und mit Random eines auswählen: filenames.size()
     String chosenPicture = "";
     do {
       int index = (int) (anzahlBildDateien * Math.random());
-      chosenPicture = Daten.efaImagesDirectory + filenames[index].getName();
+      chosenPicture = filenames.get(index).getPath();
     } while (anzahlBildDateien > 1 && chosenPicture.equals(logoLabel.getName()));
 
     Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "chosen Picture: " + chosenPicture);

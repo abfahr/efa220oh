@@ -16,7 +16,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
@@ -27,9 +26,6 @@ import de.nmichael.efa.util.International;
 
 public class NotificationDialog extends BaseDialog {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   private String text;
   private String image;
@@ -41,18 +37,7 @@ public class NotificationDialog extends BaseDialog {
 
   public NotificationDialog(Frame parent, String text, String image, String textcolor,
       String bgcolor, int closeTimeout) {
-    super(parent, "", International.getStringWithMnemonic("Schließen"));
-    this.text = text;
-    this.image = image;
-    this.textcolor = textcolor;
-    this.bkcolor = bgcolor;
-    this.closeTimeout = closeTimeout;
-    this._closeButtonText = null;
-  }
-
-  public NotificationDialog(JDialog parent, String text, String image, String textcolor,
-      String bgcolor, int closeTimeout) {
-    super(parent, "", International.getStringWithMnemonic("Schließen"));
+    super(parent, "Notification", International.getStringWithMnemonic("Schließen"));
     this.text = text;
     this.image = image;
     this.textcolor = textcolor;
@@ -78,11 +63,11 @@ public class NotificationDialog extends BaseDialog {
         "<td><img src=\""
         + EfaUtil.saveImage(image, "png", Daten.efaTmpDirectory,
             true, false, true)
-            + "\"></td>"
-            +
-            "<td align=\"center\" valign=\"middle\" style=\"font-family:sans-serif; font-size:24pt; font-weight:bold; color:#ffffff\">"
-            + text + "</td>" +
-            "</tr></table>" +
+        + "\"></td>"
+        +
+        "<td align=\"center\" valign=\"middle\" style=\"font-family:sans-serif; font-size:24pt; font-weight:bold; color:#ffffff\">"
+        + text + "</td>" +
+        "</tr></table>" +
         "</html");
     t.addMouseListener(new java.awt.event.MouseAdapter() {
       @Override

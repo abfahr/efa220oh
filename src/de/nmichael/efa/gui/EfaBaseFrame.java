@@ -241,7 +241,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   public EfaBaseFrame(EfaBoathouseFrame efaBoathouseFrame, int mode) {
-    super(efaBoathouseFrame, Daten.EFA_LONGNAME, null); // invisible BaseFrame x=546 y=160
+    // unsichtbar Motte:x=546 y=160 Isekai:x=94 y=665
+    super(efaBoathouseFrame, "base " + Daten.EFA_LONGNAME, null);
     this.efaBoathouseFrame = efaBoathouseFrame;
     this.mode = mode;
   }

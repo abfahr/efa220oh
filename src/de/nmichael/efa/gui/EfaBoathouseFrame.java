@@ -980,8 +980,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         // yHeight = 704;
       }
       logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
-      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, "ABF: zentrales Bild geladen"
-          + " t=" + (System.currentTimeMillis() - t) + "ms für " + fileName);
+      long t2 = System.currentTimeMillis() - t;
+      if (t2 >= 300) {
+        Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "ABF: zentrales Bild geladen"
+            + " t=" + t2 + "ms für " + fileName);
+      }
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
     }
@@ -2744,7 +2747,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   void prepareEfaBaseFrame() {
-    efaBaseFrame = new EfaBaseFrame(this, EfaBaseFrame.MODE_BOATHOUSE); // x=546 y=160
+    // Motte:x=546 y=160 // Isekai:x=0 y=1
+    efaBaseFrame = new EfaBaseFrame(this, EfaBaseFrame.MODE_BOATHOUSE);
     efaBaseFrame.prepareDialog();
     efaBaseFrame.setFixedLocationAndSize();
   }

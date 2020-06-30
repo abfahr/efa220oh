@@ -478,7 +478,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   Dialog.infoDialog(warnungTitel, fehlermeldung);
                   Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART, warnungTitel
                       + reservation.getBoatName() + " "
-                      + reservation.getDateTimeFromDescription());
+                      + reservation.getDateTimeFromDescription(
+                          BoatReservationRecord.REPLACE_HEUTE));
                 } else {
                   try {
                     // allowed for identified Persons with Id
@@ -621,7 +622,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       BoatReservationRecord reservation = (BoatReservationRecord) records[i];
                       String aktion = "DELETE";
                       reservation.sendEmailBeiReservierung(aktion);
-                      name = " für " + reservation.getPersonAsName();
+                      name += " ab " + reservation.getDateTimeFromDescription(
+                          BoatReservationRecord.REPLACE_HEUTE);
+                      name += " für " + reservation.getPersonAsName();
                     }
                     String whoUser = "";
                     if (admin != null) {
@@ -805,7 +808,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                             ? International.getString("Admin") + " '" + admin.getName() + "!'"
                             : newReservationsRecord.getPersonAsName()),
                         newReservationsRecord.getQualifiedName() + " "
-                            + newReservationsRecord.getReservationTimeDescription()));
+                            + newReservationsRecord.getReservationTimeDescription(
+                                BoatReservationRecord.REPLACE_HEUTE)));
           }
         }
       }
@@ -828,7 +832,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     liste.add(new ItemTypeLabel("*A-L1", IItemType.TYPE_INTERNAL, "",
         "kannst Du direkt weitere \"Boote\" anklicken."));
     liste.add(new ItemTypeLabel("*A-L2", IItemType.TYPE_INTERNAL, "",
-        "Zeit: " + reservationRecord.getReservationTimeDescription()));
+        "Zeit: " + reservationRecord.getReservationTimeDescription(
+            BoatReservationRecord.REPLACE_HEUTE)));
     liste.add(new ItemTypeLabel("*A-L3", IItemType.TYPE_INTERNAL, "",
         "Sollen andere Boote genauso reserviert werden?"));
     liste.add(new ItemTypeLabel("*A-L4", IItemType.TYPE_INTERNAL, "",
@@ -896,12 +901,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       ? International.getString("Admin") + " '" + admin.getName() + "!'"
                       : newReservationsRecord.getPersonAsName()),
                   newReservationsRecord.getQualifiedName() + " "
-                      + newReservationsRecord.getReservationTimeDescription()));
+                      + newReservationsRecord.getReservationTimeDescription(
+                          BoatReservationRecord.REPLACE_HEUTE)));
     } // for loop
     if (!fehlerListe.isEmpty()) {
       // display the failures at end
       String s = "";
-      s += "Für die Zeit " + reservationRecord.getReservationTimeDescription() + "\n";
+      s += "Für die Zeit " + reservationRecord.getReservationTimeDescription(
+          BoatReservationRecord.REPLACE_HEUTE) + "\n";
       s += "konnten nicht alle Boote automatisch mitreserviert werden.\n";
       for (String string : fehlerListe) {
         s += string + "\n";

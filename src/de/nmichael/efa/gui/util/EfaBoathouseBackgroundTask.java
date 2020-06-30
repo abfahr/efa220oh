@@ -530,7 +530,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
             String s = International.getMessage("reserviert für {name} ({reason}) {from_to}",
                 reservations[reservations.length - 1].getPersonAsName(),
                 reservations[reservations.length - 1].getReason(),
-                reservations[reservations.length - 1].getReservationTimeDescription());
+                reservations[reservations.length - 1].getReservationTimeDescription(
+                    BoatReservationRecord.KEEP_NUM_DATE));
             boatStatusRecord.setComment(s);
           }
 

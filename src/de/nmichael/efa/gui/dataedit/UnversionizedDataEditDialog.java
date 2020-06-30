@@ -150,13 +150,14 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     }
     if (conflict != null) {
       if (allowConflicts) {
-        String warn = (identical ?
-            International.getString("Es existiert bereits ein gleichnamiger Datensatz!") :
-              International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
+        String warn = (identical
+            ? International.getString("Es existiert bereits ein gleichnamiger Datensatz!")
+            : International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
         if (Dialog.yesNoDialog(International.getString("Warnung"),
             warn + "\n"
                 + conflict + "\n"
-                + International.getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
+                + International
+                    .getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
           throw new InvalidValueException(null, null);
         }
       } else {
@@ -193,21 +194,22 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         }
         String strTime = "";
         if (dataRecord instanceof BoatReservationRecord) {
-          strTime= " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription();
+          strTime = " " + ((BoatReservationRecord) dataRecord).getReservationTimeDescription(
+              BoatReservationRecord.REPLACE_HEUTE);
         }
         if (newRecord) {
           warnIfVersionizedRecordOfThatNameAlreadyExists();
           dataRecord.getPersistence().data().add(dataRecord);
           Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
               dataRecord.getPersistence().getDescription() + ": "
-              + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                  whoUser, dataRecord.getQualifiedName() + strTime));
+                  + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                      whoUser, dataRecord.getQualifiedName() + strTime));
         } else {
           dataRecord.getPersistence().data().update(dataRecord);
           Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDUPDATED,
               dataRecord.getPersistence().getDescription() + ": "
-              + International.getMessage("{name} hat Datensatz '{record}' geändert.",
-                  whoUser, dataRecord.getQualifiedName() + strTime));
+                  + International.getMessage("{name} hat Datensatz '{record}' geändert.",
+                      whoUser, dataRecord.getQualifiedName() + strTime));
         }
         for (IItemType item : getItems()) {
           item.setUnchanged();
@@ -251,17 +253,17 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
       switch (Dialog.yesNoCancelDialog(International.getString("Änderungen speichern"),
           International.getString("Die Daten wurden verändert.") + "\n"
               + International.getString("Möchtest Du die Änderungen jetzt speichern?"))) {
-                case Dialog.YES:
-                  try {
-                    return saveRecord();
-                  } catch (InvalidValueException einv) {
-                    einv.displayMessage();
-                    return false;
-                  }
-                case Dialog.NO:
-                  return true;
-                default:
-                  return false;
+        case Dialog.YES:
+          try {
+            return saveRecord();
+          } catch (InvalidValueException einv) {
+            einv.displayMessage();
+            return false;
+          }
+        case Dialog.NO:
+          return true;
+        default:
+          return false;
       }
     } else {
       return true;

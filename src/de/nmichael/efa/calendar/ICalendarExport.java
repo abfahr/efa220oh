@@ -277,7 +277,8 @@ public class ICalendarExport {
       String contactPhone = boatReservationRecord.getContact();
       String personAsName = boatReservationRecord.getPersonAsName();
       String reason = boatReservationRecord.getReason();
-      String reservationTimeDescription = boatReservationRecord.getReservationTimeDescription();
+      String reservationTimeDescription = boatReservationRecord.getReservationTimeDescription(
+          BoatReservationRecord.KEEP_NUM_DATE);
       long lastModified = boatReservationRecord.getLastModified();
       String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
       String efaId = boatReservationRecord.getEfaId();

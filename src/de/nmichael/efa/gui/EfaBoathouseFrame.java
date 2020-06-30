@@ -2638,7 +2638,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
               + getTelefonMeldung(reservations[0].getContact())
               + NEWLINE
               + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
-                  reservations[0].getReservationTimeDescription())
+                  reservations[0].getReservationTimeDescription(
+                      BoatReservationRecord.REPLACE_HEUTE))
               + NEWLINE
               + International.getString("Möchtest Du jetzt trotzdem mit diesem Boot starten?"));
       if (ergebnisYesNoCancelDialog != Dialog.YES) {

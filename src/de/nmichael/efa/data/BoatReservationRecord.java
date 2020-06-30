@@ -48,6 +48,8 @@ public class BoatReservationRecord extends DataRecord {
 
   private static final long LONG_MILLI_SECONDS_PER_DAY = 24 * 60 * 60 * 1000;
   private static final String EFA = "efa";
+  public static final boolean REPLACE_HEUTE = true;
+  public static final boolean KEEP_NUM_DATE = false;
 
   // =========================================================================
   // Value Constants
@@ -285,13 +287,18 @@ public class BoatReservationRecord extends DataRecord {
     return s;
   }
 
-  private String getDateDescription(DataTypeDate date, String weekday, DataTypeTime time) {
+  private String getDateDescription(DataTypeDate date,
+      String weekday, DataTypeTime time, boolean replaceHeute) {
     if (date == null && weekday == null) {
       return "";
     }
     String strDate = "";
     if (date != null) {
-      strDate = date.toString();
+      if (replaceHeute && date.equals(DataTypeDate.today())) {
+        strDate = "heute";
+      } else {
+        strDate = date.toString();
+      }
     } else {
       strDate = EfaTypes.getValueWeekday(weekday);
     }
@@ -302,30 +309,35 @@ public class BoatReservationRecord extends DataRecord {
     return strDate + strTime;
   }
 
-  public String getDateTimeFromDescription() {
+  public String getDateTimeFromDescription(boolean replaceHeute) {
     String type = getType();
     if (type != null && type.equals(TYPE_ONETIME)) {
-      return getDateDescription(getDateFrom(), null, getTimeFrom());
+      return getDateDescription(getDateFrom(), null, getTimeFrom(), replaceHeute);
     }
     if (type != null && type.equals(TYPE_WEEKLY)) {
-      return getDateDescription(null, getDayOfWeek(), getTimeFrom());
+      return getDateDescription(null, getDayOfWeek(), getTimeFrom(), replaceHeute);
     }
     return "";
   }
 
-  public String getDateTimeToDescription() {
+  public String getDateTimeToDescription(boolean replaceHeute) {
     String type = getType();
     if (type != null && type.equals(TYPE_ONETIME)) {
-      return getDateDescription(getDateTo(), null, getTimeTo());
+      return getDateDescription(getDateTo(), null, getTimeTo(), replaceHeute);
     }
     if (type != null && type.equals(TYPE_WEEKLY)) {
-      return getDateDescription(null, getDayOfWeek(), getTimeTo());
+      return getDateDescription(null, getDayOfWeek(), getTimeTo(), replaceHeute);
     }
     return "";
   }
 
-  public String getReservationTimeDescription() {
-    return getDateTimeFromDescription() + " - " + getDateTimeToDescription();
+  public String getReservationTimeDescription(boolean replaceHeute) {
+    String strFrom = getDateTimeFromDescription(replaceHeute);
+    String strTo = getDateTimeToDescription(replaceHeute);
+    if (strFrom.contains("heute")) {
+      strTo = strTo.replace("heute ", "");
+    }
+    return strFrom + " - " + strTo;
   }
 
   private PersonRecord getPersonRecord() {
@@ -376,7 +388,7 @@ public class BoatReservationRecord extends DataRecord {
       return getBoatName();
     }
     if (getFieldName(fieldIdx).equals(VRESERVATIONDATE)) {
-      return getReservationTimeDescription();
+      return getReservationTimeDescription(KEEP_NUM_DATE);
     }
     if (getFieldName(fieldIdx).equals(VPERSON)) {
       return getPersonAsName();
@@ -462,6 +474,8 @@ public class BoatReservationRecord extends DataRecord {
             if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_SUNDAY)) {
               return -1;
             }
+            break;
+          default:
             break;
         }
         // ok, this is our weekday!
@@ -692,7 +706,7 @@ public class BoatReservationRecord extends DataRecord {
     v.add(item);
 
     item = new ItemTypeString(BoatReservationRecord.VRESERVATIONDATE,
-        getReservationTimeDescription(),
+        getReservationTimeDescription(KEEP_NUM_DATE),
         IItemType.TYPE_INTERNAL, "",
         International.getString("Zeitraum"));
     v.add(item);
@@ -727,8 +741,8 @@ public class BoatReservationRecord extends DataRecord {
   public TableItem[] getGuiTableItems() {
     TableItem[] items = new TableItem[6];
     items[0] = new TableItem(getBoatName());
-    items[1] = new TableItem("< " + getDateTimeFromDescription()); // for sorting
-    items[2] = new TableItem(getDateTimeToDescription() + " >"); // for sorting
+    items[1] = new TableItem("< " + getDateTimeFromDescription(REPLACE_HEUTE)); // for sorting
+    items[2] = new TableItem(getDateTimeToDescription(REPLACE_HEUTE) + " >"); // for sorting
     items[3] = new TableItem(getPersonAsName());
     items[4] = new TableItem(getContact());
     items[5] = new TableItem(getReason());
@@ -769,7 +783,8 @@ public class BoatReservationRecord extends DataRecord {
         fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
         fehlermeldung += "'Angefangene' Reservierungen können NICHT automatisch gestartet werden.\n";
         fehlermeldung += "Dein Boot wird NICHT auf der rechten Seite als 'unterwegs' angezeigt.\n";
-        fehlermeldung += "--> '" + getReason() + "' ab " + getDateTimeFromDescription() + "???\n";
+        fehlermeldung += "--> '" + getReason() + "' ab " + getDateTimeFromDescription(REPLACE_HEUTE)
+            + "???\n";
         fehlermeldung += "a) Selber auf Fahrt-beginnen klicken/tippen und alles erneut eingeben oder\n";
         fehlermeldung += "b) diese Reservierung ändern und eine Minute in sicherer Zukunft eintragen\n";
         fehlermeldung += "c) oder... eine Minute warten, vielleicht fängt sich EFA von selbst. Magic!\n";
@@ -792,7 +807,7 @@ public class BoatReservationRecord extends DataRecord {
     msg.add(getStringEingabeAm(getLastModified()));
     msg.add("");
     msg.add("Reservierung des " + getBoatName());
-    msg.add("für die Zeit: " + getReservationTimeDescription());
+    msg.add("für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE));
     msg.add("Kontakt: " + getContact());
     msg.add("Telefon (aus Sewobe): " + (p != null ? p.getTelefonFestnetz() : "..."));
     msg.add("Handy (aus Sewobe): " + (p != null ? p.getTelefonHandy() : "..."));
@@ -815,7 +830,7 @@ public class BoatReservationRecord extends DataRecord {
       msg.add(
           "Dein Vertrag ist beim Nutzungswart eingegangen und wurde in die Datenbank eingegeben. Mit der nächsten Abbuchung wird das Nutzungsentgeld abgebucht. Bitte beachte, dass der Verein bis vier Wochen vor dem beantragten Veranstaltungstermin das Vortrittsrecht hat (siehe allgemeine Vertragsinhalte). In diesem Falle wird das Entgelt zurück überwiesen.");
       msg.add("Reservierung des " + getBoatName() + " für die Zeit: "
-          + getReservationTimeDescription());
+          + getReservationTimeDescription(KEEP_NUM_DATE));
       msg.add("Viel Spaß und Gruß");
       msg.add("Wolfgang (Bootshausnutzungswart)");
     }
@@ -834,7 +849,8 @@ public class BoatReservationRecord extends DataRecord {
     }
     msg.add("");
     msg.add("Reservierung des " + getBoatName());
-    msg.add("für die Zeit: " + getReservationTimeDescription() + " für " + getPersonAsName());
+    msg.add("für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
+        + getPersonAsName());
     msg.add("Grund der Reservierung: " + getReason());
     msg.add("");
 

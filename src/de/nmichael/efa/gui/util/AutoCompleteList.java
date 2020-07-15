@@ -111,7 +111,8 @@ public class AutoCompleteList {
         }
         if (numberOfBoathouses > 1) {
           myBoathouseName = (dataAccess.getPersistence().getProject().getBoathouseRecord() != null
-              ? dataAccess.getPersistence().getProject().getBoathouseRecord().getName() : null);
+              ? dataAccess.getPersistence().getProject().getBoathouseRecord().getName()
+              : null);
           if (myBoathouseName == null || myBoathouseName.length() == 0) {
             myBoathouseName = International.getString("Bootshaus") + " " + myBoathouseId;
           }
@@ -124,7 +125,7 @@ public class AutoCompleteList {
           dataAccess.isStorageObjectOpen() &&
           Daten.efaConfig != null && Daten.efaConfig.data() != null &&
           (dataAccess.getSCN() != dataAccessSCN ||
-          Daten.efaConfig.data().getSCN() != efaConfigSCN)) {
+              Daten.efaConfig.data().getSCN() != efaConfigSCN)) {
         dataAccessSCN = dataAccess.getSCN();
         efaConfigSCN = Daten.efaConfig.data().getSCN();
         dataVisible = new Vector<String>();
@@ -163,7 +164,9 @@ public class AutoCompleteList {
             }
             String alias = null;
             if (r instanceof PersonRecord) {
-              alias = ((PersonRecord) r).getInputShortcut();
+              if (((PersonRecord) r).istKuerzelErlaubnisErteilt()) {
+                alias = ((PersonRecord) r).getInputShortcut();
+              }
               if (Daten.efaConfig.getValuePostfixPersonsWithClubName()) {
                 s = s + ((PersonRecord) r).getAssociationPostfix();
               }
@@ -235,7 +238,7 @@ public class AutoCompleteList {
     if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE,
           "AutoCompleteList.add(" + s + "," + alias + "," + visibleInDropDown + "," + validInfo
-          + ")");
+              + ")");
     }
     String lowers = s.toLowerCase();
     if (visibleInDropDown) {

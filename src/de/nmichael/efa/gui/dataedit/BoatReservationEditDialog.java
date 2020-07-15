@@ -281,52 +281,59 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
     Persons persons = Daten.project.getPersons(false);
     PersonRecord person = persons.getPerson(personId, System.currentTimeMillis());
-    String inputShortcut = person.getInputShortcut();
-    if (inputShortcut == null || inputShortcut.isEmpty()) {
+    if (!person.istTelefonErlaubnisErteilt()) {
       return;
+    }
+    String bestTelnum = "";
+    String bestReason = "";
+    String latestReason = "";
+    bestTelnum = person.getFreeUse2();
+    if (bestTelnum == null || bestTelnum.length() == 0) {
+      bestTelnum = person.getFreeUse1();
+    }
+    if (bestTelnum == null || bestTelnum.length() == 0) {
+      bestTelnum = "";
     }
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
     BoatReservationRecord[] oldReservations = boatReservations
         .getBoatReservationsByPerson(personId);
-    if (oldReservations == null) {
-      return;
-    }
-    BoatReservationRecord latestReservation = oldReservations[0];
-    List<String> listTelnums = new ArrayList<String>();
-    List<String> listReasons = new ArrayList<String>();
-    long latestModified = 0L;
-    String bestTelnum = "";
-    String bestReason = "";
-    for (BoatReservationRecord boatReservationRecord : oldReservations) {
-      listTelnums.add(boatReservationRecord.getContact());
-      listReasons.add(boatReservationRecord.getReason());
-      if (boatReservationRecord.getLastModified() > latestModified) {
-        latestModified = boatReservationRecord.getLastModified();
-        latestReservation = boatReservationRecord;
-        bestTelnum = boatReservationRecord.getContact();
-        bestReason = boatReservationRecord.getReason();
+    if (oldReservations != null) {
+      BoatReservationRecord latestReservation = oldReservations[0];
+      List<String> listTelnums = new ArrayList<String>();
+      List<String> listReasons = new ArrayList<String>();
+      long latestModified = 0L;
+      for (BoatReservationRecord boatReservationRecord : oldReservations) {
+        listTelnums.add(boatReservationRecord.getContact());
+        listReasons.add(boatReservationRecord.getReason());
+        if (boatReservationRecord.getLastModified() > latestModified) {
+          latestModified = boatReservationRecord.getLastModified();
+          latestReservation = boatReservationRecord;
+          bestTelnum = boatReservationRecord.getContact();
+          bestReason = boatReservationRecord.getReason();
+        }
       }
-    }
-    if (isMostStattLatest) {
-      Map<String, Long> occurrencesTelnums = listTelnums.stream().collect(
-          Collectors.groupingBy(w -> w, Collectors.counting()));
-      Map<String, Long> occurrencesReasons = listReasons.stream().collect(
-          Collectors.groupingBy(w -> w, Collectors.counting()));
+      if (isMostStattLatest) {
+        Map<String, Long> occurrencesTelnums = listTelnums.stream().collect(
+            Collectors.groupingBy(w -> w, Collectors.counting()));
+        Map<String, Long> occurrencesReasons = listReasons.stream().collect(
+            Collectors.groupingBy(w -> w, Collectors.counting()));
 
-      Long previous = 0L;
-      for (String telnum : occurrencesTelnums.keySet()) {
-        if (occurrencesTelnums.get(telnum) > previous) {
-          previous = occurrencesTelnums.get(telnum);
-          bestTelnum = telnum;
+        Long previous = 0L;
+        for (String telnum : occurrencesTelnums.keySet()) {
+          if (occurrencesTelnums.get(telnum) > previous) {
+            previous = occurrencesTelnums.get(telnum);
+            bestTelnum = telnum;
+          }
+        }
+        previous = 0L;
+        for (String reason : occurrencesReasons.keySet()) {
+          if (occurrencesReasons.get(reason) > previous) {
+            previous = occurrencesReasons.get(reason);
+            bestReason = reason;
+          }
         }
       }
-      previous = 0L;
-      for (String reason : occurrencesReasons.keySet()) {
-        if (occurrencesReasons.get(reason) > previous) {
-          previous = occurrencesReasons.get(reason);
-          bestReason = reason;
-        }
-      }
+      latestReason = latestReservation.getReason();
     }
 
     for (IItemType it : allGuiItems) {
@@ -340,7 +347,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         ItemTypeString reasonGuiField = (ItemTypeString) it;
         if (reasonGuiField.getValueFromField().isEmpty()) {
           reasonGuiField.setValue(bestReason);
-          reasonGuiField.setValue(latestReservation.getReason());
+          reasonGuiField.setValue(latestReason);
         }
       }
     }

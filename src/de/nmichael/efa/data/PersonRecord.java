@@ -979,6 +979,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return true;
   }
 
+  public boolean istKuerzelErlaubnisErteilt() {
+    if (getInputShortcut() != null && !getInputShortcut().isEmpty()) {
+      return true; // nur Einzeln durch Kürzelvergabe
+    }
+    return isErlaubtKuerzel(); // explit vom Mitglied erlaubt
+  }
+
   public boolean istEmailErlaubnisErteilt() {
     if (Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
       return true; // allgemein alle Mitglieder
@@ -988,5 +995,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       return true; // nur Einzeln durch Kürzelvergabe
     }
     return isErlaubtEmail(); // explit vom Mitglied erlaubt
+  }
+
+  public boolean istTelefonErlaubnisErteilt() {
+    if (getInputShortcut() != null && !getInputShortcut().isEmpty()) {
+      return true; // nur Einzeln durch Kürzelvergabe
+    }
+    return isErlaubtTelefon(); // explit vom Mitglied erlaubt
   }
 }

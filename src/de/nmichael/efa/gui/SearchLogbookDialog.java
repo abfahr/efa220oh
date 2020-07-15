@@ -55,9 +55,7 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
   private static final long serialVersionUID = 1L;
 
   enum SearchMode {
-    none,
-    normal,
-    special
+    none, normal, special
   }
 
   private static EfaBaseFrame efaBaseFrame;
@@ -127,6 +125,8 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Steuermann")));
     items.add(sCrew = new ItemTypeBoolean(LogbookRecord.CREW1NAME, true,
         IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Mannschaft")));
+    items.add(sComments = new ItemTypeBoolean(LogbookRecord.CONTACT, true,
+        IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Telefon")));
     items.add(sStarttime = new ItemTypeBoolean(LogbookRecord.STARTTIME, true,
         IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Abfahrt")));
     items.add(sEndtime = new ItemTypeBoolean(LogbookRecord.ENDTIME, true,
@@ -158,10 +158,10 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("unvollständige Einträge")));
     items.add(eUnknownBoat = new ItemTypeBoolean("ESEARCH_UNKNOWNBOAT", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("Einträge mit unbekannten Booten")));
+            .getString("Einträge mit unbekannten Booten")));
     items.add(eUnknownPerson = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSON", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("Einträge mit unbekannten Personen")));
+            .getString("Einträge mit unbekannten Personen")));
     items.add(eUnknownPersonIgnoreGuest = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSONIGNOREGUEST",
         true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getMessage(
@@ -169,22 +169,22 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
             Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST))));
     items.add(eUnknownDestination = new ItemTypeBoolean("ESEARCH_UNKNOWNDESTINATION", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("Einträge mit unbekannten Zielen")));
+            .getString("Einträge mit unbekannten Zielen")));
     items.add(eInvalidBoat = new ItemTypeBoolean("ESEARCH_INVALIDBOAT", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("Einträge mit ungültigen Booten")));
+            .getString("Einträge mit ungültigen Booten")));
     items.add(eInvalidPerson = new ItemTypeBoolean("ESEARCH_INVALIDPERSON", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("Einträge mit ungültigen Personen")));
+            .getString("Einträge mit ungültigen Personen")));
     items.add(eInvalidDestination = new ItemTypeBoolean("ESEARCH_INVALIDDESTINATION", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("Einträge mit ungültigen Zielen")));
+            .getString("Einträge mit ungültigen Zielen")));
     items.add(eOpenEntry = new ItemTypeBoolean("ESEARCH_OPENENTRY", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("nicht zurückgetragene Einträge")));
+            .getString("nicht zurückgetragene Einträge")));
     items.add(eLargeDistance = new ItemTypeBoolean("ESEARCH_LARGEDISTANCE", true,
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, International
-        .getString("Einträge mit Kilometern größer als") + ": "));
+            .getString("Einträge mit Kilometern größer als") + ": "));
     items.add(eLargeDistanceDistance = new ItemTypeDistance("ESEARCH_LARGEDISTANCEDISTANCE",
         DataTypeDistance.parseDistance("30 " + DataTypeDistance.KILOMETERS),
         IItemType.TYPE_PUBLIC, CAT_SPECIAL, null));
@@ -380,7 +380,8 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
           if (JOptionPane.showConfirmDialog(efaBaseFrame,
               International.getString("Keinen Eintrag gefunden!") + ""
                   + "\n" + International.getString("Suche vom Anfang an fortsetzen?"),
-                  International.getString("Nicht gefunden"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+              International.getString("Nicht gefunden"),
+              JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             k = it.getFirst();
           } else {
             break;
@@ -457,7 +458,8 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
             return true;
           }
           if (tryMatch(s, r.getSessionGroupAsName(), exact,
-              (searchLogbookDialog != null ? searchLogbookDialog.sSessiongroup.getValue() : true))) {
+              (searchLogbookDialog != null ? searchLogbookDialog.sSessiongroup.getValue()
+                  : true))) {
             foundMatch(r, efaBaseFrame.sessiongroup, jumpToField);
             return true;
           }
@@ -497,10 +499,10 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                 if (searchLogbookDialog.eUnknownPersonIgnoreGuest.getValue()
                     &&
                     r.getCrewName(i)
-                    .toLowerCase()
-                    .indexOf(
-                        Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS,
-                            EfaTypes.TYPE_STATUS_GUEST).toLowerCase()) >= 0) {
+                        .toLowerCase()
+                        .indexOf(
+                            Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS,
+                                EfaTypes.TYPE_STATUS_GUEST).toLowerCase()) >= 0) {
                   continue;
                 }
                 if (i == 0) {
@@ -589,7 +591,7 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                 && r.getDistance().isSet()
                 &&
                 r.getDistance().getValueInMeters() >= searchLogbookDialog.eLargeDistanceDistance
-                .getValue().getValueInMeters()) {
+                    .getValue().getValueInMeters()) {
               foundMatch(r, efaBaseFrame.distance, jumpToField);
               return true;
             }

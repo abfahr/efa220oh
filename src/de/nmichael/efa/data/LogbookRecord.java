@@ -120,6 +120,7 @@ public class LogbookRecord extends DataRecord {
 
   // BoatCaptain is the Number of the Boats's Captain (0 = Cox, 1 = Crew1, ...)
   public static final String BOATCAPTAIN = "BoatCaptain";
+  public static final String CONTACT = "Contact";
 
   public static final String STARTTIME = "StartTime";
   public static final String ENDTIME = "EndTime";
@@ -153,7 +154,7 @@ public class LogbookRecord extends DataRecord {
   // =========================================================================
 
   // General
-  public static final int CREW_MAX = 4;
+  public static final int CREW_MAX = 3;
   public static final String WATERS_SEPARATORS = ",;+";
 
   // =========================================================================
@@ -295,6 +296,8 @@ public class LogbookRecord extends DataRecord {
     t.add(IDataAccess.DATA_STRING);
     f.add(BOATCAPTAIN);
     t.add(IDataAccess.DATA_INTEGER);
+    f.add(CONTACT);
+    t.add(IDataAccess.DATA_STRING);
     f.add(STARTTIME);
     t.add(IDataAccess.DATA_TIME);
     f.add(ENDTIME);
@@ -440,6 +443,14 @@ public class LogbookRecord extends DataRecord {
 
   public int getBoatCaptainPosition() {
     return getInt(BOATCAPTAIN);
+  }
+
+  public void setContact(String phoneNr) {
+    setString(CONTACT, phoneNr);
+  }
+
+  public String getContact() {
+    return getString(CONTACT);
   }
 
   public void setStartTime(DataTypeTime time) {
@@ -610,7 +621,7 @@ public class LogbookRecord extends DataRecord {
     String stype = getSessionType();
     return stype == null ||
         (!stype.equals(EfaTypes.TYPE_SESSION_ERG) &&
-        !stype.equals(EfaTypes.TYPE_SESSION_MOTORBOAT));
+            !stype.equals(EfaTypes.TYPE_SESSION_MOTORBOAT));
   }
 
   @Override
@@ -785,7 +796,8 @@ public class LogbookRecord extends DataRecord {
     return getDestinationAndVariantName(getValidAtTimestamp());
   }
 
-  public String getDestinationAndVariantName(boolean prefixedByWaters, boolean postfixedByBoathouse) {
+  public String getDestinationAndVariantName(boolean prefixedByWaters,
+      boolean postfixedByBoathouse) {
     return getDestinationAndVariantName(getValidAtTimestamp(), prefixedByWaters,
         postfixedByBoathouse);
   }
@@ -1162,14 +1174,17 @@ public class LogbookRecord extends DataRecord {
     v.add(item = new ItemTypeStringList(LogbookRecord.BOATCAPTAIN, "",
         LogbookRecord.getBoatCaptainValues(), LogbookRecord.getBoatCaptainDisplay(),
         IItemType.TYPE_PUBLIC, null, International.getString("Obmann")));
+    v.add(item = new ItemTypeString(LogbookRecord.CONTACT, null,
+        IItemType.TYPE_PUBLIC, null, International.getString("Telefon")));
     v.add(item = new ItemTypeTime(LogbookRecord.STARTTIME, new DataTypeTime(),
         IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Abfahrt")));
     v.add(item = new ItemTypeTime(LogbookRecord.ENDTIME, new DataTypeTime(), IItemType.TYPE_PUBLIC,
         null, International.getStringWithMnemonic("Ankunft")));
     v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_DESTINATION, "",
         IItemType.TYPE_PUBLIC, null,
-        International.getStringWithMnemonic("Ziel") + " / " +
-            International.getStringWithMnemonic("Strecke"), true));
+        International.getStringWithMnemonic("Ziel") + "/" +
+            International.getStringWithMnemonic("Strecke"),
+        true));
     ((ItemTypeStringAutoComplete) item).setAutoCompleteData(autoDestinations);
     v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_WATERSLIST, "",
         IItemType.TYPE_PUBLIC, null,
@@ -1196,7 +1211,7 @@ public class LogbookRecord extends DataRecord {
     header[1] = new TableItemHeader(International.getString("Datum"));
     header[2] = new TableItemHeader(International.getString("Boot"));
     header[3] = new TableItemHeader(International.getString("Mannschaft"));
-    header[4] = new TableItemHeader(International.getString("Ziel") + " / " +
+    header[4] = new TableItemHeader(International.getString("Ziel") + "/" +
         International.getString("Strecke"));
     header[5] = new TableItemHeader(DataTypeDistance.getDefaultUnitName());
     return header;
@@ -1230,17 +1245,17 @@ public class LogbookRecord extends DataRecord {
     try {
       StringBuffer s = new StringBuffer();
       s.append(International.getMessage("#{entry} vom {date} mit {boat}",
-          (getEntryId() != null ? getEntryId().toString() :
-            International.getString("Fahrtenbucheintrag")),
-            (getDate() != null ? getDate().toString() : "?"),
-            getBoatAsName()) + ": ");
+          (getEntryId() != null ? getEntryId().toString()
+              : International.getString("Fahrtenbucheintrag")),
+          (getDate() != null ? getDate().toString() : "?"),
+          getBoatAsName()) + ": ");
       s.append(getAllCoxAndCrewAsNameString() + ": ");
+      s.append(getContact() + ": ");
       s.append((getStartTime() != null ? getStartTime().toString() : "?") +
           " " + International.getString("bis") + " " +
           (getEndTime() != null ? getEndTime().toString() : "?") + " " +
           International.getString("Uhr") + ": ");
-      s.append(getDestinationAndVariantName() + " (" +
-          (getDistance() != null ? getDistance().toString() : "?") + ")");
+      s.append(getDestinationAndVariantName());
       if (getComments() != null && getComments().length() > 0) {
         s.append("; " + getComments());
       }
@@ -1264,8 +1279,8 @@ public class LogbookRecord extends DataRecord {
     String[] _bcNames = new String[LogbookRecord.CREW_MAX + 2];
     _bcNames[0] = International.getString("keine Angabe");
     for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
-      _bcNames[i + 1] = (i == 0 ? International.getString("Steuermann") :
-          International.getString("Nummer") + " " + Integer.toString(i));
+      _bcNames[i + 1] = (i == 0 ? International.getString("Steuermann")
+          : International.getString("Nummer") + " " + Integer.toString(i));
     }
     return _bcNames;
   }
@@ -1312,8 +1327,8 @@ public class LogbookRecord extends DataRecord {
     long timestampTo = dateTo.getTimestamp(timeTo);
 
     if (timestampFrom > timestampTo) {
-       return false; // keine sinnvolle Endzeit eingetragen
-     }
+      return false; // keine sinnvolle Endzeit eingetragen
+    }
     return now > timestampTo;
   }
 

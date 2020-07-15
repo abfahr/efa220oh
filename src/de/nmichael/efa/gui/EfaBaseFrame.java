@@ -159,6 +159,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   ItemTypeString destinationInfo;
   ItemTypeStringAutoComplete waters;
   ItemTypeDistance distance;
+  ItemTypeString phoneNr;
   ItemTypeString comments;
   ItemTypeStringList sessiontype;
   ItemTypeStringAutoComplete sessiongroup;
@@ -697,9 +698,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // boatvariant.displayOnGui(this, mainInputPanel, 5, 2);
     boatvariant.registerItemListener(this);
 
-    // Cox
+    // Cox = Steuermann
     cox = new ItemTypeStringAutoComplete(LogbookRecord.COXNAME, "", IItemType.TYPE_PUBLIC, null,
-        International.getStringWithMnemonic("Steuermann"), true);
+        International.getStringWithMnemonic("Paddel-Kapitänin"), true);
     cox.setFieldSize(200, 19);
     cox.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     cox.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
@@ -731,7 +732,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           .setBackgroundColorWhenFocused(
               Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
                   : null);
-      crew[j].displayOnGui(this, mainInputPanel, (left ? 0 : 4), 5 + j % 4);
+      crew[j].displayOnGui(this, mainInputPanel, (left ? 0 : 4), 6 + j % 4);
       crew[j].setVisible(j < 8);
       crew[j].registerItemListener(this);
     }
@@ -751,7 +752,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (isModeBoathouse()) {
       boatcaptain.setVisible(Daten.efaConfig.getValueShowObmann());
       // TODO 2020-03-27 abf brauchen wir boatcaptain?
+      boatcaptain.setVisible(false);
     }
+
+    // Phone Number
+    phoneNr = new ItemTypeString(LogbookRecord.CONTACT, null, IItemType.TYPE_PUBLIC, null,
+        International.getStringWithMnemonic("Telefon/Handy"));
+    phoneNr.setFieldSize(200, 19);
+    phoneNr.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
+    phoneNr.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
+    phoneNr
+        .setBackgroundColorWhenFocused(
+            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
+                : null);
+    phoneNr.displayOnGui(this, mainInputPanel, 0, 5);
+    phoneNr.registerItemListener(this);
 
     // StartTime
     starttime = new ItemTypeTime(LogbookRecord.STARTTIME, new DataTypeTime(),
@@ -795,7 +810,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // Destination
     destination = new ItemTypeStringAutoComplete(LogbookRecord.DESTINATIONNAME, "",
         IItemType.TYPE_PUBLIC, null,
-        International.getStringWithMnemonic("Ziel") + " / " +
+        International.getStringWithMnemonic("Ziel") + "/" +
             International.getStringWithMnemonic("Strecke"),
         true);
     destination.setFieldSize(400, 19);
@@ -847,6 +862,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 : null);
     distance.displayOnGui(this, mainInputPanel, 0, 14);
     distance.registerItemListener(this);
+    distance.setEditable(false);
+    distance.setVisible(false);
 
     // Comments
     comments = new ItemTypeString(LogbookRecord.COMMENTS, null, IItemType.TYPE_PUBLIC, null,
@@ -1036,6 +1053,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       element.restoreBackgroundColor();
     }
     boatcaptain.restoreBackgroundColor();
+    phoneNr.restoreBackgroundColor();
     starttime.restoreBackgroundColor();
     endtime.restoreBackgroundColor();
     destination.restoreBackgroundColor();
@@ -1435,6 +1453,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               : "");
         }
       }
+      if (field == phoneNr) {
+        return (r != null ? r.getContact() : "");
+      }
       if (field == starttime) {
         return (r != null ? r.getStartTime().toString() : "");
       }
@@ -1505,6 +1526,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       setField(element, r);
     }
     setField(boatcaptain, r);
+    setField(phoneNr, r);
     setField(starttime, r);
     setField(endtime, r);
     setField(destination, r);
@@ -1608,6 +1630,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       r.setBoatCaptainPosition(EfaUtil.stringFindInt(boatcaptain.getValue(), 0));
     } else {
       r.setBoatCaptainPosition(IDataAccess.UNDEFINED_INT);
+    }
+
+    // Contact = phoneNr
+    s = phoneNr.toString().trim();
+    if (s.length() > 0) {
+      r.setContact(s);
+    } else {
+      r.setContact(null);
     }
 
     // Destination
@@ -1827,6 +1857,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       element.setUnchanged();
     }
     boatcaptain.setUnchanged();
+    phoneNr.setUnchanged();
     starttime.setUnchanged();
     endtime.setUnchanged();
     destination.setUnchanged();
@@ -1844,6 +1875,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         boat.isChanged() ||
         cox.isChanged() ||
         boatcaptain.isChanged() ||
+        phoneNr.isChanged() ||
         starttime.isChanged() ||
         endtime.isChanged() ||
         destination.isChanged() ||
@@ -2334,7 +2366,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private boolean checkPersonsForBoatType() {
-    // bei steuermannslosen Booten keinen Steuermann eingeben
+    // bei steuermannslosen Booten keinen Steuermann eingeben = cox
     if (cox.getValueFromField().trim().length() > 0
         && currentBoatTypeCoxing != null) {
       if (currentBoatTypeCoxing.equals(EfaTypes.TYPE_COXING_COXLESS)) {
@@ -2342,8 +2374,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             International.getString("Steuermann"),
             International
                 .getString("Du hast für ein steuermannsloses Boot einen Steuermann eingetragen.")
-                + "\n" +
-                International.getString("Trotzdem speichern?"));
+                + "\n" + International.getString("Trotzdem speichern?"));
         if (ret != Dialog.YES) {
           return false;
         }
@@ -2469,23 +2500,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 International
                     .getString("Die Laufende Nummer dieses Eintrags ist kleiner als die des "
                         + "letzten Eintrags.")
-                    + " " +
-                    International.getString("Trotzdem speichern?")) == Dialog.NO) {
+                    + " " + International.getString("Trotzdem speichern?")) == Dialog.NO) {
           entryno.requestFocus();
           return false;
         }
       }
       entryNoForNewEntry = EfaUtil.string2date(entryno.getValue(), 1, 1, 1).tag; // lfdNr merken,
-      // nächster Eintrag
-      // erhält dann per
-      // default diese
-      // Nummer + 1
+      // nächster Eintrag erhält dann per default diese Nummer + 1
     } else { // geänderter Fahrtenbucheintrag
       if (!currentRecord.getEntryId().toString().equals(entryno.toString())) {
         if (Dialog.yesNoDialog(International.getString("Warnung"),
-            International.getString("Du hast die Laufende Nummer dieses Eintrags verändert!") + " "
-                +
-                International.getString("Trotzdem speichern?")) == Dialog.NO) {
+            International.getString("Du hast die Laufende Nummer dieses Eintrags verändert!")
+                + " " + International.getString("Trotzdem speichern?")) == Dialog.NO) {
           entryno.requestFocus();
           return false;
         }
@@ -2797,12 +2823,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       // Aufruf andere Prüfung aus Reservierung
       // if (config-Erlaubt) --> nicht nötig, einfach Regexp mit .* füllen
       if (getNumberOfPersonsMitVorNachname() == 0) {
-        Dialog.error(International.getString("Bitte trage Vor- und Nachnamen ein!"));
+        Dialog.error(International.getString("Bitte trage Vor- und Nachnamen ein"));
         if (cox.isEditable()) {
           cox.requestFocus();
         } else {
           crew[0].requestFocus();
         }
+        return false;
+      }
+
+      if (phoneNr.getValue().length() == 0) {
+        Dialog.error(International.getString("Bitte gib eine Telefon- oder Handynummer ein"));
+        phoneNr.requestFocus();
         return false;
       }
 
@@ -3070,7 +3102,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         : " "
                             + International.getString("und") + " " + name));
           }
-          switch (Dialog
+          int ergebnisAuswahlDialog = Dialog
               .auswahlDialog(
                   International.getString("Boot nur für bestimmte Gruppen freigegeben"),
                   International.getMessage("Dieses Boot dürfen nur {list_of_valid_groups} nutzen.",
@@ -3085,21 +3117,25 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                   International.getString("Anderes Boot wählen"),
                   International.getString("Mannschaft ändern"),
                   International.getString("Trotzdem benutzen"),
-                  International.getString("Eintrag abbrechen"))) {
-            case 0:
+                  International.getString("Eintrag abbrechen"));
+          switch (ergebnisAuswahlDialog) {
+            case 0: // "Anderes Boot wählen"
               setFieldEnabled(true, true, boat);
               boat.parseAndShowValue("");
               boat.requestFocus();
               return false;
-            case 1:
+            case 1: // "Mannschaft ändern"
               crew[0].requestFocus();
               return false;
-            case 2:
+            case 2: // "Trotzdem benutzen"
               logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_UNALLOWEDBOATUSAGE,
                   International.getString("Unerlaubte Benutzung eines Bootes"),
                   myRecord);
               break;
-            case 3:
+            case 3: // "Eintrag abbrechen"
+              cancel();
+              return false;
+            default: // "Eintrag abbrechen"
               cancel();
               return false;
           }
@@ -3121,7 +3157,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           }
         }
         if (g != null && !found) {
-          switch (Dialog.auswahlDialog(
+          int ergebnisAuswahlDialog = Dialog.auswahlDialog(
               International.getString("Boot erfordert bestimmte Berechtigung"),
               International.getMessage(
                   "In diesem Boot muß mindestens ein Mitglied der Gruppe {groupname} sitzen.",
@@ -3131,7 +3167,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               International.getString("Anderes Boot wählen"),
               International.getString("Mannschaft ändern"),
               International.getString("Trotzdem benutzen"),
-              International.getString("Eintrag abbrechen"))) {
+              International.getString("Eintrag abbrechen"));
+          switch (ergebnisAuswahlDialog) {
             case 0:
               setFieldEnabled(true, true, boat);
               boat.parseAndShowValue("");
@@ -3146,6 +3183,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                   myRecord);
               break;
             case 3:
+              cancel();
+              return false;
+            default:
               cancel();
               return false;
           }
@@ -3792,6 +3832,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           + ": " + International.getString("verantwortlichen Obmann"));
       return;
     }
+    if (s.equals(LogbookRecord.CONTACT)) {
+      infoLabel.setText(International.getString("Bitte eingeben")
+          + ": " + International.getString("Telefon für Rückfragen"));
+      return;
+    }
     if (s.equals(LogbookRecord.STARTTIME) || s.equals(LogbookRecord.ENDTIME)) {
       infoLabel.setText(International.getString("Bitte eingeben") + ": "
           + "<" + International.getString("Stunde") + ">:<"
@@ -3878,7 +3923,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   private void currentBoatUpdateGuiBoathouse(boolean isCoxed, int numCrew) {
     // Steuermann wird bei steuermannslosen Booten immer disabled (unabhängig von
     // Konfigurationseinstellung)
-    setFieldEnabled(isCoxed, isCoxed, cox);
+    setFieldEnabled(isCoxed, isCoxed, cox); // Steuermann
+    setFieldEnabled(true, true, cox); // Steuermann immer an.
     if (!isCoxed) {
       cox.parseAndShowValue("");
       if (getBoatCaptain() == 0) {
@@ -3907,7 +3953,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         remainingCrewDownButton);
 
     // "Obmann" ggf. ausblenden
-    setFieldEnabled(true, isCoxed || numCrew > 1, boatcaptain);
+    boolean makeVisible = isCoxed || numCrew > 1;
+    setFieldEnabled(true, makeVisible, boatcaptain);
 
     // Bezeichnung für Mannschaftsfelder anpassen
     if (numCrew != 1 || isCoxed) {
@@ -3957,6 +4004,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         int idx = b.getVariantIndex(variant);
         currentBoatTypeSeats = b.getTypeSeats(idx);
         currentBoatTypeCoxing = b.getTypeCoxing(idx);
+        currentBoatTypeCoxing = EfaTypes.TYPE_COXING_COXED; // Steuermann
         currentBoatNumberOfSeats = b.getNumberOfSeats(idx);
         if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
           Logger
@@ -4141,10 +4189,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
       }
       if ((r.getBoatCaptainPosition() == 0 && currentBoatTypeCoxing != null
-          && !currentBoatTypeCoxing
-              .equals(EfaTypes.TYPE_COXING_COXLESS))
-          ||
-          (r.getBoatCaptainPosition() > 0
+          && !currentBoatTypeCoxing.equals(EfaTypes.TYPE_COXING_COXLESS))
+          || (r.getBoatCaptainPosition() > 0
               && r.getBoatCaptainPosition() <= currentBoatNumberOfSeats)) {
         boatcaptain.parseAndShowValue(Integer.toString(r.getBoatCaptainPosition()));
       }
@@ -4236,6 +4282,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       if (c == efaBaseFrame.boatcaptain.getComponent()) {
         return efaBaseFrame.boatcaptain;
+      }
+      if (c == efaBaseFrame.phoneNr.getComponent()) {
+        return efaBaseFrame.phoneNr;
       }
       if (c == efaBaseFrame.starttime.getComponent()) {
         return efaBaseFrame.starttime;
@@ -4347,12 +4396,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return;
       }
 
-      // STEUERMANN
+      // STEUERMANN = COX
       if (item == efaBaseFrame.cox) {
         efaBaseFrame.cox.getValueFromGui();
         if (!(cur instanceof JButton) && efaBaseFrame.cox.getValue().length() > 0
             && !efaBaseFrame.cox.isKnown() && !efaBaseFrame.isModeBoathouse()) {
           efaBaseFrame.cox.requestButtonFocus();
+        } else {
+          focusItem(efaBaseFrame.phoneNr, cur, 1);
+        }
+        return;
+      }
+
+      // CONTACT = phoneNr
+      if (item == efaBaseFrame.phoneNr) {
+        efaBaseFrame.phoneNr.getValueFromGui();
+        if (efaBaseFrame.phoneNr.getValue().length() == 0) {
+          efaBaseFrame.phoneNr.requestFocus();
         } else {
           focusItem(efaBaseFrame.crew[efaBaseFrame.crewRangeSelection * 8], cur, 1);
         }
@@ -4447,9 +4507,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         focusItem(efaBaseFrame.boat, cur, -1);
         return;
       }
+      if (item == efaBaseFrame.phoneNr) {
+        focusItem(efaBaseFrame.cox, cur, -1);
+        return;
+      }
       for (int i = 0; i < efaBaseFrame.crew.length; i++) {
         if (item == efaBaseFrame.crew[i]) {
-          focusItem((i == 0 ? efaBaseFrame.cox : efaBaseFrame.crew[i - 1]), cur, -1);
+          focusItem((i == 0 ? efaBaseFrame.phoneNr : efaBaseFrame.crew[i - 1]), cur, -1);
           return;
         }
       }
@@ -4585,6 +4649,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setFieldEnabled(false, true, entryno);
     setFieldEnabled(true, true, date);
     setFieldEnabled(item.boat == null, true, boat);
+    setFieldEnabled(true, true, phoneNr);
     if (Daten.efaConfig.getValueEfaDirekt_eintragNichtAenderbarUhrzeit()) {
       setFieldEnabled(false, true, starttime);
       setFieldEnabled(false, false, endtime);
@@ -4595,6 +4660,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setFieldEnabled(true, true, destination);
     setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
+    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
@@ -4609,8 +4675,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // boatcaptain.setEditable(false);
     // cox.setVisible(false);
     // cox.setEditable(false);
-    // sessiontype.setVisible(false);
-    // sessiontype.setEditable(false);
     updateTimeInfoFields();
     return true;
   }
@@ -4645,6 +4709,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setFieldEnabled(false, true, entryno);
     setFieldEnabled(true, true, date);
     setFieldEnabled(true, true, boat);
+    setFieldEnabled(true, true, phoneNr);
     if (Daten.efaConfig.getValueEfaDirekt_eintragNichtAenderbarUhrzeit()) {
       setFieldEnabled(false, true, starttime);
       setFieldEnabled(false, false, endtime);
@@ -4655,6 +4720,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setFieldEnabled(true, true, destination);
     setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
+    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
@@ -4700,6 +4766,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setFieldEnabled(false, true, entryno);
     setFieldEnabled(true, true, date);
     setFieldEnabled(false, true, boat);
+    setFieldEnabled(false, true, phoneNr);
     if (Daten.efaConfig.getValueEfaDirekt_eintragNichtAenderbarUhrzeit()) {
       setFieldEnabled(false, true, starttime);
       setFieldEnabled(false, true, endtime);
@@ -4708,8 +4775,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       setFieldEnabled(true, true, endtime);
     }
     setFieldEnabled(true, true, destination);
-    setFieldEnabled(true, true, distance);
+    setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
+    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
@@ -4730,11 +4798,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setFieldEnabled(false, true, entryno);
     setFieldEnabled(true, true, date);
     setFieldEnabled(true, true, boat);
+    setFieldEnabled(false, true, phoneNr);
     setFieldEnabled(true, true, starttime);
     setFieldEnabled(true, true, endtime);
     setFieldEnabled(true, true, destination);
-    setFieldEnabled(true, true, distance);
+    setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
+    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);

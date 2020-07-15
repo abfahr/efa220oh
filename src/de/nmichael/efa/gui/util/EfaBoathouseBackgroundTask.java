@@ -706,10 +706,13 @@ public class EfaBoathouseBackgroundTask extends Thread {
     LogbookRecord newLogbookRecord = currentLogbook.createLogbookRecord(newEntryNo);
     newLogbookRecord.setEntryId(newEntryNo); // braucht man das?
     newLogbookRecord.setBoatId(boatReservationRecord.getBoatId());
-    newLogbookRecord.setCrewId(1, boatReservationRecord.getPersonId());
+    // newLogbookRecord.setCrewId(1, boatReservationRecord.getPersonId());
+    newLogbookRecord.setCoxId(boatReservationRecord.getPersonId());
     if (boatReservationRecord.getPersonId() == null) {
-      newLogbookRecord.setCrewName(1, boatReservationRecord.getPersonName());
+      // newLogbookRecord.setCrewName(1, boatReservationRecord.getPersonName());
+      newLogbookRecord.setCoxName(boatReservationRecord.getPersonName());
     }
+    newLogbookRecord.setContact(boatReservationRecord.getContact());
     newLogbookRecord.setDate(boatReservationRecord.getDateFrom());
     newLogbookRecord.setStartTime(boatReservationRecord.getTimeFrom());
     if (!boatReservationRecord.getDateFrom().equals(boatReservationRecord.getDateTo())) {

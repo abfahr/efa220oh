@@ -609,10 +609,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     entryno.setFieldSize(200, 19);
     entryno.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     entryno.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
-    entryno
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    entryno.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     entryno.displayOnGui(this, mainInputPanel, 0, 0);
     entryno.registerItemListener(this);
 
@@ -643,8 +641,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     date.setFieldGrid(1, GridBagConstraints.WEST, GridBagConstraints.NONE);
     date.setWeekdayGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
     date.setBackgroundColorWhenFocused(
-        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-            : null);
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     date.displayOnGui(this, mainInputPanel, 0, 1);
     date.registerItemListener(this);
 
@@ -661,10 +658,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (isModeBoathouse()) {
       enddate.setOptionalButtonText("+ " + International.getString("Enddatum"));
     }
-    enddate
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    enddate.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     enddate.displayOnGui(this, mainInputPanel, 4, 1);
     enddate.registerItemListener(this);
     if (isModeBoathouse() && !Daten.efaConfig.getValueAllowEnterEndDate()) {
@@ -680,14 +675,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     boat.setAutoCompleteData(autoCompleteListBoats);
     boat.setChecks(true, true);
     boat.setBackgroundColorWhenFocused(
-        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-            : null);
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     boat.displayOnGui(this, mainInputPanel, 0, 2);
     boat.registerItemListener(this);
 
     // Boat Variant
-    boatvariant = new ItemTypeStringList(LogbookRecord.BOATVARIANT, "",
-        null, null,
+    boatvariant = new ItemTypeStringList(LogbookRecord.BOATVARIANT, "", null, null,
         IItemType.TYPE_PUBLIC, null, International.getString("Variante"));
     boatvariant.setFieldSize(80, 17);
     boatvariant.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
@@ -707,8 +700,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     cox.setAutoCompleteData(autoCompleteListPersons);
     cox.setChecks(true, true);
     cox.setBackgroundColorWhenFocused(
-        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-            : null);
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     cox.displayOnGui(this, mainInputPanel, 0, 4);
     cox.registerItemListener(this);
 
@@ -728,10 +720,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       crew[j].setFieldGrid((left ? 2 : 3), GridBagConstraints.WEST, GridBagConstraints.NONE);
       crew[j].setAutoCompleteData(autoCompleteListPersons);
       crew[j].setChecks(true, true);
-      crew[j]
-          .setBackgroundColorWhenFocused(
-              Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                  : null);
+      crew[j].setBackgroundColorWhenFocused(
+          Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
       crew[j].displayOnGui(this, mainInputPanel, (left ? 0 : 4), 6 + j % 4);
       crew[j].setVisible(j < 8);
       crew[j].registerItemListener(this);
@@ -761,10 +751,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     phoneNr.setFieldSize(200, 19);
     phoneNr.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     phoneNr.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
-    phoneNr
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    phoneNr.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     phoneNr.displayOnGui(this, mainInputPanel, 0, 5);
     phoneNr.registerItemListener(this);
 
@@ -775,10 +763,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     starttime.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     starttime.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
     starttime.enableSeconds(false);
-    starttime
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    starttime.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     starttime.displayOnGui(this, mainInputPanel, 0, 9);
     starttime.registerItemListener(this);
 
@@ -789,10 +775,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     endtime.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     endtime.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
     endtime.enableSeconds(false);
-    endtime
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    endtime.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     endtime.displayOnGui(this, mainInputPanel, 0, 10);
     endtime.registerItemListener(this);
 
@@ -834,18 +818,15 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     // Waters
     waters = new ItemTypeStringAutoComplete(GUIITEM_ADDITIONALWATERS, "", IItemType.TYPE_PUBLIC,
-        null,
-        International.getStringWithMnemonic("Gewässer"), true);
+        null, International.getStringWithMnemonic("Gewässer"), true);
     waters.setFieldSize(400, 19);
     waters.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     waters.setFieldGrid(7, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
     waters.setAutoCompleteData(autoCompleteListWaters);
     waters.setChecks(true, false);
     waters.setIgnoreEverythingAfter(LogbookRecord.WATERS_SEPARATORS);
-    waters
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    waters.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     waters.displayOnGui(this, mainInputPanel, 0, 13);
     waters.registerItemListener(this);
     waters.setVisible(false);
@@ -856,10 +837,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     distance.setFieldSize(200, 19);
     distance.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     distance.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
-    distance
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    distance.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     distance.displayOnGui(this, mainInputPanel, 0, 14);
     distance.registerItemListener(this);
     distance.setEditable(false);
@@ -871,10 +850,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     comments.setFieldSize(400, 19);
     comments.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     comments.setFieldGrid(7, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
-    comments
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    comments.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     comments.displayOnGui(this, mainInputPanel, 0, 15);
     comments.registerItemListener(this);
 
@@ -917,8 +894,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         "\u2193");
     remainingCrewDownButton.setFieldSize(18, 30);
     remainingCrewDownButton.setPadding(5, 0, 3, 3);
-    remainingCrewDownButton
-        .setFieldGrid(1, 2, GridBagConstraints.WEST, GridBagConstraints.VERTICAL);
+    remainingCrewDownButton.setFieldGrid(1, 2,
+        GridBagConstraints.WEST, GridBagConstraints.VERTICAL);
     remainingCrewDownButton.displayOnGui(this, mainInputPanel, 9, 7);
     remainingCrewDownButton.registerItemListener(this);
 
@@ -960,10 +937,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // Save Button
     saveButton = new ItemTypeButton("SAVE", IItemType.TYPE_PUBLIC, null,
         International.getString("Eintrag speichern"));
-    saveButton
-        .setBackgroundColorWhenFocused(
-            Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow
-                : null);
+    saveButton.setBackgroundColorWhenFocused(
+        Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     saveButton.setIcon(getIcon(BaseDialog.IMAGE_ACCEPT));
     saveButton.displayOnGui(this, mainPanel, BorderLayout.SOUTH);
     saveButton.registerItemListener(this);
@@ -3045,7 +3020,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           }
 
           if (p != null && p.getBoatUsageBan()) {
-            switch (Dialog.auswahlDialog(
+            int ergebnisAuswahlDialog = Dialog.auswahlDialog(
                 International.getString("Bootsbenutzungs-Sperre"),
                 International.getMessage(
                     "Für {name} liegt zur Zeit eine Bootsbenutzungs-Sperre vor.",
@@ -3053,7 +3028,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     + International.getString("Was möchtest Du tun?"),
                 International.getString("Mannschaft ändern"),
                 International.getString("Trotzdem benutzen"),
-                International.getString("Eintrag abbrechen"))) {
+                International.getString("Eintrag abbrechen"));
+            switch (ergebnisAuswahlDialog) {
               case 0:
                 if (i == 0) {
                   cox.requestFocus();
@@ -3064,6 +3040,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               case 1:
                 break;
               case 2:
+                cancel();
+                return false;
+              default:
                 cancel();
                 return false;
             }
@@ -4403,6 +4382,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             && !efaBaseFrame.cox.isKnown() && !efaBaseFrame.isModeBoathouse()) {
           efaBaseFrame.cox.requestButtonFocus();
         } else {
+          fillPhoneNr(cox);
           focusItem(efaBaseFrame.phoneNr, cur, 1);
         }
         return;
@@ -4496,6 +4476,25 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
       // other
       fm.focusNextComponent(cur);
+    }
+
+    private void fillPhoneNr(ItemTypeStringAutoComplete nameItemAutoComplete) {
+      ItemTypeString nameItemString = (ItemTypeString) nameItemAutoComplete;
+      PersonRecord person = findPerson(nameItemString, getValidAtTimestamp(null));
+      if (person == null) {
+        return;
+      }
+      if (!person.istTelefonErlaubnisErteilt()) {
+        return;
+      }
+      String telnum = person.getFreeUse2();
+      if (telnum == null || telnum.length() == 0) {
+        telnum = person.getFreeUse1();
+      }
+      if (telnum == null || telnum.length() == 0) {
+        return;
+      }
+      phoneNr.setValue(telnum);
     }
 
     public void focusPreviousItem(IItemType item, Component cur) {

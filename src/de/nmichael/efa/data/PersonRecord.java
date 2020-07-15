@@ -60,6 +60,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String ADDRESSZIP = "AddressZip";
   public static final String ADDRESSCOUNTRY = "AddressCountry";
   public static final String EMAIL = "Email";
+  public static final String ISALLOWEDEMAIL = "erlaubtEmail";
+  public static final String ISALLOWEDPHONE = "erlaubtTelefon";
+  public static final String ISALLOWEDSHORT = "erlaubtKürzel";
+  public static final String ISALLOWEDSPELL = "erlaubtSchreibweise";
   public static final String MEMBERSHIPNO = "MembershipNo";
   public static final String PASSWORD = "Password";
   public static final String EXTERNALID = "ExternalId";
@@ -118,6 +122,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_STRING);
     f.add(EMAIL);
     t.add(IDataAccess.DATA_STRING);
+    f.add(ISALLOWEDEMAIL);
+    t.add(IDataAccess.DATA_BOOLEAN);
+    f.add(ISALLOWEDPHONE);
+    t.add(IDataAccess.DATA_BOOLEAN);
+    f.add(ISALLOWEDSHORT);
+    t.add(IDataAccess.DATA_BOOLEAN);
+    f.add(ISALLOWEDSPELL);
+    t.add(IDataAccess.DATA_BOOLEAN);
     f.add(MEMBERSHIPNO);
     t.add(IDataAccess.DATA_STRING);
     f.add(PASSWORD);
@@ -333,6 +345,38 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public String getEmail() {
     return getString(EMAIL);
+  }
+
+  public boolean isErlaubtEmail() {
+    return getBool(ISALLOWEDEMAIL);
+  }
+
+  public void setErlaubnisEmail(boolean isErlaubtEmail) {
+    setBool(ISALLOWEDEMAIL, isErlaubtEmail);
+  }
+
+  public boolean isErlaubtTelefon() {
+    return getBool(ISALLOWEDPHONE);
+  }
+
+  public void setErlaubnisTelefon(boolean isErlaubtTelefon) {
+    setBool(ISALLOWEDPHONE, isErlaubtTelefon);
+  }
+
+  public boolean isErlaubtKuerzel() {
+    return getBool(ISALLOWEDSHORT);
+  }
+
+  public void setErlaubnisKuerzel(boolean isErlaubtKuerzel) {
+    setBool(ISALLOWEDSHORT, isErlaubtKuerzel);
+  }
+
+  public boolean isErlaubtSchreibweise() {
+    return getBool(ISALLOWEDSPELL);
+  }
+
+  public void setErlaubnisSchreibweise(boolean isErlaubtSchreibweise) {
+    setBool(ISALLOWEDSPELL, isErlaubtSchreibweise);
   }
 
   public String getAddressComplete(String lineSep) {
@@ -739,17 +783,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Nachname")));
     ((ItemTypeString) item).setNotAllowedCharacters(",");
     v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Namenszusatz")));
+        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Namenszusatz")));
     ((ItemTypeString) item).setNotAllowedCharacters(",");
     v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Titel")));
+        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Titel")));
     ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eingabekürzel")));
     v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
         EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
             .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
+        IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Geschlecht")));
 
     if (admin != null && admin.isAllowedEditPersons()) {
       v.add(item = new ItemTypeStringList(PersonRecord.STATUSID,
@@ -760,55 +802,73 @@ public class PersonRecord extends DataRecord implements IItemFactory {
               .makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
 
+      v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eingabekürzel")));
+      v.add(item = new ItemTypeString(PersonRecord.EMAIL, getEmail(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("email")));
+      v.add(item = new ItemTypeString(PersonRecord.FREEUSE1, getFreeUse1(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon/Handy") + " 1"));
+      v.add(item = new ItemTypeString(PersonRecord.FREEUSE2, getFreeUse2(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon/Handy") + " 2"));
+
       v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verein")));
+          IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Verein")));
       v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
       v.add(item = new ItemTypeString(PersonRecord.PASSWORD, getPassword(),
-          IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Paßwort")));
+          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Paßwort")));
       v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Geburtstag")));
+          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Geburtstag")));
       ((ItemTypeDate) item).setAllowYearOnly(true);
-      v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
+
+      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSHORT, isErlaubtKuerzel(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Kürzel")));
+      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDEMAIL, isErlaubtEmail(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Email")));
+      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDPHONE, isErlaubtTelefon(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Telefon")));
+      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSPELL, isErlaubtSchreibweise(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA,
+          International.getString("ist Erlaubt Schreibweise")));
+
+      v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
+          IItemType.TYPE_EXPERT, CAT_MOREDATA,
           International.getString("50% oder mehr Behinderung")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
+          IItemType.TYPE_EXPERT, CAT_MOREDATA, International
               .getString("von allgemein verfügbaren Statistiken ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE,
           getExcludeFromCompetition(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
+          IItemType.TYPE_EXPERT, CAT_MOREDATA, International
               .getString("von Wettbewerbsmeldungen ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
+          IItemType.TYPE_EXPERT, CAT_MOREDATA, International
               .getString("von Vereinsarbeit ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
       v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.DEFAULTBOATID, getDefaultBoatId(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA,
+          IItemType.TYPE_EXPERT, CAT_FREEUSE,
           boats, getValidFrom(), getInvalidFrom() - 1,
           International.getString("Standard-Boot")));
       item.setFieldSize(300, -1);
       v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
-          IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));
+          IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Externe ID")));
       if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
         v.add(item = new ItemTypeString(PersonRecord.EFBID, getEfbId(),
-            IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID", "de")));
+            IItemType.TYPE_EXPERT, CAT_ADDRESS, International.onlyFor("Kanu-eFB ID", "de")));
       }
 
       v.add(item = new ItemTypeString(PersonRecord.ADDRESSSTREET, getAddressStreet(),
-          IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Straße")));
+          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Straße")));
       v.add(item = new ItemTypeString(PersonRecord.ADDRESSADDITIONAL, getAddressAdditional(),
-          IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("weitere Adreßzeile")));
+          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("weitere Adreßzeile")));
       v.add(item = new ItemTypeString(PersonRecord.ADDRESSCITY, getAddressCity(),
-          IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Stadt")));
+          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Stadt")));
       v.add(item = new ItemTypeString(PersonRecord.ADDRESSZIP, getAddressZip(),
-          IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Postleitzahl")));
+          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Postleitzahl")));
       v.add(item = new ItemTypeString(PersonRecord.ADDRESSCOUNTRY, getAddressCountry(),
-          IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Land")));
-      v.add(item = new ItemTypeString(PersonRecord.EMAIL, getEmail(),
-          IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("email")));
+          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Land")));
 
       // CAT_GROUPS
       if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
@@ -824,19 +884,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           itemList.add(items);
         }
         v.add(item = new ItemTypeItemList(GUIITEM_GROUPS, itemList, this,
-            IItemType.TYPE_PUBLIC, CAT_GROUPS, International.getString("Gruppenzugehörigkeit")));
+            IItemType.TYPE_EXPERT, CAT_GROUPS, International.getString("Gruppenzugehörigkeit")));
         ((ItemTypeItemList) item).setXForAddDelButtons(3);
         ((ItemTypeItemList) item).setPadYbetween(0);
         ((ItemTypeItemList) item).setRepeatTitle(false);
         ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
-      }
+      } // isAllowedEditPersons
 
-      v.add(item = new ItemTypeString(PersonRecord.FREEUSE1, getFreeUse1(),
-          IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 1"));
-      v.add(item = new ItemTypeString(PersonRecord.FREEUSE2, getFreeUse2(),
-          IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 2"));
       v.add(item = new ItemTypeString(PersonRecord.FREEUSE3, getFreeUse3(),
-          IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
+          IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
     }
 
     // hidden parameter, just for BatchEditDialog
@@ -873,7 +929,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   @Override
   public TableItemHeader[] getGuiTableHeader() {
-    TableItemHeader[] header = new TableItemHeader[5];
+    TableItemHeader[] header = new TableItemHeader[7];
     if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
       header[0] = new TableItemHeader(International.getString("Vorname"));
       header[1] = new TableItemHeader(International.getString("Nachname"));
@@ -883,13 +939,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     header[2] = new TableItemHeader(International.getString("EingabekürzelKurz"));
     header[3] = new TableItemHeader(International.getString("Status"));
-    header[4] = new TableItemHeader(International.getString("BoatUsageBanKurz"));
+    header[4] = new TableItemHeader(International.getString("okKürzel"));
+    header[5] = new TableItemHeader(International.getString("okEmail"));
+    header[6] = new TableItemHeader(International.getString("okTelefon"));
     return header;
   }
 
   @Override
   public TableItem[] getGuiTableItems() {
-    TableItem[] items = new TableItem[5];
+    TableItem[] items = new TableItem[7];
     if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
       items[0] = new TableItem(getFirstName());
       items[1] = new TableItem(getLastName());
@@ -899,7 +957,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     items[2] = new TableItem(getInputShortcut());
     items[3] = new TableItem(getStatusName());
-    items[4] = new TableItem(getBoatUsageBan());
+    items[6] = new TableItem(isErlaubtKuerzel());
+    items[4] = new TableItem(isErlaubtEmail());
+    items[5] = new TableItem(isErlaubtTelefon());
     return items;
   }
 
@@ -927,6 +987,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         && getInputShortcut() != null && !getInputShortcut().isEmpty()) {
       return true; // nur Einzeln durch Kürzelvergabe
     }
-    return false;
+    return isErlaubtEmail(); // explit vom Mitglied erlaubt
   }
 }

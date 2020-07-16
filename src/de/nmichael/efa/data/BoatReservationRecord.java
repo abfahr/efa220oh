@@ -30,6 +30,7 @@ import de.nmichael.efa.core.items.ItemTypeRadioButtons;
 import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.core.items.ItemTypeStringList;
+import de.nmichael.efa.core.items.ItemTypeStringPhone;
 import de.nmichael.efa.core.items.ItemTypeTime;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
@@ -684,24 +685,21 @@ public class BoatReservationRecord extends DataRecord {
     }
     v.add(personId);
 
-    item = new ItemTypeString(BoatReservationRecord.CONTACT,
-        getContact(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+    ItemTypeStringPhone phoneNr = new ItemTypeStringPhone(BoatReservationRecord.CONTACT,
+        getContact(), IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Telefon für Rückfragen"));
-    item.setNotNull(true);
-    v.add(item);
+    phoneNr.setSehrStreng(true);
+    v.add(phoneNr);
 
     ItemTypeString reason = new ItemTypeString(BoatReservationRecord.REASON,
-        getReason(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        getReason(), IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Reservierungsgrund"));
     reason.setMinCharacters(5);
     v.add(reason);
 
     // Virtual Fields hidden internal, only for list output and export/import
     item = new ItemTypeString(BoatReservationRecord.VBOAT,
-        getBoatName(),
-        IItemType.TYPE_INTERNAL, "",
+        getBoatName(), IItemType.TYPE_INTERNAL, "",
         International.getString("Boot"));
     v.add(item);
 

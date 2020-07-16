@@ -64,6 +64,7 @@ import de.nmichael.efa.core.items.ItemTypeLabelValue;
 import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.core.items.ItemTypeStringList;
+import de.nmichael.efa.core.items.ItemTypeStringPhone;
 import de.nmichael.efa.core.items.ItemTypeTime;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.BoatStatus;
@@ -159,7 +160,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   ItemTypeString destinationInfo;
   ItemTypeStringAutoComplete waters;
   ItemTypeDistance distance;
-  ItemTypeString phoneNr;
+  ItemTypeStringPhone phoneNr;
   ItemTypeString comments;
   ItemTypeStringList sessiontype;
   ItemTypeStringAutoComplete sessiongroup;
@@ -746,8 +747,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     // Phone Number
-    phoneNr = new ItemTypeString(LogbookRecord.CONTACT, null, IItemType.TYPE_PUBLIC, null,
+    phoneNr = new ItemTypeStringPhone(LogbookRecord.CONTACT, null, IItemType.TYPE_PUBLIC, null,
         International.getStringWithMnemonic("Telefon/Handy"));
+    phoneNr.setSehrStreng(false);
     phoneNr.setFieldSize(200, 19);
     phoneNr.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     phoneNr.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
@@ -1608,7 +1610,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     // Contact = phoneNr
-    s = phoneNr.toString().trim();
+    s = phoneNr.getValue().trim();
     if (s.length() > 0) {
       r.setContact(s);
     } else {
@@ -2807,8 +2809,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return false;
       }
 
-      if (phoneNr.getValue().length() == 0) {
-        Dialog.error(International.getString("Bitte gib eine Telefon- oder Handynummer ein"));
+      if (!phoneNr.isValidInput()) {
+        Dialog.error(phoneNr.getInvalidErrorText() + "\n" +
+            International.getString("Bitte gib eine Telefon- oder Handynummer ein"));
         phoneNr.requestFocus();
         return false;
       }

@@ -983,7 +983,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     if (getInputShortcut() != null && !getInputShortcut().isEmpty()) {
       return true; // nur Einzeln durch Kürzelvergabe
     }
-    return isErlaubtKuerzel(); // explit vom Mitglied erlaubt
+    return isErlaubtKuerzel(); // explizit vom Mitglied erlaubt
   }
 
   public boolean istEmailErlaubnisErteilt() {
@@ -994,13 +994,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         && getInputShortcut() != null && !getInputShortcut().isEmpty()) {
       return true; // nur Einzeln durch Kürzelvergabe
     }
-    return isErlaubtEmail(); // explit vom Mitglied erlaubt
+    return isErlaubtEmail(); // explizit vom Mitglied erlaubt
   }
 
   public boolean istTelefonErlaubnisErteilt() {
     if (getInputShortcut() != null && !getInputShortcut().isEmpty()) {
       // return true; // nur Einzeln durch Kürzelvergabe
     }
-    return isErlaubtTelefon(); // explit vom Mitglied erlaubt
+    return isErlaubtTelefon(); // explizit vom Mitglied erlaubt
   }
 }

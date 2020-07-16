@@ -31,6 +31,7 @@ import de.nmichael.efa.core.items.ItemTypeDate;
 import de.nmichael.efa.core.items.ItemTypeRadioButtons;
 import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
+import de.nmichael.efa.core.items.ItemTypeStringPhone;
 import de.nmichael.efa.core.items.ItemTypeTime;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
@@ -246,7 +247,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     if (item != null && item.getName().equals(BoatReservationRecord.CONTACT) &&
         ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
             (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
-      ItemTypeString eingegebeneHandynummer = (ItemTypeString) item;
+      ItemTypeStringPhone eingegebeneHandynummer = (ItemTypeStringPhone) item;
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.REASON)) {
           ItemTypeString reason = (ItemTypeString) it;
@@ -254,12 +255,6 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           prangerText = "Vorwahl kenntlich machen!";
           String reasonString = reason.getValue().replace(prangerText, "").trim();
           String myMatch = Daten.efaConfig.getRegexForHandynummer();
-          // myMatch = "0\\d{2,5}-\\d{3,}";
-          // myMatch = "0\\d*[-\\.\\s]\\d*";
-          // myMatch = "0[0-9]{1,5}.[0-9]{4,14}(?:x.+)?";
-          // myMatch = ".*"; // alles erlaubt
-          // myMatch = "0[1-9][0-9]*[\\.-/ ][0-9]*"; // geht best original - /)+
-          // myMatch = "\\(?0[1-9][0-9]*[\\.\\-\\+\\_\\)/ ] *[0-9 ]*"; // standard
           if (!eingegebeneHandynummer.getValue().matches(myMatch)) {
             reasonString = prangerText + " " + reasonString;
           }
@@ -338,7 +333,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
     for (IItemType it : allGuiItems) {
       if (it.getName().equals(BoatReservationRecord.CONTACT)) {
-        ItemTypeString phoneContactGuiField = (ItemTypeString) it;
+        ItemTypeStringPhone phoneContactGuiField = (ItemTypeStringPhone) it;
         if (phoneContactGuiField.getValueFromField().isEmpty()) {
           phoneContactGuiField.setValue(bestTelnum);
         }

@@ -924,7 +924,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   private void updateTopInfoTextUnderlined(String infoText) {
-    updateTopInfoText("<HTML><U>" + infoText + "</U></HTML>");
+    String prefix = "";
+    if (infoText.contains("Biertischgarnitur (1Tisch/2Bänke)")) {
+      prefix = "QR-Code mit Handy scannen<br>und Fotos machen :-)";
+    } else {
+      prefix = "Neueres Handyfoto gemacht?<br>" + "(siehe Biertischgarnitur-Bild)";
+    }
+    updateTopInfoText("<HTML><center>" + prefix + "<br><br>"
+        + "<U>" + infoText + "</U></center></HTML>");
   }
 
   private void updateTopInfoText(String infoText) {

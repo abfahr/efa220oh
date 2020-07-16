@@ -999,7 +999,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public boolean istTelefonErlaubnisErteilt() {
     if (getInputShortcut() != null && !getInputShortcut().isEmpty()) {
-      // return true; // nur Einzeln durch Kürzelvergabe
+      return true; // nur Einzeln durch Kürzelvergabe
     }
     return isErlaubtTelefon(); // explit vom Mitglied erlaubt
   }

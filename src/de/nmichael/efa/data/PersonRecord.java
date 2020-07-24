@@ -957,9 +957,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     items[2] = new TableItem(getInputShortcut());
     items[3] = new TableItem(getStatusName());
-    items[6] = new TableItem(isErlaubtKuerzel());
-    items[4] = new TableItem(isErlaubtEmail());
-    items[5] = new TableItem(isErlaubtTelefon());
+    items[4] = new TableItem(isErlaubtKuerzel());
+    items[5] = new TableItem(isErlaubtEmail());
+    items[6] = new TableItem(isErlaubtTelefon());
     return items;
   }
 

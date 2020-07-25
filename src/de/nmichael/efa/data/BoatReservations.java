@@ -348,6 +348,9 @@ public class BoatReservations extends StorageObject {
   }
 
   private int getWochentag(String dayName) {
+    if (dayName == null) {
+      return 0;
+    }
     SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.US);
     Date date;
     try {
@@ -361,7 +364,6 @@ public class BoatReservations extends StorageObject {
     calendar.setTime(date);
     int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
     return dayOfWeek;
-
   }
 
 }

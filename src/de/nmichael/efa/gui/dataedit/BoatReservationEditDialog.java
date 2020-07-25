@@ -139,9 +139,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         }
         if (it.getName().equals(BoatReservationRecord.DATEFROM)) {
           it.setVisible(type.equals(BoatReservationRecord.TYPE_ONETIME));
+          it.setVisible(true);
         }
         if (it.getName().equals(BoatReservationRecord.DATETO)) {
           it.setVisible(type.equals(BoatReservationRecord.TYPE_ONETIME));
+          it.setVisible(true);
         }
       }
     }
@@ -349,28 +351,29 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
   }
 
   private void setAllowWeeklyReservation(boolean allowWeeklyReservation) throws Exception {
-    if (!allowWeeklyReservation) {
-      if (!newRecord && dataRecord != null &&
-          BoatReservationRecord.TYPE_WEEKLY
-              .equals(((BoatReservationRecord) dataRecord).getType())) {
-        throw new Exception(
-            International.getString("Diese Reservierung kann nicht bearbeitet werden."));
+    if (allowWeeklyReservation) {
+      return;
+    }
+    if (!newRecord && dataRecord != null && BoatReservationRecord.TYPE_WEEKLY
+        .equals(((BoatReservationRecord) dataRecord).getType())) {
+      throw new Exception(
+          International.getString("Diese Reservierung kann nicht bearbeitet werden.")
+              + "\n" + ((BoatReservationRecord) dataRecord).getType());
+    }
+    for (IItemType it : allGuiItems) {
+      if (it.getName().equals(BoatReservationRecord.TYPE)) {
+        it.parseAndShowValue(BoatReservationRecord.TYPE_ONETIME);
+        it.setVisible(false);
+        it.setEditable(false);
+        itemListenerAction(it, null);
+        continue;
       }
-      for (IItemType it : allGuiItems) {
-        if (it.getName().equals(BoatReservationRecord.TYPE)) {
-          it.parseAndShowValue(BoatReservationRecord.TYPE_ONETIME);
-          it.setVisible(false);
-          it.setEditable(false);
-          itemListenerAction(it, null);
-          continue;
-        }
-        if (it.getName().equals(BoatReservationRecord.DAYOFWEEK)) {
-          // sonst verhindert ein Dirty das Abbrechen:
-          it.parseValue("SUNDAY");
-          it.setUnchanged();
-        }
+      if (it.getName().equals(BoatReservationRecord.DAYOFWEEK)) {
+        // sonst verhindert ein Dirty das Abbrechen:
+        it.parseValue("SUNDAY");
+        it.setUnchanged();
+      }
 
-      }
     }
   }
 

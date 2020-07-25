@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -111,10 +112,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected String filterFieldValue;
   protected String buttonPanelPosition = BorderLayout.EAST;
   protected Vector<DataRecord> data;
-  protected Hashtable<String, DataRecord> mappingKeyToRecord;
-  protected Hashtable<DataTypeDate, Integer> mappingDateToReservations;
-  protected Hashtable<DataTypeDate, String> mappingBootshausDateToReservations;
-  protected Hashtable<Integer, String> mappingWeekdayToReservations;
+  protected Hashtable<String, DataRecord> mappingKeyToRecord = new Hashtable<String, DataRecord>();
+  protected Hashtable<DataTypeDate, Integer> mappingDateToReservations = new Hashtable<DataTypeDate, Integer>();
+  protected Hashtable<DataTypeDate, String> mappingBootshausDateToReservations = new Hashtable<DataTypeDate, String>();
+  protected Hashtable<Integer, String> mappingWeekdayToReservations = new Hashtable<Integer, String>();
+  protected Hashtable<Integer, DataTypeDate> mappingMinWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
+  protected Hashtable<Integer, DataTypeDate> mappingMaxWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
   protected IItemListenerDataRecordTable itemListenerActionTable;
   protected ItemTypeString searchField;
   protected String wochentagFilter;
@@ -1009,6 +1012,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     searchField.setValue(date.toString().replace('/', '.'));
     if (day != 0) {
       wochentagFilter = date.getWeekdayAsString().toLowerCase(); // "donnerstag";
+      // wochentagFilter = null; // TODO
       selectedDateFilter = date;
     } else {
       selectedDateFilter = null;
@@ -1113,6 +1117,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (updateDataRightSideCalendar) {
         mappingDateToReservations = new Hashtable<DataTypeDate, Integer>();
         mappingWeekdayToReservations = new Hashtable<Integer, String>();
+        mappingMinWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
+        mappingMaxWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
         mappingBootshausDateToReservations = new Hashtable<DataTypeDate, String>();
       }
       while (key != null) {
@@ -1361,24 +1367,34 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   public String getBuchungString(DataTypeDate date) {
     String myBuchungtext = "";
-    if (mappingWeekdayToReservations != null) {
+    if (true) {
       Integer weekday = date.toCalendar().get(Calendar.DAY_OF_WEEK);
       String recurringEvent = mappingWeekdayToReservations.get(weekday);
       if (recurringEvent != null) {
-        myBuchungtext += recurringEvent;
+        DataTypeDate minDate = mappingMinWeekdayToReservations.get(weekday);
+        if (minDate == null) {
+          minDate = date;
+        }
+        DataTypeDate maxDate = mappingMaxWeekdayToReservations.get(weekday);
+        if (maxDate == null) {
+          maxDate = date;
+        }
+        if (date.isAfterOrEqual(minDate) && maxDate.isAfterOrEqual(date)) {
+          myBuchungtext += recurringEvent;
+        }
       }
     }
-    if (mappingBootshausDateToReservations != null) {
+    if (true) {
       String singleBootshausEvent = mappingBootshausDateToReservations.get(date);
       if (singleBootshausEvent != null) {
         myBuchungtext += singleBootshausEvent;
       }
     }
-    if (mappingDateToReservations != null) {
-      Integer singleEvent = mappingDateToReservations.get(date);
-      if (singleEvent != null) {
+    if (true) {
+      Integer singleEventCount = mappingDateToReservations.get(date);
+      if (singleEventCount != null) {
         String trennzeichen = "'";
-        myBuchungtext += trennzeichen + singleEvent;
+        myBuchungtext += trennzeichen + singleEventCount;
       }
     }
     return myBuchungtext;
@@ -1426,19 +1442,53 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void mappingDateToName(BoatReservationRecord brr) {
-    // TODO abf 2016-06-16 hier wird viel gerechnet. Unbedingt verbessern
-
-    Integer wochentag = getWochentag(brr.getDayOfWeek());
+    String strDayOfWeek = brr.getDayOfWeek();
+    Integer wochentag = getWochentag(strDayOfWeek);
     if (wochentag != null) {
       String regelterminKuerzel = "r";
       mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
-      // return; // scheint egal zu sein
+
+      // Das "r" muss wissen, wann es anfangen soll!
+      DataTypeDate neuesMinDate = brr.getDateFrom();
+      if (neuesMinDate == null) {
+        neuesMinDate = DataTypeDate.today();
+        neuesMinDate.addDays(-30);
+      }
+      DataTypeDate bisherigesMinDate = mappingMinWeekdayToReservations.get(wochentag);
+      if (bisherigesMinDate == null) {
+        bisherigesMinDate = neuesMinDate;
+      }
+      if (bisherigesMinDate.isAfterOrEqual(neuesMinDate)) {
+        mappingMinWeekdayToReservations.put(wochentag, neuesMinDate);
+      }
+
+      // Das "r" muss wissen, wann es aufhören soll!
+      DataTypeDate neuesMaxDate = brr.getDateTo();
+      if (neuesMaxDate == null) {
+        neuesMaxDate = DataTypeDate.today();
+        neuesMaxDate.addDays(365);
+      }
+      DataTypeDate bisherigesMaxDate = mappingMaxWeekdayToReservations.get(wochentag);
+      if (bisherigesMaxDate == null) {
+        bisherigesMaxDate = neuesMaxDate;
+      }
+      if (neuesMaxDate.isAfterOrEqual(bisherigesMaxDate)) {
+        mappingMaxWeekdayToReservations.put(wochentag, neuesMaxDate);
+      }
+      return; // Regeltermine nicht zusammenzählen
     }
 
     boolean isBootshausReservierung = brr.isBootshausOH();
     String bootshausKuerzel = "BH";
     List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo());
     for (DataTypeDate dataTypeDate : dates) {
+      if (wochentag != null) {
+        // es handelt sich um einen wöchentlichen Regeltermin
+        int dayOfWeek = dataTypeDate.toCalendar().get(Calendar.DAY_OF_WEEK);
+        if (dayOfWeek != wochentag.intValue()) {
+          continue;
+        }
+      }
       if (isBootshausReservierung) {
         mappingBootshausDateToReservations.put(dataTypeDate, bootshausKuerzel);
       } else {
@@ -1467,8 +1517,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.US);
     Calendar calendar = Calendar.getInstance();
     try {
-      calendar.setTime(dayFormat.parse(dayName));
-      return calendar.get(Calendar.DAY_OF_WEEK);
+      Date date = dayFormat.parse(dayName);
+      calendar.setTime(date);
+      int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+      return dayOfWeek;
     } catch (ParseException e) {
       e.printStackTrace();
       return null;

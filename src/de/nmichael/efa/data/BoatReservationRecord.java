@@ -55,6 +55,8 @@ public class BoatReservationRecord extends DataRecord {
   private static final String EFA = "efa";
   public static final boolean REPLACE_HEUTE = true;
   public static final boolean KEEP_NUM_DATE = false;
+  public static final boolean IS_FROM = true;
+  public static final boolean IS_TO = false;
 
   // =========================================================================
   // Value Constants
@@ -293,7 +295,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   private String getDateDescription(DataTypeDate date,
-      String weekday, DataTypeTime time, boolean replaceHeute) {
+      String weekday, DataTypeTime time, boolean replaceHeute, boolean isFrom) {
     if (date == null && weekday == null) {
       return "";
     }
@@ -311,7 +313,10 @@ public class BoatReservationRecord extends DataRecord {
     }
     String retVal = strDate + strTime;
     if (weekday != null) {
-      retVal = EfaTypes.getValueWeekday(weekday) + "s" + strTime + " " + strDate;
+      retVal = EfaTypes.getValueWeekday(weekday) + "s" + strTime;
+      if (!isFrom || (date != null && date.isAfterOrEqual(DataTypeDate.today()))) {
+        retVal += " " + strDate; // nur, wenn Serie noch nicht gestartet
+      }
     }
     return retVal;
   }
@@ -320,14 +325,14 @@ public class BoatReservationRecord extends DataRecord {
     String type = getType();
     DataTypeDate dateFrom = getDateFrom();
     if (type != null && type.equals(TYPE_ONETIME)) {
-      return getDateDescription(dateFrom, null, getTimeFrom(), replaceHeute);
+      return getDateDescription(dateFrom, null, getTimeFrom(), replaceHeute, IS_FROM);
     }
     if (type != null && type.equals(TYPE_WEEKLY)) {
       if (dateFrom == null) {
         dateFrom = DataTypeDate.today();
         dateFrom.addDays(-31); // minus 1 Monat
       }
-      return getDateDescription(dateFrom, getDayOfWeek(), getTimeFrom(), replaceHeute);
+      return getDateDescription(dateFrom, getDayOfWeek(), getTimeFrom(), replaceHeute, IS_FROM);
     }
     return "";
   }
@@ -336,14 +341,14 @@ public class BoatReservationRecord extends DataRecord {
     String type = getType();
     DataTypeDate dateTo = getDateTo();
     if (type != null && type.equals(TYPE_ONETIME)) {
-      return getDateDescription(dateTo, null, getTimeTo(), replaceHeute);
+      return getDateDescription(dateTo, null, getTimeTo(), replaceHeute, IS_TO);
     }
     if (type != null && type.equals(TYPE_WEEKLY)) {
       if (dateTo == null) {
         dateTo = DataTypeDate.today();
-        dateTo.addDays(365); // plus 1 Jahr
+        dateTo.addDays(366); // plus 1 Jahr
       }
-      return getDateDescription(dateTo, getDayOfWeek(), getTimeTo(), replaceHeute);
+      return getDateDescription(dateTo, getDayOfWeek(), getTimeTo(), replaceHeute, IS_TO);
     }
     return "";
   }

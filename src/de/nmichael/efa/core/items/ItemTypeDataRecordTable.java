@@ -1367,35 +1367,30 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   public String getBuchungString(DataTypeDate date) {
     String myBuchungtext = "";
-    if (true) {
-      Integer weekday = date.toCalendar().get(Calendar.DAY_OF_WEEK);
-      String recurringEvent = mappingWeekdayToReservations.get(weekday);
-      if (recurringEvent != null) {
-        DataTypeDate minDate = mappingMinWeekdayToReservations.get(weekday);
-        if (minDate == null) {
-          minDate = date;
-        }
-        DataTypeDate maxDate = mappingMaxWeekdayToReservations.get(weekday);
-        if (maxDate == null) {
-          maxDate = date;
-        }
-        if (date.isAfterOrEqual(minDate) && maxDate.isAfterOrEqual(date)) {
-          myBuchungtext += recurringEvent;
-        }
+    Integer weekday = date.toCalendar().get(Calendar.DAY_OF_WEEK);
+
+    String recurringEvent = mappingWeekdayToReservations.get(weekday);
+    if (recurringEvent != null) {
+      DataTypeDate minDate = mappingMinWeekdayToReservations.get(weekday);
+      if (minDate == null) {
+        minDate = date;
+      }
+      DataTypeDate maxDate = mappingMaxWeekdayToReservations.get(weekday);
+      if (maxDate == null) {
+        maxDate = date;
+      }
+      if (date.isAfterOrEqual(minDate) && maxDate.isAfterOrEqual(date)) {
+        myBuchungtext += recurringEvent;
       }
     }
-    if (true) {
-      String singleBootshausEvent = mappingBootshausDateToReservations.get(date);
-      if (singleBootshausEvent != null) {
-        myBuchungtext += singleBootshausEvent;
-      }
+    String singleBootshausEvent = mappingBootshausDateToReservations.get(date);
+    if (singleBootshausEvent != null) {
+      myBuchungtext += singleBootshausEvent;
     }
-    if (true) {
-      Integer singleEventCount = mappingDateToReservations.get(date);
-      if (singleEventCount != null) {
-        String trennzeichen = "'";
-        myBuchungtext += trennzeichen + singleEventCount;
-      }
+    Integer singleEventCount = mappingDateToReservations.get(date);
+    if (singleEventCount != null) {
+      String trennzeichen = "'";
+      myBuchungtext += trennzeichen + singleEventCount;
     }
     return myBuchungtext;
   }
@@ -1466,7 +1461,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       DataTypeDate neuesMaxDate = brr.getDateTo();
       if (neuesMaxDate == null) {
         neuesMaxDate = DataTypeDate.today();
-        neuesMaxDate.addDays(365);
+        neuesMaxDate.addDays(366);
       }
       DataTypeDate bisherigesMaxDate = mappingMaxWeekdayToReservations.get(wochentag);
       if (bisherigesMaxDate == null) {

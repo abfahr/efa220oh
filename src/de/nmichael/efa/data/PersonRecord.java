@@ -281,11 +281,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public String getStatusName() {
     UUID id = getStatusId();
-    if (id != null) {
-      StatusRecord r = getPersistence().getProject().getStatus(false).getStatus(id);
-      if (r != null) {
-        return r.getStatusName();
-      }
+    if (id == null) {
+      return null;
+    }
+    StatusRecord r = getPersistence().getProject().getStatus(false).getStatus(id);
+    if (r != null) {
+      return r.getStatusName();
     }
     return null;
   }
@@ -1002,5 +1003,74 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       // return true; // nur Einzeln durch Kürzelvergabe
     }
     return isErlaubtTelefon(); // explizit vom Mitglied erlaubt
+  }
+
+  public void cleanPerson() {
+
+    // 1. bestimmte Felder leeren
+    // setTitle(null);
+    // setAssocitation(null);
+    // setGender(null); // kommt nicht mehr // alle Mitglieder männlich?
+    setBirthday(null); // kommt nicht mehr
+    setAddressStreet(null); // kommt nicht mehr
+    setAddressAdditional(null); // kommt nicht mehr
+    setAddressCity(null); // kommt nicht mehr
+    setAddressZip(null); // kommt nicht mehr
+    setAddressCountry(null); // kommt nicht mehr
+    setPassword(null); // kommt nicht mehr
+    setEfbId(null); // immer leer gewesen
+    setExternalId(null); // immer leer gewesen
+    setNameAffix(null); // immer leer gewesen
+    setDefaultBoatId(null); // immer leer gewesen
+    // setFreeUse3(null); // immer leer gewesen
+
+    setBoatUsageBan(false); // kommt nicht mehr
+    setDisability(false); // immer leer gewesen
+    setExcludeFromPublicStatistics(false); // immer leer gewesen
+    setExcludeFromCompetition(false); // immer leer gewesen
+    setExcludeFromClubwork(false); // immer leer gewesen
+
+    // 2. nur aktive Mitglieder behalten
+    boolean isDyingMemberStatus = isDyingMember();
+    if (!isDyingMemberStatus) {
+      return;
+    }
+    if (isDyingMemberStatus) {
+      // setInvisible(true);
+      // setDeleted(true); // doof - Datensatz fehlt dann
+    }
+    long now = System.currentTimeMillis();
+    long oneYear = 365 * 24 * 60 * 60 * 1000;
+    if (getInvalidFrom() > now - oneYear) {
+      return; // nicht alt genug
+    }
+    if (getLastModified() > now - oneYear) {
+      return; // nicht alt genug
+    }
+    // setInvisible(true);
+    // setDeleted(true); // doof - Datensatz fehlt dann
+  }
+
+  public boolean isDyingMember() {
+    String statusDesMitglieds = getStatusName();
+    if (statusDesMitglieds == null) {
+      return false;
+    }
+    switch (statusDesMitglieds) {
+      case "Aktives Mitglied":
+      case "Mitglieder gekündigt":
+        return false;
+      case "Mitglieder ausgetreten":
+      case "Mitglieder verstorben":
+      case "Mitglieder ausgeschlossen":
+        return true;
+      case "Passives Mitglied":
+      case "Externe Adressen":
+      case "andere":
+      case "Gast":
+        return false;
+      default:
+        return false;
+    }
   }
 }

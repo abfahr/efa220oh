@@ -430,6 +430,9 @@ public class DataImport extends ProgressTask {
             if (isPersons && !((PersonRecord) r).isValidMemberOH()) {
               continue;
             }
+            if (isPersons && ((PersonRecord) r).isDyingMember()) {
+              r.setInvalidFrom(System.currentTimeMillis());
+            }
             if (importRecord(r, fieldsInImport)) {
               count++;
             }

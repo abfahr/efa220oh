@@ -278,6 +278,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       boatsNotAvailableList.requestFocus();
       // mit F12 Text ganz ausschalten. Schalter Daten.efaConfig.
       toggleF12LangtextF12 = !toggleF12LangtextF12;
+      Daten.project.getPersons(false).cleanPersons();
     }
     if (evt.getActionCommand().equals(KEYACTION_shiftF1)) {
       EfaUtil.gc(); // Garbage Collection
@@ -288,7 +289,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (evt.getActionCommand().equals(KEYACTION_shiftF4)) {
       cancel();
     }
-
     super._keyAction(evt);
   }
 
@@ -527,7 +527,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     Logger.log(Logger.INFO, Logger.MSG_EVT_PERSONADDED,
         International.getString("Neue Personen aus Datei importiert"));
     boolean isDeleted = newName.delete();
-    if (isDeleted == false) {
+    if (!isDeleted) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECLOSEFAILED,
           "Datei konnte nicht gelöscht werden: " + newName.getName());
     }

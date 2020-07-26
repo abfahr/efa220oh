@@ -21,6 +21,7 @@ import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeList;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
@@ -79,7 +80,7 @@ public class Persons extends StorageObject {
   // find a record being valid at the specified time
   public PersonRecord getPerson(String personName, long validAt) {
     try {
-      DataKey[] keys = data().getByFields(
+      DataKey<?, ?, ?>[] keys = data().getByFields(
           staticPersonRecord.getQualifiedNameFields(),
           staticPersonRecord.getQualifiedNameValues(personName), validAt);
       if (keys == null || keys.length < 1) {
@@ -88,14 +89,14 @@ public class Persons extends StorageObject {
       if (validAt < 0 && keys.length > 1) {
         // instead of returning just any person, first search for one that is valid today
         long now = System.currentTimeMillis();
-        for (DataKey key : keys) {
+        for (DataKey<?, ?, ?> key : keys) {
           PersonRecord r = (PersonRecord) data().get(key);
           if (r.isValidAt(now)) {
             return r;
           }
         }
       }
-      for (DataKey key : keys) {
+      for (DataKey<?, ?, ?> key : keys) {
         PersonRecord r = (PersonRecord) data().get(key);
         if (r.isValidAt(validAt)) {
           return r;
@@ -111,14 +112,14 @@ public class Persons extends StorageObject {
   // find all records being valid at the specified time
   public PersonRecord[] getPersons(String personName, long validAt) {
     try {
-      DataKey[] keys = data().getByFields(
+      DataKey<?, ?, ?>[] keys = data().getByFields(
           staticPersonRecord.getQualifiedNameFields(),
           staticPersonRecord.getQualifiedNameValues(personName), validAt);
       if (keys == null || keys.length < 1) {
         return null;
       }
       ArrayList<PersonRecord> list = new ArrayList<PersonRecord>();
-      for (DataKey key : keys) {
+      for (DataKey<?, ?, ?> key : keys) {
         PersonRecord r = (PersonRecord) data().get(key);
         if (r.isValidAt(validAt)) {
           list.add(r);
@@ -138,13 +139,13 @@ public class Persons extends StorageObject {
   // find all records being valid at the specified time
   public PersonRecord[] getPersons(UUID id, long validFrom, long validUntil) {
     try {
-      DataKey[] keys = data().getByFields(
+      DataKey<?, ?, ?>[] keys = data().getByFields(
           new String[] { PersonRecord.ID }, new Object[] { id });
       if (keys == null || keys.length < 1) {
         return null;
       }
       ArrayList<PersonRecord> list = new ArrayList<PersonRecord>();
-      for (DataKey key : keys) {
+      for (DataKey<?, ?, ?> key : keys) {
         PersonRecord r = (PersonRecord) data().get(key);
         if (r.isInValidityRange(validFrom, validUntil)) {
           list.add(r);
@@ -165,14 +166,14 @@ public class Persons extends StorageObject {
   public PersonRecord getPerson(String personName, long validFrom, long validUntil,
       long preferredValidAt) {
     try {
-      DataKey[] keys = data().getByFields(
+      DataKey<?, ?, ?>[] keys = data().getByFields(
           staticPersonRecord.getQualifiedNameFields(),
           staticPersonRecord.getQualifiedNameValues(personName));
       if (keys == null || keys.length < 1) {
         return null;
       }
       PersonRecord candidate = null;
-      for (DataKey key : keys) {
+      for (DataKey<?, ?, ?> key : keys) {
         PersonRecord r = (PersonRecord) data().get(key);
         if (r != null) {
           if (r.isInValidityRange(validFrom, validUntil)) {
@@ -190,11 +191,13 @@ public class Persons extends StorageObject {
     }
   }
 
-  public Vector<PersonRecord> getAllPersons(long validAt, boolean alsoDeleted, boolean alsoInvisible) {
+  public Vector<PersonRecord> getAllPersons(long validAt,
+      boolean alsoDeleted,
+      boolean alsoInvisible) {
     try {
       Vector<PersonRecord> v = new Vector<PersonRecord>();
       DataKeyIterator it = data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         PersonRecord r = (PersonRecord) data().get(k);
         if (r != null && (r.isValidAt(validAt) || (r.getDeleted() && alsoDeleted))
@@ -215,7 +218,7 @@ public class Persons extends StorageObject {
     try {
       Vector<PersonRecord> v = new Vector<PersonRecord>();
       DataKeyIterator it = data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         PersonRecord r = (PersonRecord) data().get(k);
         if (r != null
@@ -247,12 +250,12 @@ public class Persons extends StorageObject {
   public int getNumberOfMembers(long tstmp, boolean withoutMembersExcludedFromCompetition) {
     try {
       DataKeyIterator it = dataAccess.getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       // actually, checking for records valid at tstmp should already
       // give us unique records, so there should be no need to use
       // a Hashtable to make sure we don't cound a person twice. But, well,
       // you never know...
-      Hashtable<UUID, DataKey> uuids = new Hashtable<UUID, DataKey>();
+      Hashtable<UUID, DataKey<?, ?, ?>> uuids = new Hashtable<UUID, DataKey<?, ?, ?>>();
       while (k != null) {
         PersonRecord p = (PersonRecord) dataAccess.get(k);
         if (p != null && p.isValidAt(tstmp) && !p.getDeleted() &&
@@ -270,7 +273,10 @@ public class Persons extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record,
+      boolean add,
+      boolean update,
+      boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, PersonRecord.ID);
@@ -282,65 +288,65 @@ public class Persons extends StorageObject {
       assertNotReferenced(record, getProject().getGroups(false),
           new String[] { GroupRecord.MEMBERIDLIST });
       assertNotReferenced(record, getProject().getCrews(false), new String[] { CrewRecord.COXID,
-        CrewRecord.CREW1ID,
-        CrewRecord.CREW2ID,
-        CrewRecord.CREW3ID,
-        CrewRecord.CREW4ID,
-        CrewRecord.CREW5ID,
-        CrewRecord.CREW6ID,
-        CrewRecord.CREW7ID,
-        CrewRecord.CREW8ID,
-        CrewRecord.CREW9ID,
-        CrewRecord.CREW10ID,
-        CrewRecord.CREW11ID,
-        CrewRecord.CREW12ID,
-        CrewRecord.CREW14ID,
-        CrewRecord.CREW11ID,
-        CrewRecord.CREW16ID,
-        CrewRecord.CREW11ID,
-        CrewRecord.CREW17ID,
-        CrewRecord.CREW18ID,
-        CrewRecord.CREW19ID,
-        CrewRecord.CREW20ID,
-        CrewRecord.CREW21ID,
-        CrewRecord.CREW22ID,
-        CrewRecord.CREW23ID,
-        CrewRecord.CREW24ID
+          CrewRecord.CREW1ID,
+          CrewRecord.CREW2ID,
+          CrewRecord.CREW3ID,
+          CrewRecord.CREW4ID,
+          CrewRecord.CREW5ID,
+          CrewRecord.CREW6ID,
+          CrewRecord.CREW7ID,
+          CrewRecord.CREW8ID,
+          CrewRecord.CREW9ID,
+          CrewRecord.CREW10ID,
+          CrewRecord.CREW11ID,
+          CrewRecord.CREW12ID,
+          CrewRecord.CREW14ID,
+          CrewRecord.CREW11ID,
+          CrewRecord.CREW16ID,
+          CrewRecord.CREW11ID,
+          CrewRecord.CREW17ID,
+          CrewRecord.CREW18ID,
+          CrewRecord.CREW19ID,
+          CrewRecord.CREW20ID,
+          CrewRecord.CREW21ID,
+          CrewRecord.CREW22ID,
+          CrewRecord.CREW23ID,
+          CrewRecord.CREW24ID
       }, false);
       assertNotReferenced(record, getProject().getBoatDamages(false), new String[] {
-        BoatDamageRecord.REPORTEDBYPERSONID,
-        BoatDamageRecord.FIXEDBYPERSONID },
-        false);
+          BoatDamageRecord.REPORTEDBYPERSONID,
+          BoatDamageRecord.FIXEDBYPERSONID },
+          false);
       assertNotReferenced(record, getProject().getBoatReservations(false),
           new String[] { BoatReservationRecord.PERSONID });
       String[] logbooks = getProject().getAllLogbookNames();
       for (int i = 0; logbooks != null && i < logbooks.length; i++) {
         assertNotReferenced(record, getProject().getLogbook(logbooks[i], false), new String[] {
-          LogbookRecord.COXID,
-          LogbookRecord.CREW1ID,
-          LogbookRecord.CREW2ID,
-          LogbookRecord.CREW3ID,
-          LogbookRecord.CREW4ID,
-          LogbookRecord.CREW5ID,
-          LogbookRecord.CREW6ID,
-          LogbookRecord.CREW7ID,
-          LogbookRecord.CREW8ID,
-          LogbookRecord.CREW9ID,
-          LogbookRecord.CREW10ID,
-          LogbookRecord.CREW11ID,
-          LogbookRecord.CREW12ID,
-          LogbookRecord.CREW13ID,
-          LogbookRecord.CREW14ID,
-          LogbookRecord.CREW15ID,
-          LogbookRecord.CREW16ID,
-          LogbookRecord.CREW17ID,
-          LogbookRecord.CREW18ID,
-          LogbookRecord.CREW19ID,
-          LogbookRecord.CREW20ID,
-          LogbookRecord.CREW21ID,
-          LogbookRecord.CREW22ID,
-          LogbookRecord.CREW23ID,
-          LogbookRecord.CREW24ID,
+            LogbookRecord.COXID,
+            LogbookRecord.CREW1ID,
+            LogbookRecord.CREW2ID,
+            LogbookRecord.CREW3ID,
+            LogbookRecord.CREW4ID,
+            LogbookRecord.CREW5ID,
+            LogbookRecord.CREW6ID,
+            LogbookRecord.CREW7ID,
+            LogbookRecord.CREW8ID,
+            LogbookRecord.CREW9ID,
+            LogbookRecord.CREW10ID,
+            LogbookRecord.CREW11ID,
+            LogbookRecord.CREW12ID,
+            LogbookRecord.CREW13ID,
+            LogbookRecord.CREW14ID,
+            LogbookRecord.CREW15ID,
+            LogbookRecord.CREW16ID,
+            LogbookRecord.CREW17ID,
+            LogbookRecord.CREW18ID,
+            LogbookRecord.CREW19ID,
+            LogbookRecord.CREW20ID,
+            LogbookRecord.CREW21ID,
+            LogbookRecord.CREW22ID,
+            LogbookRecord.CREW23ID,
+            LogbookRecord.CREW24ID,
         }, false);
       }
     }
@@ -383,7 +389,6 @@ public class Persons extends StorageObject {
       if (id == null) {
         return false;
       }
-      boolean found = false;
       for (UUID mergeID : mergeIDs) {
         if (id.equals(mergeID)) {
           return true;
@@ -395,9 +400,11 @@ public class Persons extends StorageObject {
     @Override
     public void run() {
       setRunning(true);
-      logInfo(International.getString("Datensätze zusammenfügen") + " ...\n" +
-          (errorCount > 0 || warningCount > 0 ?
-              "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]" : ""));
+      logInfo(International.getString("Datensätze zusammenfügen")
+          + " ...\n"
+          + (errorCount > 0 || warningCount > 0
+              ? "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]"
+              : ""));
       try {
         Project p = persons.getProject();
         super.resultSuccess = false;
@@ -411,7 +418,7 @@ public class Persons extends StorageObject {
             logInfo("Searching logbook " + logbookName + " ...\n");
             Logbook logbook = p.getLogbook(logbookName, false);
             DataKeyIterator it = logbook.data().getStaticIterator();
-            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+            for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
               LogbookRecord r = (LogbookRecord) logbook.data().get(k);
               if (r != null) {
                 boolean changed = false;
@@ -438,7 +445,7 @@ public class Persons extends StorageObject {
         logInfo("Searching Boat Damages ...\n");
         BoatDamages boatDamages = p.getBoatDamages(false);
         DataKeyIterator it = boatDamages.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           BoatDamageRecord r = (BoatDamageRecord) boatDamages.data().get(k);
           if (r != null) {
             boolean changed = false;
@@ -463,7 +470,7 @@ public class Persons extends StorageObject {
         logInfo("Searching Boat Reservations ...\n");
         BoatReservations boatReservations = p.getBoatReservations(false);
         it = boatReservations.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           BoatReservationRecord r = (BoatReservationRecord) boatReservations.data().get(k);
           if (r != null) {
             boolean changed = false;
@@ -484,7 +491,7 @@ public class Persons extends StorageObject {
         logInfo("Searching Crews ...\n");
         Crews crews = p.getCrews(false);
         it = crews.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           CrewRecord r = (CrewRecord) crews.data().get(k);
           if (r != null) {
             boolean changed = false;
@@ -508,7 +515,7 @@ public class Persons extends StorageObject {
         Fahrtenabzeichen fahrtenabzeichen = p.getFahrtenabzeichen(false);
         if (fahrtenabzeichen != null) {
           it = fahrtenabzeichen.data().getStaticIterator();
-          for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+          for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
             FahrtenabzeichenRecord r = (FahrtenabzeichenRecord) fahrtenabzeichen.data().get(k);
             if (r != null) {
               boolean changed = false;
@@ -532,7 +539,7 @@ public class Persons extends StorageObject {
         logInfo("Searching Groups ...\n");
         Groups groups = p.getGroups(false);
         it = groups.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           GroupRecord r = (GroupRecord) groups.data().get(k);
           if (r != null) {
             boolean changed = false;
@@ -557,7 +564,7 @@ public class Persons extends StorageObject {
         logInfo("Searching Statistics ...\n");
         Statistics statistics = p.getStatistics(false);
         it = statistics.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           StatisticsRecord r = (StatisticsRecord) statistics.data().get(k);
           if (r != null) {
             boolean changed = false;
@@ -633,6 +640,34 @@ public class Persons extends StorageObject {
       this.logInfo("\n\n" + International.getMessage("{count} Fehler.", errorCount));
       this.logInfo("\n" + International.getMessage("{count} Warnungen.", warningCount));
       setDone();
+    }
+  }
+
+  public void cleanPersons() {
+    int i = 0;
+    try {
+      DataKeyIterator it = data().getStaticIterator();
+      for (DataKey<?, ?, ?> key = it.getFirst(); key != null; key = it.getNext()) {
+        PersonRecord person = (PersonRecord) data().get(key);
+        if (person == null) {
+          continue;
+        }
+        try {
+          person.cleanPerson();
+          data().update(person); // save // update DB
+          i++;
+        } catch (EfaException e) {
+          Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+              "Person konnte nicht aktualisiert werden: "
+                  + person.getFirstLastName() + e.getLocalizedMessage());
+        }
+      }
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+          "cleanPersons() erfolgreich durchgeführt (" + i + ")");
+    } catch (Exception e) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "cleanPersons() konnte nicht durchgeführt werden (" + i + ") "
+              + e.getLocalizedMessage());
     }
   }
 

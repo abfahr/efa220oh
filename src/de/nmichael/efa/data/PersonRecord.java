@@ -1038,6 +1038,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     if (isDyingMemberStatus) {
       // setInvisible(true);
       // setDeleted(true); // doof - Datensatz fehlt dann
+      // setInvalidFrom(System.currentTimeMillis());
     }
     long now = System.currentTimeMillis();
     long oneYear = 365 * 24 * 60 * 60 * 1000;

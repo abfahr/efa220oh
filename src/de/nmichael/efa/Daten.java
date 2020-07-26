@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.swing.UIManager;
@@ -66,7 +67,7 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_87";
+  public final static String VERSIONID = "2.2.0_88";
   public final static String VERSIONRELEASEDATE = "26.07.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -453,7 +454,8 @@ public class Daten {
         break;
       default:
         applName = APPLNAME_EFADIREKT;
-        // TODO Logger(WARN, should never happen)
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+            "falsche applID " + applID);
         break;
     }
     efaStartTime = System.currentTimeMillis();
@@ -1285,16 +1287,16 @@ public class Daten {
     return false;
   }
 
-  public static Vector getEfaInfos() {
+  public static Vector<String> getEfaInfos() {
     return getEfaInfos(true, true, true, true, false);
   }
 
-  public static Vector getEfaInfos(boolean efaInfos,
+  public static Vector<String> getEfaInfos(boolean efaInfos,
       boolean pluginInfos,
       boolean javaInfos,
       boolean hostInfos,
       boolean jarInfos) {
-    Vector infos = new Vector();
+    Vector<String> infos = new Vector<String>();
 
     // efa-Infos
     if (efaInfos) {
@@ -1414,14 +1416,13 @@ public class Daten {
             try {
               infos.add("java.jar.filename=" + jarfile);
               JarFile jar = new JarFile(jarfile);
-              Enumeration _enum = jar.entries();
+              Enumeration<JarEntry> _enum = jar.entries();
               Object o;
               while (_enum.hasMoreElements() && (o = _enum.nextElement()) != null) {
-                infos.add("java.jar.content="
-                    + o + ":"
-                    + (jar.getEntry(o.toString()) == null ? "null"
-                        : Long.toString(jar.getEntry(
-                            o.toString()).getSize())));
+                infos.add("java.jar.content=" + o + ":"
+                    + (jar.getEntry(o.toString()) == null
+                        ? "null"
+                        : Long.toString(jar.getEntry(o.toString()).getSize())));
               }
               jar.close();
             } catch (Exception e) {
@@ -1442,7 +1443,7 @@ public class Daten {
 
   public static void printEfaInfos(boolean efaInfos, boolean pluginInfos, boolean javaInfos,
       boolean hostInfos, boolean jarInfos) {
-    Vector infos = getEfaInfos(efaInfos, pluginInfos, javaInfos, hostInfos, jarInfos);
+    Vector<String> infos = getEfaInfos(efaInfos, pluginInfos, javaInfos, hostInfos, jarInfos);
     for (int i = 0; infos != null && i < infos.size(); i++) {
       Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION, (String) infos.get(i));
     }

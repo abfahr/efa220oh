@@ -193,6 +193,10 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.DATEFROM)) {
           ItemTypeDate dateFrom = (ItemTypeDate) it;
+          if (admin == null && !dateTo.isSet()) {
+            dateTo.setValueDate(dateFrom.getDate());
+            dateTo.showValue();
+          }
           anzahlStunden = dateTo.getDate().getDifferenceDays(dateFrom.getDate()) * 24;
           break;
         }
@@ -203,7 +207,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           ItemTypeString reason = (ItemTypeString) it;
           String prangerText = International.getString("Fehlermeldung bei langerAusleihe");
           String reasonString = reason.getValue().replace(prangerText, "").trim();
-          if (anzahlStunden >= minimumDauerFuerKulanz) {
+          if (admin == null && anzahlStunden >= minimumDauerFuerKulanz) {
             reasonString = prangerText + " " + reasonString;
           }
           reason.setValue(reasonString);

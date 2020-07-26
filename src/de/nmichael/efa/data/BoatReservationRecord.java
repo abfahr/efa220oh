@@ -712,7 +712,7 @@ public class BoatReservationRecord extends DataRecord {
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Bis") + " (" +
             International.getString("Tag") + ")");
-    dateTo.setNotNull(true);
+    // dateTo.setNotNull(true);
     dateTo.setMustBeAfter(dateFrom, true);
     v.add(dateTo);
 

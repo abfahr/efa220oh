@@ -39,31 +39,24 @@ import de.nmichael.efa.util.XmlHandler;
 public class DataImport extends ProgressTask {
 
   public static final String IMPORTMODE_ADD = "ADD"; // import as new record; fail for duplicates
-  // (also for duplicate versionized records with
-  // different validity)
+  // (also for duplicate versionized records with different validity)
   public static final String IMPORTMODE_UPD = "UPDATE"; // update existing record; fail if record
-  // doesn't exist (for versionized: if no
-  // version exists)
+  // doesn't exist (for versionized: if no version exists)
   public static final String IMPORTMODE_ADDUPD = "ADD_OR_UPDATE"; // add, or if duplicate, update
 
   // Import Options for Logbook Import
   public static final String ENTRYNO_DUPLICATE_SKIP = "DUPLICATE_SKIP"; // if duplicate EntryId,
   // skip entry
   public static final String ENTRYNO_DUPLICATE_ADDEND = "DUPLICATE_ADDEND"; // if duplicate EntryId,
-  // add entry with new
-  // EntryId at end
+  // add entry with new EntryId at end
   public static final String ENTRYNO_ALWAYS_ADDEND = "ALWAYS_ADDEND"; // add all entries with new
   // EntryId at end
 
   // only relevant for versionized storage objects
   public static final String UPDMODE_UPDATEVALIDVERSION = "UPDVERSION"; // update version which is
-  // valid at specified
-  // timestamp; fail if no
-  // version is valid
+  // valid at specified timestamp; fail if no version is valid
   public static final String UPPMODE_CREATENEWVERSION = "NEWVERSION"; // always create a version at
-  // specified timestamp; fail
-  // if version for exact same
-  // timestamp exists
+  // specified timestamp; fail if version for exact same timestamp exists
 
   private StorageObject storageObject;
   private IDataAccess dataAccess;
@@ -85,9 +78,9 @@ public class DataImport extends ProgressTask {
   private boolean isLogbook = false;
 
   public DataImport(StorageObject storageObject,
-      String filename, String encoding, char csvSeparator, char csvQuotes,
-      String importMode,
-      String updMode,
+      String filename, String encoding,
+      char csvSeparator, char csvQuotes,
+      String importMode, String updMode,
       String logbookEntryNoHandling,
       long validAt) {
     super();

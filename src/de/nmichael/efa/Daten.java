@@ -75,7 +75,6 @@ public class Daten {
   // 2001-COPYRIGHTYEAR)
 
   // enable/disable development functions for next version
-  public static final boolean NEW_FEATURES = false;
   private static final String EFA_LOG_FILE = "efa.log";
   public static final String PLEASE_RESTART_EFA = "pleaseRestartEfa.touch.txt";
   public static final String MIT_EMAIL_VERSAND = "undMitEmailVersand.touch.txt";

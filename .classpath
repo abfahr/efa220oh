@@ -12,9 +12,9 @@
 	<classpathentry kind="lib" path="libs/commons-logging.jar"/>
 	<classpathentry kind="lib" path="libs/edtftpj.jar"/>
 	<classpathentry kind="lib" path="libs/fop.jar"/>
-	<classpathentry kind="lib" path="libs/javax.mail.jar"/>
 	<classpathentry kind="lib" path="libs/jh.jar"/>
 	<classpathentry kind="lib" path="libs/jsuntimes.jar"/>
+	<classpathentry kind="lib" path="libs/javax.mail-1.6.2.jar"/>
 	<classpathentry kind="lib" path="libs/xmlgraphics-commons.jar"/>
 	<classpathentry kind="lib" path="libs/ical4j-1.0.6.jar"/>
 	<classpathentry kind="lib" path="libs/backport-util-concurrent-3.1.jar"/>

@@ -44,7 +44,7 @@ import de.nmichael.efa.util.Logger;
 public class ItemTypeBoatstatusList extends ItemTypeList {
 
   public static final int SEATS_OTHER = 99;
-  
+
   public enum SortingBy {
     EfaSorting, // default EFA-Sorting
     DescriptionOrt, // Tor 1
@@ -64,8 +64,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     super(name, type, category, description);
     this.efaBoathouseFrame = efaBoathouseFrame;
   }
-  
-  public int displayOnGui(Window dlg, JPanel panel, 
+
+  public int displayOnGui(Window dlg, JPanel panel,
       String borderLayoutOrientation, SortingBy sortmode) {
     this.sortmode = sortmode;
     return displayOnGui(dlg, panel, borderLayoutOrientation);
@@ -84,7 +84,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     showValue();
   }
 
-  Vector<ItemTypeListData> sortBootsList(Vector<BoatStatusRecord> vectorBoatStatusRecord, Logbook logbook) {
+  Vector<ItemTypeListData> sortBootsList(Vector<BoatStatusRecord> vectorBoatStatusRecord,
+      Logbook logbook) {
     if (vectorBoatStatusRecord == null
         || vectorBoatStatusRecord.size() == 0
         || logbook == null) {
@@ -127,16 +128,18 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
       // find all seat variants to be shown...
       if (myBoatRecord != null) {
         if (myBoatRecord.getNumberOfVariants() == 1) {
-          allSeats.put(myBoatRecord.getNumberOfSeats(0, SEATS_OTHER), myBoatRecord.getTypeVariant(0));
+          allSeats.put(myBoatRecord.getNumberOfSeats(0, SEATS_OTHER),
+              myBoatRecord.getTypeVariant(0));
         } else {
           if (myBoatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_AVAILABLE)) {
             for (int j = 0; j < myBoatRecord.getNumberOfVariants(); j++) {
               // if the boat is available, show the boat in all seat variants
-              allSeats.put(myBoatRecord.getNumberOfSeats(j, SEATS_OTHER), myBoatRecord.getTypeVariant(j));
+              allSeats.put(myBoatRecord.getNumberOfSeats(j, SEATS_OTHER),
+                  myBoatRecord.getTypeVariant(j));
             }
           } else {
             if (myBoatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
-              // if the boat is on the water, show the boat 
+              // if the boat is on the water, show the boat
               // in the variant that it is currently being used in
               DataTypeIntString entry = myBoatStatusRecord.getEntryNo();
               if (entry != null && entry.length() > 0) {
@@ -144,7 +147,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                 if (lr != null && lr.getBoatVariant() > 0
                     && lr.getBoatVariant() <= myBoatRecord.getNumberOfVariants()) {
                   allSeats.put(
-                      myBoatRecord.getNumberOfSeats(myBoatRecord.getVariantIndex(lr.getBoatVariant()), SEATS_OTHER),
+                      myBoatRecord.getNumberOfSeats(
+                          myBoatRecord.getVariantIndex(lr.getBoatVariant()), SEATS_OTHER),
                       lr.getBoatVariant());
                 }
               }
@@ -165,13 +169,14 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           allSeats.put(SEATS_OTHER, -1);
         } else {
           // BoatRecord not found;
-          // may be a boat which has a status, 
+          // may be a boat which has a status,
           // but is invalid at timestamp "now"
-          // don't add seats for this boat; 
+          // don't add seats for this boat;
           // it should *not* appear in the list
         }
       }
-      BoatDamageRecord[] damages = boatDamages.getBoatDamages(myBoatStatusRecord.getBoatId(), true, true);
+      BoatDamageRecord[] damages = boatDamages.getBoatDamages(myBoatStatusRecord.getBoatId(), true,
+          true);
 
       Integer[] seats = allSeats.keySet().toArray(new Integer[0]);
       for (Integer seat2 : seats) {
@@ -202,7 +207,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.variant = variant;
 
         myBoatString.name = "";
-        if (myBoatRecord != null ) {
+        if (myBoatRecord != null) {
           myBoatString.name = myBoatRecord.getQualifiedName();
           if (Daten.efaConfig.isEfaBoathouseShowOrtDescriptionInAvailableList()) {
             if (sortmode == SortingBy.EfaSorting || sortmode == SortingBy.BoatType) {
@@ -215,7 +220,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             }
           }
         }
-        // for BoatsOnTheWater, don't use the "real" boat name, 
+        // for BoatsOnTheWater, don't use the "real" boat name,
         // but rather what's stored in the boat status as "BoatText"
         if (myBoatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
           myBoatString.name = myBoatStatusRecord.getBoatText();
@@ -231,27 +236,29 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           int count = 0;
           for (BoatDamageRecord damage : damages) {
             if (!damage.getFixed()) {
-              count ++;
-              if (!efaBoathouseFrame.isToggleF12LangtextF12()) {
-                switch (count%6) {
-                  case 1:  aColors.add(Color.RED);     break;
-                  case 2:  aColors.add(Color.BLUE);    break;
-                  case 3:  aColors.add(Color.ORANGE);  break;
-                  case 4:  aColors.add(Color.GREEN);   break;
-                  case 5:  aColors.add(Color.MAGENTA); break;
-                  case 0:  aColors.add(Color.YELLOW);  break;
-                  default: aColors.add(Color.BLACK);   break;
-                }
-              } else {                
-                switch (count%6) {
-                  case 1:  aColors.add(new Color(farbe, 0, 0));   break;
-                  case 2:  aColors.add(new Color(0, 0, farbe));   break;
-                  case 3:  aColors.add(new Color(0, farbe, 0));   break;
-                  case 4:  aColors.add(new Color(farbe/2, 0, 0)); break;
-                  case 5:  aColors.add(new Color(0, 0, farbe/2)); break;
-                  case 0:  aColors.add(new Color(0, farbe/2, 0)); break;
-                  default: aColors.add(new Color(0, 0, 0));       break;
-                }
+              count++;
+              switch (count % 6) {
+                case 1:
+                  aColors.add(Color.RED);
+                  break;
+                case 2:
+                  aColors.add(Color.BLUE);
+                  break;
+                case 3:
+                  aColors.add(Color.ORANGE);
+                  break;
+                case 4:
+                  aColors.add(Color.GREEN);
+                  break;
+                case 5:
+                  aColors.add(Color.MAGENTA);
+                  break;
+                case 0:
+                  aColors.add(Color.YELLOW);
+                  break;
+                default:
+                  aColors.add(Color.BLACK);
+                  break;
               }
             }
           }
@@ -287,7 +294,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
 
         if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs() &&
             BoatStatusRecord.STATUS_ONTHEWATER.equals(myBoatStatusRecord.getCurrentStatus()) &&
-            myBoatStatusRecord.getEntryNo() != null && myBoatStatusRecord.getEntryNo().length() > 0) {
+            myBoatStatusRecord.getEntryNo() != null
+            && myBoatStatusRecord.getEntryNo().length() > 0) {
           LogbookRecord lr = logbook.getLogbookRecord(myBoatStatusRecord.getEntryNo());
           if (lr != null) {
             String suffix = lr.getDestinationAndVariantName();
@@ -392,7 +400,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     String currentStatus = aBoatStatusRecord.getCurrentStatus();
     switch (sortmode) {
       case EfaSorting:
-        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, aBoatRecord.getTypeSeats(0));
+        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+            aBoatRecord.getTypeSeats(0));
         if (currentStatus == null) {
           break;
         }
@@ -446,10 +455,12 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         sortString = aBoatRecord.getOwner();
         break;
       case PaddelArt:
-        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, aBoatRecord.getTypeRigging(0));
+        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING,
+            aBoatRecord.getTypeRigging(0));
         break;
       case Steuermann:
-        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, aBoatRecord.getTypeCoxing(0));
+        sortString = Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,
+            aBoatRecord.getTypeCoxing(0));
         break;
       default:
         break;

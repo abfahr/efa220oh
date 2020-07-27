@@ -177,7 +177,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeInteger windowYOffset;
   private ItemTypeInteger screenWidth;
   private ItemTypeInteger screenHeight;
-  private ItemTypeInteger pixelsForScrollbar;
   private ItemTypeInteger maxDialogHeight;
   private ItemTypeInteger maxDialogWidth;
   private ItemTypeStringList lookAndFeel;
@@ -682,11 +681,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           Integer.MAX_VALUE, false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
           International.getString("Bildschirmhöhe")
-              + " (" + International.getString("Pixel") + ")"));
-      addParameter(pixelsForScrollbar = new ItemTypeInteger("pixelsForScrollbar", 40, 0,
-          Integer.MAX_VALUE, false,
-          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
-          International.getString("Pixels für Scrollbar")
               + " (" + International.getString("Pixel") + ")"));
       addParameter(maxDialogWidth = new ItemTypeInteger("WindowDialogMaxWidth", 0, 0,
           Integer.MAX_VALUE, false,
@@ -1838,10 +1832,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public int getValueScreenHeight() {
     return screenHeight.getValue();
-  }
-
-  public int getPixelsForScrollbar() {
-    return pixelsForScrollbar.getValue();
   }
 
   public int getValueMaxDialogHeight() {

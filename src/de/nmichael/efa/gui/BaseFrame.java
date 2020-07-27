@@ -203,8 +203,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     if (dim.height < 50) {
       dim.height = 50;
     }
-    dim.width += mainScrollPane.getVerticalScrollBar().getPreferredSize().getWidth()
-        + Daten.efaConfig.getPixelsForScrollbar(); // + 40;
+    dim.width += mainScrollPane.getVerticalScrollBar().getPreferredSize().getWidth() + 40;
     dim.height += mainScrollPane.getHorizontalScrollBar().getPreferredSize().getHeight() + 20;
     mainScrollPane.setPreferredSize(Dialog.getMaxSize(dim));
 

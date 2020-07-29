@@ -226,16 +226,19 @@ public class BoatDamageRecord extends DataRecord {
       return 9;
     }
     String severity = getSeverity();
-    if (severity != null && severity.equals(SEVERITY_NOTUSEABLE)) {
-      return 1;
+    if (severity == null) {
+      return 5;
     }
-    if (severity != null && severity.equals(SEVERITY_LIMITEDUSEABLE)) {
-      return 2;
+    switch (severity) {
+      case SEVERITY_NOTUSEABLE:
+        return 1;
+      case SEVERITY_LIMITEDUSEABLE:
+        return 2;
+      case SEVERITY_FULLYUSEABLE:
+        return 3;
+      default:
+        return 5;
     }
-    if (severity != null && severity.equals(SEVERITY_FULLYUSEABLE)) {
-      return 3;
-    }
-    return 5;
   }
 
   public void setReportDate(DataTypeDate date) {
@@ -287,22 +290,34 @@ public class BoatDamageRecord extends DataRecord {
   }
 
   public String getReportedByPersonAsName() {
-    UUID id = getReportedByPersonId();
-    if (id != null) {
-      try {
-        Persons persons = getPersistence().getProject().getPersons(false);
-        long reportTimestamp = getReportDate().getTimestamp(getReportTime());
-        PersonRecord person = persons.getPerson(id, reportTimestamp);
-        String qualifiedName = person.getQualifiedName();
-        qualifiedName += " " + person.getEmail();
-        return qualifiedName;
-      } catch (Exception e) {
-        Logger.logdebug(e);
-        return null;
-      }
+    PersonRecord person = getReportedByPersonRecord();
+    if (person != null) {
+      String qualifiedName = person.getQualifiedName();
+      qualifiedName += " " + person.getEmail();
+      return qualifiedName;
     } else {
       return getReportedByPersonName();
     }
+  }
+
+  private PersonRecord getReportedByPersonRecord() {
+    UUID id = getReportedByPersonId();
+    if (id == null) {
+      return null;
+    }
+    Persons persons = getPersistence().getProject().getPersons(false);
+    long reportTimestamp = getReportDate().getTimestamp(getReportTime());
+    PersonRecord person = persons.getPerson(id, reportTimestamp);
+    return person;
+  }
+
+  public String getReportedByPersonEmail() {
+    PersonRecord person = getReportedByPersonRecord();
+    if (person == null) {
+      return null;
+    }
+    String email = person.getEmail();
+    return email;
   }
 
   public void setFixedByPersonId(UUID id) {
@@ -342,12 +357,13 @@ public class BoatDamageRecord extends DataRecord {
     if (id != null) {
       try {
         Persons persons = getPersistence().getProject().getPersons(false);
-        PersonRecord person = persons.getPerson(id, getFixDate().getTimestamp(getFixTime()));
+        long fixTimestamp = getFixDate().getTimestamp(getFixTime());
+        PersonRecord person = persons.getPerson(id, fixTimestamp);
         String qualifiedName = person.getQualifiedName();
         qualifiedName += " " + person.getEmail();
         return qualifiedName;
       } catch (Exception e) {
-        Logger.logdebug(e);
+        Logger.logwarn(e);
         return null;
       }
     } else {

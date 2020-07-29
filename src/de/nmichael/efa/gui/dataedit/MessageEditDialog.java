@@ -121,8 +121,7 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
           Persons persons = Daten.project.getPersons(false);
           PersonRecord p = persons.getPerson(
               (UUID) from.getId(from.getValueFromField()), System.currentTimeMillis());
-          if (p != null
-              && p.getEmail() != null) {
+          if (p != null && p.getEmail() != null) {
             String personEmail = p.getEmail().trim();
             if (personEmail.length() > 0) {
               msgRecord.setReplyTo(personEmail);

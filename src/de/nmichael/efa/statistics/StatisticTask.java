@@ -2084,8 +2084,8 @@ public class StatisticTask extends ProgressTask {
         if (Email.EMAIL_INDIVIDUAL.equals(addr)) {
           try {
             addr = null;
-            PersonRecord p = Daten.project.getPersons(false).getPerson(sr.sFilterByPersonId,
-                System.currentTimeMillis());
+            Persons persons2 = Daten.project.getPersons(false);
+            PersonRecord p = persons2.getPerson(sr.sFilterByPersonId, System.currentTimeMillis());
             addr = p.getEmail();
           } catch (Exception e) {
             Logger.logdebug(e);

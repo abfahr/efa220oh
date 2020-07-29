@@ -1017,12 +1017,14 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public void sendEmailReminder(String aktion) {
+    boolean kombinierteEmailErlaubnis = false;
     String emailToAdresse = "";
     String emailSubject = "";
     String anrede = "Name";
 
     PersonRecord personRecord = getPersonRecord();
     if (personRecord != null) {
+      kombinierteEmailErlaubnis = personRecord.istEmailErlaubnisErteilt();
       emailToAdresse = personRecord.getEmail();
       anrede = personRecord.getFirstName();
     }
@@ -1030,10 +1032,21 @@ public class BoatReservationRecord extends DataRecord {
     if (!isValidEmail(emailToAdresse)) {
       emailToAdresse = "efa.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
       emailSubject = "Error efa.invalidEmail " + getPersonAsName() + " ";
+      kombinierteEmailErlaubnis = false;
+    }
+    if (getLastModified() == IDataAccess.UNDEFINED_LONG) {
+      emailToAdresse = "efa.error.LastModified";
+      emailSubject = "Error LastModified ";
+      kombinierteEmailErlaubnis = false;
     }
     emailSubject += "OH Reservierung " + aktion
         + " " + getDateFrom()
         + " " + getReason();
+    if (!kombinierteEmailErlaubnis) {
+      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
+      emailToAdresse = "no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailSubject += " " + getPersonAsName();
+    }
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);
 
     Messages messages = Daten.project.getMessages(false);

@@ -30,9 +30,6 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class MessageListDialog extends DataListDialog {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   public static final int ACTION_MARKREAD = 901; // negative actions will not be shown as popup
   // actions
@@ -127,15 +124,15 @@ public class MessageListDialog extends DataListDialog {
         if (records == null || records.length == 0 || records[0] == null || admin == null) {
           return;
         }
-        boolean origToAdmin = (((MessageRecord) records[0]).getTo() == null || ((MessageRecord) records[0])
-            .getTo().equals(MessageRecord.TO_ADMIN));
+        boolean origToAdmin = (((MessageRecord) records[0]).getTo() == null
+            || ((MessageRecord) records[0]).getTo().equals(MessageRecord.TO_ADMIN));
         if (Dialog.yesNoCancelDialog(International.getString("Nachrichten weiterleiten"),
             International.getMessage(
                 "Möchtest Du {count} Nachrichten an {recipient} weiterleiten?",
                 records.length,
-                (origToAdmin ?
-                    International.getString("Bootswart") :
-                      International.getString("Administrator")))) != Dialog.YES) {
+                (origToAdmin
+                    ? International.getString("Bootswart")
+                    : International.getString("Administrator")))) != Dialog.YES) {
           return;
         }
         try {
@@ -167,14 +164,15 @@ public class MessageListDialog extends DataListDialog {
                 // persistence.data().add(records[i]);
               }
               // mark original message as read, if allowed
-              if (!r.getRead()
-                  &&
-                  (((r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN)) && admin
-                      .isAllowedMsgMarkReadAdmin()) ||
-                      ((r.getTo() != null && r.getTo().equals(MessageRecord.TO_BOATMAINTENANCE)) && admin
-                          .isAllowedMsgMarkReadBoatMaintenance()))) {
-                ((MessageRecord) records[i]).setRead(true);
-                persistence.data().update(records[i]);
+              if (!r.getRead() && r.getTo() != null) {
+                boolean isAdminAndAllowed = admin.isAllowedMsgMarkReadAdmin()
+                    && r.getTo().equals(MessageRecord.TO_ADMIN);
+                boolean isBoatmaintenanceAndAllowed = admin.isAllowedMsgMarkReadBoatMaintenance()
+                    && r.getTo().equals(MessageRecord.TO_BOATMAINTENANCE);
+                if (isAdminAndAllowed || isBoatmaintenanceAndAllowed) {
+                  ((MessageRecord) records[i]).setRead(true);
+                  persistence.data().update(records[i]);
+                }
               }
             }
           }
@@ -192,12 +190,12 @@ public class MessageListDialog extends DataListDialog {
         try {
           for (int i = 0; records != null && i < records.length; i++) {
             MessageRecord r = ((MessageRecord) records[i]);
-            if (r != null && !r.getRead()) {
-              if (((r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN)) && admin
-                  .isAllowedMsgMarkReadAdmin())
-                  ||
-                  ((r.getTo() != null && r.getTo().equals(MessageRecord.TO_BOATMAINTENANCE)) && admin
-                      .isAllowedMsgMarkReadBoatMaintenance())) {
+            if (r != null && !r.getRead() && r.getTo() != null) {
+              boolean isAdminAndAllowed = admin.isAllowedMsgMarkReadAdmin()
+                  && r.getTo().equals(MessageRecord.TO_ADMIN);
+              boolean isBoatmaintenanceAndAllowed = admin.isAllowedMsgMarkReadBoatMaintenance()
+                  && r.getTo().equals(MessageRecord.TO_BOATMAINTENANCE);
+              if (isAdminAndAllowed || isBoatmaintenanceAndAllowed) {
                 ((MessageRecord) records[i]).setRead(true);
                 persistence.data().update(records[i]);
               }

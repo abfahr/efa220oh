@@ -42,8 +42,7 @@ public class Backup {
   public static final String BACKUP_META = "backup.meta";
 
   enum Mode {
-    create,
-    restore
+    create, restore
   }
 
   private IDataAccess currentProjectDataAccess;
@@ -229,11 +228,10 @@ public class Backup {
                   meta.getNameAndType(),
                   meta.getDescription(),
                   International
-                  .getMessage(
-                      "Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
-                      backupMetaData.getProjectName(),
-                      (currentProjectName != null ? currentProjectName :
-                        "<--->"))));
+                      .getMessage(
+                          "Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
+                          backupMetaData.getProjectName(),
+                          (currentProjectName != null ? currentProjectName : "<--->"))));
           return false;
         }
       }
@@ -292,9 +290,6 @@ public class Backup {
       if ((!backupProject && !backupConfig)) {
         return -1;
       }
-      boolean isRemoteProject = Daten.project != null && Daten.project.isOpen() &&
-          Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE;
-
       if (backupProject) {
         getCurrentProjectInfo();
       }
@@ -303,13 +298,13 @@ public class Backup {
 
       String items = (backupProject && backupConfig
           ? International.getString("Projekt") + " '" + currentProjectName + "' " +
-          International.getString("und") + " " +
-          International.getString("efa-Konfiguration")
+              International.getString("und") + " " +
+              International.getString("efa-Konfiguration")
           : (backupProject
               ? International.getString("Projekt") + " '" + currentProjectName + "'"
-                  : (backupConfig
-                      ? International.getString("efa-Konfiguration")
-                          : null)));
+              : (backupConfig
+                  ? International.getString("efa-Konfiguration")
+                  : null)));
       logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPSTARTED,
           International.getMessage("Starte Backup von {items} ...", items));
 
@@ -426,11 +421,11 @@ public class Backup {
       logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTORESTARTED,
           International.getMessage(
               "Starte Wiederherstellung von Projekt {name} mit {count} Objekten in {zip} ...",
-              (backupMetaData.getProjectName() != null ? backupMetaData.getProjectName() :
-                "<" + International.getString("unbekannt") + ">"),
-                (restoreObjects == null || restoreObjects.length == 0 ?
-                    backupMetaData.size() : restoreObjects.length),
-                    zipFile));
+              (backupMetaData.getProjectName() != null ? backupMetaData.getProjectName()
+                  : "<" + International.getString("unbekannt") + ">"),
+              (restoreObjects == null || restoreObjects.length == 0 ? backupMetaData.size()
+                  : restoreObjects.length),
+              zipFile));
 
       ZipFile zip = new ZipFile(zipFile);
       if (restoreObjects == null || restoreObjects.length == 0) {
@@ -650,6 +645,9 @@ class BackupTask extends ProgressTask {
       case restore:
         success = backup.runRestore(this) == 0;
         break;
+      default:
+        success = false;
+        break;
     }
     setDone();
   }
@@ -671,10 +669,9 @@ class BackupTask extends ProgressTask {
         case restore:
           return LogString.operationSuccessfullyCompleted(
               International.getString("Wiederherstellung"));
+        default:
+          return LogString.operationSuccessfullyCompleted(International.getString("Operation"));
       }
-      return LogString.operationSuccessfullyCompleted(
-          International.getString("Operation"));
-
     } else {
       return null;
     }
@@ -688,8 +685,9 @@ class BackupTask extends ProgressTask {
           return LogString.operationFailed(International.getString("Backup"));
         case restore:
           return LogString.operationFailed(International.getString("Wiederherstellung"));
+        default:
+          return LogString.operationFailed(International.getString("Operation"));
       }
-      return LogString.operationFailed(International.getString("Operation"));
     } else {
       return null;
     }

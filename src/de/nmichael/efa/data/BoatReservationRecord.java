@@ -1013,7 +1013,7 @@ public class BoatReservationRecord extends DataRecord {
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
     Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS,
-        "Mail verschickt " + aktion + " an " + anrede);
+        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
   }
 
   public void sendEmailReminder(String aktion) {
@@ -1052,7 +1052,7 @@ public class BoatReservationRecord extends DataRecord {
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
     Logger.log(Logger.INFO, Logger.MSG_DEBUG_GUI_ICONS,
-        "Mail verschickt " + aktion + " an " + anrede);
+        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
   }
 
   private void sendEmailBootshausnutzungswart(String aktion) {

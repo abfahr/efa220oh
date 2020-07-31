@@ -991,7 +991,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
       long t2 = System.currentTimeMillis() - t;
       if (t2 >= 300) {
-        Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "ABF: zentrales Bild geladen"
+        Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "Zeitmessung: zentrales Bild geladen"
             + " t=" + t2 + "ms für " + fileName);
       }
     } catch (Exception e) {

@@ -36,6 +36,7 @@ import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.Location;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.RRule;
+import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
@@ -63,13 +64,13 @@ public class ICalendarExport {
 
     } catch (IOException e) {
       e.printStackTrace();
-    } catch (ValidationException e) {
-      e.printStackTrace();
     } catch (ParserException e) {
       e.printStackTrace();
     } catch (EfaException e) {
       e.printStackTrace();
     } catch (ParseException e) {
+      e.printStackTrace();
+    } catch (ValidationException e) {
       e.printStackTrace();
     }
     if (Daten.efaConfig.isSaveBootshausReservierungenToCsvFile()) {
@@ -168,7 +169,7 @@ public class ICalendarExport {
 
   private net.fortuna.ical4j.model.Calendar saveAllLogbookToCalendarFileIntern(
       net.fortuna.ical4j.model.Calendar calendar)
-      throws IOException, ValidationException, ParserException, EfaException, ParseException {
+      throws IOException, ParserException, EfaException, ParseException {
 
     // [x] Bootshaus (nur das vertragspflichtige Haus)
     // [x] Boote (alles ohne Bootshaus)
@@ -240,7 +241,7 @@ public class ICalendarExport {
 
   private net.fortuna.ical4j.model.Calendar saveAllReservationToCalendarFileIntern(
       net.fortuna.ical4j.model.Calendar calendar)
-      throws IOException, ValidationException, ParserException, EfaException, ParseException {
+      throws IOException, ParserException, EfaException, ParseException {
 
     // [x] Bootshaus (nur das vertragspflichtige Haus)
     // [x] Boote (alles ohne Bootshaus)
@@ -326,7 +327,8 @@ public class ICalendarExport {
             continue;
           }
           wochentermine.add(reservationTimeDescription);
-          termin.getSummary().setValue("OH-Regeltermin"
+          Summary summary = termin.getSummary();
+          summary.setValue("OH-Regeltermin"
               + "+" + personAsName.substring(0, 1).toUpperCase());
           description += CRLF
               + "Keine Ausleihe möglich!" + CRLF
@@ -334,8 +336,7 @@ public class ICalendarExport {
               + "Es gibt keine Boote in dieser Zeit!";
         }
         // String recur3 = "RRULE:FREQ=" + type + ";BYDAY=" + dayOfWeek.substring(0, 2);
-        Recur recur = new Recur();
-        recur.setFrequency(Recur.WEEKLY);
+        Recur recur = new Recur(Recur.WEEKLY);
         recur.getDayList().add(new WeekDay(dayOfWeek.substring(0, 2)));
         termin.getProperties().add(new RRule(recur));
       }
@@ -354,8 +355,8 @@ public class ICalendarExport {
     return calendar;
   }
 
-  private void saveAllClubworkToCalendarFileIntern() throws EfaException, IOException,
-      ValidationException {
+  private void saveAllClubworkToCalendarFileIntern()
+      throws EfaException, IOException, ValidationException {
     // Creating a new calendar
     net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
 

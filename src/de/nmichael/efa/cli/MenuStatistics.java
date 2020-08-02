@@ -67,10 +67,13 @@ public class MenuStatistics extends MenuData {
       case xml:
       case pdf:
         outputOk = true;
+      default:
+        outputOk = false;
+        break;
     }
     if (!outputOk) {
-      cli.logerr("Cannot create statistic with output type '" + sr.getOutputTypeDescription()
-          + "' in CLI.");
+      cli.logerr("Cannot create statistic with output type '"
+          + sr.getOutputTypeDescription() + "' in CLI.");
       return CLI.RC_COMMAND_FAILED;
     }
 
@@ -200,7 +203,7 @@ public class MenuStatistics extends MenuData {
       if (sr.getFilterPromptPerson()) {
         Persons persons = Daten.project.getPersons(false);
         DataKeyIterator it = persons.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           PersonRecord p = (PersonRecord) persons.data().get(k);
           if (!p.isValidAt(now)) {
             continue;
@@ -208,7 +211,8 @@ public class MenuStatistics extends MenuData {
           if (status != null && !status.equals(p.getStatusName())) {
             continue;
           }
-          if (sr.sEmailAddresses != null && sr.sEmailAddresses.equals(Email.EMAIL_INDIVIDUAL) &&
+          if (sr.sEmailAddresses != null &&
+              sr.sEmailAddresses.equals(Email.EMAIL_INDIVIDUAL) &&
               (p.getEmail() == null || p.getEmail().length() == 0)) {
             continue;
           }
@@ -220,7 +224,7 @@ public class MenuStatistics extends MenuData {
       if (sr.getFilterPromptBoat()) {
         Boats boats = Daten.project.getBoats(false);
         DataKeyIterator it = boats.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           BoatRecord b = (BoatRecord) boats.data().get(k);
           if (!b.isValidAt(now)) {
             continue;
@@ -233,7 +237,7 @@ public class MenuStatistics extends MenuData {
       if (sr.getFilterPromptGroup()) {
         Groups groups = Daten.project.getGroups(false);
         DataKeyIterator it = groups.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           GroupRecord g = (GroupRecord) groups.data().get(k);
           if (!g.isValidAt(now)) {
             continue;
@@ -256,8 +260,8 @@ public class MenuStatistics extends MenuData {
       sr.setOutputFile(sr.sOutputDir + Daten.fileSep
           + EfaUtil.replaceNotAllowedCharacters(name,
               "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789äöüÄÖÜß-_",
-              null,
-              "_") + sr.getOutputExtension());
+              null, "_")
+          + sr.getOutputExtension());
     }
   }
 

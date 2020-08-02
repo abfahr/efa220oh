@@ -81,12 +81,12 @@ public class Messages extends StorageObject {
     return createAndSaveMessageRecord(Daten.EFA_SHORTNAME, to, (String) null, subject, text);
   }
 
-  public MessageRecord createAndSaveMessageRecord(String from, String to, UUID replyTo,
+  public MessageRecord createAndSaveMessageRecord(String from, String to, UUID replyToUUID,
       String subject, String text) {
     String email = null;
     try {
-      PersonRecord p = Daten.project.getPersons(false).getPerson(replyTo,
-          System.currentTimeMillis());
+      Persons persons = Daten.project.getPersons(false);
+      PersonRecord p = persons.getPerson(replyToUUID, System.currentTimeMillis());
       if (p != null && p.getEmail() != null && p.getEmail().length() > 0) {
         email = p.getEmail();
       }
@@ -148,7 +148,8 @@ public class Messages extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update,
+      boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, MessageRecord.MESSAGEID);

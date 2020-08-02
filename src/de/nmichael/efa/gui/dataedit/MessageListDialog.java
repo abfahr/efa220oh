@@ -138,11 +138,14 @@ public class MessageListDialog extends DataListDialog {
         try {
           for (int i = 0; records != null && i < records.length; i++) {
             MessageRecord r = ((MessageRecord) records[i]);
-            if (r != null
-                &&
-                ((origToAdmin && (r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN))) ||
-                    (!origToAdmin && r.getTo() != null && r.getTo().equals(
-                        MessageRecord.TO_BOATMAINTENANCE)))) {
+            if (r == null) {
+              continue;
+            }
+            boolean isToAdmin = origToAdmin
+                && (r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN));
+            boolean isToBoatmaintenance = !origToAdmin
+                && (r.getTo() != null && r.getTo().equals(MessageRecord.TO_BOATMAINTENANCE));
+            if (isToAdmin || isToBoatmaintenance) {
               // forward message
               MessageRecord fwd = ((Messages) persistence).createMessageRecord();
               fwd.setFrom(r.getFrom());
@@ -207,6 +210,8 @@ public class MessageListDialog extends DataListDialog {
           Logger.logdebug(ex);
           Dialog.error(ex.toString());
         }
+        break;
+      default:
         break;
     }
   }

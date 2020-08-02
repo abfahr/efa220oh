@@ -336,7 +336,12 @@ public class ICalendarExport {
               + "Es gibt keine Boote in dieser Zeit!";
         }
         // String recur3 = "RRULE:FREQ=" + type + ";BYDAY=" + dayOfWeek.substring(0, 2);
-        Recur recur = new Recur(Recur.WEEKLY);
+        Recur recur = null;
+        if (boatReservationRecord.getDateTo() != null) {
+          recur = new Recur(Recur.WEEKLY, endDateTime);
+        } else {
+          recur = new Recur(Recur.WEEKLY, 4 * 52);
+        }
         recur.getDayList().add(new WeekDay(dayOfWeek.substring(0, 2)));
         termin.getProperties().add(new RRule(recur));
       }

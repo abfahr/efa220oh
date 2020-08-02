@@ -384,12 +384,10 @@ public class Backup {
       return -1;
     }
 
-    if (backupTask == null) {
-      if (Daten.efaConfig.isSaveReservationsWithBackupTask()) {
-        // a) calendar Vergangenheit, Zukunft
-        // b) Wolle.csv Datei anlegen
-        new ICalendarExport().saveAllReservationToCalendarFile();
-      }
+    if (Daten.efaConfig.isSaveReservationsWithBackupTask()) {
+      // a) calendar Vergangenheit, Zukunft
+      // b) Wolle.csv Datei anlegen
+      new ICalendarExport().saveAllReservationToCalendarFile();
     }
 
     return errors;

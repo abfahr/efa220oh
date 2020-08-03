@@ -32,7 +32,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -925,10 +928,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   private void updateTopInfoTextUnderlined(String infoText) {
     String prefix = "";
+    try {
+      String myTopText = Daten.efaBaseConfig.efaUserDirectory + Daten.MIT_TOP_TEXT;
+      prefix = Files.readString(Path.of(myTopText));
+    } catch (IOException e) {
+      prefix = "Neueres Handyfoto gemacht?<br>" + "(siehe Biertischgarnitur-Foto)";
+    }
     if (infoText.contains("Biertischgarnitur (1Tisch/2Bänke)")) {
       prefix = "QR-Code mit Handy scannen<br>und Fotos machen :-)";
-    } else {
-      prefix = "Neueres Handyfoto gemacht?<br>" + "(siehe Biertischgarnitur-Bild)";
     }
     updateTopInfoText("<HTML><center>" + prefix + "<br><br>"
         + "<U>" + infoText + "</U></center></HTML>");
@@ -2913,18 +2920,19 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         International.getString("Fahrt abbrechen")
             + " (" + International.getString("Bootsschaden") + ")",
         International.getString("Nichts"));
+
     switch (auswahlDialogAnswer) {
-      case 0:
+      case 0: // abbrechen
         break;
-      case 1:
+      case 1: // abbrechen mit Bootsschaden
         if (boat != null) {
           BoatDamageEditDialog.newBoatDamage(this, boat);
         }
         break;
-      case 2:
+      case 2: // nichts tun
         return;
-      default:
-        // TOOO Logger(WARN, should NEVER happen)
+      default: // should NEVER happen
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "actionAbortSession(): unreachable code");
         return;
     }
 

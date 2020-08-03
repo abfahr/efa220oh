@@ -67,18 +67,18 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_91";
-  public final static String VERSIONRELEASEDATE = "01.08.2020"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_92";
+  public final static String VERSIONRELEASEDATE = "03.08.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "14"; // aktuelles Jahr (Copyright (c)
   // 2001-COPYRIGHTYEAR)
 
-  // enable/disable development functions for next version
   private static final String EFA_LOG_FILE = "efa.log";
   public static final String PLEASE_RESTART_EFA = "pleaseRestartEfa.touch.txt";
   public static final String MIT_EMAIL_VERSAND = "undMitEmailVersand.touch.txt";
+  public static final String MIT_TOP_TEXT = "mit.topText.html";
   public static final String DEBUG_MODE_ALWAYS = "mit.Debug.immer.touch.txt";
   public static final String DEBUG_MODE_SPECIAL = "mit.Debug.heute.touch.txt";
 

@@ -224,8 +224,7 @@ public class EmailSenderThread extends Thread {
       return true;
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ERR_SENDMAILFAILED_ERROR,
-          International.getString("email-Versand fehlgeschlagen") + ": " +
-              e.toString() + " " + e.getMessage());
+          International.getString("email-Versand fehlgeschlagen") + ": " + e.getMessage());
       Logger.logdebug(e);
       return false;
     }

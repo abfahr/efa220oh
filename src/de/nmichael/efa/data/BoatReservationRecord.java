@@ -837,11 +837,11 @@ public class BoatReservationRecord extends DataRecord {
       // ist die vorliegende Reservierung jetzt schon angefangen?
       if (System.currentTimeMillis() >= startTime) {
         fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
-        fehlermeldung += "'Angefangene' Reservierungen werden nicht sofort gestartet.\n";
-        fehlermeldung += "Dein Boot erst in einer Minute als 'unterwegs' angezeigt.\n";
-        fehlermeldung += "Falls nicht, muss evtl. alles neu eingegeben werden. Sorry!\n";
         fehlermeldung += "--> '" + getReason() + "' ab " + getDateTimeFromDescription(REPLACE_HEUTE)
             + "\n";
+        fehlermeldung += "'Angefangene' Reservierungen werden nicht sofort gestartet.\n";
+        fehlermeldung += "Nur zur Info: Es kann bis zu einer Minute dauern.\n";
+        fehlermeldung += "Falls nicht, muss evtl. alles neu eingegeben werden. Sorry!\n";
       }
       // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp.
       // Lange-Ausleihe.

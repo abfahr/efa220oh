@@ -981,28 +981,36 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   public boolean istKuerzelErlaubnisErteilt() {
-    if (getInputShortcut() != null && !getInputShortcut().isEmpty()) {
-      return true; // nur Einzeln durch Kürzelvergabe
+    if (alteZusage()) {
+      return true; // nur 46 Einzelne durch mündliche Kürzelvergabe
     }
     return isErlaubtKuerzel(); // explizit vom Mitglied erlaubt
   }
 
   public boolean istEmailErlaubnisErteilt() {
     if (Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
-      return true; // allgemein alle Mitglieder
+      return true; // allgemein generell für alle Mitglieder
     }
     if (Daten.efaConfig.isReservierungAnMitgliedMitKuerzelEmailen()
-        && getInputShortcut() != null && !getInputShortcut().isEmpty()) {
-      return true; // nur Einzeln durch Kürzelvergabe
+        && alteZusage()) {
+      return true; // nur 46 Einzelne durch mündliche Kürzelvergabe
     }
     return isErlaubtEmail(); // explizit vom Mitglied erlaubt
   }
 
   public boolean istTelefonErlaubnisErteilt() {
-    if (getInputShortcut() != null && !getInputShortcut().isEmpty()) {
-      // return true; // nur Einzeln durch Kürzelvergabe
+    if (alteZusage()) {
+      // return true; // nur 46 Einzelne durch mündliche Kürzelvergabe
     }
     return isErlaubtTelefon(); // explizit vom Mitglied erlaubt
+  }
+
+  private boolean alteZusage() {
+    // neues Feature noch nicht aktiviert
+    boolean neuesFeatureUnbekannt = !isErlaubtKuerzel() && !isErlaubtEmail() && !isErlaubtTelefon();
+    // nur 46 Einzelne durch mündliche Kürzelvergabe
+    boolean kuerzelVorhanden = getInputShortcut() != null && !getInputShortcut().isEmpty();
+    return neuesFeatureUnbekannt && kuerzelVorhanden;
   }
 
   public void cleanPerson() {

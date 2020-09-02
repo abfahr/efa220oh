@@ -421,6 +421,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           case BoatStatusRecord.STATUS_NOTAVAILABLE:
             break;
           default:
+            Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+                "actionAbortSession(): unreachable switch: "
+                    + "aBoatStatusRecord currentStatus = " + currentStatus);
             break;
         }
         break;
@@ -463,6 +466,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             aBoatRecord.getTypeCoxing(0));
         break;
       default:
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "actionAbortSession(): unreachable switch: "
+            + "getSortingItem sortString = " + sortString);
         break;
     }
     if (sortString != null && sortString.isBlank()) {

@@ -226,6 +226,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               this.actionIcons[i] = BaseDialog.IMAGE_DELETE;
               break;
             default:
+              Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+                  "actionAbortSession(): unreachable switch: "
+                      + "setActions() actionTypes = " + actionTypes[i]);
               break;
           }
         }
@@ -503,13 +506,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             for (int i = 0; records != null && i < records.length; i++) {
               if (records[i] != null) {
                 if (records[i].getDeleted()) {
-                  switch (Dialog
-                      .yesNoCancelDialog(
-                          International.getString("Datensatz wiederherstellen"),
-                          International
-                              .getMessage(
-                                  "Der Datensatz '{record}' wurde gelöscht. Möchtest Du ihn wiederherstellen?",
-                                  records[i].getQualifiedName()))) {
+                  int auswahlYesNoCancelDialog = Dialog.yesNoCancelDialog(
+                      International.getString("Datensatz wiederherstellen"),
+                      International.getMessage(
+                          "Der Datensatz '{record}' wurde gelöscht. Möchtest Du ihn wiederherstellen?",
+                          records[i].getQualifiedName()));
+                  switch (auswahlYesNoCancelDialog) {
                     case Dialog.YES:
                       try {
                         DataRecord[] rall = persistence.data().getValidAny(records[i].getKey());
@@ -527,6 +529,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     case Dialog.CANCEL:
                       return;
                     default:
+                      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+                          "actionAbortSession(): unreachable switch: "
+                              + "Datensatz wiederherstellen auswahlYesNoCancelDialog = "
+                              + auswahlYesNoCancelDialog);
                       break;
                   }
                 }
@@ -652,6 +658,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
             break;
           default:
+            Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+                "actionAbortSession(): unreachable switch: "
+                    + "itemListenerAction actionId = " + actionId);
             break;
         }
       }

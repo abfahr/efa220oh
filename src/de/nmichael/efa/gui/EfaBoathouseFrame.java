@@ -2932,7 +2932,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       case 2: // nichts tun
         return;
       default: // should NEVER happen
-        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "actionAbortSession(): unreachable code");
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "actionAbortSession(): unreachable switch: "
+            + "Fahrt abbrechen auswahlDialogAnswer = " + auswahlDialogAnswer);
         return;
     }
 

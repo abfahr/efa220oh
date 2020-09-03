@@ -275,10 +275,9 @@ public class BoatReservations extends StorageObject {
                 if (anzahlStunden < minimumDauerFuerKulanz) {
                   throw new EfaModifyException(
                       Logger.MSG_DATA_MODIFYEXCEPTION,
-                      International
-                          .getString(
-                              "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
-                                  + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                      International.getString(
+                          "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                              + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
                       Thread.currentThread().getStackTrace());
                 }
               }
@@ -297,10 +296,9 @@ public class BoatReservations extends StorageObject {
               br[i].getTimeFrom(), br[i].getTimeTo())) {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
-                International
-                    .getString(
-                        "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
-                            + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
+                International.getString(
+                    "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung \r\n"
+                        + "von " + br[i].getPersonAsName() + " " + br[i].getContact()),
                 Thread.currentThread().getStackTrace());
 
           }
@@ -319,8 +317,7 @@ public class BoatReservations extends StorageObject {
               br[i].getTimeFrom(),
               br[i].getDateTo(),
               br[i].getTimeTo())) {
-            throw new EfaModifyException(
-                Logger.MSG_DATA_MODIFYEXCEPTION,
+            throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                 "Die Reservierung überschneidet sich mit einer Reservierung \n"
                     + "von " + br[i].getPersonAsName() + " " + br[i].getContact(),
                 Thread.currentThread().getStackTrace());

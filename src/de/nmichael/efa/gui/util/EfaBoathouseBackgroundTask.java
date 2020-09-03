@@ -666,25 +666,26 @@ public class EfaBoathouseBackgroundTask extends Thread {
    */
   private LogbookRecord starteFahrtMitEndtimeLautReservation(
       BoatReservationRecord[] boatReservations) {
-    if (boatReservations != null) {
-      for (BoatReservationRecord boatReservationRecord : boatReservations) {
-        if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
-          continue; // skip weekly
-        }
-        if (boatReservationRecord.getInvisible()) {
-          continue; // skip invisible
-        }
-        if (boatReservationRecord.isModifiedAfterStartAndChangedOften()) {
-          continue; // skip autom.Start
-        }
-        LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
-        if (newLogbookRecord != null) {
-          EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
-              International.getString("Fahrtbeginn") + " (reserv)", newLogbookRecord);
-          boatReservationRecord.setInvisible(true); // unnötig - kann raus!
-          updateReservation(boatReservationRecord);
-          return newLogbookRecord;
-        }
+    if (boatReservations == null) {
+      return null;
+    }
+    for (BoatReservationRecord boatReservationRecord : boatReservations) {
+      if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+        continue; // skip weekly
+      }
+      if (boatReservationRecord.getInvisible()) {
+        continue; // skip invisible
+      }
+      if (boatReservationRecord.isModifiedAfterStartAndChangedOften()) {
+        continue; // skip autom.Start
+      }
+      LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
+      if (newLogbookRecord != null) {
+        EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
+            International.getString("Fahrtbeginn") + " (reserv)", newLogbookRecord);
+        boatReservationRecord.setInvisible(true); // unnötig - kann raus!
+        updateReservation(boatReservationRecord);
+        return newLogbookRecord;
       }
     }
     return null;
@@ -694,7 +695,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       boatReservationRecord.getPersistence().data().update(boatReservationRecord);
     } catch (EfaException e) {
-      Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, e);
+      Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
     }
   }
 

@@ -771,6 +771,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         "Sollen andere Boote genauso reserviert werden?");
     items[1] = new ItemTypeLabel("L1", IItemType.TYPE_INTERNAL, "",
         "Welche Bootstypen? (" + originalBoat.getName() + " = " + originalBoatType + ")");
+    items[2] = new ItemTypeLabel("L1", IItemType.TYPE_INTERNAL, "",
+        "Achtung: Schon 1 Häckchen reserviert viele Boote, evtl. Mailflut");
     boolean success = MultiInputDialog.showInputDialog(getParentDialog(),
         International.getString("Übertragen auf ganze Gruppen"), items);
     if (success) {
@@ -849,7 +851,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     liste.add(new ItemTypeLabel("*A-L3", IItemType.TYPE_INTERNAL, "",
         "Sollen andere Boote genauso reserviert werden?"));
     liste.add(new ItemTypeLabel("*A-L4", IItemType.TYPE_INTERNAL, "",
-        "-> Bitte auswählen:"));
+        "-> Bitte auswählen: (bitte nicht alle, evtl. Mailflut)"));
     IItemType[] items = createArraySortedByName(liste);
 
     boolean pressedOKAY = MultiInputDialog.showInputDialog(getParentDialog(),

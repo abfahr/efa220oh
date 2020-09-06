@@ -989,7 +989,7 @@ public class BoatReservationRecord extends DataRecord {
     }
 
     if (!isValidEmail(emailToAdresse)) {
-      emailToAdresse = "efa.invalidEmailMitglied";
+      emailToAdresse = "efa+no.invalidEmailMitglied";
       kombinierteEmailErlaubnis = false;
     }
     if (getLastModified() == IDataAccess.UNDEFINED_LONG) {
@@ -1002,7 +1002,7 @@ public class BoatReservationRecord extends DataRecord {
         + " " + getDateFrom();
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "overfreunde-de-0023+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
       emailSubject += " " + getPersonAsName();
     }
     emailSubject += " " + getBoatName();
@@ -1028,7 +1028,7 @@ public class BoatReservationRecord extends DataRecord {
     }
 
     if (!isValidEmail(emailToAdresse)) {
-      emailToAdresse = "overfreunde-de-0023+efa.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
       emailSubject = "Error efa.invalidEmail " + getPersonAsName() + " ";
       kombinierteEmailErlaubnis = false;
     }
@@ -1042,7 +1042,7 @@ public class BoatReservationRecord extends DataRecord {
         + " " + getReason();
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "overfreunde-de-0023+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
       emailSubject += " " + getPersonAsName();
     }
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);

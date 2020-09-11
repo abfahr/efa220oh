@@ -753,7 +753,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     String[] boatSeatsDisplayArray = EfaTypes
         .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY);
 
-    int header = 2;
+    int header = 3;
     IItemType[] items = new IItemType[header + boatSeatsValuesArray.length];
     BoatRecord originalBoat = dataRecord.getBoat();
     String originalTypeSeats = originalBoat.getTypeSeats(0);

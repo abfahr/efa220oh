@@ -174,8 +174,7 @@ public class EfaAboutDialog extends BaseDialog {
       }
     });
     devNoteLabel.setText(International.getMessage(
-        "Diese Version ist eine Entwicklerversion in {status}-Qualität!",
-        "Beta"));
+        "Diese Version ist eine Entwicklerversion in {status}-Qualität!", "Beta"));
     devNoteLabel.setForeground(Color.red);
     devNoteLabel.setVisible(false);
     detailPanel.setLayout(borderLayout3);
@@ -246,9 +245,9 @@ public class EfaAboutDialog extends BaseDialog {
     }
 
     danke.setEditable(false);
-    danke
-    .append(International
-        .getString("Folgenden Personen und Organisationen gilt Dank für die Unterstützung von efa:")
+    danke.append(International
+        .getString(
+            "Folgenden Personen und Organisationen gilt Dank für die Unterstützung von efa:")
         + "\n"
         + "\n"
         + International.getString("Mitwirkende") + ":\n"
@@ -337,8 +336,10 @@ public class EfaAboutDialog extends BaseDialog {
   }
 
   void gplLabel_mouseClicked(MouseEvent e) {
-    BrowserDialog.openInternalBrowser(this, "Browser", "file:" + Daten.efaImagesDirectory
-        + Daten.EFA_LICENSE, 700, 600);
+    BrowserDialog.openInternalBrowser(this, "Browser", "file:"
+        + Daten.efaImagesDirectory // TODO 2020-09-25 abf besseres directory finden
+        + Daten.EFA_LICENSE,
+        700, 600);
   }
 
 }

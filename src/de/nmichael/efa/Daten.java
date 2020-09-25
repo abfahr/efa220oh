@@ -67,8 +67,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_99";
-  public final static String VERSIONRELEASEDATE = "11.09.2020"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_100";
+  public final static String VERSIONRELEASEDATE = "25.09.2020"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -190,8 +190,10 @@ public class Daten {
   // ("./log/")
   public static String efaCfgDirectory = null; // Efa-Configverzeichnis, immer mit "/" am Ende
   // ("./cfg/")
-  public static String efaImagesDirectory = null; // Efa-Doku-Verzeichnis, immer mit "/" am Ende
+  public static String efaImagesDirectory = null; // Efa-Bilder-Verzeichnis, immer mit "/" am Ende
   // ("./images/")
+  public static String efaNamesDirectory = null; // Efa-Namen-Verzeichnis, immer mit "/" am Ende
+  // ("./names/")
   public static String efaFormattingDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am
   // Ende ("./fmt/")
   public static String efaBakDirectory = null; // Efa-Backupverzeichnis, immer mit "/" am Ende
@@ -765,6 +767,12 @@ public class Daten {
       haltProgram(HALT_DIRECTORIES);
     }
 
+    // ./names
+    efaNamesDirectory = efaBaseConfig.efaUserDirectory + "names" + fileSep;
+    if (!checkAndCreateDirectory(efaNamesDirectory)) {
+      haltProgram(HALT_DIRECTORIES);
+    }
+
     // ./backup
     if (!trySetEfaBackupDirectory(null)) {
       haltProgram(HALT_DIRECTORIES);
@@ -1320,6 +1328,9 @@ public class Daten {
         }
         if (efaImagesDirectory != null) {
           infos.add("efa.dir.images=" + efaImagesDirectory);
+        }
+        if (efaNamesDirectory != null) {
+          infos.add("efa.dir.names=" + efaNamesDirectory);
         }
         if (efaDataDirectory != null) {
           infos.add("efa.dir.data=" + efaDataDirectory);

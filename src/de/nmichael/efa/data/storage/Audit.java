@@ -9,6 +9,11 @@
 
 package de.nmichael.efa.data.storage;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.UUID;
@@ -263,10 +268,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
-                      + International.getString("Boot")
-                      + " "
-                      + boat.getQualifiedName()
-                      + ": "
+                      + International.getString("Boot") + " "
+                      + boat.getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                           International.getString("Gruppe"),
@@ -283,10 +286,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditBoats(): "
-                    + International.getString("Boot")
-                    + " "
-                    + boat.getQualifiedName()
-                    + ": "
+                    + International.getString("Boot") + " "
+                    + boat.getQualifiedName() + ": "
                     + International.getMessage(
                         "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                         International.getString("Gruppe"),
@@ -299,10 +300,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditBoats(): "
-                    + International.getString("Boot")
-                    + " "
-                    + boat.getQualifiedName()
-                    + ": "
+                    + International.getString("Boot") + " "
+                    + boat.getQualifiedName() + ": "
                     + International.getMessage(
                         "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                         International.getString("Mannschaft"),
@@ -316,10 +315,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditBoats(): "
-                    + International.getString("Boot")
-                    + " "
-                    + boat.getQualifiedName()
-                    + ": "
+                    + International.getString("Boot") + " "
+                    + boat.getQualifiedName() + ": "
                     + International.getMessage(
                         "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                         International.getString("Fahrtart"),
@@ -334,10 +331,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditBoats(): "
-                    + International.getString("Boot")
-                    + " "
-                    + boat.getQualifiedName()
-                    + ": "
+                    + International.getString("Boot") + " "
+                    + boat.getQualifiedName() + ": "
                     + International.getMessage(
                         "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                         International.getString("Ziel"),
@@ -374,10 +369,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
-                      + International.getString("Bootsstatus")
-                      + " "
-                      + status.getQualifiedName()
-                      + ": "
+                      + International.getString("Bootsstatus") + " "
+                      + status.getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                           International.getString("Bootshaus"),
@@ -436,10 +429,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                 "runAuditBoats(): "
-                    + International.getString("Bootsstatus")
-                    + " "
-                    + status.getBoatText()
-                    + ": "
+                    + International.getString("Bootsstatus") + " "
+                    + status.getBoatText() + ": "
                     + International.getMessage(
                         "Bootsstatus '{status}' korrigiert nach '{status}'.",
                         BoatStatusRecord.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
@@ -450,10 +441,8 @@ public class Audit extends Thread {
             auditError(
                 Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                 "runAuditBoats(): "
-                    + International.getString("Bootsstatus")
-                    + " "
-                    + status.getBoatText()
-                    + ": "
+                    + International.getString("Bootsstatus") + " "
+                    + status.getBoatText() + ": "
                     + International
                         .getMessage(
                             "Boot ist unterwegs in Fahrtenbuch {name}, aber Fahrtenbuch {name} ist geöffnet.",
@@ -473,10 +462,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                   "runAuditBoats(): "
-                      + International.getString("Bootsstatus")
-                      + " "
-                      + status.getBoatText()
-                      + ": "
+                      + International.getString("Bootsstatus") + " "
+                      + status.getBoatText() + ": "
                       + International.getMessage(
                           "Bootsstatus '{status}' korrigiert nach '{status}'.",
                           BoatStatusRecord.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
@@ -492,10 +479,8 @@ public class Audit extends Thread {
                 auditWarning(
                     Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                     "runAuditBoats(): "
-                        + International.getString("Bootsstatus")
-                        + " "
-                        + status.getBoatText()
-                        + ": "
+                        + International.getString("Bootsstatus") + " "
+                        + status.getBoatText() + ": "
                         + International.getMessage(
                             "Bootsstatus '{status}' korrigiert nach '{status}'.",
                             BoatStatusRecord
@@ -547,10 +532,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditBoats(): "
-                      + International.getString("Reservierung")
-                      + " "
-                      + boat[0].getQualifiedName()
-                      + ": "
+                      + International.getString("Reservierung") + " "
+                      + boat[0].getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
@@ -562,10 +545,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
-                      + International.getString("Reservierung")
-                      + " "
-                      + boat[0].getQualifiedName()
-                      + ": "
+                      + International.getString("Reservierung") + " "
+                      + boat[0].getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                           International.getString("Person"),
@@ -608,10 +589,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditBoats(): "
-                      + International.getString("Bootsschaden")
-                      + " "
-                      + boat[0].getQualifiedName()
-                      + ": "
+                      + International.getString("Bootsschaden") + " "
+                      + boat[0].getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
@@ -619,10 +598,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
-                      + International.getString("Bootsschaden")
-                      + " "
-                      + boat[0].getQualifiedName()
-                      + ": "
+                      + International.getString("Bootsschaden") + " "
+                      + boat[0].getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                           International.getString("Person"),
@@ -640,10 +617,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditBoats(): "
-                      + International.getString("Bootsschaden")
-                      + " "
-                      + boat[0].getQualifiedName()
-                      + ": "
+                      + International.getString("Bootsschaden") + " "
+                      + boat[0].getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
@@ -651,10 +626,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
-                      + International.getString("Bootsschaden")
-                      + " "
-                      + boat[0].getQualifiedName()
-                      + ": "
+                      + International.getString("Bootsschaden") + " "
+                      + boat[0].getQualifiedName() + ": "
                       + International.getMessage(
                           "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                           International.getString("Person"),
@@ -739,10 +712,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditGroups(): "
-                    + International.getString("Gruppe")
-                    + " "
-                    + group.getQualifiedName()
-                    + ": "
+                    + International.getString("Gruppe") + " "
+                    + group.getQualifiedName() + ": "
                     + International.getMessage(
                         "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                         International.getString("Person"),
@@ -791,10 +762,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditDestinations(): "
-                    + International.getString("Ziel")
-                    + " "
-                    + destination.getQualifiedName()
-                    + ": "
+                    + International.getString("Ziel") + " "
+                    + destination.getQualifiedName() + ": "
                     + International.getMessage(
                         "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                         International.getString("Gewässer"),
@@ -814,10 +783,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditDestinations(): "
-                    + International.getString("Ziel")
-                    + " "
-                    + destination.getQualifiedName()
-                    + ": "
+                    + International.getString("Ziel") + " "
+                    + destination.getQualifiedName() + ": "
                     + International.getMessage(
                         "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                         International.getString("Bootshaus"),
@@ -914,10 +881,8 @@ public class Audit extends Thread {
           auditWarning(
               Logger.MSG_DATA_AUDIT_REFTOTEXT,
               "runAuditPersons(): "
-                  + International.getString("Person")
-                  + " "
-                  + person.getQualifiedName()
-                  + ": "
+                  + International.getString("Person") + " "
+                  + person.getQualifiedName() + ": "
                   + International.getMessage(
                       "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                       International.getString("Status"),
@@ -929,10 +894,8 @@ public class Audit extends Thread {
           auditWarning(
               Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
               "runAuditPersons(): "
-                  + International.getString("Person")
-                  + " "
-                  + person.getQualifiedName()
-                  + ": "
+                  + International.getString("Person") + " "
+                  + person.getQualifiedName() + ": "
                   + International.getMessage(
                       "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                       International.getString("Boot"),
@@ -1165,6 +1128,7 @@ public class Audit extends Thread {
           destinations.dataAccess.getNumberOfRecords() == 0) {
         return logbookErr; // don't run check agains empty list (could be due to error opening list)
       }
+      new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
       UUID id;
 
       boolean wasLogbookOpen = project.isLogbookOpen(logbookName);
@@ -1181,10 +1145,8 @@ public class Audit extends Thread {
           auditError(
               Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
               "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
+                  + International.getString("Fahrtenbuch") + " "
+                  + logbookName + " "
                   + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                       .toString())
                   + ": "
@@ -1195,10 +1157,8 @@ public class Audit extends Thread {
             auditError(
                 Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
                 "runAuditLogbook(): "
-                    + International.getString("Fahrtenbuch")
-                    + " "
-                    + logbookName
-                    + " "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                         .toString())
                     + ": "
@@ -1214,10 +1174,8 @@ public class Audit extends Thread {
           auditError(
               Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
               "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
+                  + International.getString("Fahrtenbuch") + " "
+                  + logbookName + " "
                   + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                       .toString())
                   + ": "
@@ -1227,18 +1185,18 @@ public class Audit extends Thread {
         }
 
         // Boat References
-        if (r.getBoatId() != null && r.getBoatName() != null && r.getBoatName().length() > 0
-            && !isReferenceInvalid(r.getBoatId(), boats, validAt)) {
+        if (r.getBoatId() != null &&
+            r.getBoatName() != null &&
+            r.getBoatName().length() > 0 &&
+            !isReferenceInvalid(r.getBoatId(), boats, validAt)) {
           String name = r.getBoatName();
           r.setBoatName(null);
           updated = true;
           auditWarning(
               Logger.MSG_DATA_AUDIT_TEXTTOREF,
               "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
+                  + International.getString("Fahrtenbuch") + " "
+                  + logbookName + " "
                   + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                       .toString())
                   + ": "
@@ -1259,10 +1217,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_REFTOTEXT,
                 "runAuditLogbook(): "
-                    + International.getString("Fahrtenbuch")
-                    + " "
-                    + logbookName
-                    + " "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                         .toString())
                     + ": "
@@ -1273,10 +1229,8 @@ public class Audit extends Thread {
             auditError(
                 Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                 "runAuditLogbook(): "
-                    + International.getString("Fahrtenbuch")
-                    + " "
-                    + logbookName
-                    + " "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                         .toString())
                     + ": "
@@ -1286,26 +1240,27 @@ public class Audit extends Thread {
                         International.getString("Boot")));
             logbookErr++;
           }
-        } else if ((id = findValidReference(r.getBoatName(), boats, validAt)) != null) {
-          String name = r.getBoatName();
-          r.setBoatId(id);
-          r.setBoatName(null);
-          updated = true;
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_TEXTTOREF,
-              "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
-                  + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
-                      .toString())
-                  + ": "
-                  + International.getMessage(
-                      "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
-                      International.getString("Boot"),
-                      name + " [" + International.getString("unbekannt") + "]",
-                      boats.getBoat(id, validAt).getQualifiedName()));
+        } else {
+          id = findValidReference(r.getBoatName(), boats, validAt);
+          if (id != null) {
+            String name = r.getBoatName();
+            r.setBoatId(id);
+            r.setBoatName(null);
+            updated = true;
+            auditWarning(
+                Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                "runAuditLogbook(): "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
+                    + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
+                        .toString())
+                    + ": "
+                    + International.getMessage(
+                        "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
+                        International.getString("Boot"),
+                        name + " [" + International.getString("unbekannt") + "]",
+                        boats.getBoat(id, validAt).getQualifiedName()));
+          }
         }
 
         // Persons
@@ -1318,10 +1273,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_TEXTTOREF,
                 "runAuditLogbook(): "
-                    + International.getString("Fahrtenbuch")
-                    + " "
-                    + logbookName
-                    + " "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                         .toString())
                     + ": "
@@ -1339,10 +1292,8 @@ public class Audit extends Thread {
               auditWarning(
                   Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditLogbook(): "
-                      + International.getString("Fahrtenbuch")
-                      + " "
-                      + logbookName
-                      + " "
+                      + International.getString("Fahrtenbuch") + " "
+                      + logbookName + " "
                       + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                           .toString())
                       + ": "
@@ -1353,10 +1304,8 @@ public class Audit extends Thread {
               auditError(
                   Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                   "runAuditLogbook(): "
-                      + International.getString("Fahrtenbuch")
-                      + " "
-                      + logbookName
-                      + " "
+                      + International.getString("Fahrtenbuch") + " "
+                      + logbookName + " "
                       + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                           .toString())
                       + ": "
@@ -1367,26 +1316,46 @@ public class Audit extends Thread {
                               : International.getString("Mannschaft") + " " + i)));
               logbookErr++;
             }
-          } else if ((id = findValidReference(r.getCrewName(i), persons, validAt)) != null) {
+          } else {
             String name = r.getCrewName(i);
-            r.setCrewId(i, id);
-            r.setCrewName(i, null);
-            updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_TEXTTOREF,
-                "runAuditLogbook(): "
-                    + International.getString("Fahrtenbuch")
-                    + " "
-                    + logbookName
-                    + " "
-                    + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
-                        .toString())
-                    + ": "
-                    + International.getMessage(
-                        "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
-                        International.getString("Person"),
-                        name + " [" + International.getString("unbekannt") + "]",
-                        persons.getPerson(id, validAt).getQualifiedName()));
+            id = findValidReference(name, persons, validAt);
+            if (id == null && name != null) {
+              String nameWithPath = Daten.efaNamesDirectory
+                  + logbookName + Daten.fileSep
+                  + name.replace("/", "");
+              try {
+                BufferedReader buffer = new BufferedReader(new FileReader(nameWithPath));
+                String nameCandidate = buffer.readLine(); // take first line as new candidate
+                id = findValidReference(nameCandidate, persons, validAt);
+                buffer.close();
+              } catch (FileNotFoundException e) {
+                try {
+                  new File(nameWithPath).createNewFile();
+                } catch (IOException ioe) {
+                  auditInfo(Logger.MSG_ABF_ERROR,
+                      "Error while creating the new empty file "
+                          + nameWithPath + " :" + ioe);
+                }
+              }
+            }
+            if (id != null) {
+              r.setCrewId(i, id);
+              r.setCrewName(i, null);
+              updated = true;
+              auditInfo(
+                  Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                  "runAuditLogbook(): "
+                      + International.getString("Fahrtenbuch") + " "
+                      + logbookName + " "
+                      + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
+                          .toString())
+                      + ": "
+                      + International.getMessage(
+                          "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
+                          International.getString("Person"),
+                          name + " [" + International.getString("unbekannt") + "]",
+                          persons.getPerson(id, validAt).getQualifiedName()));
+            }
           }
         }
 
@@ -1400,10 +1369,8 @@ public class Audit extends Thread {
           auditInfo(
               Logger.MSG_DATA_AUDIT_TEXTTOREF,
               "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
+                  + International.getString("Fahrtenbuch") + " "
+                  + logbookName + " "
                   + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                       .toString())
                   + ": "
@@ -1422,10 +1389,8 @@ public class Audit extends Thread {
             auditWarning(
                 Logger.MSG_DATA_AUDIT_REFTOTEXT,
                 "runAuditLogbook(): "
-                    + International.getString("Fahrtenbuch")
-                    + " "
-                    + logbookName
-                    + " "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                         .toString())
                     + ": "
@@ -1436,10 +1401,8 @@ public class Audit extends Thread {
             auditError(
                 Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                 "runAuditLogbook(): "
-                    + International.getString("Fahrtenbuch")
-                    + " "
-                    + logbookName
-                    + " "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                         .toString())
                     + ": "
@@ -1449,27 +1412,27 @@ public class Audit extends Thread {
                         International.getString("Ziel")));
             logbookErr++;
           }
-        } else if ((id = findValidReference(r.getDestinationName(), destinations,
-            validAt)) != null) {
-          String name = r.getDestinationName();
-          r.setDestinationId(id);
-          r.setDestinationName(null);
-          updated = true;
-          auditInfo(
-              Logger.MSG_DATA_AUDIT_TEXTTOREF,
-              "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
-                  + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
-                      .toString())
-                  + ": "
-                  + International.getMessage(
-                      "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
-                      International.getString("Ziel"),
-                      name + " [" + International.getString("unbekannt") + "]",
-                      destinations.getDestination(id, validAt).getQualifiedName()));
+        } else {
+          id = findValidReference(r.getDestinationName(), destinations, validAt);
+          if (id != null) {
+            String name = r.getDestinationName();
+            r.setDestinationId(id);
+            r.setDestinationName(null);
+            updated = true;
+            auditInfo(
+                Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                "runAuditLogbook(): "
+                    + International.getString("Fahrtenbuch") + " "
+                    + logbookName + " "
+                    + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
+                        .toString())
+                    + ": "
+                    + International.getMessage(
+                        "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
+                        International.getString("Ziel"),
+                        name + " [" + International.getString("unbekannt") + "]",
+                        destinations.getDestination(id, validAt).getQualifiedName()));
+          }
         }
 
         // Session Type
@@ -1480,10 +1443,8 @@ public class Audit extends Thread {
           auditWarning(
               Logger.MSG_DATA_AUDIT_REFTOTEXT,
               "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
+                  + International.getString("Fahrtenbuch") + " "
+                  + logbookName + " "
                   + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                       .toString())
                   + ": "
@@ -1500,10 +1461,8 @@ public class Audit extends Thread {
           auditError(
               Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
               "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
+                  + International.getString("Fahrtenbuch") + " "
+                  + logbookName + " "
                   + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                       .toString())
                   + ": "
@@ -1522,10 +1481,8 @@ public class Audit extends Thread {
           auditWarning(
               Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
               "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch")
-                  + " "
-                  + logbookName
-                  + " "
+                  + International.getString("Fahrtenbuch") + " "
+                  + logbookName + " "
                   + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
                       .toString())
                   + ": "

@@ -33,6 +33,7 @@ import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.core.items.ItemTypeStringPhone;
 import de.nmichael.efa.core.items.ItemTypeTime;
+import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.PersonRecord;
@@ -99,10 +100,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     if (newRecord) {
       String errorText = "";
       String reasonString = this.getItem("Reason").getValueFromField();
-      if (reasonString == null) {
+      String name = this.getItem("VirtualBoat").getValueFromField();
+      if (name == BoatRecord.BOOTSHAUS_NAME && reasonString == null) {
         errorText = "kein Reservierungsgrund angegeben??";
       }
-      if (reasonString.trim().isEmpty()) {
+      if (name == BoatRecord.BOOTSHAUS_NAME && reasonString.trim().isEmpty()) {
         errorText = "Bitte Reservierungsgrund angegeben,\n"
             + "damit andere Beneidisch wissen!";
       }
@@ -305,7 +307,9 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       long latestModified = 0L;
       for (BoatReservationRecord boatReservationRecord : oldReservations) {
         listTelnums.add(boatReservationRecord.getContact());
-        listReasons.add(boatReservationRecord.getReason());
+        if (boatReservationRecord.getReason().trim().length() > 0) {
+          listReasons.add(boatReservationRecord.getReason());
+        }
         if (boatReservationRecord.getLastModified() > latestModified) {
           latestModified = boatReservationRecord.getLastModified();
           latestReservation = boatReservationRecord;

@@ -329,6 +329,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     for (BoatString myBoatStringElement : arrayBoatStrings) {
       if (sortmode != null) {
         String s = myBoatStringElement.sortKategorie;
+        if (s == null) {
+          s = "ausgeliehen";
+        }
         String newSep = "--------- " + s + " -------------";
         if (!newSep.equals(lastSep)) {
           retValList.add(new ItemTypeListData(newSep, null, true, anz));

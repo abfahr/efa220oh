@@ -752,7 +752,9 @@ public class BoatReservationRecord extends DataRecord {
     ItemTypeString reason = new ItemTypeString(BoatReservationRecord.REASON,
         getReason(), IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Reservierungsgrund"));
-    reason.setMinCharacters(5);
+    if (isBootshausOH()) {
+      reason.setMinCharacters(5);
+    }
     v.add(reason);
 
     // Virtual Fields hidden internal, only for list output and export/import
@@ -866,7 +868,9 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Telefon (aus Sewobe): " + (p != null ? p.getTelefonFestnetz() : "..."));
     msg.add("Handy (aus Sewobe): " + (p != null ? p.getTelefonHandy() : "..."));
     msg.add("Email (aus Sewobe): " + (p != null ? p.getEmail() : "..."));
-    msg.add("Grund der Reservierung: " + getReason());
+    if (isBootshausOH()) {
+      msg.add("Grund der Reservierung: " + getReason());
+    }
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("Efa");
@@ -905,7 +909,9 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Reservierung des " + getBoatName());
     msg.add("für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
         + getPersonAsName());
-    msg.add("Grund der Reservierung: " + getReason());
+    if (isBootshausOH()) {
+      msg.add("Grund der Reservierung: " + getReason());
+    }
     msg.add("");
 
     if (aktion.contains("DELETE")) {

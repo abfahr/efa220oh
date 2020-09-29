@@ -57,6 +57,7 @@ import de.nmichael.efa.util.Logger;
 
 public class BoatRecord extends DataRecord implements IItemFactory, IItemListenerDataRecordTable {
 
+  public static final String BOOTSHAUS_NAME = "Bootshaus+";
   public static final UUID BOOTSHAUS = new UUID(-7033734156567033637L, -8676639372818108974L);
 
   // =========================================================================
@@ -780,7 +781,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   @Override
   public String getQualifiedName() {
     String name = getName();
-    if (name != null && name.length() > 0 && getNameAffix() != null && getNameAffix().length() > 0) {
+    if (name != null && name.length() > 0
+        && getNameAffix() != null && getNameAffix().length() > 0) {
       name = name + " (" + getNameAffix() + ")";
     }
     return (name != null ? name : "");

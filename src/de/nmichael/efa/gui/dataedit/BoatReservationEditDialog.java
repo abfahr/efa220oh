@@ -11,7 +11,6 @@
 package de.nmichael.efa.gui.dataedit;
 
 import java.awt.AWTEvent;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
@@ -50,18 +49,14 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
   private static final long serialVersionUID = 1L;
 
-  public BoatReservationEditDialog(Frame parent, BoatReservationRecord r,
-      boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) throws Exception {
-    super(parent, International.getString("Reservierung"), r, newRecord, admin);
-    initListener();
-    setAllowWeeklyReservation(allowWeeklyReservation);
-  }
-
   public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r,
       boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) throws Exception {
     super(parent, International.getString("Reservierung"), r, newRecord, admin);
     initListener();
     setAllowWeeklyReservation(allowWeeklyReservation);
+    if (!r.isBootshausOH()) {
+      disableReason();
+    }
   }
 
   @Override
@@ -93,6 +88,16 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       }
     }
     itemListenerAction(itemType, null);
+  }
+
+  private void disableReason() {
+    for (IItemType item : allGuiItems) {
+      if (item.getName().equals(BoatReservationRecord.REASON)) {
+        item.setEditable(false);
+        item.setEnabled(false);
+        // item.setVisible(false);
+      }
+    }
   }
 
   @Override

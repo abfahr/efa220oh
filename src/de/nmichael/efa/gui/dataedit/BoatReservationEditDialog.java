@@ -93,7 +93,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
   private void disableReason() {
     for (IItemType item : allGuiItems) {
       if (item.getName().equals(BoatReservationRecord.REASON)) {
-        item.setEditable(false);
+        // item.setEditable(false);
         item.setEnabled(false);
         // item.setVisible(false);
       }
@@ -355,7 +355,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       }
       if (it.getName().equals(BoatReservationRecord.REASON)) {
         ItemTypeString reasonGuiField = (ItemTypeString) it;
-        if (reasonGuiField.getValueFromField().isEmpty()) {
+        if (reasonGuiField.getValueFromField().isEmpty()
+            && getDataRecord().isBootshausOH()) {
           reasonGuiField.setValue(bestReason);
           reasonGuiField.setValue(latestReason);
         }

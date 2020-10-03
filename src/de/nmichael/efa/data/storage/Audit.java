@@ -1556,21 +1556,24 @@ public class Audit extends Thread {
                           */
     try {
       DataKeyIterator it = so.dataAccess.getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         DataRecord r = so.dataAccess.get(k);
-        if (r != null && r.getDeleted() && r.getLastModified() > 0 &&
-            now - r.getLastModified() >= purgeAfter) {
+        if (r != null
+            && r.getDeleted()
+            && r.getLastModified() > 0
+            && now - r.getLastModified() >= purgeAfter) {
           if (correctErrors) {
+            String addStatus = "";
+            if (r instanceof PersonRecord) {
+              addStatus = "(" + ((PersonRecord) r).getStatusName() + ") ";
+            }
             so.dataAccess.delete(k);
+            auditWarning(Logger.MSG_DATA_AUDIT_RECPURGED,
+                "runAuditPurgeDeletedRecords(): " + International.getMessage(
+                    "{item} '{name}' war durch Benutzer zur Löschung markiert worden und wurde nun endgültig gelöscht.",
+                    itemDescription, addStatus + r.getQualifiedName()));
           }
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_RECPURGED,
-              "runAuditPurgeDeletedRecords(): "
-                  + International
-                      .getMessage(
-                          "{item} '{name}' war durch Benutzer zur Löschung markiert worden und wurde nun endgültig gelöscht.",
-                          itemDescription, r.getQualifiedName()));
         }
         k = it.getNext();
       }

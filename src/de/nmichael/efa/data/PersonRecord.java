@@ -1039,25 +1039,23 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     setExcludeFromClubwork(false); // immer leer gewesen
 
     // 2. nur aktive Mitglieder behalten
-    boolean isDyingMemberStatus = isDyingMember();
-    if (!isDyingMemberStatus) {
+    if (!isDyingMember()) {
       return;
     }
-    if (isDyingMemberStatus) {
-      // setInvisible(true);
-      // setDeleted(true); // doof - Datensatz fehlt dann
-      // setInvalidFrom(System.currentTimeMillis());
-    }
+    long oneMinute = 60 * 1000;
+    long oneYear = 365 * 24 * 60 * oneMinute;
     long now = System.currentTimeMillis();
-    long oneYear = 365 * 24 * 60 * 60 * 1000;
-    if (getInvalidFrom() > now - oneYear) {
+    long invalidMillisAgo = now - getInvalidFrom();
+    if (invalidMillisAgo < oneYear) {
       return; // nicht alt genug
     }
-    if (getLastModified() > now - oneYear) {
+    long lastModifiedAgo = now - getLastModified();
+    if (lastModifiedAgo < oneMinute) {
       return; // nicht alt genug
     }
     // setInvisible(true);
-    // setDeleted(true); // doof - Datensatz fehlt dann
+    // setInvalidFrom(System.currentTimeMillis());
+    setDeleted(true); // doof - Datensatz fehlt dann
   }
 
   public boolean isDyingMember() {

@@ -55,7 +55,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     initListener();
     setAllowWeeklyReservation(allowWeeklyReservation);
     if (!r.isBootshausOH()) {
-      disableReason();
+      enableReason(false);
     }
   }
 
@@ -90,12 +90,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     itemListenerAction(itemType, null);
   }
 
-  private void disableReason() {
+  private void enableReason(boolean enable) {
     for (IItemType item : allGuiItems) {
       if (item.getName().equals(BoatReservationRecord.REASON)) {
-        // item.setEditable(false);
-        item.setEnabled(false);
-        // item.setVisible(false);
+        item.setEditable(enable);
+        item.setEnabled(enable);
       }
     }
   }
@@ -126,6 +125,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       }
 
       if (!errorText.isEmpty()) {
+        enableReason(true);
         Dialog.error(errorText);
         return false;
       }

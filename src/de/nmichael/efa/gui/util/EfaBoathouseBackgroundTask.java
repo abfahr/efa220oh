@@ -38,18 +38,18 @@ import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.BoatStatus;
 import de.nmichael.efa.data.BoatStatusRecord;
+import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.Messages;
+import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeDecimal;
-import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.data.types.DataTypeDistance.UnitType;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
@@ -185,7 +185,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         checkForUnreadMessages();
 
         // Nach Dateien mit Löschungen für Reservierungen suchen
-        checkForDeleteReservationRequests();
+        checkForFilesWithReservationRequests();
 
         // automatisches Beenden von efa
         checkForExitOrRestart();
@@ -720,9 +720,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
       newLogbookRecord.setEndDate(boatReservationRecord.getDateTo());
     }
     newLogbookRecord.setEndTime(boatReservationRecord.getTimeTo());
-    newLogbookRecord.setDestinationName(boatReservationRecord.getReason());
-    newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km)); // 1km
-    newLogbookRecord.setComments("(efa: Fahrt gestartet anhand einer Reservierung)");
+    String reason = boatReservationRecord.getReason();
+    reason = reason.isEmpty() ? "anhand Reservierung" : reason;
+    newLogbookRecord.setDestinationName(reason);
+    // newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km));
+    // // 1km
+    newLogbookRecord.setComments("(efa: Fahrt gestartet aufgrund einer Reservierung)");
     newLogbookRecord.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
     newLogbookRecord.setSessionIsOpen(true);
     try {
@@ -742,11 +745,29 @@ public class EfaBoathouseBackgroundTask extends Thread {
     boatStatusRecord.setEntryNo(newLogbookRecord.getEntryId());
   }
 
-  private void checkForDeleteReservationRequests() {
+  private void checkForFilesWithReservationRequests() {
     // Ordner efa2/todoo öffnen
     String folderTodo = Daten.efaBaseConfig.efaUserDirectory + "todo" + Daten.fileSep;
     Map<String, String> strMap = getStringMap(folderTodo);
 
+    String strAction = strMap.get("action");
+    if (strAction != null) {
+      switch (strAction) {
+        case "DELETE":
+          performDeleteReservationRequest(strMap);
+          break;
+
+        case "INSERT":
+          performInsertReservationRequest(strMap);
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+
+  private void performDeleteReservationRequest(Map<String, String> strMap) {
     String strEfaId = strMap.get("efaId");
     if (strEfaId == null) {
       return; // kein File im Folder
@@ -789,7 +810,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     // Bestätigungsmail verschicken
-    String aktion = "DELETE";
+    String aktion = strMap.get("action"); // "DELETE";
     brr.sendEmailBeiReservierung(aktion);
 
     try {
@@ -804,6 +825,80 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 "{name} hat Datensatz '{record}' gelöscht.",
                 "Storno-Link", brr.getQualifiedName() +
                     " von " + brr.getPersonAsName()));
+  }
+
+  private void performInsertReservationRequest(Map<String, String> strMap) {
+    long now = System.currentTimeMillis();
+    String strBoatName = strMap.get("efaBootName");
+    if (strBoatName == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Add-Link: kein Boot angegeben " + strBoatName);
+      return;
+    }
+    UUID boatId = null;
+    try {
+      Boats boats = Daten.project.getBoats(false);
+      DataKey<?, ?, ?>[] byNameField = boats.data().getByFields(
+          new String[] { BoatRecord.NAME }, new String[] { strBoatName.trim() }, now);
+      boatId = byNameField != null ? (UUID) byNameField[0].getKeyPart1() : null;
+    } catch (Exception e1) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "Add-Link: e1 " + e1.getLocalizedMessage());
+    }
+    if (boatId == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Add-Link: unbekanntes Boot " + strBoatName);
+      return;
+    }
+
+    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
+    BoatReservationRecord brr = boatReservations.createBoatReservationsRecord(boatId);
+    if (brr == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Add-Link: cannot createBoatReservationsRecord " + strBoatName);
+      return;
+    }
+
+    try {
+      Persons persons = Daten.project.getPersons(false);
+      PersonRecord personRecord = persons.getPerson(strMap.get("ForName"), now);
+      UUID personId = personRecord != null ? personRecord.getId() : null;
+      if (personId != null) {
+        brr.setPersonId(personId);
+      } else {
+        brr.setPersonName(strMap.get("ForName"));
+      }
+      brr.setType(BoatReservationRecord.TYPE_ONETIME);
+      brr.setDateFrom(DataTypeDate.parseDate(strMap.get("DateFrom")));
+      brr.setTimeFrom(DataTypeTime.parseTime(strMap.get("TimeFrom")));
+      brr.setDateTo(DataTypeDate.parseDate(strMap.get("DateTo")));
+      brr.setTimeTo(DataTypeTime.parseTime(strMap.get("TimeTo")));
+      brr.setContact(strMap.get("Telefon"));
+      brr.setReason(strMap.get("Reason"));
+      if (!brr.getDateTo().isSet()) {
+        brr.setDateTo(DataTypeDate.parseDate(strMap.get("DateFrom")));
+      }
+      if (brr.getReason().isEmpty()) {
+        brr.setReason("anhand Add-Link");
+      }
+    } catch (Exception e) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, e);
+    }
+    try {
+      boatReservations.data().add(brr);
+
+      // Bestätigungsmail verschicken
+      String aktion = strMap.get("action"); // "INSERT";
+      brr.sendEmailBeiReservierung(aktion);
+
+      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
+          brr.getPersistence().getDescription() + ": "
+              + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                  "Add-Link von " + brr.getPersonAsName(), brr.getQualifiedName() + " "
+                      + brr.getReservationTimeDescription(BoatReservationRecord.REPLACE_HEUTE)));
+    } catch (Exception e2) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "Add-Link: e2 " + e2.getLocalizedMessage());
+    }
+
   }
 
   private Map<String, String> getStringMap(String folderTodo) {
@@ -831,7 +926,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         // Datei nach done=backup verschieben into backup
         Path targetPath = Path
-            .of(Daten.efaBakDirectory + "efa.deletedReservations" + Daten.fileSep);
+            .of(Daten.efaBakDirectory + "efa.linkedReservations" + Daten.fileSep);
         Path targetFilename = targetPath.resolve(firstFilename.getFileName());
         Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
       }

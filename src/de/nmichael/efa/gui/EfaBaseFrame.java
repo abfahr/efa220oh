@@ -3627,6 +3627,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           date.setSelection(0, Integer.MAX_VALUE);
         }
       }
+      if (item == phoneNr) {
+        if (cox.isKnown() && phoneNr.getValueFromField().isEmpty()) {
+          fillPhoneNr(cox);
+        }
+      }
       if (item == destination) {
         lastDestination = DestinationRecord.tryGetNameAndVariant(
             destination.getValueFromField().trim())[0];
@@ -3763,6 +3768,25 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       starttimeInfoLabel.setVisible(false);
       endtimeInfoLabel.setVisible(false);
     }
+  }
+
+  private void fillPhoneNr(ItemTypeStringAutoComplete nameItemAutoComplete) {
+    ItemTypeString nameItemString = (ItemTypeString) nameItemAutoComplete;
+    PersonRecord person = findPerson(nameItemString, getValidAtTimestamp(null));
+    if (person == null) {
+      return;
+    }
+    if (!person.istTelefonErlaubnisErteilt()) {
+      return;
+    }
+    String telnum = person.getFreeUse2();
+    if (telnum == null || telnum.length() == 0) {
+      telnum = person.getFreeUse1();
+    }
+    if (telnum == null || telnum.length() == 0) {
+      return;
+    }
+    phoneNr.setValue(telnum);
   }
 
   private void checkStartOnlyToday(ItemTypeDate startTag) {
@@ -4394,7 +4418,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             && !efaBaseFrame.cox.isKnown() && !efaBaseFrame.isModeBoathouse()) {
           efaBaseFrame.cox.requestButtonFocus();
         } else {
-          fillPhoneNr(cox);
           focusItem(efaBaseFrame.phoneNr, cur, 1);
         }
         return;
@@ -4488,25 +4511,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
       // other
       fm.focusNextComponent(cur);
-    }
-
-    private void fillPhoneNr(ItemTypeStringAutoComplete nameItemAutoComplete) {
-      ItemTypeString nameItemString = (ItemTypeString) nameItemAutoComplete;
-      PersonRecord person = findPerson(nameItemString, getValidAtTimestamp(null));
-      if (person == null) {
-        return;
-      }
-      if (!person.istTelefonErlaubnisErteilt()) {
-        return;
-      }
-      String telnum = person.getFreeUse2();
-      if (telnum == null || telnum.length() == 0) {
-        telnum = person.getFreeUse1();
-      }
-      if (telnum == null || telnum.length() == 0) {
-        return;
-      }
-      phoneNr.setValue(telnum);
     }
 
     public void focusPreviousItem(IItemType item, Component cur) {

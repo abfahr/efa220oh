@@ -834,7 +834,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
     waters.displayOnGui(this, mainInputPanel, 0, 13);
     waters.registerItemListener(this);
-    waters.setVisible(false);
+    waters.setVisible(isModeBaseOrAdmin());
 
     // Distance
     distance = new ItemTypeDistance(LogbookRecord.DISTANCE, null, IItemType.TYPE_PUBLIC, null,
@@ -4156,7 +4156,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       nr = 0;
     }
     for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
-      crew[i].setVisible(false);
+      crew[i].setVisible(isModeBaseOrAdmin());
     }
     crewRangeSelection = nr;
     setCrewRangeSelectionColoring();

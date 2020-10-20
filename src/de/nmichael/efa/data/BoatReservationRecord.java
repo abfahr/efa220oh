@@ -938,6 +938,8 @@ public class BoatReservationRecord extends DataRecord {
         + "https://www.overfreunde.de/termine.html bzw. https://overfreunde.abfx.de"
         + " wird morgen aktualisiert. "
         + "Deine Reservierung trägt dort die Identifizierung " + getEfaId());
+    msg.add("PS: Wenn Du diesen 'Newsletter' nicht mehr erhalten möchtest, "
+        + "kannst Du Dich mit einem Klick abmelden: \n" + getNewsletterURL("abmelden"));
     return join(msg);
   }
 
@@ -946,6 +948,12 @@ public class BoatReservationRecord extends DataRecord {
     url += "storno/";
     url += "?efaId=" + getEfaId();
     url += "&code=" + getHashId();
+    return url;
+  }
+
+  private String getNewsletterURL(String abmelden) {
+    String url = "https://overfreunde.abfx.de/";
+    url += abmelden + "/?mitglied=" + getPersonRecord().getMembershipNo();
     return url;
   }
 

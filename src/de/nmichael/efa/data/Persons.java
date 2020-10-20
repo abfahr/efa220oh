@@ -109,6 +109,39 @@ public class Persons extends StorageObject {
     }
   }
 
+  // find a record being valid at the specified time
+  public PersonRecord getPersonByMembership(String mitgliedsNrOH, long validAt) {
+    try {
+      DataKey<?, ?, ?>[] keys = data().getByFields(
+          new String[] { PersonRecord.MEMBERSHIPNO },
+          staticPersonRecord.getQualifiedNameValues(mitgliedsNrOH), validAt);
+      // new String[] { mitgliedsNrOH }, validAt);
+      if (keys == null || keys.length < 1) {
+        return null;
+      }
+      if (validAt < 0 && keys.length > 1) {
+        // instead of returning just any person, first search for one that is valid today
+        long now = System.currentTimeMillis();
+        for (DataKey<?, ?, ?> key : keys) {
+          PersonRecord r = (PersonRecord) data().get(key);
+          if (r.isValidAt(now)) {
+            return r;
+          }
+        }
+      }
+      for (DataKey<?, ?, ?> key : keys) {
+        PersonRecord r = (PersonRecord) data().get(key);
+        if (r.isValidAt(validAt)) {
+          return r;
+        }
+      }
+      return null;
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      return null;
+    }
+  }
+
   // find all records being valid at the specified time
   public PersonRecord[] getPersons(String personName, long validAt) {
     try {

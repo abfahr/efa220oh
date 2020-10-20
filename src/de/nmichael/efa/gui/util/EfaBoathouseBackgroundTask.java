@@ -761,6 +761,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
           performInsertReservationRequest(strMap);
           break;
 
+        case "UNSUBSCRIBE":
+          performSubscribeReservationRequest(strMap);
+          break;
+
+        case "SUBSCRIBE":
+          performSubscribeReservationRequest(strMap);
+          break;
+
         default:
           break;
       }
@@ -899,6 +907,70 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "Add-Link: e2 " + e2.getLocalizedMessage());
     }
 
+  }
+
+  private void performSubscribeReservationRequest(Map<String, String> strMap) {
+    long now = System.currentTimeMillis();
+    String aktion = strMap.get("action"); // "UNSUBSCRIBE";
+    if (aktion == null || aktion.isBlank()) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Newsletter-Link: keine Aktion angegeben " + aktion);
+      return;
+    }
+
+    String strPersonMitgliedNrOH = strMap.get("mitglied");
+    if (strPersonMitgliedNrOH == null || strPersonMitgliedNrOH.isBlank()) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Newsletter-" + aktion + ": keine OH-MitgliedsNr angegeben " + strPersonMitgliedNrOH);
+      return;
+    }
+    Persons persons = Daten.project.getPersons(false);
+    if (persons == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Newsletter-" + aktion + ": keine Mitglieder gefunden. Daten.project.getPersons() ");
+      return;
+    }
+    PersonRecord person = null;
+    person = persons.getPersonByMembership(strPersonMitgliedNrOH, now);
+    if (person == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Newsletter-" + aktion + ": unbekanntes Mitglied " + strPersonMitgliedNrOH);
+      return;
+    }
+    if (!person.getMembershipNo().equals(strPersonMitgliedNrOH)) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Newsletter-" + aktion + ": falsche Mitgliedsnummer " + strPersonMitgliedNrOH
+              + " bei " + person.getFirstLastName() + " " + person.getMembershipNo());
+      return;
+    }
+
+    if (aktion.equalsIgnoreCase("SUBSCRIBE") && person.isErlaubtEmail()) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Newsletter-" + aktion + ": " + person.getFirstLastName() + " ist bereits angemeldet. "
+              + person.isErlaubtEmail());
+      return;
+    }
+    if (aktion.equalsIgnoreCase("UNSUBSCRIBE") && !person.isErlaubtEmail()) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Newsletter-" + aktion + ": " + person.getFirstLastName() + " ist bereits abgemeldet. "
+              + person.isErlaubtEmail());
+      return;
+    }
+    if (aktion.equalsIgnoreCase("SUBSCRIBE")) {
+      person.setErlaubnisEmail(true);
+    }
+    if (aktion.equalsIgnoreCase("UNSUBSCRIBE")) {
+      person.setErlaubnisEmail(false);
+    }
+    try {
+      persons.data().update(person);
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+          "Newsletter-" + aktion + ": " + person.getFirstLastName()
+              + " hat nun Email-Erlaubnis " + person.isErlaubtEmail());
+    } catch (EfaException e2) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+          "Newsletter-" + aktion + ": e2 " + e2.getLocalizedMessage());
+    }
   }
 
   private Map<String, String> getStringMap(String folderTodo) {

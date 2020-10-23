@@ -930,8 +930,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           "Newsletter-" + aktion + ": keine Mitglieder gefunden. Daten.project.getPersons() ");
       return;
     }
-    PersonRecord person = null;
-    person = persons.getPersonByMembership(strPersonMitgliedNrOH, now);
+    PersonRecord person = persons.getPersonByMembership(strPersonMitgliedNrOH, now);
     if (person == null) {
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
           "Newsletter-" + aktion + ": unbekanntes Mitglied " + strPersonMitgliedNrOH);

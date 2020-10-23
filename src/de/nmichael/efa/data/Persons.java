@@ -115,7 +115,6 @@ public class Persons extends StorageObject {
       DataKey<?, ?, ?>[] keys = data().getByFields(
           new String[] { PersonRecord.MEMBERSHIPNO },
           staticPersonRecord.getQualifiedNameValues(mitgliedsNrOH), validAt);
-      // new String[] { mitgliedsNrOH }, validAt);
       if (keys == null || keys.length < 1) {
         return null;
       }

@@ -932,14 +932,14 @@ public class BoatReservationRecord extends DataRecord {
 
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("i.A. Efa-PC im Bootshaus");
+    msg.add("Efa-PC im Bootshaus");
     msg.add("");
-    msg.add("PS: Der öffentliche Kalender unter "
-        + "https://www.overfreunde.de/termine.html bzw. https://overfreunde.abfx.de"
-        + " wird morgen aktualisiert. "
-        + "Deine Reservierung trägt dort die Identifizierung " + getEfaId());
+    msg.add("PS: Der Bootshaus-Kalender im Web wird morgen aktualisiert. "
+        + "Deine Reservierung trägt dort die Kennung " + getEfaId());
+    msg.add("https://www.overfreunde.de/termine.html bzw. https://overfreunde.abfx.de");
     msg.add("PS: Wenn Du diesen 'Newsletter' nicht mehr erhalten möchtest, "
-        + "kannst Du Dich mit einem Klick abmelden: \n" + getNewsletterURL("abmelden"));
+        + "kannst Du Dich mit einem Klick abmelden: ");
+    msg.add(getNewsletterURL("abmelden"));
     return join(msg);
   }
 

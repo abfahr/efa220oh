@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.IllegalComponentStateException;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -542,8 +543,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       try {
         // must be called before any packing of the frame,
         // since packing makes the frame displayable!
-        this.setUndecorated(true);
-
+        if (!this.isDisplayable()) {
+          this.setUndecorated(true); // L Line 547 = Former Line 545
+        } else {
+          try {
+            this.setUndecorated(true); // Line 550 = 3 lines more
+          } catch (IllegalComponentStateException e1) {
+            Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, "IllegalComponentStateException "
+                + "caught: The frame is displayable: " + this.isDisplayable());
+          }
+        }
         Color bgColor = new Color(0, 0, 170);
         mainPanel.setBackground(bgColor);
         mainPanel.setBorder(new EmptyBorder(2, 2, 2, 2));

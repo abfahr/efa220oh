@@ -892,6 +892,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, e);
     }
     try {
+      brr.resetHashId(); // TODO 2020.11.01 abf Muss anders: Erstmalig eine HashId setzen?
       boatReservations.data().add(brr);
 
       // Bestätigungsmail verschicken
@@ -904,7 +905,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                   "Add-Link von " + brr.getPersonAsName(), brr.getQualifiedName() + " "
                       + brr.getReservationTimeDescription(BoatReservationRecord.REPLACE_HEUTE)));
     } catch (Exception e2) {
-      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "Add-Link: e2 " + e2.getLocalizedMessage());
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR, "Add-Link: e2 " + e2.getLocalizedMessage());
     }
 
   }

@@ -769,6 +769,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
           performSubscribeReservationRequest(strMap);
           break;
 
+        case "SETKÜRZEL":
+          performSetInputShortcutPersonRequest(strMap);
+          break;
+
         default:
           break;
       }
@@ -971,6 +975,107 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
           "Newsletter-" + aktion + ": e2 " + e2.getLocalizedMessage());
     }
+  }
+
+  private void performSetInputShortcutPersonRequest(Map<String, String> strMap) {
+    long now = System.currentTimeMillis();
+    String aktion = strMap.get("action"); // "SETKÜRZEL";
+    if (aktion == null || aktion.isBlank()) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Shortcut-Link: keine Aktion angegeben " + aktion);
+      return;
+    }
+    if (!aktion.equalsIgnoreCase("SETKÜRZEL")) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Shortcut-Link: keine gültige Aktion angegeben " + aktion);
+      return;
+    }
+
+    String strPersonMitgliedNrOH = strMap.get("mitglied");
+    if (strPersonMitgliedNrOH == null || strPersonMitgliedNrOH.isBlank()) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Shortcut-" + aktion + ": keine OH-MitgliedsNr angegeben " + strPersonMitgliedNrOH);
+      return;
+    }
+    Persons persons = Daten.project.getPersons(false);
+    if (persons == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Shortcut-" + aktion + ": keine Mitglieder gefunden. Daten.project.getPersons() ");
+      return;
+    }
+    PersonRecord person = persons.getPersonByMembership(strPersonMitgliedNrOH, now);
+    if (person == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Shortcut-" + aktion + ": unbekanntes Mitglied " + strPersonMitgliedNrOH);
+      return;
+    }
+    if (!person.getMembershipNo().equals(strPersonMitgliedNrOH)) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Shortcut-" + aktion + ": falsche Mitgliedsnummer " + strPersonMitgliedNrOH
+              + " bei " + person.getFirstLastName() + " " + person.getMembershipNo());
+      return;
+    }
+
+    String name = strMap.get("name");
+    if (!person.getFirstLastName().equals(name)) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Shortcut-" + aktion + ": falscher Name angegeben " + name
+              + ", bei EFA: " + person.getFirstLastName());
+      return;
+    }
+
+    String neuesKürzel = strMap.get("kürzel");
+    if (neuesKürzel == null) {
+      neuesKürzel = "";
+    } else {
+      neuesKürzel = neuesKürzel.trim().toLowerCase();
+    }
+
+    if (person.isErlaubtKuerzel()) {
+      if (neuesKürzel.equals(person.getInputShortcut())) {
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+            "Shortcut-" + aktion + ": " + person.getFirstLastName()
+                + " hat bereits Kürzel '" + person.getInputShortcut()
+                + "' und Erlaubnis: " + person.isErlaubtKuerzel());
+        return;
+      }
+    } else {
+      if (neuesKürzel.isBlank() && person.getInputShortcut() == null) {
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+            "Shortcut-" + aktion + ": " + person.getFirstLastName()
+                + " hat kein Kürzel zum Entfernen. "
+                + person.isErlaubtKuerzel() + " " + person.getInputShortcut());
+        return;
+      }
+    }
+    if (!neuesKürzel.isBlank()) {
+      PersonRecord otherPerson = persons.getPersonWithInputShortcut(neuesKürzel, now);
+      if (otherPerson != null) {
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+            "Shortcut-" + aktion + ": Das Kürzel '" + neuesKürzel
+                + "' ist bereits vergeben: an " + otherPerson.getFirstLastName());
+        return;
+      }
+    }
+
+    // TODO 2020-11-08 abf: regexp drei Buchstaben, keine Sonderzeichen, etc.
+
+    person.setErlaubnisKuerzel(!neuesKürzel.isBlank());
+    person.setInputShortcut(neuesKürzel);
+
+    try {
+      persons.data().update(person);
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+          "Shortcut-" + aktion + ": " + person.getFirstLastName()
+              + " hat nun das Kürzel '" + person.getInputShortcut()
+              + "' und die Erlaubnis: " + person.isErlaubtKuerzel());
+    } catch (EfaException e2) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+          "Shortcut-" + aktion + ": e2 " + e2.getLocalizedMessage());
+    }
+
+    // TODO 2020-11-08 abf: send Mail to Mitglied person
+
   }
 
   private Map<String, String> getStringMap(String folderTodo) {
@@ -1253,7 +1358,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
         efaBoathouseFrame.bringFrameToFront();
       }
     }
-
   }
 
   private void checkFocus() {

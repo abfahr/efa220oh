@@ -2925,28 +2925,27 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             + "wenn sie nie stattgefunden hat.", item.boatStatus.getBoatText())
             + NEWLINE
             + International.getString("Was möchtest Du tun?"),
-        International.getString("Fahrt abbrechen"),
+        International.getString("Nichts"), // option 0
         International.getString("Fahrt abbrechen")
-            + " (" + International.getString("Bootsschaden") + ")",
-        International.getString("Nichts"));
+            + " (" + International.getString("Bootsschaden") + ")", // option 1
+        International.getString("Fahrt abbrechen")); // option 2
 
     switch (auswahlDialogAnswer) {
-      case 0: // abbrechen
+      case -1: // escaöe! = nichts tun
+      case 0: // nichts tun
         break;
-      case 1: // abbrechen mit Bootsschaden
+      case 1: // Fahrt abbrechen mit Bootsschaden
         if (boat != null) {
           BoatDamageEditDialog.newBoatDamage(this, boat);
         }
+      case 2: // Fahrt abbrechen
+        showEfaBaseFrame(EfaBaseFrame.MODE_BOATHOUSE_ABORT, item);
         break;
-      case 2: // nichts tun
-        return;
       default: // should NEVER happen
         Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "actionAbortSession(): unreachable switch: "
             + "Fahrt abbrechen auswahlDialogAnswer = " + auswahlDialogAnswer);
-        return;
+        break;
     }
-
-    showEfaBaseFrame(EfaBaseFrame.MODE_BOATHOUSE_ABORT, item);
   }
 
   void actionLateEntry() {

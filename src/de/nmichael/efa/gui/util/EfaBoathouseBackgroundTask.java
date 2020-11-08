@@ -82,10 +82,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   public EfaBoathouseBackgroundTask(EfaBoathouseFrame efaBoathouseFrame) {
     this.efaBoathouseFrame = efaBoathouseFrame;
-    this.onceAnHour = 5; // initial nach 5 Schleifendurchläufen zum ersten Mal hier reingehen
-    this.cal = new GregorianCalendar();
-    this.lockEfa = null;
-    this.date = new Date();
+    onceAnHour = 5; // initial nach 5 Schleifendurchläufen zum ersten Mal hier reingehen
+    cal = new GregorianCalendar();
+    lockEfa = null;
+    date = new Date();
   }
 
   public void setEfaLockBegin(DataTypeDate datum, DataTypeTime zeit) {
@@ -285,10 +285,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
       for (int i = 0; i < cnt; i++) {
         if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
-          Logger
-              .log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-                  "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL
-                      + " seconds ...");
+          Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+              "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL
+                  + " seconds ...");
         }
         try {
           Thread.sleep(REMOTE_SCN_CHECK_INTERVAL * 1000);
@@ -311,6 +310,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn) {
             // do NOT set lastBoatStatusScn = scn here!
             // This will be done when boat status is updated.
+            break;
+          }
+          int seconds = Calendar.getInstance().get(Calendar.SECOND);
+          if (seconds < 5) {
+            // Screen-Update zeitlich verschieben - auf die Zeit mit :00-:05 Sekunden verschieben.
             break;
           }
         } catch (Exception e) {

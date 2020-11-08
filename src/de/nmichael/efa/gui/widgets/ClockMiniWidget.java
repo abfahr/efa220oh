@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.gui.widgets;
 
+import java.util.Calendar;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
@@ -42,8 +44,10 @@ public class ClockMiniWidget {
     public void run() {
       while (keepRunning) {
         try {
-          label.setText(EfaUtil.getCurrentTimeStampDD_MM_YYYY_HH_MM_SS());
-          Thread.sleep(60000);
+          label.setText(EfaUtil.getCurrentTimeStampDD_MM_YYYY_HH_MM());
+          // Screen-Update zeitlich verschieben - auf die Zeit mit :00 Sekunden verschieben.
+          int seconds = 60 - Calendar.getInstance().get(Calendar.SECOND);
+          Thread.sleep(seconds * 1000);
         } catch (Exception e) {
           EfaUtil.foo();
         }

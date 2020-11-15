@@ -27,6 +27,7 @@ import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
@@ -137,7 +138,41 @@ public class BoatReservations extends StorageObject {
       }
       return recs;
     } catch (Exception e) {
-      Logger.logdebug(e);
+      Logger.logwarn(e);
+      return null;
+    }
+  }
+
+  public BoatReservationRecord findBoatReservationByNumber(int reservierungsnummer) {
+    try {
+      @SuppressWarnings("unchecked")
+      DataKey<UUID, Integer, String>[] allKeys = data().getAllKeys();
+      for (DataKey<UUID, Integer, String> dataKey : allKeys) {
+        if (reservierungsnummer == dataKey.getKeyPart2()) {
+          DataRecord dataRecord = data().get(dataKey);
+          return (BoatReservationRecord) dataRecord;
+        }
+      }
+    } catch (EfaException e) {
+      Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
+    }
+    return null;
+  }
+
+  public BoatReservationRecord[] findBoatReservationsByHashId(String hashId) {
+    try {
+      DataKey<?, ?, ?>[] keys = data()
+          .getByFields(new String[] { BoatReservationRecord.HASHID }, new Object[] { hashId });
+      if (keys == null || keys.length == 0) {
+        return null;
+      }
+      BoatReservationRecord[] recs = new BoatReservationRecord[keys.length];
+      for (int i = 0; i < keys.length; i++) {
+        recs[i] = (BoatReservationRecord) data().get(keys[i]);
+      }
+      return recs;
+    } catch (Exception e) {
+      Logger.logwarn(e);
       return null;
     }
   }

@@ -142,6 +142,75 @@ public class Persons extends StorageObject {
   }
 
   // find a record being valid at the specified time
+  public PersonRecord getPersonWithEMail(String emailadresse, long validAt) {
+    try {
+      DataKey<?, ?, ?>[] keys = data().getByFields(
+          new String[] { PersonRecord.EMAIL },
+          staticPersonRecord.getQualifiedNameValues(emailadresse), validAt);
+      if (keys == null || keys.length < 1) {
+        return null;
+      }
+      if (validAt < 0 && keys.length > 1) {
+        // instead of returning just any person, first search for one that is valid today
+        long now = System.currentTimeMillis();
+        for (DataKey<?, ?, ?> key : keys) {
+          PersonRecord r = (PersonRecord) data().get(key);
+          if (r.isValidAt(now)) {
+            return r;
+          }
+        }
+      }
+      for (DataKey<?, ?, ?> key : keys) {
+        PersonRecord r = (PersonRecord) data().get(key);
+        if (r.isValidAt(validAt)) {
+          return r;
+        }
+      }
+      return null;
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      return null;
+    }
+  }
+
+  // find a record being valid at the specified time
+  public PersonRecord getPersonWithTelefon(String telefonnummer, long validAt) {
+    try {
+      DataKey<?, ?, ?>[] keys = data().getByFields(
+          new String[] { PersonRecord.FREEUSE1 },
+          staticPersonRecord.getQualifiedNameValues(telefonnummer), validAt);
+      if (keys == null || keys.length < 1) {
+        keys = data().getByFields(
+            new String[] { PersonRecord.FREEUSE2 },
+            staticPersonRecord.getQualifiedNameValues(telefonnummer), validAt);
+      }
+      if (keys == null || keys.length < 1) {
+        return null;
+      }
+      if (validAt < 0 && keys.length > 1) {
+        // instead of returning just any person, first search for one that is valid today
+        long now = System.currentTimeMillis();
+        for (DataKey<?, ?, ?> key : keys) {
+          PersonRecord r = (PersonRecord) data().get(key);
+          if (r.isValidAt(now)) {
+            return r;
+          }
+        }
+      }
+      for (DataKey<?, ?, ?> key : keys) {
+        PersonRecord r = (PersonRecord) data().get(key);
+        if (r.isValidAt(validAt)) {
+          return r;
+        }
+      }
+      return null;
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      return null;
+    }
+  }
+
+  // find a record being valid at the specified time
   public PersonRecord getPersonWithInputShortcut(String myInputShortcut, long validAt) {
     try {
       DataKey<?, ?, ?>[] keys = data().getByFields(

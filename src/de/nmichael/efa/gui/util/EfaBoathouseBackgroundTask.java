@@ -754,38 +754,55 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // Ordner efa2/todoo öffnen
     String folderTodo = Daten.efaBaseConfig.efaUserDirectory + "todo" + Daten.fileSep;
     Map<String, String> strMap = getStringMap(folderTodo);
+    if (strMap.isEmpty()) {
+      return;
+    }
 
-    String strAction = strMap.get("action");
-    if (strAction != null) {
-      switch (strAction) {
+    Persons persons = Daten.project.getPersons(false);
+    PersonRecord person = getValidPersonBehindRequest(persons, strMap);
+
+    String aktion = strMap.get("action");
+    if (aktion != null) {
+      switch (aktion) {
         case "DELETE":
           resultText = performDeleteReservationRequest(strMap);
           break;
 
         case "INSERT":
-          resultText = performInsertReservationRequest(strMap);
+          resultText = performInsertReservationRequest(person, strMap);
           break;
 
         case "UNSUBSCRIBE":
         case "SUBSCRIBE":
-          resultText = performSubscribeReservationRequest(strMap);
+          resultText = performSubscribeReservationRequest(persons, person, strMap);
           break;
 
         case "CHANGE_NAME":
         case "SETEMAIL":
         case "SETPHONENR":
         case "SETKÜRZEL":
-          resultText = performSetPersonMitgliedRequest(strMap);
+          resultText = performSetPersonMitgliedRequest(persons, person, strMap);
           break;
 
         default:
           break;
       }
     }
-    if (resultText == null) {
-      return;
+    if (person != null) {
+      person.sendEmailConfirmation("CONFIRM_" + aktion, resultText);
     }
-    // TODO 2020-11-08 abf: send Mail to Mitglied person
+  }
+
+  private PersonRecord getValidPersonBehindRequest(Persons persons, Map<String, String> strMap) {
+    if (persons == null) {
+      return null;
+    }
+    long now = System.currentTimeMillis();
+    PersonRecord person = persons.getPersonByMembership(strMap.get("mitgliedNr"), now);
+    if (person == null) {
+      person = persons.getPerson(strMap.get("ForName"), now);
+    }
+    return person;
   }
 
   private String performDeleteReservationRequest(Map<String, String> strMap) {
@@ -901,7 +918,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     return info;
   }
 
-  private String performInsertReservationRequest(Map<String, String> strMap) {
+  private String performInsertReservationRequest(PersonRecord personRecord,
+      Map<String, String> strMap) {
     long now = System.currentTimeMillis();
     String strBoatName = strMap.get("efaBootName");
     if (strBoatName == null) {
@@ -933,8 +951,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     try {
-      Persons persons = Daten.project.getPersons(false);
-      PersonRecord personRecord = persons.getPerson(strMap.get("ForName"), now);
       UUID personId = personRecord != null ? personRecord.getId() : null;
       if (personId != null) {
         brr.setPersonId(personId);
@@ -979,8 +995,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
   }
 
-  private String performSubscribeReservationRequest(Map<String, String> strMap) {
-    long now = System.currentTimeMillis();
+  private String performSubscribeReservationRequest(Persons persons, PersonRecord person,
+      Map<String, String> strMap) {
     String aktion = strMap.get("action"); // "UNSUBSCRIBE";
     if (aktion == null || aktion.isBlank()) {
       String error = "Newsletter-Link: keine Aktion angegeben " + aktion;
@@ -995,14 +1011,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
     }
-    Persons persons = Daten.project.getPersons(false);
-    if (persons == null) {
-      String error = "Newsletter-" + aktion
-          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
-      return error;
-    }
-    PersonRecord person = persons.getPersonByMembership(strPersonMitgliedNrOH, now);
     if (person == null) {
       String error = "Newsletter-" + aktion + ": unbekanntes Mitglied " + strPersonMitgliedNrOH;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
@@ -1035,6 +1043,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (aktion.equalsIgnoreCase("UNSUBSCRIBE")) {
       person.setErlaubnisEmail(false);
     }
+    if (persons == null) {
+      String error = aktion + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
     try {
       persons.data().update(person);
       String info = "Newsletter-" + aktion + ": " + person.getFirstLastName()
@@ -1048,7 +1061,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
   }
 
-  private String performSetPersonMitgliedRequest(Map<String, String> strMap) {
+  private String performSetPersonMitgliedRequest(Persons persons, PersonRecord person,
+      Map<String, String> strMap) {
     String aktion = strMap.get("action"); // "SETKÜRZEL" "SETPHONENR" "SETEMAIL" "CHANGE_NAME"
     if (aktion == null || aktion.isBlank()) {
       String error = "Person-Profil-Link: keine Aktion angegeben " + aktion;
@@ -1063,15 +1077,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
     }
-    Persons persons = Daten.project.getPersons(false);
-    if (persons == null) {
-      String error = "Person-Profil-" + aktion
-          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
-      return error;
-    }
-    long now = System.currentTimeMillis();
-    PersonRecord person = persons.getPersonByMembership(strPersonMitgliedNrOH, now);
+
     if (person == null) {
       String error = "Person-Profil-" + aktion + ": unbekanntes Mitglied " + strPersonMitgliedNrOH;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
@@ -1151,15 +1157,21 @@ public class EfaBoathouseBackgroundTask extends Thread {
           + " muss einen Namen haben, der nicht leer ist: '" + neuerName + "' ";
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
-    } else {
-      long now = System.currentTimeMillis();
-      PersonRecord otherPerson = persons.getPerson(neuerName, now);
-      if (otherPerson != null) {
-        String error = "Person-Profil-" + aktion + ": Den Namen '" + neuerName
-            + "' hat " + otherPerson.getFirstLastName() + " bereits.";
-        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
-        return error;
-      }
+    }
+
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    long now = System.currentTimeMillis();
+    PersonRecord otherPerson = persons.getPerson(neuerName, now);
+    if (otherPerson != null) {
+      String error = "Person-Profil-" + aktion + ": Den Namen '" + neuerName
+          + "' hat " + otherPerson.getFirstLastName() + " bereits.";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
     }
 
     String nameParts[] = neuerName.split(" ", 2);
@@ -1266,6 +1278,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
         return error;
       }
 
+      if (persons == null) {
+        String error = "Person-Profil-" + aktion
+            + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
       long now = System.currentTimeMillis();
       PersonRecord otherPerson = persons.getPersonWithEMail(neueEmail, now);
       if (otherPerson != null &&
@@ -1281,6 +1299,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
     person.setErlaubnisEmail(!neueEmail.isBlank());
     person.setEmail(neueEmail);
 
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
     try {
       persons.data().update(person);
       String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
@@ -1339,6 +1363,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     if (!neuesTelefon.isBlank()) {
+      if (persons == null) {
+        String error = "Person-Profil-" + aktion
+            + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
       long now = System.currentTimeMillis();
       PersonRecord otherPerson = persons.getPersonWithTelefon(neuesTelefon, now);
       if (otherPerson != null) {
@@ -1362,6 +1392,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
     person.setFreeUse1(neuesTelefon);
     person.setFreeUse2(null);
 
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
     try {
       persons.data().update(person);
       String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
@@ -1421,6 +1457,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
         return error;
       }
 
+      if (persons == null) {
+        String error = "Person-Profil-" + aktion
+            + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
       long now = System.currentTimeMillis();
       PersonRecord otherPerson = persons.getPersonWithInputShortcut(neuesKürzel, now);
       if (otherPerson != null) {
@@ -1434,6 +1476,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
     person.setErlaubnisKuerzel(!neuesKürzel.isBlank());
     person.setInputShortcut(neuesKürzel);
 
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
     try {
       persons.data().update(person);
       String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()

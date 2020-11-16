@@ -369,7 +369,8 @@ public class BoatReservationRecord extends DataRecord {
     }
     try {
       Persons persons = getPersistence().getProject().getPersons(false);
-      return persons.getPerson(id, System.currentTimeMillis());
+      long now = System.currentTimeMillis();
+      return persons.getPerson(id, now);
     } catch (Exception e) {
       return null;
     }
@@ -386,7 +387,8 @@ public class BoatReservationRecord extends DataRecord {
   public BoatRecord getBoat() {
     Boats boats = getPersistence().getProject().getBoats(false);
     if (boats != null) {
-      BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
+      long now = System.currentTimeMillis();
+      BoatRecord r = boats.getBoat(getBoatId(), now);
       if (r == null) {
         r = boats.getAnyBoatRecord(getBoatId());
       }

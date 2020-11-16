@@ -79,6 +79,9 @@ public class Persons extends StorageObject {
 
   // find a record being valid at the specified time
   public PersonRecord getPerson(String personName, long validAt) {
+    if (personName == null) {
+      return null;
+    }
     try {
       DataKey<?, ?, ?>[] keys = data().getByFields(
           staticPersonRecord.getQualifiedNameFields(),
@@ -111,6 +114,9 @@ public class Persons extends StorageObject {
 
   // find a record being valid at the specified time
   public PersonRecord getPersonByMembership(String mitgliedsNrOH, long validAt) {
+    if (mitgliedsNrOH == null) {
+      return null;
+    }
     try {
       DataKey<?, ?, ?>[] keys = data().getByFields(
           new String[] { PersonRecord.MEMBERSHIPNO },

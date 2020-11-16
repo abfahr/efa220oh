@@ -749,6 +749,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
   }
 
   private void checkForFilesWithReservationRequests() {
+    String resultText = null;
+
     // Ordner efa2/todoo öffnen
     String folderTodo = Daten.efaBaseConfig.efaUserDirectory + "todo" + Daten.fileSep;
     Map<String, String> strMap = getStringMap(folderTodo);
@@ -757,29 +759,33 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (strAction != null) {
       switch (strAction) {
         case "DELETE":
-          performDeleteReservationRequest(strMap);
+          resultText = performDeleteReservationRequest(strMap);
           break;
 
         case "INSERT":
-          performInsertReservationRequest(strMap);
+          resultText = performInsertReservationRequest(strMap);
           break;
 
         case "UNSUBSCRIBE":
         case "SUBSCRIBE":
-          performSubscribeReservationRequest(strMap);
+          resultText = performSubscribeReservationRequest(strMap);
           break;
 
         case "CHANGE_NAME":
         case "SETEMAIL":
         case "SETPHONENR":
         case "SETKÜRZEL":
-          performSetPersonMitgliedRequest(strMap);
+          resultText = performSetPersonMitgliedRequest(strMap);
           break;
 
         default:
           break;
       }
     }
+    if (resultText == null) {
+      return;
+    }
+    // TODO 2020-11-08 abf: send Mail to Mitglied person
   }
 
   private String performDeleteReservationRequest(Map<String, String> strMap) {
@@ -1112,9 +1118,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return performChangePersonShortcutRequest(strMap, persons, person);
     }
     return null;
-
-    // TODO 2020-11-08 abf: send Mail to Mitglied person
-
   }
 
   private String performChangePersonNameRequest(Map<String, String> strMap,
@@ -1214,9 +1217,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
       return error;
     }
-
-    // TODO 2020-11-08 abf: send Mail to Mitglied person
-
   }
 
   private String performChangePersonEmailRequest(Map<String, String> strMap,
@@ -1293,9 +1293,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
       return error;
     }
-
-    // TODO 2020-11-08 abf: send Mail to Mitglied person
-
   }
 
   private String performChangePersonPhoneNrRequest(Map<String, String> strMap,
@@ -1377,9 +1374,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
       return error;
     }
-
-    // TODO 2020-11-08 abf: send Mail to Mitglied person
-
   }
 
   private String performChangePersonShortcutRequest(Map<String, String> strMap,
@@ -1452,9 +1446,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
       return error;
     }
-
-    // TODO 2020-11-08 abf: send Mail to Mitglied person
-
   }
 
   private String checkHashId(String strHashId) {

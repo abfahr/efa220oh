@@ -1113,7 +1113,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       emailSubject += " " + getFirstLastName();
     }
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion, errorText);
-    System.err.println(emailMessage);
+    // System.err.println(emailMessage);
 
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);

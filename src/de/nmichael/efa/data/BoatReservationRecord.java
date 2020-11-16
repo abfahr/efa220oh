@@ -905,6 +905,7 @@ public class BoatReservationRecord extends DataRecord {
     }
     msg.add("");
 
+    PersonRecord personRecord = getPersonRecord();
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
     } else {
@@ -919,9 +920,10 @@ public class BoatReservationRecord extends DataRecord {
           "Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
               + "dann trage Dich bitte im Bootshaus wieder aus.");
       if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
-          && getHashId().length() > 0) {
+          && getHashId().length() > 0
+          && personRecord != null) {
         msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: \n"
-            + getStornoURL());
+            + getStornoURL(personRecord.getMembershipNo()));
       }
       if (isBootshausOH()) {
         msg.add(
@@ -935,23 +937,28 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Efa-PC im Bootshaus");
     msg.add("");
     msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
-    if (getPersonRecord() != null) {
-      msg.add(International.getMessage("Newsletter abmelden {url}", getNewsletterURL("abmelden")));
+    if (personRecord != null) {
+      msg.add(International.getMessage("Newsletter abmelden {url}",
+          getNewsletterURL(personRecord.getMembershipNo())));
     }
     return join(msg);
   }
 
-  private String getStornoURL() {
+  private String getStornoURL(String mitgliedNr) {
     String url = "https://overfreunde.abfx.de/";
     url += "storno/";
-    url += "?efaId=" + getEfaId();
-    url += "&code=" + getHashId();
+    url += "?mitgliedNr=" + mitgliedNr;
+    url += "&hashId=" + getHashId();
+    url += "&efaId=" + getEfaId();
     return url;
   }
 
-  private String getNewsletterURL(String abmelden) {
+  private String getNewsletterURL(String mitgliedNr) {
     String url = "https://overfreunde.abfx.de/";
-    url += abmelden + "/?mitglied=" + getPersonRecord().getMembershipNo();
+    url += "abmelden/";
+    url += "?mitgliedNr=" + mitgliedNr;
+    url += "&hashId=" + getHashId();
+    url += "&efaId=" + getEfaId();
     return url;
   }
 

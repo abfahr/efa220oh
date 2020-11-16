@@ -771,9 +771,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         case "CHANGE_NAME":
         case "SETEMAIL":
-        case "email":
         case "SETPHONENR":
-        case "phoneNr":
         case "SETKÜRZEL":
           performSetPersonMitgliedRequest(strMap);
           break;
@@ -789,8 +787,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (strEfaId == null) {
       return null; // kein File im Folder
     }
-    strEfaId = strEfaId.replaceAll("\\D+", "");
-    int reservierungsnummer = Integer.parseInt(strEfaId);
+    int reservierungsnummer = Integer.parseInt(strEfaId.replaceAll("\\D+", ""));
     if (reservierungsnummer == 0) {
       String error = "Storno-Link: keine Reservierungsnummer " + reservierungsnummer;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
@@ -838,14 +835,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     // -----------------------------
 
-    // reservierungsnummer prüfen
+    // reservierungsnummer prüfenq1
     if (reservierungsnummer != brrHashId.getReservation()) {
-      String error = "Storno-Link: falsche efaId " + strEfaId + " in Reservierung "
+      String error = "Storno-Link: falsche efaId " + reservierungsnummer + " in Reservierung1 "
           + brrHashId.getReservation();
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
     }
-    // efaId prüfen
+    // efaId prüfen2
     if (!(strEfaId.equals(brrHashId.getEfaId()))) {
       String error = "Storno-Link: falsche efaId " + strEfaId + " in Reservierung2 "
           + brrHashId.getEfaId();
@@ -863,9 +860,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return error;
     }
 
-    // efaId prüfen
+    // efaId prüfen3
     if (!(strEfaId.equals(brr.getEfaId()))) {
-      String error = "Storno-Link: falsche efaId " + strEfaId + " in Reservierung2 "
+      String error = "Storno-Link: falsche efaId " + strEfaId + " in Reservierung3 "
           + brr.getEfaId();
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
@@ -971,7 +968,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return info;
     } catch (Exception e2) {
       String error = "Add-Link: e2 " + e2.getLocalizedMessage();
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR, error);
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
     }
   }
@@ -1108,17 +1105,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (aktion.equalsIgnoreCase("SETEMAIL")) {
       return performChangePersonEmailRequest(strMap, persons, person);
     }
-    if (aktion.equalsIgnoreCase("email")) {
-      return performChangePersonEmailRequest(strMap, persons, person);
-    }
-
     if (aktion.equalsIgnoreCase("SETPHONENR")) {
       return performChangePersonPhoneNrRequest(strMap, persons, person);
     }
-    if (aktion.equalsIgnoreCase("phoneNr")) {
-      return performChangePersonPhoneNrRequest(strMap, persons, person);
-    }
-
     if (aktion.equalsIgnoreCase("SETKÜRZEL")) {
       return performChangePersonShortcutRequest(strMap, persons, person);
     }
@@ -1279,7 +1268,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
       long now = System.currentTimeMillis();
       PersonRecord otherPerson = persons.getPersonWithEMail(neueEmail, now);
-      if (otherPerson != null) {
+      if (otherPerson != null &&
+          !otherPerson.getId().equals(person.getId()) &&
+          !otherPerson.getMembershipNo().equals(person.getMembershipNo())) {
         String error = "Person-Profil-" + aktion + ": Die Email '" + neueEmail
             + "' ist bereits vergeben: an " + otherPerson.getFirstLastName();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);

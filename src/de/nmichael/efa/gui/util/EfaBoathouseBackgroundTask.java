@@ -38,18 +38,17 @@ import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.BoatStatus;
 import de.nmichael.efa.data.BoatStatusRecord;
+import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.Messages;
+import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
-import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeDecimal;
-import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.data.types.DataTypeDistance.UnitType;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
@@ -82,10 +81,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   public EfaBoathouseBackgroundTask(EfaBoathouseFrame efaBoathouseFrame) {
     this.efaBoathouseFrame = efaBoathouseFrame;
-    this.onceAnHour = 5; // initial nach 5 Schleifendurchläufen zum ersten Mal hier reingehen
-    this.cal = new GregorianCalendar();
-    this.lockEfa = null;
-    this.date = new Date();
+    onceAnHour = 5; // initial nach 5 Schleifendurchläufen zum ersten Mal hier reingehen
+    cal = new GregorianCalendar();
+    lockEfa = null;
+    date = new Date();
   }
 
   public void setEfaLockBegin(DataTypeDate datum, DataTypeTime zeit) {
@@ -185,7 +184,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         checkForUnreadMessages();
 
         // Nach Dateien mit Löschungen für Reservierungen suchen
-        checkForDeleteReservationRequests();
+        checkForFilesWithReservationRequests();
 
         // automatisches Beenden von efa
         checkForExitOrRestart();
@@ -285,10 +284,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
       for (int i = 0; i < cnt; i++) {
         if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
-          Logger
-              .log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-                  "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL
-                      + " seconds ...");
+          Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+              "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL
+                  + " seconds ...");
         }
         try {
           Thread.sleep(REMOTE_SCN_CHECK_INTERVAL * 1000);
@@ -311,6 +309,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn) {
             // do NOT set lastBoatStatusScn = scn here!
             // This will be done when boat status is updated.
+            break;
+          }
+          int seconds = Calendar.getInstance().get(Calendar.SECOND);
+          if (seconds < 5) {
+            // Screen-Update zeitlich verschieben - auf die Zeit mit :00-:05 Sekunden verschieben.
             break;
           }
         } catch (Exception e) {
@@ -425,7 +428,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     long aktuelleMinute = (now / 1000 / 60);
     try {
       DataKeyIterator it = boatStatus.data().getStaticIterator();
-      for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+      for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
         BoatStatusRecord boatStatusRecord = (BoatStatusRecord) boatStatus.data().get(k);
         if (boatStatusRecord == null) {
           continue;
@@ -720,9 +723,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
       newLogbookRecord.setEndDate(boatReservationRecord.getDateTo());
     }
     newLogbookRecord.setEndTime(boatReservationRecord.getTimeTo());
-    newLogbookRecord.setDestinationName(boatReservationRecord.getReason());
-    newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km)); // 1km
-    newLogbookRecord.setComments("(efa: Fahrt gestartet anhand einer Reservierung)");
+    String reason = boatReservationRecord.getReason();
+    reason = reason.isEmpty() ? "anhand Reservierung" : reason;
+    newLogbookRecord.setDestinationName(reason);
+    // newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km));
+    // // 1km
+    newLogbookRecord.setComments("(efa: Fahrt gestartet aufgrund einer Reservierung)");
     newLogbookRecord.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
     newLogbookRecord.setSessionIsOpen(true);
     try {
@@ -742,54 +748,158 @@ public class EfaBoathouseBackgroundTask extends Thread {
     boatStatusRecord.setEntryNo(newLogbookRecord.getEntryId());
   }
 
-  private void checkForDeleteReservationRequests() {
+  private void checkForFilesWithReservationRequests() {
+    String resultText = null;
+
     // Ordner efa2/todoo öffnen
     String folderTodo = Daten.efaBaseConfig.efaUserDirectory + "todo" + Daten.fileSep;
     Map<String, String> strMap = getStringMap(folderTodo);
+    if (strMap.isEmpty()) {
+      return;
+    }
 
+    Persons persons = Daten.project.getPersons(false);
+    PersonRecord person = getValidPersonBehindRequest(persons, strMap);
+
+    String aktion = strMap.get("action");
+    if (aktion != null) {
+      switch (aktion) {
+        case "DELETE":
+          resultText = performDeleteReservationRequest(strMap);
+          break;
+
+        case "INSERT":
+          resultText = performInsertReservationRequest(person, strMap);
+          break;
+
+        case "UNSUBSCRIBE":
+        case "SUBSCRIBE":
+          resultText = performSubscribeReservationRequest(persons, person, strMap);
+          break;
+
+        case "CHANGE_NAME":
+        case "SETEMAIL":
+        case "SETPHONENR":
+        case "SETKÜRZEL":
+          resultText = performSetPersonMitgliedRequest(persons, person, strMap);
+          break;
+
+        default:
+          break;
+      }
+    }
+    if (person != null) {
+      person.sendEmailConfirmation("CONFIRM_" + aktion, resultText);
+    }
+  }
+
+  private PersonRecord getValidPersonBehindRequest(Persons persons, Map<String, String> strMap) {
+    if (persons == null) {
+      return null;
+    }
+    long now = System.currentTimeMillis();
+    PersonRecord person = persons.getPersonByMembership(strMap.get("mitgliedNr"), now);
+    if (person == null) {
+      person = persons.getPerson(strMap.get("ForName"), now);
+    }
+    return person;
+  }
+
+  private String performDeleteReservationRequest(Map<String, String> strMap) {
     String strEfaId = strMap.get("efaId");
     if (strEfaId == null) {
-      return; // kein File im Folder
+      return null; // kein File im Folder
     }
-    strEfaId = strEfaId.replaceAll("\\D+", "");
-    int reservierungsnummer = Integer.parseInt(strEfaId);
+    int reservierungsnummer = Integer.parseInt(strEfaId.replaceAll("\\D+", ""));
     if (reservierungsnummer == 0) {
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "Storno-Link: keine Reservierungsnummer " + reservierungsnummer);
-      return;
+      String error = "Storno-Link: keine Reservierungsnummer " + reservierungsnummer;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
     }
 
-    String strHashId = strMap.get("code");
+    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
+    String strHashId = strMap.get("hashId");
+    String strCodeOld = strMap.get("code");
     if (strHashId == null) {
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "Storno-Link: kein Code HashId " + strHashId);
-      return;
+      // alte Schreibweise
+      strHashId = strCodeOld;
+    }
+    if (strHashId == null) {
+      String error = "Storno-Link: kein Code HashId " + strHashId;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
     }
     strHashId = strHashId.replace("'", "");
     if (strHashId.isEmpty()) {
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "Storno-Link: leerer Code HashId " + strHashId);
-      return;
+      // alte Schreibweise
+      strHashId = strCodeOld;
+      strHashId = strHashId.replace("'", "");
+    }
+    if (strHashId.isEmpty()) {
+      String error = "Storno-Link: leerer Code HashId " + strHashId;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
     }
 
+    // hashId = Reservierung suchen // hashId = code prüfen
+    BoatReservationRecord[] brrArray = boatReservations.findBoatReservationsByHashId(strHashId);
+    if (brrArray == null || brrArray.length == 0) {
+      String error = "Storno-Link: keine Reservierung mit hashId " + strHashId + " gefunden. "
+          + brrArray;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    BoatReservationRecord brrHashId = brrArray[0];
+    if (brrHashId == null) {
+      String error = "Storno-Link: unbekannte Reservierung1 " + strHashId;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    // -----------------------------
+
+    // reservierungsnummer prüfenq1
+    if (reservierungsnummer != brrHashId.getReservation()) {
+      String error = "Storno-Link: falsche efaId " + reservierungsnummer + " in Reservierung1 "
+          + brrHashId.getReservation();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    // efaId prüfen2
+    if (!(strEfaId.equals(brrHashId.getEfaId()))) {
+      String error = "Storno-Link: falsche efaId " + strEfaId + " in Reservierung2 "
+          + brrHashId.getEfaId();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    // -----------------------------
+
     // efaId = Reservierung suchen
-    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
-    BoatReservationRecord brr = findBoatReservationRecord(boatReservations, reservierungsnummer);
+    BoatReservationRecord brr = boatReservations.findBoatReservationByNumber(reservierungsnummer);
     if (brr == null) {
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "Storno-Link: unbekannte Reservierung " + reservierungsnummer);
-      return;
+      String error = "Storno-Link: unbekannte Reservierung2 " + reservierungsnummer;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    // efaId prüfen3
+    if (!(strEfaId.equals(brr.getEfaId()))) {
+      String error = "Storno-Link: falsche efaId " + strEfaId + " in Reservierung3 "
+          + brr.getEfaId();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
     }
 
     // hashId = code prüfen
     if (!(strHashId.equals(brr.getHashId()))) {
-      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "Storno-Link: falscher Code HashId " + strHashId);
-      return;
+      String error = "Storno-Link: falscher Code HashId " + strHashId;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
     }
 
     // Bestätigungsmail verschicken
-    String aktion = "DELETE";
+    String aktion = strMap.get("action"); // "DELETE";
     brr.sendEmailBeiReservierung(aktion);
 
     try {
@@ -797,13 +907,616 @@ public class EfaBoathouseBackgroundTask extends Thread {
       boatReservations.data().delete(brr.getKey());
     } catch (EfaException e) {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, e);
+      return e.getLocalizedMessage();
     }
-    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
-        brr.getPersistence().getDescription() + ": "
-            + International.getMessage(
-                "{name} hat Datensatz '{record}' gelöscht.",
-                "Storno-Link", brr.getQualifiedName() +
-                    " von " + brr.getPersonAsName()));
+    String info = brr.getPersistence().getDescription() + ": "
+        + International.getMessage(
+            "{name} hat Datensatz '{record}' gelöscht.",
+            "Storno-Link", brr.getQualifiedName() +
+                " von " + brr.getPersonAsName());
+    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+    return info;
+  }
+
+  private String performInsertReservationRequest(PersonRecord personRecord,
+      Map<String, String> strMap) {
+    long now = System.currentTimeMillis();
+    String strBoatName = strMap.get("efaBootName");
+    if (strBoatName == null) {
+      String error = "Add-Link: kein Boot angegeben " + strBoatName;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    UUID boatId = null;
+    try {
+      Boats boats = Daten.project.getBoats(false);
+      DataKey<?, ?, ?>[] byNameField = boats.data().getByFields(
+          new String[] { BoatRecord.NAME }, new String[] { strBoatName.trim() }, now);
+      boatId = byNameField != null ? (UUID) byNameField[0].getKeyPart1() : null;
+    } catch (Exception e1) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "Add-Link: e1 " + e1.getLocalizedMessage());
+    }
+    if (boatId == null) {
+      String error = "Add-Link: unbekanntes Boot " + strBoatName;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
+    BoatReservationRecord brr = boatReservations.createBoatReservationsRecord(boatId);
+    if (brr == null) {
+      String error = "Add-Link: cannot createBoatReservationsRecord " + strBoatName;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    try {
+      UUID personId = personRecord != null ? personRecord.getId() : null;
+      if (personId != null) {
+        brr.setPersonId(personId);
+      } else {
+        brr.setPersonName(strMap.get("ForName"));
+      }
+      brr.setType(BoatReservationRecord.TYPE_ONETIME);
+      brr.setDateFrom(DataTypeDate.parseDate(strMap.get("DateFrom")));
+      brr.setTimeFrom(DataTypeTime.parseTime(strMap.get("TimeFrom")));
+      brr.setDateTo(DataTypeDate.parseDate(strMap.get("DateTo")));
+      brr.setTimeTo(DataTypeTime.parseTime(strMap.get("TimeTo")));
+      brr.setContact(strMap.get("Telefon"));
+      brr.setReason(strMap.get("Reason"));
+      if (!brr.getDateTo().isSet()) {
+        brr.setDateTo(DataTypeDate.parseDate(strMap.get("DateFrom")));
+      }
+      if (brr.getReason().isEmpty()) {
+        brr.setReason("anhand Add-Link");
+      }
+    } catch (Exception e3) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, e3);
+      return "Add-Link: e3 " + e3.getLocalizedMessage();
+    }
+    try {
+      brr.resetHashId(); // TODO 2020.11.01 abf Muss anders: Erstmalig eine HashId setzen?
+      boatReservations.data().add(brr);
+
+      // Bestätigungsmail verschicken
+      String aktion = strMap.get("action"); // "INSERT";
+      brr.sendEmailBeiReservierung(aktion);
+
+      String info = brr.getPersistence().getDescription() + ": "
+          + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+              "Add-Link von " + brr.getPersonAsName(), brr.getQualifiedName() + " "
+                  + brr.getReservationTimeDescription(BoatReservationRecord.REPLACE_HEUTE));
+      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED, info);
+      return info;
+    } catch (Exception e2) {
+      String error = "Add-Link: e2 " + e2.getLocalizedMessage();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+  }
+
+  private String performSubscribeReservationRequest(Persons persons, PersonRecord person,
+      Map<String, String> strMap) {
+    String aktion = strMap.get("action"); // "UNSUBSCRIBE";
+    if (aktion == null || aktion.isBlank()) {
+      String error = "Newsletter-Link: keine Aktion angegeben " + aktion;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String strPersonMitgliedNrOH = strMap.get("mitgliedNr");
+    if (strPersonMitgliedNrOH == null || strPersonMitgliedNrOH.isBlank()) {
+      String error = "Newsletter-" + aktion + ": keine OH-MitgliedsNr angegeben "
+          + strPersonMitgliedNrOH;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    if (person == null) {
+      String error = "Newsletter-" + aktion + ": unbekanntes Mitglied " + strPersonMitgliedNrOH;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    if (!person.getMembershipNo().equals(strPersonMitgliedNrOH)) {
+      String error = "Newsletter-" + aktion + ": falsche Mitgliedsnummer " + strPersonMitgliedNrOH
+          + " bei " + person.getFirstLastName() + " " + person.getMembershipNo();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    if (aktion.equalsIgnoreCase("SUBSCRIBE") && person.isErlaubtEmail()) {
+      String error = "Newsletter-" + aktion + ": " + person.getFirstLastName()
+          + " ist bereits angemeldet. "
+          + person.isErlaubtEmail();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    if (aktion.equalsIgnoreCase("UNSUBSCRIBE") && !person.isErlaubtEmail()) {
+      String error = "Newsletter-" + aktion + ": " + person.getFirstLastName()
+          + " ist bereits abgemeldet. "
+          + person.isErlaubtEmail();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    if (aktion.equalsIgnoreCase("SUBSCRIBE")) {
+      person.setErlaubnisEmail(true);
+    }
+    if (aktion.equalsIgnoreCase("UNSUBSCRIBE")) {
+      person.setErlaubnisEmail(false);
+    }
+    if (persons == null) {
+      String error = aktion + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    try {
+      persons.data().update(person);
+      String info = "Newsletter-" + aktion + ": " + person.getFirstLastName()
+          + " hat nun Email-Erlaubnis " + person.isErlaubtEmail();
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      return info;
+    } catch (EfaException e2) {
+      String error = "Newsletter-" + aktion + ": e2 " + e2.getLocalizedMessage();
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+      return error;
+    }
+  }
+
+  private String performSetPersonMitgliedRequest(Persons persons, PersonRecord person,
+      Map<String, String> strMap) {
+    String aktion = strMap.get("action"); // "SETKÜRZEL" "SETPHONENR" "SETEMAIL" "CHANGE_NAME"
+    if (aktion == null || aktion.isBlank()) {
+      String error = "Person-Profil-Link: keine Aktion angegeben " + aktion;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String strPersonMitgliedNrOH = strMap.get("mitgliedNr");
+    if (strPersonMitgliedNrOH == null || strPersonMitgliedNrOH.isBlank()) {
+      String error = "Person-Profil-" + aktion + ": keine OH-MitgliedsNr angegeben "
+          + strPersonMitgliedNrOH;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    if (person == null) {
+      String error = "Person-Profil-" + aktion + ": unbekanntes Mitglied " + strPersonMitgliedNrOH;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    if (!person.getMembershipNo().equals(strPersonMitgliedNrOH)) {
+      String error = "Person-Profil-" + aktion + ": falsche Mitgliedsnummer "
+          + strPersonMitgliedNrOH
+          + " bei " + person.getFirstLastName() + " " + person.getMembershipNo();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String errorHashId = checkHashId(strMap.get("hashId"));
+    if (errorHashId != null) {
+      errorHashId = "Person-Profil-" + errorHashId;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, errorHashId);
+      return errorHashId;
+    }
+
+    if (aktion.equalsIgnoreCase("CHANGE_NAME")) {
+      return performChangePersonNameRequest(strMap, persons, person);
+    }
+
+    String name = strMap.get("ForName");
+    if (name == null) {
+      // alte Schreibweise
+      name = strMap.get("name");
+    }
+    if (!person.getFirstLastName().equals(name)) {
+      String error = "Person-Profil-" + aktion + ": falscher Name angegeben " + name
+          + ", bei EFA: " + person.getFirstLastName();
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    if (aktion.equalsIgnoreCase("SETEMAIL")) {
+      return performChangePersonEmailRequest(strMap, persons, person);
+    }
+    if (aktion.equalsIgnoreCase("SETPHONENR")) {
+      return performChangePersonPhoneNrRequest(strMap, persons, person);
+    }
+    if (aktion.equalsIgnoreCase("SETKÜRZEL")) {
+      return performChangePersonShortcutRequest(strMap, persons, person);
+    }
+    return null;
+  }
+
+  private String performChangePersonNameRequest(Map<String, String> strMap,
+      Persons persons, PersonRecord person) {
+    String aktion = strMap.get("action"); // "CHANGE_NAME"
+    if (!aktion.equalsIgnoreCase("CHANGE_NAME")) {
+      String error = "Person-Profil-Link: keine gültige Aktion angegeben " + aktion;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String neuerName = strMap.get("ForName");
+    if (neuerName == null) {
+      neuerName = "";
+    } else {
+      neuerName = neuerName.trim();
+    }
+
+    if (person.isErlaubtSchreibweise()) {
+      if (neuerName.equals(person.getFirstLastName())) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " heißt bereits '" + neuerName
+            + "' und hat Erlaubnis: " + person.isErlaubtSchreibweise();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    }
+
+    if (neuerName.isBlank()) {
+      String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+          + " muss einen Namen haben, der nicht leer ist: '" + neuerName + "' ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    long now = System.currentTimeMillis();
+    PersonRecord otherPerson = persons.getPerson(neuerName, now);
+    if (otherPerson != null) {
+      String error = "Person-Profil-" + aktion + ": Den Namen '" + neuerName
+          + "' hat " + otherPerson.getFirstLastName() + " bereits.";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String nameParts[] = neuerName.split(" ", 2);
+    String neuerVorname = nameParts[0];
+    if (neuerVorname == null) {
+      String error = "Person-Profil-" + aktion + ": Der Name '" + neuerName
+          + "' hat keinen Vornamen " + neuerVorname;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    neuerVorname = neuerVorname.trim();
+    if (neuerVorname.isBlank()) {
+      String error = "Person-Profil-" + aktion + ": Der Name '" + neuerName
+          + "' hat leeren Vornamen " + neuerVorname;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    String neuerNachname = nameParts[1].trim();
+    if (neuerNachname == null) {
+      String error = "Person-Profil-" + aktion + ": Der Name '" + neuerName
+          + "' hat keinen Vornamen " + neuerNachname;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    neuerNachname = neuerNachname.trim();
+    if (neuerNachname.isBlank()) {
+      String error = "Person-Profil-" + aktion + ": Der Name '" + neuerName
+          + "' hat leeren Vornamen " + neuerNachname;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String myMatch = Daten.efaConfig.getRegexForVorUndNachname();
+    if (!neuerName.matches(myMatch)) {
+      String error = "Person-Profil-" + aktion + ": "
+          + International.getString("Bitte Vor- und Nachname eingeben") + " " + neuerName;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String oldName = person.getFirstLastName();
+    person.setErlaubnisSchreibweise(!neuerName.isBlank());
+    person.setFirstName(neuerVorname);
+    person.setLastName(neuerNachname);
+
+    try {
+      persons.data().update(person);
+      String info = "Person-Profil-" + aktion + ": " + oldName
+          + " hat seinen Namen in '" + person.getFirstLastName()
+          + "' geändert und die Erlaubnis: " + person.isErlaubtSchreibweise();
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      return info;
+    } catch (EfaException e2) {
+      String error = "Person-Profil-" + aktion + ": e2 " + e2.getLocalizedMessage();
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+      return error;
+    }
+  }
+
+  private String performChangePersonEmailRequest(Map<String, String> strMap,
+      Persons persons, PersonRecord person) {
+    String aktion = strMap.get("action"); // "SETEMAIL"
+    if (!aktion.equalsIgnoreCase("SETEMAIL") &&
+        !aktion.equalsIgnoreCase("email")) {
+      String error = "Person-Profil-Link: keine gültige Aktion angegeben " + aktion;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String neueEmail = strMap.get("email");
+    if (neueEmail == null) {
+      neueEmail = "";
+    } else {
+      neueEmail = neueEmail.trim();
+    }
+
+    if (person.isErlaubtEmail()) {
+      if (neueEmail.equals(person.getEmail())) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " hat bereits Email '" + person.getEmail()
+            + "' und Erlaubnis: " + person.isErlaubtEmail();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    } else {
+      if (neueEmail.isBlank() && person.getEmail() == null) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " hat keine Email zum Entfernen. "
+            + person.isErlaubtEmail() + " " + person.getEmail();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    }
+
+    // not blank, check spelling
+    if (!neueEmail.isBlank()) {
+      // String myMatch = "^[-_.\\w]+@([0-9a-zA-Z][-\\w]*[0-9a-zA-Z]\\.){1,300}[a-zA-Z]{2,9})$";
+      String myMatch = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$"; // zwei
+
+      if (!neueEmail.matches(myMatch)) {
+        String error = "Person-Profil-" + aktion + ": "
+            + "Illegale Emailadresse sieht komisch aus: '" + neueEmail + "'";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+
+      if (persons == null) {
+        String error = "Person-Profil-" + aktion
+            + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+      long now = System.currentTimeMillis();
+      PersonRecord otherPerson = persons.getPersonWithEMail(neueEmail, now);
+      if (otherPerson != null &&
+          !otherPerson.getId().equals(person.getId()) &&
+          !otherPerson.getMembershipNo().equals(person.getMembershipNo())) {
+        String error = "Person-Profil-" + aktion + ": Die Email '" + neueEmail
+            + "' ist bereits vergeben: an " + otherPerson.getFirstLastName();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    }
+
+    person.setErlaubnisEmail(!neueEmail.isBlank());
+    person.setEmail(neueEmail);
+
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    try {
+      persons.data().update(person);
+      String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+          + " hat nun die Email '" + person.getEmail()
+          + "' und die Erlaubnis: " + person.isErlaubtEmail();
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      return info;
+    } catch (EfaException e2) {
+      String error = "Person-Profil-" + aktion + ": e2 " + e2.getLocalizedMessage();
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+      return error;
+    }
+  }
+
+  private String performChangePersonPhoneNrRequest(Map<String, String> strMap,
+      Persons persons, PersonRecord person) {
+    String aktion = strMap.get("action"); // "SETPHONENR"
+    if (!aktion.equalsIgnoreCase("SETPHONENR") &&
+        !aktion.equalsIgnoreCase("phoneNr")) {
+      String error = "Person-Profil-Link: keine gültige Aktion angegeben " + aktion;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String neuesTelefon = strMap.get("telefon");
+    if (neuesTelefon == null) {
+      neuesTelefon = "";
+    } else {
+      neuesTelefon = neuesTelefon.trim();
+    }
+
+    if (person.isErlaubtTelefon()) {
+      if (neuesTelefon.equals(person.getFreeUse1())) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " hat bereits Telefon '" + person.getFreeUse1()
+            + "' und Erlaubnis: " + person.isErlaubtTelefon();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+      if (neuesTelefon.equals(person.getFreeUse2())) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " hat bereits Telefon '" + person.getFreeUse2()
+            + "' und Erlaubnis: " + person.isErlaubtTelefon();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    } else {
+      if (neuesTelefon.isBlank() && person.getFreeUse1() == null && person.getFreeUse2() == null) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " hat kein Telefon zum Entfernen. "
+            + person.isErlaubtTelefon() + " " + person.getFreeUse1() + " "
+            + person.getFreeUse2();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    }
+
+    if (!neuesTelefon.isBlank()) {
+      if (persons == null) {
+        String error = "Person-Profil-" + aktion
+            + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+      long now = System.currentTimeMillis();
+      PersonRecord otherPerson = persons.getPersonWithTelefon(neuesTelefon, now);
+      if (otherPerson != null) {
+        String error = "Person-Profil-" + aktion + ": Die Telefonnummer '" + neuesTelefon
+            + "' ist bereits vergeben: an " + otherPerson.getFirstLastName();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    }
+
+    String myMatch = Daten.efaConfig.getRegexForHandynummer();
+    if (!neuesTelefon.matches(myMatch)) {
+      String error = "Person-Profil-" + aktion + ": "
+          + International.getString("Telefonnummer bitte mit separater Vorwahl") + " "
+          + neuesTelefon;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    person.setErlaubnisTelefon(!neuesTelefon.isBlank());
+    person.setFreeUse1(neuesTelefon);
+    person.setFreeUse2(null);
+
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    try {
+      persons.data().update(person);
+      String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+          + " hat nun die TelefonNr '" + person.getFreeUse1()
+          + "' und die Erlaubnis: " + person.isErlaubtTelefon();
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      return info;
+    } catch (EfaException e2) {
+      String error = "Person-Profil-" + aktion + ": e2 " + e2.getLocalizedMessage();
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+      return error;
+    }
+  }
+
+  private String performChangePersonShortcutRequest(Map<String, String> strMap,
+      Persons persons, PersonRecord person) {
+    String aktion = strMap.get("action"); // "SETKÜRZEL"
+    if (!aktion.equalsIgnoreCase("SETKÜRZEL")) {
+      String error = "Person-Profil-Link: keine gültige Aktion angegeben " + aktion;
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+
+    String neuesKürzel = strMap.get("kürzel");
+    if (neuesKürzel == null) {
+      neuesKürzel = "";
+    } else {
+      neuesKürzel = neuesKürzel.trim().toLowerCase();
+    }
+
+    if (person.isErlaubtKuerzel()) {
+      if (neuesKürzel.equals(person.getInputShortcut())) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " hat bereits Kürzel '" + person.getInputShortcut()
+            + "' und Erlaubnis: " + person.isErlaubtKuerzel();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    } else {
+      if (neuesKürzel.isBlank() && person.getInputShortcut() == null) {
+        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+            + " hat kein Kürzel zum Entfernen. "
+            + person.isErlaubtKuerzel() + " " + person.getInputShortcut();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    }
+
+    // not blank, check spelling
+    if (!neuesKürzel.isBlank()) {
+      String myMatch = "\\w+\\.?"; // "^[\"\\\\w+\\\\.?\"]+";
+      // String myMatch = "^[A-Za-z0-9]+";
+      if (!neuesKürzel.matches(myMatch)) {
+        String error = "Person-Profil-" + aktion + ": "
+            + "Illegales Kürzel sieht komisch aus: '" + neuesKürzel + "'";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+
+      if (persons == null) {
+        String error = "Person-Profil-" + aktion
+            + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+      long now = System.currentTimeMillis();
+      PersonRecord otherPerson = persons.getPersonWithInputShortcut(neuesKürzel, now);
+      if (otherPerson != null) {
+        String error = "Person-Profil-" + aktion + ": Das Kürzel '" + neuesKürzel
+            + "' ist bereits vergeben: an " + otherPerson.getFirstLastName();
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+    }
+
+    person.setErlaubnisKuerzel(!neuesKürzel.isBlank());
+    person.setInputShortcut(neuesKürzel);
+
+    if (persons == null) {
+      String error = "Person-Profil-" + aktion
+          + ": keine Mitglieder gefunden. Daten.project.getPersons() ";
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+      return error;
+    }
+    try {
+      persons.data().update(person);
+      String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
+          + " hat nun das Kürzel '" + person.getInputShortcut()
+          + "' und die Erlaubnis: " + person.isErlaubtKuerzel();
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      return info;
+    } catch (EfaException e2) {
+      String error = "Person-Profil-" + aktion + ": e2 " + e2.getLocalizedMessage();
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+      return error;
+    }
+  }
+
+  private String checkHashId(String strHashId) {
+    if (strHashId == null) {
+      return "checkHashId: kein Code HashId " + strHashId;
+    }
+    strHashId = strHashId.replace("'", "");
+    if (strHashId.isEmpty()) {
+      return "checkHashId: leerer Code HashId " + strHashId;
+    }
+
+    // hashId = Reservierung suchen // hashId = code prüfen
+    BoatReservations boatReservations = Daten.project.getBoatReservations(false);
+    BoatReservationRecord[] brrArray = boatReservations.findBoatReservationsByHashId(strHashId);
+    if (brrArray == null || brrArray.length == 0) {
+      return "checkHashId: keine Reservierung mit hashId " + strHashId + " gefunden. " + brrArray;
+    }
+    BoatReservationRecord brr = brrArray[0];
+    if (brr == null) {
+      return "checkHashId: unbekannte Reservierung1 " + strHashId;
+    }
+
+    return null;
   }
 
   private Map<String, String> getStringMap(String folderTodo) {
@@ -831,7 +1544,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         // Datei nach done=backup verschieben into backup
         Path targetPath = Path
-            .of(Daten.efaBakDirectory + "efa.deletedReservations" + Daten.fileSep);
+            .of(Daten.efaBakDirectory + "efa.linkedReservations" + Daten.fileSep);
         Path targetFilename = targetPath.resolve(firstFilename.getFileName());
         Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
       }
@@ -839,27 +1552,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
     }
     return stringMap;
-  }
-
-  private BoatReservationRecord findBoatReservationRecord(
-      BoatReservations boatReservations, int reservierungsnummer) {
-    BoatReservationRecord brr = null;
-    try {
-      @SuppressWarnings("unchecked")
-      DataKey<UUID, Integer, String>[] allKeys = boatReservations.data().getAllKeys();
-      for (DataKey<UUID, Integer, String> dataKey : allKeys) {
-        int reservierungsnummerCandidate = 0;
-        reservierungsnummerCandidate = dataKey.getKeyPart2();
-        if (reservierungsnummer != reservierungsnummerCandidate) {
-          continue;
-        }
-        DataRecord dataRecord = boatReservations.data().get(dataKey);
-        brr = (BoatReservationRecord) dataRecord;
-      }
-    } catch (EfaException e) {
-      Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
-    }
-    return brr;
   }
 
   private void checkForUnreadMessages() {
@@ -878,7 +1570,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       int i = 0;
       try {
         DataKeyIterator it = messages.data().getStaticIterator();
-        DataKey k = it.getLast();
+        DataKey<?, ?, ?> k = it.getLast();
         while (k != null) {
           MessageRecord msg = (MessageRecord) messages.data().get(k);
           if (msg != null && !msg.getRead()) {
@@ -1086,7 +1778,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
         efaBoathouseFrame.bringFrameToFront();
       }
     }
-
   }
 
   private void checkFocus() {
@@ -1152,10 +1843,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     long last = (Daten.efaConfig != null ? Daten.efaConfig.getValueLastBoatDamageReminder() : -1);
     if (last == -1 || now - BOAT_DAMAGE_REMINDER_INTERVAL > last) {
       boolean damagesOlderThanAWeek = false;
-      Vector<DataKey> openDamages = new Vector<DataKey>();
+      Vector<DataKey<?, ?, ?>> openDamages = new Vector<DataKey<?, ?, ?>>();
       try {
         DataKeyIterator it = boatDamages.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+        for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
           if (boatDamages == null) {
             continue;
           }
@@ -1181,7 +1872,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           StringBuilder s = new StringBuilder();
           s.append(International.getMessage("Es liegen {count} offene Bootsschäden vor:",
               openDamages.size()) + "\n\n");
-          for (DataKey k : openDamages) {
+          for (DataKey<?, ?, ?> k : openDamages) {
             if (boatDamages == null) {
               continue;
             }

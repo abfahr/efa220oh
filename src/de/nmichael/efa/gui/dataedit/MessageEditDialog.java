@@ -31,9 +31,6 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class MessageEditDialog extends UnversionizedDataEditDialog {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
 
   public MessageEditDialog(Frame parent, MessageRecord r, boolean newRecord, AdminRecord admin) {
@@ -79,7 +76,6 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
       } catch (Exception eignore) {
         Logger.logdebug(eignore);
       }
-
     }
   }
 
@@ -127,6 +123,8 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
               msgRecord.setReplyTo(personEmail);
               msgRecord.setTo(personEmail);
             }
+          } else {
+            from.setAlternateFieldNameForPlainText(MessageRecord.REPORTEDBYPERSONNAME);
           }
         } catch (Exception e) {
           Logger.logdebug(e);

@@ -9,13 +9,16 @@
 
 package de.nmichael.efa.data;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemFactory;
@@ -35,6 +38,8 @@ import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
+import net.fortuna.ical4j.model.DateTime;
 
 // @i18n complete
 
@@ -1039,25 +1044,23 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     setExcludeFromClubwork(false); // immer leer gewesen
 
     // 2. nur aktive Mitglieder behalten
-    boolean isDyingMemberStatus = isDyingMember();
-    if (!isDyingMemberStatus) {
+    if (!isDyingMember()) {
       return;
     }
-    if (isDyingMemberStatus) {
-      // setInvisible(true);
-      // setDeleted(true); // doof - Datensatz fehlt dann
-      // setInvalidFrom(System.currentTimeMillis());
-    }
+    long oneMinute = 60 * 1000;
+    long oneYear = 365 * 24 * 60 * oneMinute;
     long now = System.currentTimeMillis();
-    long oneYear = 365 * 24 * 60 * 60 * 1000;
-    if (getInvalidFrom() > now - oneYear) {
+    long invalidMillisAgo = now - getInvalidFrom();
+    if (invalidMillisAgo < oneYear) {
       return; // nicht alt genug
     }
-    if (getLastModified() > now - oneYear) {
+    long lastModifiedAgo = now - getLastModified();
+    if (lastModifiedAgo < oneMinute) {
       return; // nicht alt genug
     }
     // setInvisible(true);
-    // setDeleted(true); // doof - Datensatz fehlt dann
+    // setInvalidFrom(System.currentTimeMillis());
+    setDeleted(true); // doof - Datensatz fehlt dann
   }
 
   public boolean isDyingMember() {
@@ -1082,4 +1085,119 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return false;
     }
   }
+
+  public void sendEmailConfirmation(String aktion, String errorText) {
+    boolean kombinierteEmailErlaubnis = false;
+    String emailToAdresse = "";
+    String emailSubject = "";
+    String anrede = "Name";
+
+    kombinierteEmailErlaubnis = istEmailErlaubnisErteilt();
+    emailToAdresse = getEmail();
+    anrede = getFirstName();
+
+    if (!isValidEmail(emailToAdresse)) {
+      emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
+      emailSubject = "Error efa.invalidEmail " + getFirstLastName() + " ";
+      kombinierteEmailErlaubnis = false;
+    }
+    if (getLastModified() == IDataAccess.UNDEFINED_LONG) {
+      emailToAdresse = "efa.error.LastModified";
+      emailSubject = "Error LastModified ";
+      kombinierteEmailErlaubnis = false;
+    }
+    emailSubject += "OH Änderung Bestätigung " + aktion;
+    if (!kombinierteEmailErlaubnis) {
+      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
+      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailSubject += " " + getFirstLastName();
+    }
+    String emailMessage = getFormattedEmailtextMitglied(anrede, aktion, errorText);
+    // System.err.println(emailMessage);
+
+    Messages messages = Daten.project.getMessages(false);
+    messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
+    Logger.log(Logger.INFO, Logger.MSG_DEBUG_GUI_ICONS,
+        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
+  }
+
+  private String getFormattedEmailtextMitglied(String anrede, String aktion, String errorText) {
+    List<String> msg = new ArrayList<String>();
+    msg.add("Hallo " + anrede + "!");
+    msg.add("");
+    if (errorText != null && !errorText.isBlank()) {
+      msg.add("Das Ergebnis Deiner Anfrage lautet: " + aktion);
+      msg.add("-->  \"" + errorText + "\"  <--");
+      msg.add("");
+    }
+    if (aktion.contains("CONFIRM")) {
+      msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFa am Isekai. ");
+      msg.add(" Vor- und Nachname: " + getFirstLastName());
+      msg.add(" OH-MitgliedNr: " + getMembershipNo());
+      msg.add(" Telefon: " + getFreeUse1() + " " + suppressNull(getFreeUse2()));
+      msg.add(" Telefon als Eingabehilfe in EFa "
+          + (isErlaubtTelefon() ? "" : "nicht ") + "freigegeben.");
+      msg.add(" Email: " + suppressNull(getEmail()));
+      msg.add(" Emailversand für EFa " + (isErlaubtEmail() ? "" : "nicht ") + "erlaubt.");
+      msg.add(" Kürzel: \"" + suppressNull(getInputShortcut()) + "\" (Spitzname)");
+      msg.add(" Kürzel ist bei Fahrtbeginn "
+          + (isErlaubtKuerzel() ? "benutzbar." : "nicht erwünscht."));
+      msg.add(" (" + getStringEingabeAm(getLastModified()) + ")");
+      msg.add("");
+    }
+    msg.add("Solltest Du Deine Daten ändern wollen, dann bitte jemand vom Vorstand, dies zu tun.");
+    msg.add("Alternativ kannst Du das Benutzerprofil auch per Klick anpassen: ");
+    msg.add(" " + getEfaURL("efa/"));
+    msg.add("Allerdings brauchst Du dort zur Identifizierung eine aktuelle Bootsreservierung.");
+    msg.add("");
+    msg.add("mit freundlichen Grüßen");
+    msg.add("EFa-Touchscreen im Bootshaus");
+    msg.add("");
+    msg.add(International.getMessage("Newsletter abmelden {url}", getEfaURL("abmelden/")));
+    return join(msg);
+  }
+
+  private String suppressNull(String text) {
+    if (text == null) {
+      return "";
+    }
+    return text;
+  }
+
+  private boolean isValidEmail(String emailCandidate) {
+    if (emailCandidate == null) {
+      return false;
+    }
+    if (emailCandidate.isEmpty()) {
+      return false;
+    }
+    if (!emailCandidate.contains("@")) {
+      return false;
+    }
+    return true;
+  }
+
+  private String getStringEingabeAm(long lastModifiziert) {
+    if (lastModifiziert == IDataAccess.UNDEFINED_LONG) {
+      return "Letzter Änderungszeitpunkt unbekannt";
+    } else {
+      return "Letzte Änderung am " + new DateTime(lastModifiziert).toString().replace('T', '.');
+    }
+  }
+
+  private String getEfaURL(String folder) {
+    String url = "https://overfreunde.abfx.de/";
+    url += folder;
+    url += "?mitgliedNr=" + getMembershipNo();
+    return url;
+  }
+
+  private String join(List<String> list) {
+    StringBuilder sb = new StringBuilder();
+    for (String single : list) {
+      sb.append(single).append("\n");
+    }
+    return sb.toString();
+  }
+
 }

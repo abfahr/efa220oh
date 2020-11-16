@@ -38,6 +38,7 @@ public class MessageRecord extends DataRecord {
 
   public static final String TO_ADMIN = "ADMIN";
   public static final String TO_BOATMAINTENANCE = "BOATM";
+  public static final String REPORTEDBYPERSONNAME = "ReportedByPersonName";
 
   // =========================================================================
   // Field Names
@@ -222,10 +223,9 @@ public class MessageRecord extends DataRecord {
     v.add(item = new ItemTypeStringList(TO, getTo(),
         new String[] { TO_ADMIN, TO_BOATMAINTENANCE },
         new String[] { International.getString("Administrator"),
-      International.getString("Bootswart")
-    },
-    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-    International.getString("An")));
+            International.getString("Bootswart") },
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("An")));
     item.setEnabled(newMsg);
     item.setNotNull(true);
 

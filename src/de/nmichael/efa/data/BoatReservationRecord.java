@@ -369,7 +369,8 @@ public class BoatReservationRecord extends DataRecord {
     }
     try {
       Persons persons = getPersistence().getProject().getPersons(false);
-      return persons.getPerson(id, System.currentTimeMillis());
+      long now = System.currentTimeMillis();
+      return persons.getPerson(id, now);
     } catch (Exception e) {
       return null;
     }
@@ -386,7 +387,8 @@ public class BoatReservationRecord extends DataRecord {
   public BoatRecord getBoat() {
     Boats boats = getPersistence().getProject().getBoats(false);
     if (boats != null) {
-      BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
+      long now = System.currentTimeMillis();
+      BoatRecord r = boats.getBoat(getBoatId(), now);
       if (r == null) {
         r = boats.getAnyBoatRecord(getBoatId());
       }
@@ -560,20 +562,11 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public boolean isFolgeTagNachUhrzeit(String endZeitFolgeTag) {
-    // TODO abf 2019-12-15 hier nur zwei Ausnahmen eingetragen. Entfernen am 2021-01-07
-    if (getReservation() == 4110) {
-      return false;
-    } // Entfernen am 2021-01-07
-    if (getReservation() == 4042) {
-      return false;
-    } // Entfernen am 2020-09-28
-
     long differenceDays = getDateTo().getDifferenceDays(getDateFrom());
     if (differenceDays > 1) {
       // schon zwei Tage überschritten
       return true;
     }
-
     if (differenceDays > 0) {
       DataTypeTime endZeit = DataTypeTime.parseTime(endZeitFolgeTag);
       if (getTimeTo().isAfterOrEqual(endZeit)) {
@@ -914,6 +907,7 @@ public class BoatReservationRecord extends DataRecord {
     }
     msg.add("");
 
+    PersonRecord personRecord = getPersonRecord();
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
     } else {
@@ -928,9 +922,10 @@ public class BoatReservationRecord extends DataRecord {
           "Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
               + "dann trage Dich bitte im Bootshaus wieder aus.");
       if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
-          && getHashId().length() > 0) {
+          && getHashId().length() > 0
+          && personRecord != null) {
         msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: \n"
-            + getStornoURL());
+            + getStornoURL(personRecord.getMembershipNo()));
       }
       if (isBootshausOH()) {
         msg.add(
@@ -941,20 +936,31 @@ public class BoatReservationRecord extends DataRecord {
 
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("i.A. Efa-PC im Bootshaus");
+    msg.add("Efa-PC im Bootshaus");
     msg.add("");
-    msg.add("PS: Der öffentliche Kalender unter "
-        + "https://www.overfreunde.de/termine.html bzw. https://overfreunde.abfx.de"
-        + " wird morgen aktualisiert. "
-        + "Deine Reservierung trägt dort die Identifizierung " + getEfaId());
+    msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
+    if (personRecord != null) {
+      msg.add(International.getMessage("Newsletter abmelden {url}",
+          getNewsletterURL(personRecord.getMembershipNo())));
+    }
     return join(msg);
   }
 
-  private String getStornoURL() {
+  private String getStornoURL(String mitgliedNr) {
     String url = "https://overfreunde.abfx.de/";
     url += "storno/";
-    url += "?efaId=" + getEfaId();
-    url += "&code=" + getHashId();
+    url += "?mitgliedNr=" + mitgliedNr;
+    url += "&hashId=" + getHashId();
+    url += "&efaId=" + getEfaId();
+    return url;
+  }
+
+  private String getNewsletterURL(String mitgliedNr) {
+    String url = "https://overfreunde.abfx.de/";
+    url += "abmelden/";
+    url += "?mitgliedNr=" + mitgliedNr;
+    url += "&hashId=" + getHashId();
+    url += "&efaId=" + getEfaId();
     return url;
   }
 

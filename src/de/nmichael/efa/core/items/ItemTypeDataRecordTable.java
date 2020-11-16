@@ -658,7 +658,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
             break;
           default:
-            Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+            Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR,
                 "actionAbortSession(): unreachable switch: "
                     + "itemListenerAction actionId = " + actionId);
             break;

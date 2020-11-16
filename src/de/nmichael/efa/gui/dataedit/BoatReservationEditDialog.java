@@ -55,7 +55,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     initListener();
     setAllowWeeklyReservation(allowWeeklyReservation);
     if (!r.isBootshausOH()) {
-      disableReason();
+      enableReason(false);
     }
   }
 
@@ -90,12 +90,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     itemListenerAction(itemType, null);
   }
 
-  private void disableReason() {
+  private void enableReason(boolean enable) {
     for (IItemType item : allGuiItems) {
       if (item.getName().equals(BoatReservationRecord.REASON)) {
-        item.setEditable(false);
-        item.setEnabled(false);
-        // item.setVisible(false);
+        item.setEditable(enable);
+        item.setEnabled(enable);
       }
     }
   }
@@ -118,14 +117,15 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         errorText = "Bitte eigenen Reservierungsgrund angeben:\n" + templatePrivatMitVertrag;
       }
       String templatePrangerText = International.getString("Fehlermeldung bei langerAusleihe");
-      if (reasonString.equals(templatePrangerText)) {
-        errorText = "Bitte Absprache angeben.\n" + templatePrangerText;
-      }
       if (reasonString.contains(templatePrangerText)) {
         errorText = "Bitte Absprache statt Frage angeben:\n" + templatePrangerText;
       }
+      if (reasonString.equals(templatePrangerText)) {
+        errorText = "Bitte Absprache angeben.\n" + templatePrangerText;
+      }
 
       if (!errorText.isEmpty()) {
+        enableReason(true);
         Dialog.error(errorText);
         return false;
       }
@@ -216,6 +216,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           String reasonString = reason.getValue().replace(prangerText, "").trim();
           if (admin == null && anzahlStunden >= minimumDauerFuerKulanz) {
             reasonString = prangerText + " " + reasonString;
+            enableReason(true);
           }
           reason.setValue(reasonString);
           reason.showValue();
@@ -355,7 +356,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       }
       if (it.getName().equals(BoatReservationRecord.REASON)) {
         ItemTypeString reasonGuiField = (ItemTypeString) it;
-        if (reasonGuiField.getValueFromField().isEmpty()) {
+        if (reasonGuiField.getValueFromField().isEmpty()
+            && getDataRecord().isBootshausOH()) {
           reasonGuiField.setValue(bestReason);
           reasonGuiField.setValue(latestReason);
         }

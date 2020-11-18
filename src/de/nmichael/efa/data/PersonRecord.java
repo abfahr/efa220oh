@@ -1086,16 +1086,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
   }
 
-  public void sendEmailConfirmation(String aktion, String errorText) {
-    boolean kombinierteEmailErlaubnis = false;
-    String emailToAdresse = "";
+  public void sendEmailConfirmation(String emailToAdresse, String aktion, String errorText) {
     String emailSubject = "";
-    String anrede = "Name";
-
+    boolean kombinierteEmailErlaubnis = false;
     kombinierteEmailErlaubnis = istEmailErlaubnisErteilt();
-    emailToAdresse = getEmail();
-    anrede = getFirstName();
-
     if (!isValidEmail(emailToAdresse)) {
       emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
       emailSubject = "Error efa.invalidEmail " + getFirstLastName() + " ";
@@ -1112,6 +1106,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
       emailSubject += " " + getFirstLastName();
     }
+    String anrede = getFirstName();
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion, errorText);
     // System.err.println(emailMessage);
 

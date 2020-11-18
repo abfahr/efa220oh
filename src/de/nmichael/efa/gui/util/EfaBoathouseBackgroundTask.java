@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -760,17 +761,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     Persons persons = Daten.project.getPersons(false);
     PersonRecord person = getValidPersonBehindRequest(persons, strMap);
+    String oldEmailTo = person == null ? null : person.getEmail();
 
     String aktion = strMap.get("action");
     if (aktion != null) {
       switch (aktion) {
         case "DELETE":
           resultText = performDeleteReservationRequest(strMap);
-          break;
-
+          break; // return; // to avoid two Mails
         case "INSERT":
           resultText = performInsertReservationRequest(person, strMap);
-          break;
+          break; // return; // to avoid two Mails
 
         case "UNSUBSCRIBE":
         case "SUBSCRIBE":
@@ -789,7 +790,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
     }
     if (person != null) {
-      person.sendEmailConfirmation("CONFIRM_" + aktion, resultText);
+      String emailToAdresse = person.getEmail();
+      person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
+      if (oldEmailTo != null && !oldEmailTo.equals(emailToAdresse)) {
+        person.sendEmailConfirmation(oldEmailTo, "CONFIRM_" + aktion, resultText);
+      }
     }
   }
 
@@ -1524,30 +1529,32 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       List<Path> listTxtFiles = new ArrayList<Path>();
       DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folderTodo), "*.{txt,json}");
-      for (Path fileName : stream) {
-        listTxtFiles.add(fileName);
+      stream.forEach(listTxtFiles::add);
+      listTxtFiles.sort(Comparator.comparing(Path::toString));
+      if (listTxtFiles.isEmpty()) {
+        return stringMap;
       }
-      if (!listTxtFiles.isEmpty()) {
-        // erste Datei rausnehmen (älteste) (nur eine)
-        Path firstFilename = listTxtFiles.get(0);
-        Charset charset = Charset.defaultCharset();
-        List<String> stringList = Files.readAllLines(firstFilename, charset);
 
-        if (!stringList.isEmpty()) {
-          for (String string : stringList) {
-            String[] array = string.split("=");
-            if (array.length > 1) {
-              stringMap.put(array[0], array[1]);
-            }
+      // erste Datei rausnehmen (älteste) (nur eine)
+      Path firstFilename = listTxtFiles.get(0);
+      Charset charset = Charset.defaultCharset();
+      List<String> stringList = Files.readAllLines(firstFilename, charset);
+
+      if (!stringList.isEmpty()) {
+        for (String string : stringList) {
+          String[] array = string.split("=");
+          if (array.length > 1) {
+            stringMap.put(array[0], array[1]);
           }
         }
-
-        // Datei nach done=backup verschieben into backup
-        Path targetPath = Path
-            .of(Daten.efaBakDirectory + "efa.linkedReservations" + Daten.fileSep);
-        Path targetFilename = targetPath.resolve(firstFilename.getFileName());
-        Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
       }
+
+      // Datei nach done=backup verschieben into backup
+      Path targetPath = Path
+          .of(Daten.efaBakDirectory + "efa.linkedReservations" + Daten.fileSep);
+      Path targetFilename = targetPath.resolve(firstFilename.getFileName());
+      Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
+
     } catch (IOException e) {
       Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
     }

@@ -80,6 +80,7 @@ import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.PersonRecord;
+import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.data.SessionGroupRecord;
@@ -91,6 +92,7 @@ import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.dataedit.BoatDamageEditDialog;
 import de.nmichael.efa.gui.dataedit.BoatEditDialog;
 import de.nmichael.efa.gui.dataedit.DestinationEditDialog;
@@ -1074,7 +1076,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         s = PersonRecord.trimAssociationPostfix(s);
       }
       if (s.length() > 0) {
-        PersonRecord r = Daten.project.getPersons(false).getPerson(s, validAt);
+        Persons persons = Daten.project.getPersons(false);
+        PersonRecord r = persons.getPerson(s, validAt);
 
         // If we have not found a valid record, we next try whether we can find
         // any (currently invalid) record for that name (within the validiy range
@@ -1086,13 +1089,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         // "B" of the same record, which is valid. If there is a "B", we will use that.
         // That means, even though the user entered "A", we will save the ID, and display "B".
         if (validAt > 0 && r == null) {
-          PersonRecord r2 = Daten.project.getPersons(false).getPerson(s, logbookValidFrom,
-              logbookInvalidFrom - 1, validAt);
+          PersonRecord r2 = persons.getPerson(s, logbookValidFrom, logbookInvalidFrom - 1, validAt);
           if (r2 != null) {
-            r = Daten.project.getPersons(false).getPerson(r2.getId(), validAt);
+            r = persons.getPerson(r2.getId(), validAt);
           }
         }
-
         return r;
       }
     } catch (Exception e) {
@@ -1211,7 +1212,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     return r;
   }
 
-  DataTypeList[] findWaters(ItemTypeString item) {
+  DataTypeList<?>[] findWaters(ItemTypeString item) {
     try {
       String s = item.toString().trim();
       if (s.length() == 0) {
@@ -1732,7 +1733,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         !checkAllDataEntered() ||
         !checkNamesValid() ||
         !checkUnknownNames() ||
-        !checkAllowedPersons()) {
+        !checkAllowedPersons() ||
+        !checkUndAktualisiereHandyNrInPersonProfil()) {
       return false;
     }
     if (efaBoathouseAction != null) {
@@ -1764,10 +1766,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           entryno.requestFocus();
         }
       }
+      return success;
     } else {
       finishBoathouseAction(success);
+      return success;
     }
-    return success;
   }
 
   // den Datensatz nun wirklich speichern;
@@ -2187,7 +2190,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     boolean notifyAdmin = false;
     boolean newRecord = (r == null);
     if (r == null) {
-      r = Daten.project.getPersons(false).createPersonRecord(UUID.randomUUID());
+      Persons persons = Daten.project.getPersons(false);
+      r = persons.createPersonRecord(UUID.randomUUID());
       String[] name = PersonRecord.tryGetFirstLastNameAndAffix(s);
       boolean anyNameSet = false;
       if (name != null && name[0] != null) {
@@ -2993,7 +2997,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
 
       if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteGewaesser() && waters.isVisible()) {
-        DataTypeList[] wlists = findWaters(waters);
+        DataTypeList<?>[] wlists = findWaters(waters);
         if (wlists != null && wlists.length != 0 && wlists[1].length() > 0) {
           Dialog.error(LogString.itemIsUnknown(wlists[1].toString(),
               International.getString("Gewässer")));
@@ -3329,6 +3333,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           r = logbook.getLogbookRecord(iterator.getLast());
         }
         break;
+      default:
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+            "navigateInLogbook(): unreachable switch: " + "relative = " + relative);
+        break;
     }
     if (r != null) {
       setFields(r);
@@ -3536,8 +3544,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               personID = myRecord.getCrewId(1);
             }
             if (personID != null) {
-              PersonRecord r = Daten.project.getPersons(false).getPerson(personID,
-                  System.currentTimeMillis());
+              Persons persons = Daten.project.getPersons(false);
+              PersonRecord r = persons.getPerson(personID, System.currentTimeMillis());
               if (r != null) {
                 personName = r.getQualifiedName();
               }
@@ -3565,7 +3573,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           if (SimpleInputDialog.showInputDialog(this,
               International.getString("ein ungeputztes Boot melden"),
               items)) {
-            String description = items[2].getValueFromField();
+            items[2].getValueFromField();
             personName = items[3].getValueFromField();
             UUID personId = (UUID) (((ItemTypeStringAutoComplete) items[3]).getId(personName));
             LogbookRecord latest = (logbook != null
@@ -3593,12 +3601,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       if (item == closesessionButton) {
         if (currentRecord != null) {
-          if (Dialog
-              .yesNoDialog(
-                  International.getString("Fahrt beenden"),
-                  International
-                      .getString(
-                          "Möchtest du die Fahrt jetzt beenden und den Status des Boots auf verfügbar setzen?")) == Dialog.YES) {
+          int yesNoBeendenDialog = Dialog.yesNoDialog(
+              International.getString("Fahrt beenden"),
+              International.getString(
+                  "Möchtest du die Fahrt jetzt beenden und den Status des Boots auf verfügbar setzen?"));
+          if (yesNoBeendenDialog == Dialog.YES) {
             currentRecord.setSessionIsOpen(false);
             updateBoatStatus(true, MODE_BOATHOUSE_FINISH);
             saveEntry();
@@ -3770,6 +3777,100 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
   }
 
+  private boolean checkUndAktualisiereHandyNrInPersonProfil() {
+    // Nutzer fragen, ob Handy-Nummer gespeichert werden soll
+    if (!isNewRecord) {
+      return true;
+    }
+    String sollButtonText = International.getStringWithMnemonic("Fahrt beginnen");
+    if (saveButton != null) {
+      String buttonText = saveButton.getDescription();
+      if (!sollButtonText.contentEquals(buttonText)) {
+        return true;
+      }
+    }
+    if (phoneNr == null || phoneNr.getValue().isBlank()) {
+      return true;
+    }
+    if (cox == null || !cox.isKnown()) {
+      return true;
+    }
+    PersonRecord person = findPerson(cox, getValidAtTimestamp(null));
+    if (person == null) {
+      return true;
+    }
+    if (!person.isErlaubtTelefon()) {
+      return true;
+    }
+    String telnumAusProfil = person.getFestnetz1();
+    if (telnumAusProfil != null && phoneNr.getValue().contentEquals(telnumAusProfil)) {
+      return true;
+    }
+    telnumAusProfil = person.getHandy2();
+    if (telnumAusProfil != null && phoneNr.getValue().contentEquals(telnumAusProfil)) {
+      return true;
+    }
+    if (telnumAusProfil == null) {
+      telnumAusProfil = person.getFestnetz1();
+    }
+    // weder noch
+    Persons persons = Daten.project.getPersons(false);
+    String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:";
+    frage += "\n";
+    frage += "Heutige Telefonnummer ist: " + phoneNr + ",\n";
+    frage += "sonst übliche TelefonNr lautet: " + telnumAusProfil + ".\n";
+    frage += "\n";
+    frage += "Darf sich EFa die neue Nummer merken?\n";
+    frage += "Soll EFa in Zukunft die neue Nummer vorschlagen?\n";
+    int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
+        phoneNr + " vorschlagen",
+        "nix mehr vorschlagen",
+        telnumAusProfil + " vorschlagen");
+    switch (antwort) {
+      case 0: // neue Nummer zukünftig merken
+        person.setHandy2(phoneNr.getValue());
+        person.setFestnetz1(null);
+        try {
+          persons.data().update(person);
+          String info = sollButtonText + ": " + person.getFirstLastName()
+              + " hat nun die TelefonNr '" + person.getHandy2()
+              + "' und die Erlaubnis: " + person.isErlaubtTelefon();
+          Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+          return true;
+        } catch (EfaException e3) {
+          String error = sollButtonText + ": e3 " + e3.getLocalizedMessage();
+          Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+          return true;
+        }
+      case 1: // gar nix mehr vorschlagen
+        person.setHandy2(null);
+        person.setFestnetz1(null);
+        person.setErlaubnisTelefon(false);
+        try {
+          persons.data().update(person);
+          String info = sollButtonText + ": " + person.getFirstLastName()
+              + " hat nun kein Telefon " + person.getHandy2() + " " + person.getFestnetz1()
+              + ", und die Erlaubnis: " + person.isErlaubtTelefon();
+          Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+          return true;
+        } catch (EfaException e3) {
+          String error = sollButtonText + ": e3 " + e3.getLocalizedMessage();
+          Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+          return true;
+        }
+      case 2: // alten Vorschlag beibehalten
+        // = nix tun
+        return true;
+      case 3: // abbrechen = cancel = ESC = x
+        return true;
+      case -1:
+        // zurück, nochmal die Nummer ändern
+        // return false; // = nix tun
+      default: // unbekannt
+        return false; // = nix tun
+    }
+  }
+
   private void fillPhoneNr(ItemTypeStringAutoComplete nameItemAutoComplete) {
     ItemTypeString nameItemString = (ItemTypeString) nameItemAutoComplete;
     PersonRecord person = findPerson(nameItemString, getValidAtTimestamp(null));
@@ -3911,7 +4012,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if ((e.isControlDown() && e.getKeyCode() == KeyEvent.VK_F) || // Ctrl-F
         (e.getKeyCode() == KeyEvent.VK_F5)) { // F5
       setField(item, referenceRecord);
-      // ((JTextField) e.getSource()).replaceSelection(refDatensatz.get(field)); // old from efa1
     }
   }
 
@@ -3937,9 +4037,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private void currentBoatUpdateGuiBoathouse(boolean isCoxed, int numCrew) {
-    // Steuermann wird bei steuermannslosen Booten immer disabled (unabhängig von
-    // Konfigurationseinstellung)
-    setFieldEnabled(isCoxed, isCoxed, cox); // Steuermann
     setFieldEnabled(true, true, cox); // Steuermann immer an.
     if (!isCoxed) {
       cox.parseAndShowValue("");
@@ -4186,11 +4283,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     Crews crews = Daten.project.getCrews(false);
     CrewRecord r = crews.getCrew(crewId);
     if (r != null) {
+      Persons persons = Daten.project.getPersons(false);
       if (currentBoatTypeCoxing != null
           && !currentBoatTypeCoxing.equals(EfaTypes.TYPE_COXING_COXLESS) &&
           r.getCoxId() != null) {
-        PersonRecord p = Daten.project.getPersons(false).getPerson(r.getCoxId(),
-            getValidAtTimestamp(null));
+        PersonRecord p = persons.getPerson(r.getCoxId(), getValidAtTimestamp(null));
         if (p != null) {
           cox.parseAndShowValue(p.getQualifiedName());
         }
@@ -4198,7 +4295,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       for (int i = 1; i <= currentBoatNumberOfSeats && i <= LogbookRecord.CREW_MAX; i++) {
         UUID id = r.getCrewId(i);
         if (id != null) {
-          PersonRecord p = Daten.project.getPersons(false).getPerson(id, getValidAtTimestamp(null));
+          PersonRecord p = persons.getPerson(id, getValidAtTimestamp(null));
           if (p != null) {
             crew[i - 1].parseAndShowValue(p.getQualifiedName());
           }
@@ -4619,6 +4716,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return efaBoathouseLateEntry(action);
       case MODE_BOATHOUSE_ABORT:
         return efaBoathouseAbortSession(action);
+      default:
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+            "setDataForBoathouseAction(): unreachable switch: "
+                + "getMode() action = " + action);
+        break;
     }
     return false;
   }
@@ -4919,6 +5021,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               International.getString("Fahrtabbruch"),
               currentRecord);
           break;
+        default:
+          Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+              "updateBoatStatus(): unreachable switch: " + "mode = " + mode);
+          break;
       }
     } else {
       logBoathouseEvent(Logger.ERROR, Logger.MSG_EVT_ERRORSAVELOGBOOKENTRY,
@@ -4970,6 +5076,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           newComment = "";
           break;
         case MODE_BOATHOUSE_LATEENTRY:
+          break;
+        default:
+          Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+              "updateBoatStatus(): unreachable switch: " + "mode = " + mode);
           break;
       }
 

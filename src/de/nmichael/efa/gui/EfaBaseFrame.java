@@ -750,7 +750,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // Phone Number
     phoneNr = new ItemTypeStringPhone(LogbookRecord.CONTACT, null, IItemType.TYPE_PUBLIC, null,
         International.getStringWithMnemonic("Telefon/Handy"));
-    phoneNr.setSehrStreng(false);
+    phoneNr.setSehrStreng(true);
     phoneNr.setFieldSize(200, 19);
     phoneNr.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
     phoneNr.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
@@ -3794,10 +3794,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     DataTypeDate today = DataTypeDate.today();
     if (!today.equals(startTag.getDate())) {
       if (_title.equals(International.getString("Neue Fahrt beginnen"))) {
-        String msg = International
-            .getString("Modus: " + _title + "\n-> aber am " + startTag + " ???\n"
-                + "Fahrtbeginn muss heute sein.\n"
-                + "Andere Tage bitte reservieren.");
+        String msg = ""
+            + International.getString("Modus") + ": " + _title + "\n"
+            + International.getMessage("aber erst am {tag}", "" + startTag) + "\n"
+            + International.getString("Fahrtbeginn muss heute sein") + ".\n"
+            + International.getString("Andere Tage bitte reservieren");
         Dialog.meldung("Kleiner Produkthinweis", msg);
         date.setValueDate(today);
         date.showValue();

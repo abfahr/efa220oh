@@ -780,7 +780,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         case "CHANGE_NAME":
         case "SETMAIL":
-        case "SETEMAIL": // deprecated
         case "SETPHONENR":
         case "SETKÜRZEL":
           resultText = performSetPersonMitgliedRequest(persons, person, strMap);
@@ -1123,9 +1122,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (aktion.equalsIgnoreCase("SETMAIL")) {
       return performChangePersonEmailRequest(strMap, persons, person);
     }
-    if (aktion.equalsIgnoreCase("SETEMAIL")) { // deprecated
-      return performChangePersonEmailRequest(strMap, persons, person);
-    }
     if (aktion.equalsIgnoreCase("SETPHONENR")) {
       return performChangePersonPhoneNrRequest(strMap, persons, person);
     }
@@ -1243,8 +1239,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private String performChangePersonEmailRequest(Map<String, String> strMap,
       Persons persons, PersonRecord person) {
     String aktion = strMap.get("action"); // "SETMAIL"
-    if (!aktion.equalsIgnoreCase("SETMAIL") &&
-        !aktion.equalsIgnoreCase("SETEMAIL")) { // deprecated
+    if (!aktion.equalsIgnoreCase("SETMAIL")) {
       String error = "Person-Profil-Link: keine gültige Aktion angegeben " + aktion;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;

@@ -2993,7 +2993,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     if (item.boat != null
         && !checkBoatDamage(item,
-            International.getString("Möchtest Du trotzdem das Boot reservieren?"))) {
+            International.getString("Möchtest Du das Boot trotzdem reservieren?"))) {
       return;
     }
     if (item.boat == null || item.boatStatus == null || item.boatStatus.getUnknownBoat()

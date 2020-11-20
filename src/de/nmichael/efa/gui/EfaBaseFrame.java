@@ -3776,7 +3776,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (person == null) {
       return;
     }
-    if (!person.istTelefonErlaubnisErteilt()) {
+    if (!person.isErlaubtTelefon()) {
       return;
     }
     String telnum = person.getFreeUse2();

@@ -1000,7 +1000,7 @@ public class BoatReservationRecord extends DataRecord {
 
     PersonRecord personRecord = getPersonRecord();
     if (personRecord != null) {
-      kombinierteEmailErlaubnis = personRecord.istEmailErlaubnisErteilt();
+      kombinierteEmailErlaubnis = personRecord.isErlaubtEmail();
       emailToAdresse = personRecord.getEmail();
       anrede = personRecord.getFirstName();
     }
@@ -1028,7 +1028,7 @@ public class BoatReservationRecord extends DataRecord {
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
     Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS,
-        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
+        "Mail " + aktion + " verschickt an " + anrede + " " + emailToAdresse);
   }
 
   public void sendEmailReminder(String aktion) {
@@ -1039,7 +1039,7 @@ public class BoatReservationRecord extends DataRecord {
 
     PersonRecord personRecord = getPersonRecord();
     if (personRecord != null) {
-      kombinierteEmailErlaubnis = personRecord.istEmailErlaubnisErteilt();
+      kombinierteEmailErlaubnis = personRecord.isErlaubtEmail();
       emailToAdresse = personRecord.getEmail();
       anrede = personRecord.getFirstName();
     }
@@ -1067,7 +1067,7 @@ public class BoatReservationRecord extends DataRecord {
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
     Logger.log(Logger.INFO, Logger.MSG_DEBUG_GUI_ICONS,
-        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
+        "Mail " + aktion + " verschickt an " + anrede + " " + emailToAdresse);
   }
 
   private void sendEmailBootshausnutzungswart(String aktion) {

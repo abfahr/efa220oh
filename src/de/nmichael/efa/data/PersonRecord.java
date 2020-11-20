@@ -985,39 +985,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return true;
   }
 
-  public boolean istKuerzelErlaubnisErteilt() {
-    if (alteZusage()) {
-      return true; // nur 46 Einzelne durch mündliche Kürzelvergabe
-    }
-    return isErlaubtKuerzel(); // explizit vom Mitglied erlaubt
-  }
-
-  public boolean istEmailErlaubnisErteilt() {
-    if (Daten.efaConfig.isReservierungAnMitgliedEmailen()) {
-      return true; // allgemein generell für alle Mitglieder
-    }
-    if (Daten.efaConfig.isReservierungAnMitgliedMitKuerzelEmailen()
-        && alteZusage()) {
-      return true; // nur 46 Einzelne durch mündliche Kürzelvergabe
-    }
-    return isErlaubtEmail(); // explizit vom Mitglied erlaubt
-  }
-
-  public boolean istTelefonErlaubnisErteilt() {
-    if (alteZusage()) {
-      // return true; // nur 46 Einzelne durch mündliche Kürzelvergabe
-    }
-    return isErlaubtTelefon(); // explizit vom Mitglied erlaubt
-  }
-
-  private boolean alteZusage() {
-    // neues Feature noch nicht aktiviert
-    boolean neuesFeatureUnbekannt = !isErlaubtKuerzel() && !isErlaubtEmail() && !isErlaubtTelefon();
-    // nur 46 Einzelne durch mündliche Kürzelvergabe
-    boolean kuerzelVorhanden = getInputShortcut() != null && !getInputShortcut().isEmpty();
-    return neuesFeatureUnbekannt && kuerzelVorhanden;
-  }
-
   public void cleanPerson() {
 
     // 1. bestimmte Felder leeren
@@ -1046,8 +1013,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     if (!isDyingMember()) {
       // 2. Newsletter bestellen
       if (!isErlaubtEmail() &&
-          !istTelefonErlaubnisErteilt() &&
-          !istKuerzelErlaubnisErteilt() &&
+          !isErlaubtTelefon() &&
+          !isErlaubtKuerzel() &&
+          !isErlaubtSchreibweise() &&
           getEmail() != null) {
         setErlaubnisEmail(true);
       }
@@ -1096,7 +1064,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public void sendEmailConfirmation(String emailToAdresse, String aktion, String errorText) {
     String emailSubject = "";
     boolean kombinierteEmailErlaubnis = false;
-    kombinierteEmailErlaubnis = istEmailErlaubnisErteilt();
+    kombinierteEmailErlaubnis = isErlaubtEmail();
     if (!isValidEmail(emailToAdresse)) {
       emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
       emailSubject = "Error efa.invalidEmail " + getFirstLastName() + " ";
@@ -1120,7 +1088,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
     Logger.log(Logger.INFO, Logger.MSG_DEBUG_GUI_ICONS,
-        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
+        "Mail " + aktion + " verschickt an " + anrede + " " + emailToAdresse);
   }
 
   private String getFormattedEmailtextMitglied(String anrede, String aktion, String errorText) {

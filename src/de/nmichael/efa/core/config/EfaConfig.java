@@ -245,7 +245,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeString uuidBootshaus;
   private ItemTypeString maximaleEndUhrzeitFolgetagBeiBootshausReservierung;
   private ItemTypeString emailToBootshausnutzungWolle;
-  private ItemTypeBoolean reservierungAnMitgliedEmailen;
   private ItemTypeBoolean reservierungAnMitgliedMitKuerzelEmailen;
   private ItemTypeBoolean reservierungsEmailMitStornoLink;
   private ItemTypeInteger anzahlTageErinnerungBootshaus;
@@ -796,11 +795,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("EmailTo bei Bootshausreservierung")));
-      addParameter(reservierungAnMitgliedEmailen = new ItemTypeBoolean(
-          "reservierungAnMitgliedEmailen", false, IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International
-              .getString("jede Reservierung an das Mitglied emailen. Insert, Update, Delete")));
       addParameter(reservierungAnMitgliedMitKuerzelEmailen = new ItemTypeBoolean(
           "reservierungAnMitgliedMitKuerzelEmailen",
           true,
@@ -2110,10 +2104,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public String getEmailToBootshausnutzungWolle() {
     return emailToBootshausnutzungWolle.getValue();
-  }
-
-  public boolean isReservierungAnMitgliedEmailen() {
-    return reservierungAnMitgliedEmailen.getValue();
   }
 
   public boolean isReservierungAnMitgliedMitKuerzelEmailen() {

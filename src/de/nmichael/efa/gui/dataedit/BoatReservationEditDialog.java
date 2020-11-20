@@ -290,7 +290,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
     Persons persons = Daten.project.getPersons(false);
     PersonRecord person = persons.getPerson(personId, System.currentTimeMillis());
-    if (!person.istTelefonErlaubnisErteilt()) {
+    if (!person.isErlaubtTelefon()) {
       return;
     }
     String bestTelnum = "";

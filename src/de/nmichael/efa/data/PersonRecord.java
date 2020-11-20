@@ -1043,10 +1043,17 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     setExcludeFromCompetition(false); // immer leer gewesen
     setExcludeFromClubwork(false); // immer leer gewesen
 
-    // 2. nur aktive Mitglieder behalten
     if (!isDyingMember()) {
+      // 2. Newsletter bestellen
+      if (!isErlaubtEmail() &&
+          !istTelefonErlaubnisErteilt() &&
+          !istKuerzelErlaubnisErteilt() &&
+          getEmail() != null) {
+        setErlaubnisEmail(true);
+      }
       return;
     }
+    // 3. nur aktive Mitglieder behalten
     long oneMinute = 60 * 1000;
     long oneYear = 365 * 24 * 60 * oneMinute;
     long now = System.currentTimeMillis();

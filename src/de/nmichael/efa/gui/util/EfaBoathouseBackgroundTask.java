@@ -779,7 +779,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
           break;
 
         case "CHANGE_NAME":
-        case "SETEMAIL":
+        case "SETMAIL":
+        case "SETEMAIL": // deprecated
         case "SETPHONENR":
         case "SETKÜRZEL":
           resultText = performSetPersonMitgliedRequest(persons, person, strMap);
@@ -791,10 +792,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
     if (person != null) {
       String emailToAdresse = person.getEmail();
-      person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
       if (oldEmailTo != null && !oldEmailTo.equals(emailToAdresse)) {
         person.sendEmailConfirmation(oldEmailTo, "CONFIRM_" + aktion, resultText);
       }
+      person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
     }
   }
 
@@ -1068,7 +1069,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   private String performSetPersonMitgliedRequest(Persons persons, PersonRecord person,
       Map<String, String> strMap) {
-    String aktion = strMap.get("action"); // "SETKÜRZEL" "SETPHONENR" "SETEMAIL" "CHANGE_NAME"
+    String aktion = strMap.get("action"); // "SETKÜRZEL" "SETPHONENR" "SETMAIL" "CHANGE_NAME"
     if (aktion == null || aktion.isBlank()) {
       String error = "Person-Profil-Link: keine Aktion angegeben " + aktion;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
@@ -1119,7 +1120,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return error;
     }
 
-    if (aktion.equalsIgnoreCase("SETEMAIL")) {
+    if (aktion.equalsIgnoreCase("SETMAIL")) {
+      return performChangePersonEmailRequest(strMap, persons, person);
+    }
+    if (aktion.equalsIgnoreCase("SETEMAIL")) { // deprecated
       return performChangePersonEmailRequest(strMap, persons, person);
     }
     if (aktion.equalsIgnoreCase("SETPHONENR")) {
@@ -1238,9 +1242,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   private String performChangePersonEmailRequest(Map<String, String> strMap,
       Persons persons, PersonRecord person) {
-    String aktion = strMap.get("action"); // "SETEMAIL"
-    if (!aktion.equalsIgnoreCase("SETEMAIL") &&
-        !aktion.equalsIgnoreCase("email")) {
+    String aktion = strMap.get("action"); // "SETMAIL"
+    if (!aktion.equalsIgnoreCase("SETMAIL") &&
+        !aktion.equalsIgnoreCase("SETEMAIL")) { // deprecated
       String error = "Person-Profil-Link: keine gültige Aktion angegeben " + aktion;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;

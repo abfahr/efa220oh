@@ -863,8 +863,8 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Reservierung des " + getBoatName());
     msg.add("für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE));
     msg.add("Kontakt: " + getContact());
-    msg.add("Telefon (aus Sewobe): " + (p != null ? p.getTelefonFestnetz() : "..."));
-    msg.add("Handy (aus Sewobe): " + (p != null ? p.getTelefonHandy() : "..."));
+    msg.add("Telefon (aus Sewobe): " + (p != null ? p.getFestnetz1() : "..."));
+    msg.add("Handy (aus Sewobe): " + (p != null ? p.getHandy2() : "..."));
     msg.add("Email (aus Sewobe): " + (p != null ? p.getEmail() : "..."));
     if (isBootshausOH()) {
       msg.add("Grund der Reservierung: " + getReason());

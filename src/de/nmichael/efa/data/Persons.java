@@ -183,11 +183,11 @@ public class Persons extends StorageObject {
   public PersonRecord getPersonWithTelefon(String telefonnummer, long validAt) {
     try {
       DataKey<?, ?, ?>[] keys = data().getByFields(
-          new String[] { PersonRecord.FREEUSE1 },
+          new String[] { PersonRecord.FESTNETZ1 },
           staticPersonRecord.getQualifiedNameValues(telefonnummer), validAt);
       if (keys == null || keys.length < 1) {
         keys = data().getByFields(
-            new String[] { PersonRecord.FREEUSE2 },
+            new String[] { PersonRecord.HANDY2 },
             staticPersonRecord.getQualifiedNameValues(telefonnummer), validAt);
       }
       if (keys == null || keys.length < 1) {

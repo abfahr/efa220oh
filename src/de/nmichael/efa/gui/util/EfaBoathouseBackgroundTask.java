@@ -1341,26 +1341,26 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     if (person.isErlaubtTelefon()) {
-      if (neuesTelefon.equals(person.getFreeUse1())) {
+      if (neuesTelefon.equals(person.getFestnetz1())) {
         String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-            + " hat bereits Telefon '" + person.getFreeUse1()
+            + " hat bereits Telefon '" + person.getFestnetz1()
             + "' und Erlaubnis: " + person.isErlaubtTelefon();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
-      if (neuesTelefon.equals(person.getFreeUse2())) {
+      if (neuesTelefon.equals(person.getHandy2())) {
         String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-            + " hat bereits Telefon '" + person.getFreeUse2()
+            + " hat bereits Telefon '" + person.getHandy2()
             + "' und Erlaubnis: " + person.isErlaubtTelefon();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
     } else {
-      if (neuesTelefon.isBlank() && person.getFreeUse1() == null && person.getFreeUse2() == null) {
-        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-            + " hat kein Telefon zum Entfernen. "
-            + person.isErlaubtTelefon() + " " + person.getFreeUse1() + " "
-            + person.getFreeUse2();
+      if (neuesTelefon.isBlank() && person.getFestnetz1() == null && person.getHandy2() == null) {
+        String error = "Person-Profil-" + aktion + ": "
+            + person.getFirstLastName() + " hat kein Telefon zum Entfernen. "
+            + person.isErlaubtTelefon() + " "
+            + person.getFestnetz1() + " " + person.getHandy2();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
@@ -1393,8 +1393,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     person.setErlaubnisTelefon(!neuesTelefon.isBlank());
-    person.setFreeUse1(neuesTelefon);
-    person.setFreeUse2(null);
+    person.setFestnetz1(null);
+    person.setHandy2(neuesTelefon);
 
     if (persons == null) {
       String error = "Person-Profil-" + aktion
@@ -1405,7 +1405,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       persons.data().update(person);
       String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-          + " hat nun die TelefonNr '" + person.getFreeUse1()
+          + " hat nun die TelefonNr '" + person.getHandy2()
           + "' und die Erlaubnis: " + person.isErlaubtTelefon();
       Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
       return info;

@@ -296,9 +296,9 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     String bestTelnum = "";
     String bestReason = "";
     String latestReason = "";
-    bestTelnum = person.getFreeUse2();
+    bestTelnum = person.getHandy2();
     if (bestTelnum == null || bestTelnum.length() == 0) {
-      bestTelnum = person.getFreeUse1();
+      bestTelnum = person.getFestnetz1();
     }
     if (bestTelnum == null || bestTelnum.length() == 0) {
       bestTelnum = "";

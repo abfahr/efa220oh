@@ -79,8 +79,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String BOATUSAGEBAN = "BoatUsageBan";
   public static final String INPUTSHORTCUT = "InputShortcut";
   public static final String DEFAULTBOATID = "DefaultBoatId";
-  public static final String FREEUSE1 = "FreeUse1";
-  public static final String FREEUSE2 = "FreeUse2";
+  public static final String FESTNETZ1 = "FreeUse1";
+  public static final String HANDY2 = "FreeUse2";
   public static final String FREEUSE3 = "FreeUse3";
   public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
   private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
@@ -155,9 +155,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_STRING);
     f.add(DEFAULTBOATID);
     t.add(IDataAccess.DATA_UUID);
-    f.add(FREEUSE1);
+    f.add(FESTNETZ1);
     t.add(IDataAccess.DATA_STRING);
-    f.add(FREEUSE2);
+    f.add(HANDY2);
     t.add(IDataAccess.DATA_STRING);
     f.add(FREEUSE3);
     t.add(IDataAccess.DATA_STRING);
@@ -527,28 +527,20 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return groups.getGroupsForPerson(getId(), getValidFrom(), getInvalidFrom() - 1);
   }
 
-  public String getTelefonFestnetz() {
-    return getFreeUse1();
+  public void setFestnetz1(String s) {
+    setString(FESTNETZ1, s);
   }
 
-  public String getTelefonHandy() {
-    return getFreeUse2();
+  public String getFestnetz1() {
+    return getString(FESTNETZ1);
   }
 
-  public void setFreeUse1(String s) {
-    setString(FREEUSE1, s);
+  public void setHandy2(String s) {
+    setString(HANDY2, s);
   }
 
-  public String getFreeUse1() {
-    return getString(FREEUSE1);
-  }
-
-  public void setFreeUse2(String s) {
-    setString(FREEUSE2, s);
-  }
-
-  public String getFreeUse2() {
-    return getString(FREEUSE2);
+  public String getHandy2() {
+    return getString(HANDY2);
   }
 
   public void setFreeUse3(String s) {
@@ -812,10 +804,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eingabekürzel")));
       v.add(item = new ItemTypeString(PersonRecord.EMAIL, getEmail(),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("email")));
-      v.add(item = new ItemTypeString(PersonRecord.FREEUSE1, getFreeUse1(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon/Handy") + " 1"));
-      v.add(item = new ItemTypeString(PersonRecord.FREEUSE2, getFreeUse2(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon/Handy") + " 2"));
+      v.add(item = new ItemTypeString(PersonRecord.FESTNETZ1, getFestnetz1(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, "T" + International.getString("Telefon/Handy")));
+      v.add(item = new ItemTypeString(PersonRecord.HANDY2, getHandy2(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon/Handy") + "H"));
 
       v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
           IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Verein")));
@@ -1104,7 +1096,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFa am Isekai. ");
       msg.add(" Vor- und Nachname: " + getFirstLastName());
       msg.add(" OH-MitgliedNr: " + getMembershipNo());
-      msg.add(" Telefon: " + getFreeUse1() + " " + suppressNull(getFreeUse2()));
+      msg.add(" Telefon: " + getFestnetz1() + " " + suppressNull(getHandy2()));
       msg.add(" Telefon als Eingabehilfe in EFa "
           + (isErlaubtTelefon() ? "" : "nicht ") + "freigegeben.");
       msg.add(" Email: " + suppressNull(getEmail()));

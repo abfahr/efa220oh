@@ -94,10 +94,10 @@ public class ImportPersons extends ImportBase {
     if (!isIdentical(r.getInputShortcut(), d.get(Mitglieder.ALIAS))) {
       return true;
     }
-    if (!isIdentical(r.getFreeUse1(), d.get(Mitglieder.FREI1))) {
+    if (!isIdentical(r.getFestnetz1(), d.get(Mitglieder.FREI1))) {
       return true;
     }
-    if (!isIdentical(r.getFreeUse2(), d.get(Mitglieder.FREI2))) {
+    if (!isIdentical(r.getHandy2(), d.get(Mitglieder.FREI2))) {
       return true;
     }
     if (!isIdentical(r.getFreeUse3(), d.get(Mitglieder.FREI3))) {
@@ -230,10 +230,10 @@ public class ImportPersons extends ImportBase {
             r.setInputShortcut(d.get(Mitglieder.ALIAS));
           }
           if (d.get(Mitglieder.FREI1).length() > 0) {
-            r.setFreeUse1(d.get(Mitglieder.FREI1));
+            r.setFestnetz1(d.get(Mitglieder.FREI1));
           }
           if (d.get(Mitglieder.FREI2).length() > 0) {
-            r.setFreeUse2(d.get(Mitglieder.FREI2));
+            r.setHandy2(d.get(Mitglieder.FREI2));
           }
           if (d.get(Mitglieder.FREI3).length() > 0) {
             r.setFreeUse3(d.get(Mitglieder.FREI3));

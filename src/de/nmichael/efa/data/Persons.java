@@ -784,28 +784,28 @@ public class Persons extends StorageObject {
 
   public void cleanPersons() {
     int i = 0;
+    int iNeuEmailErlaubt = 0;
     try {
       DataKeyIterator it = data().getStaticIterator();
       for (DataKey<?, ?, ?> key = it.getFirst(); key != null; key = it.getNext()) {
         PersonRecord person = (PersonRecord) data().get(key);
-        if (person == null) {
-          continue;
-        }
-        try {
-          person.cleanPerson();
-          data().update(person); // save // update DB
-          i++;
-        } catch (EfaException e) {
-          Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-              "Person konnte nicht aktualisiert werden: "
-                  + person.getFirstLastName() + e.getLocalizedMessage());
+        if (person != null) {
+          try {
+            iNeuEmailErlaubt += person.cleanPerson() ? 1 : 0;
+            data().update(person); // save // update DB
+            i++;
+          } catch (EfaException e) {
+            Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+                "Person konnte nicht aktualisiert werden: "
+                    + person.getFirstLastName() + e.getLocalizedMessage());
+          }
         }
       }
       Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
-          "cleanPersons() erfolgreich durchgeführt (" + i + ")");
+          "cleanPersons() erfolgreich durchgeführt (" + iNeuEmailErlaubt + "/" + i + ")");
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "cleanPersons() konnte nicht durchgeführt werden (" + i + ") "
+          "cleanPersons() konnte nicht durchgeführt werden (" + iNeuEmailErlaubt + "/" + i + ") "
               + e.getLocalizedMessage());
     }
   }

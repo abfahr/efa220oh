@@ -855,7 +855,7 @@ public class BoatReservationRecord extends DataRecord {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo Bootshausnutzungswart Wolfgang!");
     msg.add("");
-    msg.add("Hier die neueste Reservierung von EFA am Isekai");
+    msg.add("Hier die neueste Reservierung von EFa am Isekai");
     msg.add("Eingabe durch: " + getPersonAsName() + " "
         + (p != null ? p.getMembershipNo() + " " + p.getStatusName() : "(wer ist das?)"));
     msg.add(getStringEingabeAm(getLastModified()));
@@ -900,7 +900,7 @@ public class BoatReservationRecord extends DataRecord {
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
     } else {
-      msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. "
+      msg.add("Hier eine Erinnerung an Deine Reservierung in EFa am Isekai. "
           + "(" + getStringEingabeAm(getLastModified()) + ")");
     }
     msg.add("");

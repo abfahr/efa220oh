@@ -9,6 +9,7 @@
 
 package de.nmichael.efa.data;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -977,8 +978,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return true;
   }
 
-  public void cleanPerson() {
-
+  public boolean cleanPerson() {
+    boolean retVal = false;
     // 1. bestimmte Felder leeren
     // setTitle(null);
     // setAssocitation(null);
@@ -1010,8 +1011,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           !isErlaubtSchreibweise() &&
           getEmail() != null) {
         setErlaubnisEmail(true);
+        retVal = true;
       }
-      return;
+      return retVal;
     }
     // 3. nur aktive Mitglieder behalten
     long oneMinute = 60 * 1000;
@@ -1019,15 +1021,16 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     long now = System.currentTimeMillis();
     long invalidMillisAgo = now - getInvalidFrom();
     if (invalidMillisAgo < oneYear) {
-      return; // nicht alt genug
+      return retVal; // nicht alt genug
     }
     long lastModifiedAgo = now - getLastModified();
     if (lastModifiedAgo < oneMinute) {
-      return; // nicht alt genug
+      return retVal; // nicht alt genug
     }
     // setInvisible(true);
     // setInvalidFrom(System.currentTimeMillis());
     setDeleted(true); // doof - Datensatz fehlt dann
+    return retVal;
   }
 
   public boolean isDyingMember() {
@@ -1075,7 +1078,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     String anrede = getFirstName();
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion, errorText);
-    // System.err.println(emailMessage);
+    if ((new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_SPECIAL).exists())) {
+      System.out.println(emailSubject);
+      System.out.println(emailMessage);
+    }
 
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
@@ -1096,11 +1102,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFa am Isekai. ");
       msg.add(" Vor- und Nachname: " + getFirstLastName());
       msg.add(" OH-MitgliedNr: " + getMembershipNo());
-      msg.add(" Telefon: " + getFestnetz1() + " " + suppressNull(getHandy2()));
+      msg.add(" Telefon: " + getHandy2() + " " + suppressNull(getFestnetz1()));
       msg.add(" Telefon als Eingabehilfe in EFa "
           + (isErlaubtTelefon() ? "" : "nicht ") + "freigegeben.");
       msg.add(" Email: " + suppressNull(getEmail()));
-      msg.add(" Emailversand für EFa " + (isErlaubtEmail() ? "" : "nicht ") + "erlaubt.");
+      msg.add(" Emails versenden ist EFa " + (isErlaubtEmail() ? "" : "nicht ") + "erlaubt.");
       msg.add(" Kürzel: \"" + suppressNull(getInputShortcut()) + "\" (Spitzname)");
       msg.add(" Kürzel ist bei Fahrtbeginn "
           + (isErlaubtKuerzel() ? "benutzbar." : "nicht erwünscht."));

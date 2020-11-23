@@ -791,8 +791,10 @@ public class Persons extends StorageObject {
         PersonRecord person = (PersonRecord) data().get(key);
         if (person != null) {
           try {
-            iNeuEmailErlaubt += person.cleanPerson() ? 1 : 0;
-            data().update(person); // save // update DB
+            if (person.cleanPerson()) {
+              data().update(person); // save // update DB
+              iNeuEmailErlaubt++;
+            }
             i++;
           } catch (EfaException e) {
             Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,

@@ -31,27 +31,6 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>2.5.2</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>install-file</goal>
-            </goals>
-            <configuration>
-              <groupId>uk.me.jstott</groupId>
-              <artifactId>jsuntimes</artifactId>
-              <version>1.0</version>
-              <packaging>jar</packaging>
-              <generatePom>true</generatePom>
-              <file>../libs/jsuntimes.jar</file>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
@@ -85,6 +64,10 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>de.overfreunde</groupId>
+      <artifactId>efa-help</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>

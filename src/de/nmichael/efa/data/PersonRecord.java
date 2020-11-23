@@ -1004,32 +1004,21 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     setExcludeFromClubwork(false); // immer leer gewesen
 
     if (!isDyingMember()) {
-      // 2. Newsletter bestellen
-      if (!isErlaubtEmail() &&
-          !isErlaubtTelefon() &&
-          !isErlaubtKuerzel() &&
-          !isErlaubtSchreibweise() &&
-          getEmail() != null) {
-        setErlaubnisEmail(true);
-        retVal = true;
-      }
       return retVal;
     }
-    // 3. nur aktive Mitglieder behalten
+    // 2. nur aktive Mitglieder behalten
     long oneMinute = 60 * 1000;
-    long oneYear = 365 * 24 * 60 * oneMinute;
+    long oneWeek = 7 * 24 * 60 * oneMinute;
     long now = System.currentTimeMillis();
     long invalidMillisAgo = now - getInvalidFrom();
-    if (invalidMillisAgo < oneYear) {
+    if (invalidMillisAgo < oneWeek) {
       return retVal; // nicht alt genug
     }
-    long lastModifiedAgo = now - getLastModified();
-    if (lastModifiedAgo < oneMinute) {
-      return retVal; // nicht alt genug
+    if (getInvalidFrom() == Long.MAX_VALUE) {
+      return retVal; // ewig gültig
     }
-    // setInvisible(true);
-    // setInvalidFrom(System.currentTimeMillis());
     setDeleted(true); // doof - Datensatz fehlt dann
+    retVal = true;
     return retVal;
   }
 
@@ -1050,7 +1039,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       case "Externe Adressen":
       case "andere":
       case "Gast":
-        return false;
+        return true;
       default:
         return false;
     }

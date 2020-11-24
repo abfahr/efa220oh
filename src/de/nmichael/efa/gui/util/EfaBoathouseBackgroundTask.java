@@ -40,6 +40,8 @@ import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.BoatStatus;
 import de.nmichael.efa.data.BoatStatusRecord;
 import de.nmichael.efa.data.Boats;
+import de.nmichael.efa.data.DestinationRecord;
+import de.nmichael.efa.data.Destinations;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
@@ -726,7 +728,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
     newLogbookRecord.setEndTime(boatReservationRecord.getTimeTo());
     String reason = boatReservationRecord.getReason();
     reason = reason.isEmpty() ? "anhand Reservierung" : reason;
-    newLogbookRecord.setDestinationName(reason);
+    Destinations destinations = Daten.project.getDestinations(false);
+    DestinationRecord dr = destinations.getDestination(reason, System.currentTimeMillis());
+    UUID destinationId = dr.getId();
+    if (destinationId != null) {
+      newLogbookRecord.setDestinationId(destinationId);
+    } else {
+      newLogbookRecord.setDestinationName(reason);
+    }
     // newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km));
     // // 1km
     newLogbookRecord.setComments("(efa: Fahrt gestartet aufgrund einer Reservierung)");

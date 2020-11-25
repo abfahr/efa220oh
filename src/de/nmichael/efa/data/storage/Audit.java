@@ -1435,26 +1435,6 @@ public class Audit extends Thread {
           }
         }
 
-        // Session Type
-        if (r.getSessionType() == null ||
-            !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, r.getSessionType())) {
-          r.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
-          updated = true;
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_REFTOTEXT,
-              "runAuditLogbook(): "
-                  + International.getString("Fahrtenbuch") + " "
-                  + logbookName + " "
-                  + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId()
-                      .toString())
-                  + ": "
-                  + International.getMessage(
-                      "Ungültige Referenz für {item} durch '{name}' ersetzt.",
-                      International.getString("Fahrtart"),
-                      Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,
-                          EfaTypes.TYPE_SESSION_NORMAL)));
-        }
-
         // SessionGroup
         if (isReferenceInvalid(r.getSessionGroupId(), sessionGroups, -1) &&
             sessionGroups.dataAccess.getNumberOfRecords() > 0) {

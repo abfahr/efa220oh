@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import java.io.File;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -904,11 +905,11 @@ public class BoatReservationRecord extends DataRecord {
           + "(" + getStringEingabeAm(getLastModified()) + ")");
     }
     msg.add("");
-    msg.add("Reservierung des " + getBoatName());
-    msg.add("für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
+    msg.add(" Reservierung des " + getBoatName());
+    msg.add(" für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
         + getPersonAsName());
     if (isBootshausOH()) {
-      msg.add("Grund der Reservierung: " + getReason());
+      msg.add(" Grund der Reservierung: " + getReason());
     }
     msg.add("");
 
@@ -929,8 +930,8 @@ public class BoatReservationRecord extends DataRecord {
       if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
           && getHashId().length() > 0
           && personRecord != null) {
-        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: \n"
-            + getStornoURL(personRecord.getMembershipNo()));
+        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: ");
+        msg.add(" " + getWebOnlineURL("storno/", personRecord.getMembershipNo()));
       }
       if (isBootshausOH()) {
         msg.add(
@@ -938,7 +939,17 @@ public class BoatReservationRecord extends DataRecord {
       }
       msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
     }
-
+    if (aktion.contains("INSERT")
+        && personRecord != null
+        && personRecord.isErlaubtKuerzel() == false
+        && personRecord.getInputShortcut() == null) {
+      int anzahlFahrten = personRecord.getAnzahlFahrtenDiesJahrAnVerschiedenenTagen();
+      if (anzahlFahrten >= Daten.efaConfig.getAnzahlFahrtenFuerKuerzelTipp()) {
+        msg.add("");
+        msg.add("Tipp: Mühsame Eingaben am PC erleichtern? Mit Namenskürzel und Telefonnummer?");
+        msg.add(" " + getWebOnlineURL("efa/", personRecord.getMembershipNo()));
+      }
+    }
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("Efa-PC im Bootshaus");
@@ -946,23 +957,14 @@ public class BoatReservationRecord extends DataRecord {
     msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
     if (personRecord != null) {
       msg.add(International.getMessage("Newsletter abmelden {url}",
-          getNewsletterURL(personRecord.getMembershipNo())));
+          getWebOnlineURL("abmelden/", personRecord.getMembershipNo())));
     }
     return join(msg);
   }
 
-  private String getStornoURL(String mitgliedNr) {
+  private String getWebOnlineURL(String folder, String mitgliedNr) {
     String url = "https://overfreunde.abfx.de/";
-    url += "storno/";
-    url += "?mitgliedNr=" + mitgliedNr;
-    url += "&hashId=" + getHashId();
-    url += "&efaId=" + getEfaId();
-    return url;
-  }
-
-  private String getNewsletterURL(String mitgliedNr) {
-    String url = "https://overfreunde.abfx.de/";
-    url += "abmelden/";
+    url += folder;
     url += "?mitgliedNr=" + mitgliedNr;
     url += "&hashId=" + getHashId();
     url += "&efaId=" + getEfaId();
@@ -1024,6 +1026,9 @@ public class BoatReservationRecord extends DataRecord {
     }
     emailSubject += " " + getBoatName();
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);
+    if (new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_SPECIAL).exists()) {
+      System.out.println(emailMessage);
+    }
 
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);

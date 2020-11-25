@@ -1157,4 +1157,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return sb.toString();
   }
 
+  public int getAnzahlFahrtenDiesJahrAnVerschiedenenTagen() {
+    Logbook logbook = Daten.project.getCurrentLogbook();
+    if (logbook == null) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "getAnzahlFahrtenDiesJahrAnVerschiedenenTagen() Kein Fahrtenbuch offen " + logbook);
+      return 0;
+    }
+    return logbook.countPersonUsage(getId(), false /* allowSameDay */);
+  }
+
 }

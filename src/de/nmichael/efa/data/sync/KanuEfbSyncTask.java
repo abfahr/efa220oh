@@ -24,7 +24,6 @@ import java.net.HttpCookie;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -41,24 +40,20 @@ import org.xml.sax.XMLReader;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.Boats;
-import de.nmichael.efa.data.DestinationRecord;
 import de.nmichael.efa.data.Destinations;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.ProjectRecord;
-import de.nmichael.efa.data.SessionGroupRecord;
 import de.nmichael.efa.data.Waters;
 import de.nmichael.efa.data.WatersRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.gui.ProgressDialog;
@@ -101,12 +96,14 @@ public class KanuEfbSyncTask extends ProgressTask {
         }
 
         @Override
-        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+        public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+            String authType) {
           // No need to implement.
         }
 
         @Override
-        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+        public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+            String authType) {
           // No need to implement.
         }
       }
@@ -249,8 +246,7 @@ public class KanuEfbSyncTask extends ProgressTask {
           "&password=" + password +
           (projectId != null ? "&project=" + projectId.toString() : "") +
           (projectName != null && projectName.length() > 0 ? "&projectname=" + projectName : "") +
-          (clubName != null && clubName.length() > 0 ? "&clubname=" + clubName : "")
-          );
+          (clubName != null && clubName.length() > 0 ? "&clubname=" + clubName : ""));
       out.flush();
       out.close();
 
@@ -265,8 +261,9 @@ public class KanuEfbSyncTask extends ProgressTask {
         sessionCookie = cookie;
       }
 
-      int retCode = (response == null ? -1 : EfaUtil
-          .stringFindInt(response.getValue(0, "code"), -1));
+      int retCode = (response == null ? -1
+          : EfaUtil
+              .stringFindInt(response.getValue(0, "code"), -1));
       if (retCode != 1) {
         String msg = (response == null ? "unbekannt" : response.getValue(0, "message"));
         logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORLOGIN, "Login fehlgeschlagen: Code " + retCode
@@ -326,11 +323,6 @@ public class KanuEfbSyncTask extends ProgressTask {
           }
           if (efbId != null && p != null) {
             efbId = efbId.trim();
-            if (!efbId.equals(p.getEfbId())) {
-              p.setEfbId(efbId);
-              persons.data().update(p);
-              countSyncUsers++;
-            }
             ok = true;
           }
         }
@@ -409,7 +401,8 @@ public class KanuEfbSyncTask extends ProgressTask {
       while (k != null) {
         BoatRecord r = (BoatRecord) boats.data().get(k);
         if (r != null && r.isValidAt(thisSync) && Daten.efaConfig.isCanoeBoatType(r) &&
-            (r.getLastModified() > lastSync || r.getEfbId() == null || r.getEfbId().length() == 0)) {
+            (r.getLastModified() > lastSync || r.getEfbId() == null
+                || r.getEfbId().length() == 0)) {
           if (Logger.isTraceOn(Logger.TT_SYNC)) {
             logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO,
                 "  erstelle Synchronisierungs-Anfrage für Boot: " + r.getQualifiedName());
@@ -486,7 +479,8 @@ public class KanuEfbSyncTask extends ProgressTask {
       while (k != null) {
         WatersRecord r = (WatersRecord) waters.data().get(k);
         if (r != null && r.isValidAt(thisSync) &&
-            (r.getLastModified() > lastSync || r.getEfbId() == null || r.getEfbId().length() == 0)) {
+            (r.getLastModified() > lastSync || r.getEfbId() == null
+                || r.getEfbId().length() == 0)) {
           if (Logger.isTraceOn(Logger.TT_SYNC)) {
             logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO,
                 "  erstelle Synchronisierungs-Anfrage für Gewässer: " + r.getQualifiedName());
@@ -530,7 +524,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             if (Logger.isTraceOn(Logger.TT_SYNC)) {
               logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO,
                   "  Synchronisierungs-Antwort für Gewässer: " + watersName + " (EfbId=" + efbId
-                  + ")");
+                      + ")");
             }
           } else {
             logInfo(Logger.WARNING, Logger.MSG_SYNC_WARNINCORRECTRESPONSE,
@@ -551,28 +545,10 @@ public class KanuEfbSyncTask extends ProgressTask {
     return true;
   }
 
-  private int countNumberOfPersonsWithEfbIds() {
-    int count = 0;
-    try {
-      Persons persons = Daten.project.getPersons(false);
-      DataKeyIterator it = persons.data().getStaticIterator();
-      for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-        PersonRecord r = (PersonRecord) persons.data().get(k);
-        if (r != null && r.isValidAt(thisSync) &&
-            r.getEfbId() != null && r.getEfbId().length() > 0) {
-          count++;
-        }
-      }
-    } catch (Exception e) {
-      Logger.logdebug(e);
-    }
-    return count;
-  }
-
   private boolean syncTrips() {
     try {
       logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisiere Fahrten für " +
-          countNumberOfPersonsWithEfbIds() + " Personen mit Efb-ID's ...");
+          0 + " Personen mit Efb-ID's ...");
       StringBuilder request = new StringBuilder();
       buildRequestHeader(request, "SyncTrips");
 
@@ -590,130 +566,7 @@ public class KanuEfbSyncTask extends ProgressTask {
         if (r != null &&
             (r.getLastModified() > r.getSyncTime() || r.getSyncTime() <= 0) &&
             r.isRowingOrCanoeingSession() &&
-            Daten.efaConfig.isCanoeBoatType(r.getBoatRecord(r.getValidAtTimestamp()))) {
-          for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
-            UUID pId = r.getCrewId(i);
-            if (pId != null) {
-              PersonRecord p = persons.getPerson(pId, thisSync);
-              if (p != null && p.getEfbId() != null && p.getEfbId().length() > 0 &&
-                  r.getDate() != null) {
-                if (Logger.isTraceOn(Logger.TT_SYNC)) {
-                  logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO,
-                      "  erstelle Synchronisierungs-Anfrage für Fahrt: " + r.getQualifiedName() +
-                      "; Person: " + p.getQualifiedName());
-                }
-                BoatRecord b = (r.getBoatId() != null ? boats.getBoat(r.getBoatId(), thisSync)
-                    : null);
-                DestinationRecord d = (r.getDestinationId() != null ? destinations.getDestination(
-                    r.getDestinationId(), thisSync) : null);
-                String startDate = r.getDate().getDateString("YYYY-MM-DD");
-                String endDate = (r.getEndDate() != null ? r.getEndDate().getDateString(
-                    "YYYY-MM-DD") : startDate);
-                String tripId = logbook.getName() + "_" + r.getEntryId().toString();
-                request.append("<trip>");
-                request.append("<tripID>" + tripId + "</tripID>");
-                request.append("<userID>" + p.getEfbId() + "</userID>");
-                if (b != null && b.getEfbId() != null && b.getEfbId().length() > 0) {
-                  request.append("<boatID>" + b.getEfbId() + "</boatID>");
-                } else {
-                  request.append("<boatText><![CDATA["
-                      + (b != null ? b.getQualifiedName() : r.getBoatName()) + "]]></boatText>");
-                }
-                request.append("<begdate>" + startDate + "</begdate>");
-                request.append("<enddate>" + endDate + "</enddate>");
-                if (r.getStartTime() != null) {
-                  request.append("<begtime>" + r.getStartTime().toString() + "</begtime>");
-                }
-                if (r.getEndTime() != null) {
-                  request.append("<endtime>" + r.getEndTime().toString() + "</endtime>");
-                }
-
-                SessionGroupRecord sg = r.getSessionGroup();
-                String triptype = r.getSessionType();
-                if (triptype == null || triptype.length() == 0) {
-                  triptype = EfaTypes.TYPE_SESSION_NORMAL;
-                }
-                request.append("<triptype>" + triptype + "</triptype>");
-                if (sg != null) {
-                  request.append("<tripgroup>");
-                  request.append("<name><![CDATA[" + sg.getName() + "]]></name>");
-                  if (sg.getOrganizer() != null && sg.getOrganizer().length() > 0) {
-                    request.append("<organizer><![CDATA[" + sg.getOrganizer() + "]]></organizer>");
-                  }
-                  request.append("</tripgroup>");
-                }
-
-                // build waters
-                ArrayList<String> waterText = new ArrayList<String>();
-                ArrayList<String> waterID = new ArrayList<String>();
-                DataTypeList<UUID> waterList = (d != null ? d.getWatersIdList() : null);
-                DataTypeList<UUID> waterListMore = r.getWatersIdList();
-                if (waterListMore != null) {
-                  if (waterList == null) {
-                    waterList = new DataTypeList<UUID>();
-                  }
-                  waterList.addAll(waterListMore);
-                }
-                for (int di = 0; waterList != null && di < waterList.length(); di++) {
-                  WatersRecord w = waters.getWaters(waterList.get(di));
-                  if (w != null) {
-                    if (w.getEfbId() != null && w.getEfbId().length() > 0) {
-                      waterID.add(w.getEfbId());
-                    } else {
-                      waterText.add(w.getName());
-                    }
-                  }
-                }
-                DataTypeList<String> waterListText = r.getWatersNameList();
-                for (int di = 0; waterListText != null && di < waterListText.length(); di++) {
-                  waterText.add(waterListText.get(di));
-                }
-                String wIDs = (waterID.size() > 0 ?
-                    EfaUtil.arr2KommaList(waterID.toArray(new String[0])) : null);
-                String wTxt = (wIDs == null && waterText.size() > 0 ?
-                    EfaUtil.arr2KommaList(waterText.toArray(new String[0])) : null);
-
-                request.append("<lines>");
-                request.append("<line>");
-                if (wIDs != null) {
-                  request.append("<waterID>" + wIDs + "</waterID>");
-                } else if (wTxt != null) {
-                  request.append("<waterText><![CDATA[" + wTxt + "]]></waterText>");
-                }
-                if (d != null && d.getStart() != null && d.getStart().length() > 0) {
-                  request.append("<fromText><![CDATA[" + d.getStart() + "]]></fromText>");
-                }
-                if (d != null && d.getEnd() != null && d.getEnd().length() > 0) {
-                  request.append("<toText><![CDATA[" + d.getEnd() + "]]></toText>");
-                } else {
-                  if (r.getDestinationId() != null || r.getDestinationName() != null) {
-                    request.append("<toText><![CDATA["
-                        + (r.getDestinationId() != null ? r.getDestinationAndVariantName() : r
-                            .getDestinationName()) + "]]></toText>");
-                  }
-                }
-                request
-                .append("<kilometers>"
-                    + (r.getDistance() != null ? r.getDistance().getStringValueInKilometers()
-                        : "0") + "</kilometers>");
-                request.append("</line>");
-                request.append("</lines>");
-
-                if (r.getComments() != null && r.getComments().length() > 0) {
-                  request.append("<comment><![CDATA[" + r.getComments() + "]]></comment>");
-                }
-
-                request.append("<changeDate>" + r.getLastModified() + "</changeDate>");
-                request.append("<status>" + "1" + "</status>");
-                request.append("<deleted>" + "0" + "</deleted>");
-                request.append("</trip>\n");
-                efaEntryIds.put(tripId, r);
-                reqCnt++;
-
-              }
-            }
-          }
-        } else {
+            Daten.efaConfig.isCanoeBoatType(r.getBoatRecord(r.getValidAtTimestamp()))) {} else {
           if (r != null) {
             if (Logger.isTraceOn(Logger.TT_SYNC)) {
               logInfo(
@@ -909,9 +762,9 @@ public class KanuEfbSyncTask extends ProgressTask {
           .yesNoDialog(
               International.onlyFor("Mit Kanu-eFB synchronisieren", "de"),
               International
-              .onlyFor(
-                  "Es werden alle Fahrten aus dem aktuellen Fahrtenbuch mit dem Kanu-eFB synchronisiert.",
-                  "de")
+                  .onlyFor(
+                      "Es werden alle Fahrten aus dem aktuellen Fahrtenbuch mit dem Kanu-eFB synchronisiert.",
+                      "de")
                   + "\n" +
                   International.getString("Bitte stelle eine Verbindung zum Internet her.") + "\n" +
                   International.getString("Möchtest Du fortfahren?")) != Dialog.YES) {

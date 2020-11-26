@@ -22,7 +22,6 @@ import de.nmichael.efa.data.Status;
 import de.nmichael.efa.data.StatusRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
-import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.efa1.Mitglieder;
 import de.nmichael.efa.util.International;
@@ -81,16 +80,6 @@ public class ImportPersons extends ImportBase {
     if (!isIdentical(r.getMembershipNo(), d.get(Mitglieder.MITGLNR))) {
       return true;
     }
-    if (!isIdentical(r.getPassword(), d.get(Mitglieder.PASSWORT))) {
-      return true;
-    }
-    if (!isIdentical(r.getDisability(), Boolean.toString(d.get(Mitglieder.BEHINDERUNG).equals("+")))) {
-      return true;
-    }
-    if (!isIdentical(r.getExcludeFromCompetition(),
-        Boolean.toString(!d.get(Mitglieder.KMWETT_MELDEN).equals("+")))) {
-      return true;
-    }
     if (!isIdentical(r.getInputShortcut(), d.get(Mitglieder.ALIAS))) {
       return true;
     }
@@ -98,9 +87,6 @@ public class ImportPersons extends ImportBase {
       return true;
     }
     if (!isIdentical(r.getHandy2(), d.get(Mitglieder.FREI2))) {
-      return true;
-    }
-    if (!isIdentical(r.getFreeUse3(), d.get(Mitglieder.FREI3))) {
       return true;
     }
     return false;
@@ -170,14 +156,8 @@ public class ImportPersons extends ImportBase {
               r.setGender(gender);
             }
           }
-          if (d.get(Mitglieder.JAHRGANG).length() > 0) {
-            DataTypeDate birthday = new DataTypeDate();
-            birthday.setYear(d.get(Mitglieder.JAHRGANG));
-            r.setBirthday(birthday);
-          }
           if (d.get(Mitglieder.VEREIN).length() > 0) {
             r.setNameAffix(d.get(Mitglieder.VEREIN));
-            r.setAssocitation(d.get(Mitglieder.VEREIN));
           }
           // always set status
           String s = d.get(Mitglieder.STATUS).trim();
@@ -208,24 +188,11 @@ public class ImportPersons extends ImportBase {
           }
 
           String address = task.getAddress(r.getFirstName() + " " + r.getLastName());
-          if (address != null && address.length() > 0) {
-            r.setAddressAdditional(address); // there is no such thing as an address format in efa1,
-            // so we just put the data into the additional address
-            // field.
-          }
           if (d.get(Mitglieder.MITGLNR).length() > 0) {
             r.setMembershipNo(d.get(Mitglieder.MITGLNR));
           }
-          if (d.get(Mitglieder.PASSWORT).length() > 0) {
-            r.setPassword(d.get(Mitglieder.PASSWORT));
-          }
           // EXTERNALID does not exist in efa1, so we leave it empty
-          if (d.get(Mitglieder.BEHINDERUNG).equals("+")) {
-            r.setDisability(true);
-          }
-          if (!d.get(Mitglieder.KMWETT_MELDEN).equals("+")) {
-            r.setExcludeFromCompetition(true);
-          }
+
           if (d.get(Mitglieder.ALIAS).length() > 0) {
             r.setInputShortcut(d.get(Mitglieder.ALIAS));
           }
@@ -234,9 +201,6 @@ public class ImportPersons extends ImportBase {
           }
           if (d.get(Mitglieder.FREI2).length() > 0) {
             r.setHandy2(d.get(Mitglieder.FREI2));
-          }
-          if (d.get(Mitglieder.FREI3).length() > 0) {
-            r.setFreeUse3(d.get(Mitglieder.FREI3));
           }
           try {
             persons.data().addValidAt(r, validFrom);

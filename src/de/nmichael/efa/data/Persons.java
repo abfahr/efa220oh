@@ -397,9 +397,7 @@ public class Persons extends StorageObject {
       Hashtable<UUID, DataKey<?, ?, ?>> uuids = new Hashtable<UUID, DataKey<?, ?, ?>>();
       while (k != null) {
         PersonRecord p = (PersonRecord) dataAccess.get(k);
-        if (p != null && p.isValidAt(tstmp) && !p.getDeleted() &&
-            p.isStatusMember() &&
-            (!withoutMembersExcludedFromCompetition || !p.getExcludeFromCompetition())) {
+        if (p != null && p.isValidAt(tstmp) && !p.getDeleted() && p.isStatusMember()) {
           uuids.put(p.getId(), k);
         }
         k = it.getNext();

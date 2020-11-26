@@ -200,7 +200,6 @@ public class CompetitionLRVBerlinSommer extends Competition {
     }
     sr.pTableColumns = null;
     WettDefGruppe[] gruppen = wett.gruppen;
-    int jahrgang;
     int anzInGruppe; // wievielter Ruderer in der Gruppe: die ersten 3 brauchen eine Adresse!
     long totalDistanceInDefaultUnit = 0;
     int gesanz = 0;
@@ -263,9 +262,11 @@ public class CompetitionLRVBerlinSommer extends Competition {
 
           // sollen Daten für den Teilnehmer ausgegeben werden?
           if (erfuellt
-              || ((DataTypeDistance.getDistance(sd[i].distance).getTruncatedValueInKilometers() >=
-              gruppen[g].km * sr.sCompPercentFulfilled / 100) &&
-              sr.sCompPercentFulfilled < 100)) {
+              || ((DataTypeDistance.getDistance(sd[i].distance)
+                  .getTruncatedValueInKilometers() >= gruppen[g].km * sr.sCompPercentFulfilled
+                      / 100)
+                  &&
+                  sr.sCompPercentFulfilled < 100)) {
             anzInGruppe++;
             if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
               // Ausgabe für efaWett
@@ -286,7 +287,7 @@ public class CompetitionLRVBerlinSommer extends Competition {
                 ewm.kilometer = DataTypeDistance.getDistance(sd[i].distance)
                     .getStringValueInKilometers(false, 0, 0);
                 if (anzInGruppe <= 3) {
-                  ewm.anschrift = sd[i].personRecord.getAddressComplete("; ");
+                  ewm.anschrift = "";
                 }
                 for (int j = 0; sd[i].bestDestinationAreas != null
                     && j < sd[i].bestDestinationAreas.length; j++) {
@@ -353,13 +354,15 @@ public class CompetitionLRVBerlinSommer extends Competition {
                 participant.sDistance += "/" + gruppen[g].km;
               }
               if (!sr.sIsOutputCompWithoutDetails && erfuellt) {
-                int _ausgabeZfAnzahl = (sd[i].bestDestinationAreas != null ? sd[i].bestDestinationAreas.length
+                int _ausgabeZfAnzahl = (sd[i].bestDestinationAreas != null
+                    ? sd[i].bestDestinationAreas.length
                     : 0)
                     + (sd[i].additionalDestinationAreas != null
-                    && sd[i].additionalDestinationAreas.length > 0
-                    ? (sr.sIsOutputCompAllDestinationAreas ? sd[i].additionalDestinationAreas.length
-                        : 1)
-                        : 0);
+                        && sd[i].additionalDestinationAreas.length > 0
+                            ? (sr.sIsOutputCompAllDestinationAreas
+                                ? sd[i].additionalDestinationAreas.length
+                                : 1)
+                            : 0);
                 participant.sDetailsArray = new String[_ausgabeZfAnzahl][4];
                 for (int j = 0; sd[i].bestDestinationAreas != null
                     && j < sd[i].bestDestinationAreas.length; j++) {
@@ -372,8 +375,8 @@ public class CompetitionLRVBerlinSommer extends Competition {
                     && j < sd[i].additionalDestinationAreas.length; j++) {
                   if (sd[i].additionalDestinationAreas[j] != null) {
                     participant.sDetailsArray[j
-                                              + (sd[i].bestDestinationAreas != null ? sd[i].bestDestinationAreas.length
-                                                  : 0)] = sd[i].additionalDestinationAreas[j].toStringArray();
+                        + (sd[i].bestDestinationAreas != null ? sd[i].bestDestinationAreas.length
+                            : 0)] = sd[i].additionalDestinationAreas[j].toStringArray();
                   }
                 }
               } else {
@@ -410,13 +413,10 @@ public class CompetitionLRVBerlinSommer extends Competition {
                   sd[i].distance,
                   countZf(sd[i].bestDestinationAreas, sd[i].destinationAreas),
                   0, 0, 0) != null
-                  && nichtBeruecksichtigt.get(sd[i].sName) == null) {
-            nichtBeruecksichtigt.put(
-                sd[i].sName,
-                "Wegen fehlenden Jahrgangs ignoriert ("
-                    +
-                    DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true,
-                        0, 0) + ")");
+              && nichtBeruecksichtigt.get(sd[i].sName) == null) {
+            nichtBeruecksichtigt.put(sd[i].sName, "Wegen fehlenden Jahrgangs ignoriert (" +
+                DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 0)
+                + ")");
             continue;
           }
         }

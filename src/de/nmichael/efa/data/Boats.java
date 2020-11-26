@@ -58,11 +58,11 @@ public class Boats extends StorageObject {
   public DataKey addNewBoatRecord(BoatRecord boat, long validFrom) throws EfaException {
     DataKey k = data().addValidAt(boat, validFrom);
     getProject()
-    .getBoatStatus(false)
-    .data()
-    .add(
-        getProject().getBoatStatus(false).createBoatStatusRecord(boat.getId(),
-            boat.getQualifiedName()));
+        .getBoatStatus(false)
+        .data()
+        .add(
+            getProject().getBoatStatus(false).createBoatStatusRecord(boat.getId(),
+                boat.getQualifiedName()));
     return k;
   }
 
@@ -75,7 +75,8 @@ public class Boats extends StorageObject {
     }
   }
 
-  public BoatRecord getBoat(UUID id, long earliestValidAt, long latestValidAt, long preferredValidAt) {
+  public BoatRecord getBoat(UUID id, long earliestValidAt, long latestValidAt,
+      long preferredValidAt) {
     try {
       return (BoatRecord) data().getValidNearest(BoatRecord.getKey(id, preferredValidAt),
           earliestValidAt, latestValidAt, preferredValidAt);
@@ -108,7 +109,8 @@ public class Boats extends StorageObject {
   }
 
   // find any record being valid at least partially in the specified range
-  public BoatRecord getBoat(String boatName, long validFrom, long validUntil, long preferredValidAt) {
+  public BoatRecord getBoat(String boatName, long validFrom, long validUntil,
+      long preferredValidAt) {
     try {
       DataKey[] keys = data().getByFields(
           staticBoatRecord.getQualifiedNameFields(),
@@ -183,7 +185,8 @@ public class Boats extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update,
+      boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, BoatRecord.ID);
@@ -235,8 +238,9 @@ public class Boats extends StorageObject {
     @Override
     public String getSuccessfullyDoneMessage() {
       return International.getString("Datensätze erfolgreich zusammengefügt.") +
-          (errorCount > 0 || warningCount > 0 ?
-              "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]" : "");
+          (errorCount > 0 || warningCount > 0
+              ? "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]"
+              : "");
     }
 
     private boolean isIdToBeMerged(UUID id) {
@@ -350,21 +354,6 @@ public class Boats extends StorageObject {
         logInfo("Searching Persons ...\n");
         Persons persons = p.getPersons(false);
         it = persons.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-          PersonRecord r = (PersonRecord) persons.data().get(k);
-          if (r != null) {
-            boolean changed = false;
-            if (isIdToBeMerged(r.getDefaultBoatId())) {
-              r.setDefaultBoatId(mainID);
-              changed = true;
-            }
-            if (changed) {
-              logInfo("Updating record " + r.getQualifiedName() + " ...\n");
-              persons.data().update(r);
-              updateCount++;
-            }
-          }
-        }
         setCurrentWorkDone(++workDone);
 
         // Search Statistics

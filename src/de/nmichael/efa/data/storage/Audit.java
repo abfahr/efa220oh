@@ -888,19 +888,6 @@ public class Audit extends Thread {
                       International.getString("Status"),
                       status.getStatusOther().getQualifiedName()));
         }
-        if (isReferenceInvalid(person.getDefaultBoatId(), boats, -1)) {
-          person.setDefaultBoatId(null);
-          updated = true;
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
-              "runAuditPersons(): "
-                  + International.getString("Person") + " "
-                  + person.getQualifiedName() + ": "
-                  + International.getMessage(
-                      "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
-                      International.getString("Boot"),
-                      International.getString("Standard-Boot")));
-        }
         if (updated) {
           if (correctErrors) {
             persons.dataAccess.update(person);

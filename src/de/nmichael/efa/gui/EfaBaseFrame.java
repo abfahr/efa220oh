@@ -4743,15 +4743,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     if (item.person != null) {
       crew[0].parseAndShowValue(item.person.getQualifiedName());
-      if (item.person.getDefaultBoatId() != null) {
-        BoatRecord r = Daten.project.getBoats(false).getBoat(
-            item.person.getDefaultBoatId(), System.currentTimeMillis());
-        if (r != null) {
-          boat.parseAndShowValue(r.getQualifiedName());
-          currentBoatUpdateGui();
-          setRequestFocus(starttime);
-        }
-      }
     }
   }
 

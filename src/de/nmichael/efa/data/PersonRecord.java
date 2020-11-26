@@ -25,7 +25,6 @@ import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemFactory;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
-import de.nmichael.efa.core.items.ItemTypeDate;
 import de.nmichael.efa.core.items.ItemTypeItemList;
 import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
@@ -50,39 +49,39 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   // Field Names
   // =========================================================================
   public static final String ID = "Id";
-  public static final String EFBID = "EfbId";
+  // public static final String EFBID = "EfbId";
   public static final String FIRSTNAME = "FirstName";
   public static final String LASTNAME = "LastName";
   public static final String FIRSTLASTNAME = "FirstLastName";
   public static final String NAMEAFFIX = "NameAffix";
   public static final String TITLE = "Title";
   public static final String GENDER = "Gender";
-  public static final String BIRTHDAY = "Birthday";
+  // public static final String BIRTHDAY = "Birthday";
   public static final String ASSOCIATION = "Association";
   public static final String STATUSID = "StatusId";
-  public static final String ADDRESSSTREET = "AddressStreet";
-  public static final String ADDRESSADDITIONAL = "AddressAdditional";
-  public static final String ADDRESSCITY = "AddressCity";
-  public static final String ADDRESSZIP = "AddressZip";
-  public static final String ADDRESSCOUNTRY = "AddressCountry";
+  // public static final String ADDRESSSTREET = "AddressStreet";
+  // public static final String ADDRESSADDITIONAL = "AddressAdditional";
+  // public static final String ADDRESSCITY = "AddressCity";
+  // public static final String ADDRESSZIP = "AddressZip";
+  // public static final String ADDRESSCOUNTRY = "AddressCountry";
   public static final String EMAIL = "Email";
   public static final String ISALLOWEDEMAIL = "erlaubtEmail";
   public static final String ISALLOWEDPHONE = "erlaubtTelefon";
   public static final String ISALLOWEDSHORT = "erlaubtKürzel";
   public static final String ISALLOWEDSPELL = "erlaubtSchreibweise";
   public static final String MEMBERSHIPNO = "MembershipNo";
-  public static final String PASSWORD = "Password";
-  public static final String EXTERNALID = "ExternalId";
-  public static final String DISABILITY = "Disability";
+  // public static final String PASSWORD = "Password";
+  // public static final String EXTERNALID = "ExternalId";
+  // public static final String DISABILITY = "Disability";
   public static final String EXCLUDEFROMSTATISTIC = "ExcludeFromStatistics";
-  public static final String EXCLUDEFROMCOMPETE = "ExcludeFromCompetition";
-  public static final String EXCLUDEFROMCLUBWORK = "ExcludeFromClubwork";
+  // public static final String EXCLUDEFROMCOMPETE = "ExcludeFromCompetition";
+  // public static final String EXCLUDEFROMCLUBWORK = "ExcludeFromClubwork";
   public static final String BOATUSAGEBAN = "BoatUsageBan";
   public static final String INPUTSHORTCUT = "InputShortcut";
-  public static final String DEFAULTBOATID = "DefaultBoatId";
+  // public static final String DEFAULTBOATID = "DefaultBoatId";
   public static final String FESTNETZ1 = "FreeUse1";
   public static final String HANDY2 = "FreeUse2";
-  public static final String FREEUSE3 = "FreeUse3";
+  // public static final String FREEUSE3 = "FreeUse3";
   public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
   private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
   private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
@@ -110,22 +109,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_STRING);
     f.add(GENDER);
     t.add(IDataAccess.DATA_STRING);
-    f.add(BIRTHDAY);
-    t.add(IDataAccess.DATA_DATE);
     f.add(ASSOCIATION);
     t.add(IDataAccess.DATA_STRING);
     f.add(STATUSID);
     t.add(IDataAccess.DATA_UUID);
-    f.add(ADDRESSSTREET);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(ADDRESSADDITIONAL);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(ADDRESSCITY);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(ADDRESSZIP);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(ADDRESSCOUNTRY);
-    t.add(IDataAccess.DATA_STRING);
     f.add(EMAIL);
     t.add(IDataAccess.DATA_STRING);
     f.add(ISALLOWEDEMAIL);
@@ -138,31 +125,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(MEMBERSHIPNO);
     t.add(IDataAccess.DATA_STRING);
-    f.add(PASSWORD);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(EXTERNALID);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(DISABILITY);
-    t.add(IDataAccess.DATA_BOOLEAN);
     f.add(EXCLUDEFROMSTATISTIC);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(EXCLUDEFROMCOMPETE);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(EXCLUDEFROMCLUBWORK);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(BOATUSAGEBAN);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(INPUTSHORTCUT);
     t.add(IDataAccess.DATA_STRING);
-    f.add(DEFAULTBOATID);
-    t.add(IDataAccess.DATA_UUID);
     f.add(FESTNETZ1);
     t.add(IDataAccess.DATA_STRING);
     f.add(HANDY2);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(FREEUSE3);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(EFBID);
     t.add(IDataAccess.DATA_STRING);
     MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
     metaData.setKey(new String[] { ID }); // plus VALID_FROM
@@ -195,12 +166,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return getUUID(ID);
   }
 
-  public void setEfbId(String id) {
-    setString(EFBID, id);
-  }
+  public void setEfbId(String id) {}
 
   public String getEfbId() {
-    return getString(EFBID);
+    return null;
   }
 
   public void setFirstName(String name) {
@@ -261,12 +230,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return (s != null ? Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, s) : null);
   }
 
-  public void setBirthday(DataTypeDate date) {
-    setDate(BIRTHDAY, date);
-  }
+  public void setBirthday(DataTypeDate date) {}
 
   public DataTypeDate getBirthday() {
-    return getDate(BIRTHDAY);
+    return null;
   }
 
   public void setAssocitation(String name) {
@@ -306,44 +273,34 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return false;
   }
 
-  public void setAddressStreet(String street) {
-    setString(ADDRESSSTREET, street);
-  }
+  public void setAddressStreet(String street) {}
 
   public String getAddressStreet() {
-    return getString(ADDRESSSTREET);
+    return null;
   }
 
-  public void setAddressAdditional(String addressAdditional) {
-    setString(ADDRESSADDITIONAL, addressAdditional);
-  }
+  public void setAddressAdditional(String addressAdditional) {}
 
   public String getAddressAdditional() {
-    return getString(ADDRESSADDITIONAL);
+    return null;
   }
 
-  public void setAddressCity(String city) {
-    setString(ADDRESSCITY, city);
-  }
+  public void setAddressCity(String city) {}
 
   public String getAddressCity() {
-    return getString(ADDRESSCITY);
+    return null;
   }
 
-  public void setAddressZip(String zip) {
-    setString(ADDRESSZIP, zip);
-  }
+  public void setAddressZip(String zip) {}
 
   public String getAddressZip() {
-    return getString(ADDRESSZIP);
+    return null;
   }
 
-  public void setAddressCountry(String country) {
-    setString(ADDRESSCOUNTRY, country);
-  }
+  public void setAddressCountry(String country) {}
 
   public String getAddressCountry() {
-    return getString(ADDRESSCOUNTRY);
+    return null;
   }
 
   public void setEmail(String email) {
@@ -439,28 +396,22 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return getString(MEMBERSHIPNO);
   }
 
-  public void setPassword(String password) {
-    setString(PASSWORD, password);
-  }
+  public void setPassword(String password) {}
 
   public String getPassword() {
-    return getString(PASSWORD);
+    return null;
   }
 
-  public void setExternalId(String id) {
-    setString(EXTERNALID, id);
-  }
+  public void setExternalId(String id) {}
 
   public String getExternalId() {
-    return getString(EXTERNALID);
+    return null;
   }
 
-  public void setDisability(boolean disabled) {
-    setBool(DISABILITY, disabled);
-  }
+  public void setDisability(boolean disabled) {}
 
   public boolean getDisability() {
-    return getBool(DISABILITY);
+    return false;
   }
 
   public void setExcludeFromPublicStatistics(boolean exclude) {
@@ -471,20 +422,16 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return getBool(EXCLUDEFROMSTATISTIC);
   }
 
-  public void setExcludeFromCompetition(boolean exclude) {
-    setBool(EXCLUDEFROMCOMPETE, exclude);
-  }
+  public void setExcludeFromCompetition(boolean exclude) {}
 
   public boolean getExcludeFromCompetition() {
-    return getBool(EXCLUDEFROMCOMPETE);
+    return false;
   }
 
-  public void setExcludeFromClubwork(boolean exclude) {
-    setBool(EXCLUDEFROMCLUBWORK, exclude);
-  }
+  public void setExcludeFromClubwork(boolean exclude) {}
 
   public boolean getExcludeFromClubwork() {
-    return getBool(EXCLUDEFROMCLUBWORK);
+    return false;
   }
 
   public void setBoatUsageBan(boolean banned) {
@@ -503,16 +450,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return getString(INPUTSHORTCUT);
   }
 
-  public void setDefaultBoatId(UUID id) {
-    setUUID(DEFAULTBOATID, id);
-  }
+  public void setDefaultBoatId(UUID id) {}
 
   public UUID getDefaultBoatId() {
-    return getUUID(DEFAULTBOATID);
+    return null;
   }
 
   public String getDefaultBoatAsName() {
-    UUID id = getUUID(DEFAULTBOATID);
+    UUID id = null;
     Boats boats = getPersistence().getProject().getBoats(false);
     if (boats != null) {
       DataRecord r = boats.getBoat(id, System.currentTimeMillis());
@@ -544,12 +489,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return getString(HANDY2);
   }
 
-  public void setFreeUse3(String s) {
-    setString(FREEUSE3, s);
-  }
+  public void setFreeUse3(String s) {}
 
   public String getFreeUse3() {
-    return getString(FREEUSE3);
+    return null;
   }
 
   @Override
@@ -686,9 +629,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     if (fieldName.equals(STATUSID)) {
       return getStatusName();
     }
-    if (fieldName.equals(DEFAULTBOATID)) {
-      return getDefaultBoatAsName();
-    }
     return super.getAsText(fieldName);
   }
 
@@ -704,12 +644,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       StatusRecord sr = status.findStatusByName(value);
       if (sr != null) {
         set(fieldName, sr.getId());
-      }
-    } else if (fieldName.equals(DEFAULTBOATID)) {
-      Boats boats = getPersistence().getProject().getBoats(false);
-      BoatRecord br = boats.getBoat(value, System.currentTimeMillis());
-      if (br != null) {
-        set(fieldName, br.getId());
       }
     } else {
       return super.setFromText(fieldName, value);
@@ -772,7 +706,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   @Override
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     Status status = getPersistence().getProject().getStatus(false);
-    Boats boats = getPersistence().getProject().getBoats(false);
     IItemType item;
     Vector<IItemType> v = new Vector<IItemType>();
     v.add(item = new ItemTypeString(PersonRecord.FIRSTNAME, getFirstName(),
@@ -814,11 +747,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Verein")));
       v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
-      v.add(item = new ItemTypeString(PersonRecord.PASSWORD, getPassword(),
-          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Paßwort")));
-      v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
-          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Geburtstag")));
-      ((ItemTypeDate) item).setAllowYearOnly(true);
 
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSHORT, isErlaubtKuerzel(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Kürzel")));
@@ -830,44 +758,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           IItemType.TYPE_PUBLIC, CAT_MOREDATA,
           International.getString("ist Erlaubt Schreibweise")));
 
-      v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
-          IItemType.TYPE_EXPERT, CAT_MOREDATA,
-          International.getString("50% oder mehr Behinderung")));
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
           IItemType.TYPE_EXPERT, CAT_MOREDATA, International
               .getString("von allgemein verfügbaren Statistiken ausnehmen")));
-      v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE,
-          getExcludeFromCompetition(),
-          IItemType.TYPE_EXPERT, CAT_MOREDATA, International
-              .getString("von Wettbewerbsmeldungen ausnehmen")));
-      v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
-          IItemType.TYPE_EXPERT, CAT_MOREDATA, International
-              .getString("von Vereinsarbeit ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
-      v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.DEFAULTBOATID, getDefaultBoatId(),
-          IItemType.TYPE_EXPERT, CAT_FREEUSE,
-          boats, getValidFrom(), getInvalidFrom() - 1,
-          International.getString("Standard-Boot")));
       item.setFieldSize(300, -1);
-      v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
-          IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Externe ID")));
-      if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-        v.add(item = new ItemTypeString(PersonRecord.EFBID, getEfbId(),
-            IItemType.TYPE_EXPERT, CAT_ADDRESS, International.onlyFor("Kanu-eFB ID", "de")));
-      }
-
-      v.add(item = new ItemTypeString(PersonRecord.ADDRESSSTREET, getAddressStreet(),
-          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Straße")));
-      v.add(item = new ItemTypeString(PersonRecord.ADDRESSADDITIONAL, getAddressAdditional(),
-          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("weitere Adreßzeile")));
-      v.add(item = new ItemTypeString(PersonRecord.ADDRESSCITY, getAddressCity(),
-          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Stadt")));
-      v.add(item = new ItemTypeString(PersonRecord.ADDRESSZIP, getAddressZip(),
-          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Postleitzahl")));
-      v.add(item = new ItemTypeString(PersonRecord.ADDRESSCOUNTRY, getAddressCountry(),
-          IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Land")));
 
       // CAT_GROUPS
       if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
@@ -890,8 +787,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
       } // isAllowedEditPersons
 
-      v.add(item = new ItemTypeString(PersonRecord.FREEUSE3, getFreeUse3(),
-          IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
     }
 
     // hidden parameter, just for BatchEditDialog

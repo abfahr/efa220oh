@@ -1212,10 +1212,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Versicherungswert")));
     v.add(item = new ItemTypeString(BoatRecord.CURRENCY, getCurrency(),
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
-    v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
-        getExcludeFromPublicStatistics(),
-        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-            .getString("von allgemein verfügbaren Statistiken ausnehmen")));
     if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
       v.add(item = new ItemTypeString(BoatRecord.EFBID, getEfbId(),
           IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID", "de")));

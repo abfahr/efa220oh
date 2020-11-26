@@ -2626,8 +2626,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
     BoatReservationRecord[] reservations = null;
     // look for reservations for this boat within 3 hours
+    int minuten = Daten.efaConfig.getValueEfaDirekt_resLookAheadTime();
     if (boatStatus != null && boatStatus.getBoatId() != null) {
-      int minuten = Daten.efaConfig.getValueEfaDirekt_resLookAheadTime();
       reservations = boatReservations.getBoatReservations(boatStatus.getBoatId(), now, minuten);
     }
     // look for more reservations ahead
@@ -2644,27 +2644,25 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       long diffBisEndeMillis = enddatum.getTimestamp(endzeit) - now;
       if (diffBisEndeMillis > 0) {
-        long minuten = diffBisEndeMillis / 1000 / 60;
-        reservations = boatReservations.getBoatReservations(boatStatus.getBoatId(), now, minuten);
+        long minutes = diffBisEndeMillis / 1000 / 60;
+        reservations = boatReservations.getBoatReservations(boatStatus.getBoatId(), now, minutes);
       }
     }
     // ask user how to proceed
     if (reservations != null && reservations.length > 0) {
-      int minuten = Daten.efaConfig.getValueEfaDirekt_resLookAheadTime();
       long validInMinutes = reservations[0].getReservationValidInMinutes(now, minuten);
+      String warnMeldungText = getWarnmeldung(boatStatus.getBoatText(),
+          reservations[0].getPersonAsName(), validInMinutes);
+      warnMeldungText += NEWLINE
+          + getGrundMeldung(reservations[0].getReason())
+          + getTelefonMeldung(reservations[0].getContact())
+          + NEWLINE
+          + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
+              reservations[0].getReservationTimeDescription(BoatReservationRecord.REPLACE_HEUTE))
+          + NEWLINE
+          + International.getString("Möchtest Du jetzt trotzdem mit diesem Boot starten?");
       int ergebnisYesNoCancelDialog = Dialog.yesNoCancelDialog(
-          International.getString("Boot bereits reserviert"),
-          getWarnmeldung(boatStatus.getBoatText(), reservations[0].getPersonAsName(),
-              validInMinutes)
-              + NEWLINE
-              + getGrundMeldung(reservations[0].getReason())
-              + getTelefonMeldung(reservations[0].getContact())
-              + NEWLINE
-              + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
-                  reservations[0].getReservationTimeDescription(
-                      BoatReservationRecord.REPLACE_HEUTE))
-              + NEWLINE
-              + International.getString("Möchtest Du jetzt trotzdem mit diesem Boot starten?"));
+          International.getString("Boot bereits reserviert"), warnMeldungText);
       if (ergebnisYesNoCancelDialog != Dialog.YES) {
         return true;
       }

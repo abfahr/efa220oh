@@ -502,6 +502,8 @@ public class BoatReservationRecord extends DataRecord {
         if (dateTo == null) {
           dateTo = new DataTypeDate(now);
         }
+        dateFrom = new DataTypeDate(now);
+        dateTo = new DataTypeDate(now);
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(now);
         int weekday = cal.get(Calendar.DAY_OF_WEEK);
@@ -552,12 +554,12 @@ public class BoatReservationRecord extends DataRecord {
       long resEnd = dateTo.getTimestamp(timeTo);
 
       // ist die vorliegende Reservierung jetzt gültig
-      if (now >= resStart && now <= resEnd) {
+      if (now > resStart && now < resEnd) {
         return 0;
       }
 
       // ist die vorliegende Reservierung innerhalb von minutesAhead gültig
-      if (now < resStart && now + lookAheadMinutes * 60 * 1000 >= resStart) {
+      if (now < resStart && now + lookAheadMinutes * 60 * 1000 > resStart) {
         return (resStart - now) / (60 * 1000);
       }
 

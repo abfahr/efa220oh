@@ -387,11 +387,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
         boatStatusRecord.setLogbook(null);
         boatStatusRecord.setBoatText(logbookRecord.getBoatAsName());
         try {
-          boatStatus.data().update(boatStatusRecord);
           currentLogbook.data().update(logbookRecord); // saveEntry();
+          boatStatus.data().update(boatStatusRecord);
         } catch (EfaException e) {
           Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, e);
-          e.printStackTrace();
         }
       }
     }

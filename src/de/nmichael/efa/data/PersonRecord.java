@@ -37,6 +37,7 @@ import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 import net.fortuna.ical4j.model.DateTime;
@@ -551,57 +552,44 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     v.add(item = new ItemTypeString(PersonRecord.LASTNAME, getLastName(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Nachname")));
     ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Namenszusatz")));
-    ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Titel")));
-    ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
-        EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_EXPERT, CAT_ADDRESS, International.getString("Geschlecht")));
 
     if (admin != null && admin.isAllowedEditPersons()) {
       v.add(item = new ItemTypeStringList(PersonRecord.STATUSID,
           (getStatusId() != null ? getStatusId().toString()
-              : status.getStatusOther().getId()
-                  .toString()),
+              : status.getStatusOther().getId().toString()),
           status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status
               .makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
 
-      v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eingabekürzel")));
       v.add(item = new ItemTypeString(PersonRecord.EMAIL, getEmail(),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("email")));
-      v.add(item = new ItemTypeString(PersonRecord.FESTNETZ1, getFestnetz1(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, "T" + International.getString("Telefon/Handy")));
       v.add(item = new ItemTypeString(PersonRecord.HANDY2, getHandy2(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon/Handy") + "H"));
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+          "H" + International.getString("Telefon/Handy") + "H"));
+      v.add(item = new ItemTypeString(PersonRecord.FESTNETZ1, getFestnetz1(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+          "T" + International.getString("Telefon/Handy") + "T"));
+      v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eingabekürzel")));
 
-      v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
-          IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Verein")));
       v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
-
-      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSHORT, isErlaubtKuerzel(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Kürzel")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDEMAIL, isErlaubtEmail(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Email")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDPHONE, isErlaubtTelefon(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Telefon")));
+      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSHORT, isErlaubtKuerzel(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Kürzel")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSPELL, isErlaubtSchreibweise(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA,
           International.getString("ist Erlaubt Schreibweise")));
-
-      v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
-          getExcludeFromPublicStatistics(),
-          IItemType.TYPE_EXPERT, CAT_MOREDATA, International
-              .getString("von allgemein verfügbaren Statistiken ausnehmen")));
       v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
       item.setFieldSize(300, -1);
+      v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
+          getExcludeFromPublicStatistics(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
+              .getString("von allgemein verfügbaren Statistiken ausnehmen")));
 
       // CAT_GROUPS
       if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
@@ -617,14 +605,27 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           itemList.add(items);
         }
         v.add(item = new ItemTypeItemList(GUIITEM_GROUPS, itemList, this,
-            IItemType.TYPE_EXPERT, CAT_GROUPS, International.getString("Gruppenzugehörigkeit")));
+            IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Gruppenzugehörigkeit")));
         ((ItemTypeItemList) item).setXForAddDelButtons(3);
         ((ItemTypeItemList) item).setPadYbetween(0);
         ((ItemTypeItemList) item).setRepeatTitle(false);
         ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
-      } // isAllowedEditPersons
+      } // CAT_GROUPS
 
-    }
+    } // admin visible
+
+    v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
+        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Verein")));
+    v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
+        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Titel")));
+    ((ItemTypeString) item).setNotAllowedCharacters(",");
+    v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
+        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Namenszusatz")));
+    ((ItemTypeString) item).setNotAllowedCharacters(",");
+    v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
+        EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
+            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Geschlecht")));
 
     // hidden parameter, just for BatchEditDialog
     v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.FIRSTLASTNAME, null,
@@ -889,6 +890,62 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       return 0;
     }
     return logbook.countPersonUsage(getId(), false /* allowSameDay */);
+  }
+
+  public String checkUndAktualisiereHandyNr(String action, String newPhone) {
+    if (!isErlaubtTelefon()) {
+      return "noQuestion";
+    }
+    String telnumAusProfil = getFestnetz1();
+    if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
+      return "noQuestion";
+    }
+    telnumAusProfil = getHandy2();
+    if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
+      return "noQuestion"; // Nummer unverändert
+    }
+    if (telnumAusProfil == null) {
+      telnumAusProfil = getFestnetz1();
+    }
+
+    // weder noch
+    String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:\n";
+    frage += "- Heutige Telefonnummer ist: " + newPhone + ",\n";
+    frage += "- sonst übliche TelefonNr lautete: " + telnumAusProfil + ".\n";
+    frage += "Wenn Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
+    frage += "\n";
+    frage += "Darf sich EFa die neue Nummer merken? ";
+    frage += "Soll EFa in Zukunft die neue Nummer vorschlagen?\n";
+    frage += "alte Nummer                                   Drücke ESC für zurück                        neue Nummer\n";
+    int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
+        newPhone + " vorschlagen", // 0 ja neue Nummer übernehmen
+        "nix mehr vorschlagen", // 1 Erlaubnis entziehen
+        telnumAusProfil + " vorschlagen"); // 2 = alte bisherige Nummer
+    switch (antwort) {
+      case 0: // neue Nummer zukünftig merken (rechts, default, selektiert)
+        setHandy2(newPhone);
+        setFestnetz1(null);
+        setErlaubnisTelefon(true);
+        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
+        return "savedNew"; // muss noch gespeichert werden / persistiert
+      case 1: // gar nix mehr vorschlagen
+        setHandy2(null);
+        setFestnetz1(null);
+        setErlaubnisTelefon(false);
+        return "savedEmpty"; // muss noch gespeichert werden / persistiert
+      case 2: // alten Vorschlag beibehalten (links)
+        setHandy2(telnumAusProfil);
+        setFestnetz1(null);
+        setErlaubnisTelefon(true);
+        return "savedOld"; // muss noch gespeichert werden / persistiert
+
+      case 3: // hier könnte ein Button "abbrechen" rein...
+        return "abbrechen"; // = nix tun
+      case -1: // abbrechen = cancel = ESC = x // zurück, nochmal die Nummer ändern
+        return "abbrechen"; // = nix tun
+      default: // unbekannt
+        return "abbrechen"; // = nix tun
+    }
   }
 
 }

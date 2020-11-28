@@ -3782,92 +3782,58 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (!isNewRecord) {
       return true;
     }
-    String sollButtonText = International.getStringWithMnemonic("Fahrt beginnen");
-    if (saveButton != null) {
-      String buttonText = saveButton.getDescription();
-      if (!sollButtonText.contentEquals(buttonText)) {
-        return true;
-      }
-    }
     if (phoneNr == null || phoneNr.getValue().isBlank()) {
       return true;
     }
     if (cox == null || !cox.isKnown()) {
       return true;
     }
+    String action = International.getStringWithMnemonic("Fahrt beginnen");
+    if (saveButton != null) {
+      String buttonText = saveButton.getDescription();
+      if (!action.contentEquals(buttonText)) {
+        return true;
+      }
+    }
     PersonRecord person = findPerson(cox, getValidAtTimestamp(null));
     if (person == null) {
       return true;
     }
-    if (!person.isErlaubtTelefon()) {
-      return true;
+    String antwort = person.checkUndAktualisiereHandyNr(action, phoneNr.getValue());
+    if (antwort.contentEquals("noQuestion")) {
+      return true; // Frage nicht mögich, also weiter
     }
-    String telnumAusProfil = person.getFestnetz1();
-    if (telnumAusProfil != null && phoneNr.getValue().contentEquals(telnumAusProfil)) {
-      return true;
+    if (antwort.contentEquals("abbrechen")) {
+      return false; // User wollte abbrechen, also STOP: stop saving loobook
     }
-    telnumAusProfil = person.getHandy2();
-    if (telnumAusProfil != null && phoneNr.getValue().contentEquals(telnumAusProfil)) {
-      return true;
+    if (!antwort.contains("saved")) {
+      return false; // wrong answer!?! and change Phone in Dialog
     }
-    if (telnumAusProfil == null) {
-      telnumAusProfil = person.getFestnetz1();
+
+    // save entry
+    String info = action + ": " + person.getFirstLastName();
+    if (antwort.contentEquals("savedNew")) {
+      info += " hat nun als TelefonNr '" + person.getHandy2() + "'";
     }
-    // weder noch
-    Persons persons = Daten.project.getPersons(false);
-    String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:";
-    frage += "\n";
-    frage += "Heutige Telefonnummer ist: " + phoneNr + ",\n";
-    frage += "sonst übliche TelefonNr lautet: " + telnumAusProfil + ".\n";
-    frage += "\n";
-    frage += "Darf sich EFa die neue Nummer merken?\n";
-    frage += "Soll EFa in Zukunft die neue Nummer vorschlagen?\n";
-    int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
-        phoneNr + " vorschlagen",
-        "nix mehr vorschlagen",
-        telnumAusProfil + " vorschlagen");
-    switch (antwort) {
-      case 0: // neue Nummer zukünftig merken
-        person.setHandy2(phoneNr.getValue());
-        person.setFestnetz1(null);
-        try {
-          persons.data().update(person);
-          String info = sollButtonText + ": " + person.getFirstLastName()
-              + " hat nun die TelefonNr '" + person.getHandy2()
-              + "' und die Erlaubnis: " + person.isErlaubtTelefon();
-          Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
-          return true;
-        } catch (EfaException e3) {
-          String error = sollButtonText + ": e3 " + e3.getLocalizedMessage();
-          Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
-          return true;
-        }
-      case 1: // gar nix mehr vorschlagen
-        person.setHandy2(null);
-        person.setFestnetz1(null);
-        person.setErlaubnisTelefon(false);
-        try {
-          persons.data().update(person);
-          String info = sollButtonText + ": " + person.getFirstLastName()
-              + " hat nun kein Telefon " + person.getHandy2() + " " + person.getFestnetz1()
-              + ", und die Erlaubnis: " + person.isErlaubtTelefon();
-          Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
-          return true;
-        } catch (EfaException e3) {
-          String error = sollButtonText + ": e3 " + e3.getLocalizedMessage();
-          Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
-          return true;
-        }
-      case 2: // alten Vorschlag beibehalten
-        // = nix tun
-        return true;
-      case 3: // abbrechen = cancel = ESC = x
-        return true;
-      case -1:
-        // zurück, nochmal die Nummer ändern
-        // return false; // = nix tun
-      default: // unbekannt
-        return false; // = nix tun
+    if (antwort.contentEquals("savedOld")) {
+      info += " hat weiterhin die TelefonNr '" + person.getHandy2() + "'";
+    }
+    if (antwort.contentEquals("savedEmpty")) {
+      info += " hat nun kein Telefon " + person.getHandy2() + " " + person.getFestnetz1() + ",";
+    }
+    info += " und die Erlaubnis '" + person.isErlaubtTelefon() + "'";
+    try {
+      Persons persons = Daten.project.getPersons(false);
+      persons.data().update(person);
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      if (antwort.contentEquals("savedNew")) {
+        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
+      }
+      return true; // TelefonNr wurde aktualisiert, weiter mit Fahrt beginnen
+    } catch (EfaException e3) {
+      String error = action + ": e3 " + e3.getLocalizedMessage();
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+      return true; // TelefonNr wurde aktualisiert, weiter mit Fahrt beginnen
     }
   }
 

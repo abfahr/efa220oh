@@ -53,27 +53,7 @@ public class BoatReservationListDialog extends DataListDialog {
     iniValues(null, true, true, true);
   }
 
-  public BoatReservationListDialog(Frame parent, UUID boatId, AdminRecord admin) {
-    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
-        .getBoatReservations(false), 0, admin);
-    iniValues(boatId, true, true, true);
-  }
-
-  public BoatReservationListDialog(JDialog parent, UUID boatId, AdminRecord admin) {
-    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
-        .getBoatReservations(false), 0, admin);
-    iniValues(boatId, true, true, true);
-  }
-
   public BoatReservationListDialog(Frame parent, UUID boatId, boolean allowNewReservations,
-      boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
-    super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
-        .getBoatReservations(false), 0, null);
-    iniValues(boatId, allowNewReservations, allowNewReservationsWeekly,
-        allowEditDeleteReservations);
-  }
-
-  public BoatReservationListDialog(JDialog parent, UUID boatId, boolean allowNewReservations,
       boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
     super(parent, TITEL_BOOTRESERVIERUNGEN, Daten.project
         .getBoatReservations(false), 0, null);
@@ -202,6 +182,34 @@ public class BoatReservationListDialog extends DataListDialog {
     } catch (Exception e) {
       Dialog.error(e.getMessage());
       return null;
+    }
+  }
+
+  @Override
+  public boolean deleteCallback(DataRecord[] records) {
+    for (DataRecord dataRecord : records) {
+      BoatReservationRecord boatReservationRecord = (BoatReservationRecord) dataRecord;
+      if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+        return nachfragenWeekly(); // leider ist ein WEEKLY dabei.
+      }
+    }
+    return super.deleteCallback(records);
+  }
+
+  private boolean nachfragenWeekly() {
+    int antwortAuswahlDialog = Dialog.auswahlDialog(
+        International.getString("Wöchentliche Termine löschen"),
+        International.getString("Möchtest du wöchentliche Termine wirklich löschen?\n"
+            + "Diese festen Termine wurden von Fachwarten angelegt."),
+        International.getString("nein, ich trau mich nicht"),
+        International.getString("ja, ich darf das - bin Fachwart"));
+    switch (antwortAuswahlDialog) {
+      case 0: // nein // nein, nicht löschen
+        return false; // nein, nicht löschen
+      case 1: // ja, // ja, bitte Termine löschen
+        return true; // ja, bitte Termine löschen
+      default:
+        return false; // "Abbruch"
     }
   }
 

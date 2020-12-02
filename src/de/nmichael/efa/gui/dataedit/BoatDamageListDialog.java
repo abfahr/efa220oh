@@ -129,11 +129,12 @@ public class BoatDamageListDialog extends DataListDialog {
       return true;
     }
 
-    switch (Dialog.auswahlDialog(International.getString("Bootsschaden löschen"),
+    int antwortAuswahlDialog = Dialog.auswahlDialog(International.getString("Bootsschaden löschen"),
         International.getString("Möchtest du den Bootsschaden als behoben markieren, oder " +
             "einen irrtümlich gemeldeten Schaden komplett löschen?"),
             International.getString("als behoben markieren"),
-            International.getString("irrtümlich gemeldeten Schaden löschen"))) {
+            International.getString("irrtümlich gemeldeten Schaden löschen"));
+    switch (antwortAuswahlDialog) {
               case 0:
                 BoatDamageEditDialog dlg = (BoatDamageEditDialog) createNewDataEditDialog(this,
                     persistence, unfixedDamage);

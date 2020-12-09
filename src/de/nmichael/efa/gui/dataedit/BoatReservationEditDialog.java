@@ -38,6 +38,7 @@ import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.InvalidValueException;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
@@ -103,8 +104,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
   protected boolean saveRecord() throws InvalidValueException {
     if (newRecord) {
       String errorText = "";
-      String reasonString = this.getItem("Reason").getValueFromField();
-      String name = this.getItem("VirtualBoat").getValueFromField();
+      String reasonString = getItem("Reason").getValueFromField();
+      String name = getItem("VirtualBoat").getValueFromField();
       if (name == BoatRecord.BOOTSHAUS_NAME && reasonString == null) {
         errorText = "kein Reservierungsgrund angegeben??";
       }
@@ -129,8 +130,69 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         Dialog.error(errorText);
         return false;
       }
+      if (!checkUndAktualisiereHandyNrInPersonProfil()) {
+        return false;
+      }
     }
     return super.saveRecord();
+  }
+
+  private boolean checkUndAktualisiereHandyNrInPersonProfil() {
+    // Nutzer fragen, ob Handy-Nummer gespeichert werden soll
+    if (!newRecord) {
+      return true;
+    }
+    ItemTypeStringPhone phoneNr = (ItemTypeStringPhone) getItem(BoatReservationRecord.CONTACT);
+    if (phoneNr == null || phoneNr.getValue().isBlank()) {
+      return true;
+    }
+    ItemTypeStringAutoComplete cox = (ItemTypeStringAutoComplete) getItem(
+        BoatReservationRecord.PERSONID);
+    if (cox == null || !cox.isKnown()) {
+      return true;
+    }
+    UUID personId = (UUID) cox.getId(cox.getValue());
+    Persons persons = Daten.project.getPersons(false);
+    PersonRecord person = persons.getPerson(personId, System.currentTimeMillis());
+    if (person == null) {
+      return true;
+    }
+    String action = getTitle(); // "Reservierung"
+    String antwort = person.checkUndAktualisiereHandyNr(action, phoneNr.getValue());
+    if (antwort.contentEquals("noQuestion")) {
+      return true; // Frage nicht mögich, also weiter
+    }
+    if (antwort.contentEquals("abbrechen")) { // ESC
+      return false; // User wollte abbrechen, also STOP: stop saving loobook
+    }
+    if (!antwort.contains("saved")) {
+      return false; // wrong answer!?! and change Phone in Dialog
+    }
+
+    // save entry
+    String info = action + ": " + person.getFirstLastName();
+    if (antwort.contentEquals("savedNew")) {
+      info += " hat nun als TelefonNr '" + person.getHandy2() + "'";
+    }
+    if (antwort.contentEquals("savedOld")) {
+      info += " hat weiterhin die TelefonNr '" + person.getHandy2() + "'";
+    }
+    if (antwort.contentEquals("savedEmpty")) {
+      info += " hat nun kein Telefon " + person.getHandy2() + " " + person.getFestnetz1() + ",";
+    }
+    info += " und die Erlaubnis '" + person.isErlaubtTelefon() + "'";
+    try {
+      persons.data().update(person);
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      if (antwort.contentEquals("savedNew")) {
+        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
+      }
+      return true; // TelefonNr wurde aktualisiert, weiter mit Reservierung speichern
+    } catch (EfaException e3) {
+      String error = action + ": e3 " + e3.getLocalizedMessage();
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+      return true; // TelefonNr wurde aktualisiert, weiter mit Reservierung speichern
+    }
   }
 
   @Override

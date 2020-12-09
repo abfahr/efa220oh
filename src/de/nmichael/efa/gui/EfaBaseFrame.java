@@ -301,13 +301,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (remoteAdmin == null && Daten.project != null &&
         Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
       error = true;
-      Dialog
-          .error(International.getString("Login fehlgeschlagen")
-              + ".\n"
-              +
-              International
-                  .getString(
-                      "Bitte überprüfe Remote-Adminnamen und Paßwort in den Projekteinstellungen."));
+      Dialog.error(International.getString("Login fehlgeschlagen") + ".\n"
+          + International.getString(
+              "Bitte überprüfe Remote-Adminnamen und Paßwort in den Projekteinstellungen."));
     }
     if (remoteAdmin != null && !remoteAdmin.isAllowedRemoteAccess()) {
       error = true;

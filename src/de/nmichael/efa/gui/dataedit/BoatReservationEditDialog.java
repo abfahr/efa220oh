@@ -54,7 +54,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     super(parent, International.getString("Reservierung"), r, newRecord, admin);
     initListener();
     setAllowWeeklyReservation(allowWeeklyReservation);
-    if (!r.isBootshausOH()) {
+    if (!r.isBootshausOH() && admin == null) {
       enableReason(false);
     }
   }

@@ -687,8 +687,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
       LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
       if (newLogbookRecord != null) {
         EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
-            International.getString("Fahrtbeginn") + " (reserv)", newLogbookRecord);
-        boatReservationRecord.setInvisible(true); // unnötig - kann raus!
+            International.getString("Fahrtbeginn") + "(reserv)", newLogbookRecord);
+        boatReservationRecord.setInvisible(true); // TODO unnötig - kann raus!
         updateReservation(boatReservationRecord);
         return newLogbookRecord;
       }

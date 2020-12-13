@@ -401,8 +401,7 @@ public class KanuEfbSyncTask extends ProgressTask {
       while (k != null) {
         BoatRecord r = (BoatRecord) boats.data().get(k);
         if (r != null && r.isValidAt(thisSync) && Daten.efaConfig.isCanoeBoatType(r) &&
-            (r.getLastModified() > lastSync || r.getEfbId() == null
-                || r.getEfbId().length() == 0)) {
+            (r.getLastModified() > lastSync || true)) {
           if (Logger.isTraceOn(Logger.TT_SYNC)) {
             logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO,
                 "  erstelle Synchronisierungs-Anfrage für Boot: " + r.getQualifiedName());
@@ -433,11 +432,6 @@ public class KanuEfbSyncTask extends ProgressTask {
               BoatRecord b = boats.getBoat(efaId, thisSync);
               efbId = efbId.trim();
               if (b != null) {
-                if (!efbId.equals(b.getEfbId())) {
-                  b.setEfbId(efbId);
-                  boats.data().update(b);
-                  countSyncBoats++;
-                }
                 ok = true;
               }
             }

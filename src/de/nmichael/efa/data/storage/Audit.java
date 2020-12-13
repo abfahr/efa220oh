@@ -19,7 +19,6 @@ import java.util.Hashtable;
 import java.util.UUID;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatDamages;
 import de.nmichael.efa.data.BoatRecord;
@@ -279,64 +278,6 @@ public class Audit extends Thread {
           if (listChanged) {
             boat.setAllowedGroupIdList(uuidList);
             updated = true;
-          }
-          if (isReferenceInvalid(boat.getRequiredGroupId(), groups, -1)) {
-            boat.setRequiredGroupId(null);
-            updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
-                "runAuditBoats(): "
-                    + International.getString("Boot") + " "
-                    + boat.getQualifiedName() + ": "
-                    + International.getMessage(
-                        "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
-                        International.getString("Gruppe"),
-                        International
-                            .getString("Gruppe, der mindestens eine Person angehören muß")));
-          }
-          if (isReferenceInvalid(boat.getDefaultCrewId(), crews, -1)) {
-            boat.setDefaultCrewId(null);
-            updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
-                "runAuditBoats(): "
-                    + International.getString("Boot") + " "
-                    + boat.getQualifiedName() + ": "
-                    + International.getMessage(
-                        "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
-                        International.getString("Mannschaft"),
-                        International.getString("Standard-Mannschaft")));
-          }
-          if (boat.getDefaultSessionType() != null &&
-              !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION,
-                  boat.getDefaultSessionType())) {
-            boat.setDefaultSessionType(null);
-            updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
-                "runAuditBoats(): "
-                    + International.getString("Boot") + " "
-                    + boat.getQualifiedName() + ": "
-                    + International.getMessage(
-                        "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
-                        International.getString("Fahrtart"),
-                        International.getString("Standard-Fahrtart")));
-          }
-        }
-        if (destinations.dataAccess.getNumberOfRecords() > 0) {
-          // run check only agains non-empty list (could be due to error opening list)
-          if (isReferenceInvalid(boat.getDefaultDestinationId(), destinations, -1)) {
-            boat.setDefaultDestinationId(null);
-            updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
-                "runAuditBoats(): "
-                    + International.getString("Boot") + " "
-                    + boat.getQualifiedName() + ": "
-                    + International.getMessage(
-                        "Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
-                        International.getString("Ziel"),
-                        International.getString("Standard-Ziel")));
           }
         }
         if (updated) {

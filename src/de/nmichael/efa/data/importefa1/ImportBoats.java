@@ -15,14 +15,12 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.Groups;
 import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
-import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.efa1.DatenFelder;
@@ -60,8 +58,11 @@ public class ImportBoats extends ImportBase {
   }
 
   private boolean isChanged(BoatRecord r, DatenFelder d) {
-    String name = r.getName() + (r.getNameAffix() != null && r.getNameAffix().length() > 0 ?
-        " (" + r.getNameAffix() + ")" : "");
+    String name = r.getName();
+    if (r.getNameAffix() != null && r.getNameAffix().length() > 0) {
+      name += " (" + r.getNameAffix() + ")";
+    }
+
     if (!isIdentical(name, task.synBoote_getMainName(name))) {
       return true;
     }
@@ -71,22 +72,7 @@ public class ImportBoats extends ImportBase {
     if (!isIdentical(boatsAllowedGroups.get(r.getKey()), d.get(Boote.GRUPPEN))) {
       return true;
     }
-    if (!isIdentical(
-        (r.getMaxNotInGroup() == IDataAccess.UNDEFINED_INT ? null : r.getMaxNotInGroup()),
-        d.get(Boote.MAX_NICHT_IN_GRUPPE))) {
-      return true;
-    }
     if (!isIdentical(boatsRequiredGroup.get(r.getKey()), d.get(Boote.MIND_1_IN_GRUPPE))) {
-      return true;
-    }
-
-    if (!isIdentical(r.getFreeUse1(), d.get(Boote.FREI1))) {
-      return true;
-    }
-    if (!isIdentical(r.getFreeUse2(), d.get(Boote.FREI2))) {
-      return true;
-    }
-    if (!isIdentical(r.getFreeUse3(), d.get(Boote.FREI3))) {
       return true;
     }
     return false;
@@ -156,8 +142,7 @@ public class ImportBoats extends ImportBase {
         // First search, whether we have imported this boat already
         BoatRecord boatRecord = null;
         DataKey[] keys = boats.data().getByFields(IDX,
-            new String[] {
-            boatName, boatVerein });
+            new String[] { boatName, boatVerein });
         if (keys != null && keys.length > 0) {
           // We've found one or more boats with same Name and Owner.
           // It can happen that the same record has existed before, but became invalid in the
@@ -182,8 +167,7 @@ public class ImportBoats extends ImportBase {
           newBoatRecord = (boatRecord == null);
           changedBoatRecord = (boatRecord != null);
           if (boatRecord == null) {
-            boatRecord = boats.createBoatRecord((boatRecord != null ? boatRecord.getId() : UUID
-                .randomUUID()));
+            boatRecord = boats.createBoatRecord((UUID.randomUUID()));
           }
 
           boatRecord.setName(boatName);
@@ -191,19 +175,6 @@ public class ImportBoats extends ImportBase {
             boatRecord.setNameAffix(boatVerein);
             boatRecord.setOwner(boatVerein);
           }
-          if (d.get(Boote.MAX_NICHT_IN_GRUPPE).length() > 0) {
-            boatRecord.setMaxNotInGroup(EfaUtil.string2int(d.get(Boote.MAX_NICHT_IN_GRUPPE), 99));
-          }
-          if (d.get(Boote.FREI1).length() > 0) {
-            boatRecord.setFreeUse1(d.get(Boote.FREI1));
-          }
-          if (d.get(Boote.FREI2).length() > 0) {
-            boatRecord.setFreeUse2(d.get(Boote.FREI2));
-          }
-          if (d.get(Boote.FREI3).length() > 0) {
-            boatRecord.setFreeUse3(d.get(Boote.FREI3));
-          }
-          boatRecord.setDefaultSessionType(EfaTypes.TYPE_SESSION_NORMAL);
         }
 
         if (!findBoatType(boatRecord, d)) {
@@ -328,25 +299,6 @@ public class ImportBoats extends ImportBase {
         }
       }
     }
-
-    if (boatsRequiredGroup != null) {
-      for (DataKey k : boatsRequiredGroup.keySet()) {
-        String g = boatsRequiredGroup.get(k).trim();
-        UUID id = (groupMapping != null ? groupMapping.get(g) : null);
-        if (id != null) {
-          try {
-            BoatRecord boat = (BoatRecord) boats.data().get(k);
-            if (boat != null) {
-              boat.setRequiredGroupId(id);
-            }
-            boats.data().update(boat);
-          } catch (Exception e) {
-            // no special handling
-          }
-        }
-      }
-    }
-
     return true;
   }
 

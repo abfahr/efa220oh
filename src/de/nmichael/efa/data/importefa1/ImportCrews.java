@@ -105,24 +105,9 @@ public class ImportCrews extends ImportBase {
         String boatName = Mitglieder.getName(d.get(Mannschaften.BOOT));
         String clubName = Mitglieder.getVerein(d.get(Mannschaften.BOOT));
         try {
-          DataKey[] keys = boats.data().getByFields(IDXB,
-              new String[] {
+          DataKey[] keys = boats.data().getByFields(IDXB, new String[] {
               (boatName.length() > 0 ? boatName : null),
               (clubName.length() > 0 ? clubName : null) });
-          for (int i = 0; keys != null && i < keys.length; i++) {
-            BoatRecord b = (BoatRecord) boats.data().get(keys[i]);
-            if (b != null) {
-              b.setDefaultCrewId(r.getId());
-              if (d.get(Mannschaften.FAHRTART).length() > 0) {
-                b.setDefaultSessionType(d.get(Mannschaften.FAHRTART));
-              }
-              id = findDestination(destinations, IDXD, d.get(Mannschaften.ZIEL), true, -1);
-              if (id != null) {
-                b.setDefaultDestinationId(id);
-              }
-              boats.data().update(b);
-            }
-          }
         } catch (Exception e) {
           Logger.logdebug(e);
         }

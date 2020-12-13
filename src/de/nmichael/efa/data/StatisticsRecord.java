@@ -3336,15 +3336,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (o instanceof UUID) {
           sFilterByBoatId = (UUID) o;
           sFilterByBoatText = null;
-          if (sPublicStatistic) {
-            BoatRecord b = getPersistence().getProject().getBoats(false)
-                .getBoat(sFilterByBoatId, sValidAt);
-            if (b != null && b.getExcludeFromPublicStatistics()) {
-              Dialog.error(International.getMessage("Statistik für {name} nicht erlaubt.",
-                  b.getQualifiedName()));
-              return false;
-            }
-          }
         } else {
           sFilterByBoatText = (String) o;
           sFilterByBoatId = null;

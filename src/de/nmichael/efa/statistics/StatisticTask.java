@@ -1332,8 +1332,7 @@ public class StatisticTask extends ProgressTask {
     if (entryBoatRecord != null) {
       entryBoatOwner = entryBoatRecord.getOwnerOwnOrOther();
     }
-    entryBoatExclude = (entryBoatRecord != null && entryBoatRecord.getExcludeFromPublicStatistics()
-        && sr.getPubliclyAvailable());
+    entryBoatExclude = false;
   }
 
   private void getEntryPerson(LogbookRecord r, int pos) {

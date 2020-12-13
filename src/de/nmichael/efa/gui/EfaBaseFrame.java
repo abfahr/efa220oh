@@ -73,7 +73,6 @@ import de.nmichael.efa.data.Clubwork;
 import de.nmichael.efa.data.CrewRecord;
 import de.nmichael.efa.data.Crews;
 import de.nmichael.efa.data.DestinationRecord;
-import de.nmichael.efa.data.Destinations;
 import de.nmichael.efa.data.GroupRecord;
 import de.nmichael.efa.data.Groups;
 import de.nmichael.efa.data.Logbook;
@@ -325,11 +324,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   public void _keyAction(ActionEvent evt) {
     if (evt.getActionCommand().equals(KEYACTION_F3)) {
       SearchLogbookDialog.search();
-    }
-    if (evt.getActionCommand().equals(KEYACTION_F4)) {
-      if (currentBoat != null && currentBoat.getDefaultCrewId() != null) {
-        setDefaultCrew(currentBoat.getDefaultCrewId());
-      }
     }
     super._keyAction(evt);
   }
@@ -3078,8 +3072,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           }
         }
         if (Daten.efaConfig.getValueCheckAllowedPersonsInBoat() &&
-            nichtErlaubtAnz > 0 &&
-            nichtErlaubtAnz > currentBoat.getMaxNotInGroup()) {
+            nichtErlaubtAnz > 0) {
           String erlaubteGruppen = null;
           for (int j = 0; j < groupIdList.length(); j++) {
             GroupRecord g = groups.findGroupRecord(groupIdList.get(j), tstmp);
@@ -3127,56 +3120,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
               cancel();
               return false;
             default: // "Eintrag abbrechen"
-              cancel();
-              return false;
-          }
-        }
-      }
-
-      // Prüfen, ob mind 1 Ruderer (oder Stm) der Gruppe "mind 1 aus Gruppe" im Boot sitzt
-      if (Daten.efaConfig.getValueCheckMinOnePersonsFromGroupInBoat() &&
-          currentBoat.getRequiredGroupId() != null) {
-        GroupRecord g = groups.findGroupRecord(currentBoat.getRequiredGroupId(), tstmp);
-        boolean found = false;
-        if (g != null && g.getMemberIdList() != null) {
-          for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
-            PersonRecord p = myRecord.getCrewRecord(i, tstmp);
-            if (p != null && g.getMemberIdList().contains(p.getId())) {
-              found = true;
-              break;
-            }
-          }
-        }
-        if (g != null && !found) {
-          int ergebnisAuswahlDialog = Dialog.auswahlDialog(
-              International.getString("Boot erfordert bestimmte Berechtigung"),
-              International.getMessage(
-                  "In diesem Boot muß mindestens ein Mitglied der Gruppe {groupname} sitzen.",
-                  g.getName())
-                  + "\n"
-                  + International.getString("Was möchtest Du tun?"),
-              International.getString("Anderes Boot wählen"),
-              International.getString("Mannschaft ändern"),
-              International.getString("Trotzdem benutzen"),
-              International.getString("Eintrag abbrechen"));
-          switch (ergebnisAuswahlDialog) {
-            case 0:
-              setFieldEnabled(true, true, boat);
-              boat.parseAndShowValue("");
-              boat.requestFocus();
-              return false;
-            case 1:
-              crew[0].requestFocus();
-              return false;
-            case 2:
-              logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_UNALLOWEDBOATUSAGE,
-                  International.getString("Unerlaubte Benutzung eines Bootes"),
-                  myRecord);
-              break;
-            case 3:
-              cancel();
-              return false;
-            default:
               cancel();
               return false;
           }
@@ -4089,21 +4032,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                       + ", coxing=" + currentBoatTypeCoxing + ", noofseats="
                       + currentBoatNumberOfSeats);
         }
-        if (isNewRecord) {
-          if (b.getDefaultDestinationId() != null) {
-            Destinations d = logbook.getProject().getDestinations(false);
-            DestinationRecord dr = d.getDestination(b.getDefaultDestinationId(),
-                getValidAtTimestamp(null));
-            destination.parseAndShowValue((dr != null ? dr.getQualifiedName() : ""));
-            setDesinationDistance();
-          }
-          if (b.getDefaultCrewId() != null && Daten.efaConfig.getValueAutoStandardmannsch()) {
-            setDefaultCrew(b.getDefaultCrewId());
-          }
-          if (b.getDefaultSessionType() != null && b.getDefaultSessionType().length() > 0) {
-            sessiontype.parseAndShowValue(b.getDefaultSessionType());
-          }
-        }
       } else {
         if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
           Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_EFABASEFRAME,
@@ -4951,7 +4879,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       switch (mode) {
         case MODE_BOATHOUSE_START:
           logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPSTART,
-              International.getString("Fahrtbeginn"),
+              International.getString("Fahrtbeginn") + " (" + currentRecord.getStartTime() + ")",
               currentRecord);
           break;
         case MODE_BOATHOUSE_START_CORRECT:
@@ -4961,7 +4889,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           break;
         case MODE_BOATHOUSE_FINISH:
           logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
-              International.getString("Fahrtende"),
+              International.getString("Fahrtende") + " (" + currentRecord.getEndTime() + ")",
               currentRecord);
           break;
         case MODE_BOATHOUSE_LATEENTRY:

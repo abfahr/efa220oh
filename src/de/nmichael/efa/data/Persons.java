@@ -183,11 +183,11 @@ public class Persons extends StorageObject {
   public PersonRecord getPersonWithTelefon(String telefonnummer, long validAt) {
     try {
       DataKey<?, ?, ?>[] keys = data().getByFields(
-          new String[] { PersonRecord.FREEUSE1 },
+          new String[] { PersonRecord.FESTNETZ1 },
           staticPersonRecord.getQualifiedNameValues(telefonnummer), validAt);
       if (keys == null || keys.length < 1) {
         keys = data().getByFields(
-            new String[] { PersonRecord.FREEUSE2 },
+            new String[] { PersonRecord.HANDY2 },
             staticPersonRecord.getQualifiedNameValues(telefonnummer), validAt);
       }
       if (keys == null || keys.length < 1) {
@@ -397,9 +397,7 @@ public class Persons extends StorageObject {
       Hashtable<UUID, DataKey<?, ?, ?>> uuids = new Hashtable<UUID, DataKey<?, ?, ?>>();
       while (k != null) {
         PersonRecord p = (PersonRecord) dataAccess.get(k);
-        if (p != null && p.isValidAt(tstmp) && !p.getDeleted() &&
-            p.isStatusMember() &&
-            (!withoutMembersExcludedFromCompetition || !p.getExcludeFromCompetition())) {
+        if (p != null && p.isValidAt(tstmp) && !p.getDeleted() && p.isStatusMember()) {
           uuids.put(p.getId(), k);
         }
         k = it.getNext();
@@ -784,28 +782,30 @@ public class Persons extends StorageObject {
 
   public void cleanPersons() {
     int i = 0;
+    int iNeuEmailErlaubt = 0;
     try {
       DataKeyIterator it = data().getStaticIterator();
       for (DataKey<?, ?, ?> key = it.getFirst(); key != null; key = it.getNext()) {
         PersonRecord person = (PersonRecord) data().get(key);
-        if (person == null) {
-          continue;
-        }
-        try {
-          person.cleanPerson();
-          data().update(person); // save // update DB
-          i++;
-        } catch (EfaException e) {
-          Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-              "Person konnte nicht aktualisiert werden: "
-                  + person.getFirstLastName() + e.getLocalizedMessage());
+        if (person != null) {
+          try {
+            if (person.cleanPerson()) {
+              data().update(person); // save // update DB
+              iNeuEmailErlaubt++;
+            }
+            i++;
+          } catch (EfaException e) {
+            Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+                "Person konnte nicht aktualisiert werden: "
+                    + person.getFirstLastName() + e.getLocalizedMessage());
+          }
         }
       }
       Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
-          "cleanPersons() erfolgreich durchgeführt (" + i + ")");
+          "cleanPersons() erfolgreich durchgeführt (" + iNeuEmailErlaubt + "/" + i + ")");
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
-          "cleanPersons() konnte nicht durchgeführt werden (" + i + ") "
+          "cleanPersons() konnte nicht durchgeführt werden (" + iNeuEmailErlaubt + "/" + i + ") "
               + e.getLocalizedMessage());
     }
   }

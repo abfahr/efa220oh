@@ -139,7 +139,8 @@ public class Destinations extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record,
+      boolean add, boolean update, boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, DestinationRecord.ID);
@@ -151,15 +152,13 @@ public class Destinations extends StorageObject {
             dr.getDestinationAreas().findZielbereich(getProject().getBoathouseAreaID()) >= 0) {
           throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
               "Eigener Zielbereich " + getProject().getBoathouseAreaID()
-              + " bei Fahrten ab eigenem Bootshaus nicht erlaubt.",
+                  + " bei Fahrten ab eigenem Bootshaus nicht erlaubt.",
               Thread.currentThread().getStackTrace());
 
         }
       }
     }
     if (delete) {
-      assertNotReferenced(record, getProject().getBoats(false),
-          new String[] { BoatRecord.DEFAULTDESTINATIONID });
       String[] logbooks = getProject().getAllLogbookNames();
       for (int i = 0; logbooks != null && i < logbooks.length; i++) {
         assertNotReferenced(record, getProject().getLogbook(logbooks[i], false),
@@ -200,8 +199,10 @@ public class Destinations extends StorageObject {
     @Override
     public String getSuccessfullyDoneMessage() {
       return International.getString("Datensätze erfolgreich zusammengefügt.") +
-          (errorCount > 0 || warningCount > 0 ?
-              "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]" : "");
+          (errorCount > 0 || warningCount > 0
+              ? "\n[" + errorCount + " ERRORS, "
+                  + warningCount + " WARNINGS]"
+              : "");
     }
 
     private boolean isIdToBeMerged(UUID id) {
@@ -255,23 +256,6 @@ public class Destinations extends StorageObject {
 
         // Search Boats
         logInfo("Searching Boats ...\n");
-        Boats boats = p.getBoats(false);
-        DataKeyIterator it = boats.data().getStaticIterator();
-        for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-          BoatRecord r = (BoatRecord) boats.data().get(k);
-          if (r != null) {
-            boolean changed = false;
-            if (isIdToBeMerged(r.getDefaultDestinationId())) {
-              r.setDefaultDestinationId(mainID);
-              changed = true;
-            }
-            if (changed) {
-              logInfo("Updating record " + r.getQualifiedName() + " ...\n");
-              boats.data().update(r);
-              updateCount++;
-            }
-          }
-        }
         setCurrentWorkDone(++workDone);
 
         // Merge Destination and delete old Destinations

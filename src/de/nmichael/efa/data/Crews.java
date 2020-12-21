@@ -81,16 +81,13 @@ public class Crews extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record,
+      boolean add, boolean update, boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, CrewRecord.ID);
       assertFieldNotEmpty(record, CrewRecord.NAME);
       assertUnique(record, CrewRecord.NAME);
-    }
-    if (delete) {
-      assertNotReferenced(record, getProject().getBoats(false),
-          new String[] { BoatRecord.DEFAULTCREWID });
     }
   }
 

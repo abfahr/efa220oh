@@ -190,7 +190,7 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
       return EfaUtil.int2String(month, 2) + "/" + EfaUtil.int2String(year, 4);
     }
     return EfaUtil.int2String(day, 2) + "." + EfaUtil.int2String(month, 2) + "."
-    + EfaUtil.int2String(year, 4);
+        + EfaUtil.int2String(year, 4);
   }
 
   public boolean isSet() {
@@ -320,7 +320,8 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
     long r1To = r1ToDate.getTimestamp(r1ToTime);
     long r2From = r2FromDate.getTimestamp(r2FromTime);
     long r2To = r2ToDate.getTimestamp(r2ToTime);
-    return (r1From <= r2To) && (r1To >= r2From);
+    // return (r1From <= r2To) && (r1To >= r2From);
+    return (r1From < r2To) && (r1To > r2From);
   }
 
   public static DataTypeDate[] getRangeOverlap(DataTypeDate r1From, DataTypeDate r1To,

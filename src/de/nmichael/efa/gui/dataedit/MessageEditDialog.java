@@ -115,8 +115,8 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
           ItemTypeStringAutoComplete from = (ItemTypeStringAutoComplete) getItem(
               MessageRecord.FROM);
           Persons persons = Daten.project.getPersons(false);
-          PersonRecord p = persons.getPerson(
-              (UUID) from.getId(from.getValueFromField()), System.currentTimeMillis());
+          UUID personId = (UUID) from.getId(from.getValueFromField());
+          PersonRecord p = persons.getPerson(personId, System.currentTimeMillis());
           if (p != null && p.getEmail() != null) {
             String personEmail = p.getEmail().trim();
             if (personEmail.length() > 0) {

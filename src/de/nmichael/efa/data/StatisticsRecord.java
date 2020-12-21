@@ -53,7 +53,6 @@ import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
-import de.nmichael.efa.gui.EnterPasswordDialog;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
@@ -283,75 +282,36 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   private static final int ARRAY_STRINGLIST_DISPLAY = 2;
 
   public enum StatisticCategory {
-    UNKNOWN,
-    list,
-    matrix,
-    logbook,
-    competition,
-    other
+    UNKNOWN, list, matrix, logbook, competition, other
   }
 
   public enum StatisticType {
-    persons,
-    boats,
-    boatstatus,
-    boatreservations,
-    boatdamages,
-    boatdamagestat,
-    clubwork,
-    anythingElse // if this is selected, it's most likely a competition; refer to the String value
+    persons, boats, boatstatus, boatreservations, boatdamages, boatdamagestat, clubwork, anythingElse // if
+                                                                                                      // this
+                                                                                                      // is
+                                                                                                      // selected,
+                                                                                                      // it's
+                                                                                                      // most
+                                                                                                      // likely
+                                                                                                      // a
+                                                                                                      // competition;
+                                                                                                      // refer
+                                                                                                      // to
+                                                                                                      // the
+                                                                                                      // String
+                                                                                                      // value
   }
 
   public enum StatisticKey {
-    name,
-    status,
-    yearOfBirth,
-    gender,
-    boatType,
-    boatSeats,
-    boatTypeDetail,
-    destination,
-    waters,
-    distance,
-    month,
-    weekday,
-    timeOfDay,
-    sessionType,
-    year
+    name, status, yearOfBirth, gender, boatType, boatSeats, boatTypeDetail, destination, waters, distance, month, weekday, timeOfDay, sessionType, year
   }
 
   public enum SortingCriteria {
-    UNKNOWN,
-    distance,
-    rowdistance,
-    coxdistance,
-    sessions,
-    avgDistance,
-    duration,
-    days,
-    speed,
-    name,
-    gender,
-    status,
-    yearOfBirth,
-    boatType,
-    entryNo,
-    date,
-    damageCount,
-    damageDuration,
-    damageAvgDuration,
-    clubwork
+    UNKNOWN, distance, rowdistance, coxdistance, sessions, avgDistance, duration, days, speed, name, gender, status, yearOfBirth, boatType, entryNo, date, damageCount, damageDuration, damageAvgDuration, clubwork
   }
 
   public enum OutputTypes {
-    UNKNOWN,
-    internal,
-    internaltxt,
-    html,
-    csv,
-    xml,
-    pdf,
-    efawett
+    UNKNOWN, internal, internaltxt, html, csv, xml, pdf, efawett
   }
 
   // =========================================================================
@@ -1016,10 +976,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     if (category == StatisticCategory.competition) {
       if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
         return (Daten.wettDefs != null
-            ? Daten.wettDefs.getAllWettDefKeys() : new String[0]);
+            ? Daten.wettDefs.getAllWettDefKeys()
+            : new String[0]);
       } else {
         return (Daten.wettDefs != null
-            ? Daten.wettDefs.getAllWettDefNames() : new String[0]);
+            ? Daten.wettDefs.getAllWettDefNames()
+            : new String[0]);
 
       }
     }
@@ -1152,7 +1114,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return International.getString("Bootsplätze");
       case boatTypeDetail:
         return International.getString("Bootstypen") + " (" +
-        International.getString("Detail") + ")";
+            International.getString("Detail") + ")";
       case destination:
         return International.getString("Ziele");
       case waters:
@@ -1310,7 +1272,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return International.getString("intern");
       case internaltxt:
         return International.getString("intern") + " (" +
-        International.getString("einfach") + ")";
+            International.getString("einfach") + ")";
       case html:
         return "HTML";
       case csv:
@@ -1365,11 +1327,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
           International.getString("intern"),
           International.getString("intern") + " (" +
               International.getString("einfach") + ")",
-              "HTML",
-              "PDF",
-              "CSV",
-              "XML",
-              International.onlyFor("Meldedatei", "de") + " (" + Daten.EFA_WETT + ")",
+          "HTML",
+          "PDF",
+          "CSV",
+          "XML",
+          International.onlyFor("Meldedatei", "de") + " (" + Daten.EFA_WETT + ")",
 
       };
     }
@@ -1399,7 +1361,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     DataTypeList list = getFilterGender();
     return getFilterGenderAll()
         || (list != null && list.length() == EfaTypes
-        .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
   }
 
   private String getFilterEfaTypesSelectedListAsText(DataTypeList<String> list, String cat) {
@@ -1496,7 +1458,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     DataTypeList list = getFilterSessionType();
     return getFilterSessionTypeAll()
         || (list != null && list.length() == EfaTypes
-        .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+            .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
   }
 
   public String getFilterSessionTypeSelectedListAsText() {
@@ -1527,7 +1489,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     DataTypeList list = getFilterBoatType();
     return getFilterBoatTypeAll()
         || (list != null && list.length() == EfaTypes
-        .makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+            .makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
   }
 
   public String getFilterBoatTypeSelectedListAsText() {
@@ -1558,7 +1520,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     DataTypeList list = getFilterBoatSeats();
     return getFilterBoatSeatsAll()
         || (list != null && list.length() == EfaTypes
-        .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+            .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
   }
 
   public String getFilterBoatSeatsSelectedListAsText() {
@@ -1589,7 +1551,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     DataTypeList list = getFilterBoatRigging();
     return getFilterBoatRiggingAll()
         || (list != null && list.length() == EfaTypes
-        .makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+            .makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
   }
 
   public String getFilterBoatRiggingSelectedListAsText() {
@@ -1620,7 +1582,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     DataTypeList list = getFilterBoatCoxing();
     return getFilterBoatCoxingAll()
         || (list != null && list.length() == EfaTypes
-        .makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+            .makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
   }
 
   public String getFilterBoatCoxingSelectedListAsText() {
@@ -1676,7 +1638,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public boolean isFilterBoatOwnerAllSelected() {
     DataTypeList list = getFilterBoatOwner();
     return getFilterBoatOwnerAll()
-        || (list != null && list.length() == getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+        || (list != null
+            && list.length() == getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
   }
 
   public String getFilterBoatOwnerSelectedListAsText() {
@@ -2342,12 +2305,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return International.getString("Datum");
       case damageCount:
         return International.getString("Anzahl") + " " +
-        International.getString("Schäden");
+            International.getString("Schäden");
       case damageDuration:
         return International.getString("Reparaturdauer");
       case damageAvgDuration:
         return International.getString("Reparaturdauer") + "/" +
-        International.getString("Schaden");
+            International.getString("Schaden");
       case clubwork:
         return International.getString("Vereinsarbeit");
     }
@@ -2382,11 +2345,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
           International.getString("Fahrten"),
           International.getString("Name"),
           Daten.efaConfig.getRowingAndOrPaddlingString() +
-          International.getSpaceOrDash() +
-          International.getString("Kilometer"),
+              International.getSpaceOrDash() +
+              International.getString("Kilometer"),
           International.getString("Steuer", "wie in Steuer-Km") +
-          International.getSpaceOrDash() +
-          International.getString("Kilometer"),
+              International.getSpaceOrDash() +
+              International.getString("Kilometer"),
           International.getString("Km/Fahrt"),
           International.getString("Dauer"),
           International.getString("Geschwindigkeit"),
@@ -2398,10 +2361,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
           International.getString("Datum"),
           International.getString("Anzahl") + " " +
               International.getString("Schäden"),
-              International.getString("Reparaturdauer"),
-              International.getString("Reparaturdauer") + "/" +
-                  International.getString("Schaden"),
-                  International.getString("Vereinsarbeit")
+          International.getString("Reparaturdauer"),
+          International.getString("Reparaturdauer") + "/" +
+              International.getString("Schaden"),
+          International.getString("Vereinsarbeit")
       };
     }
   }
@@ -2671,7 +2634,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     item.setNotNull(true);
     v.add(item = new ItemTypeBoolean(StatisticsRecord.PUBLICLYAVAILABLE, getPubliclyAvailable(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International
-        .getString("Statistik allgemein verfügbar")));
+            .getString("Statistik allgemein verfügbar")));
     ((ItemTypeBoolean) item).registerItemListener(this);
     v.add(item = new ItemTypeDate(StatisticsRecord.DATEFROM, getDateFrom(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Von")));
@@ -2704,7 +2667,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERGENDER,
         getFilterGender(),
         EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERGENDER),
         International.getString("Geschlecht")));
     itemFilterGender = (ItemTypeMultiSelectList<String>) item;
@@ -2727,7 +2690,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERSESSIONTYPE,
         getFilterSessionType(),
         EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERSESSIONTYPE),
         International.getString("Fahrtart")));
     itemFilterSessionType = (ItemTypeMultiSelectList<String>) item;
@@ -2740,7 +2703,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATTYPE,
         getFilterBoatType(),
         EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERBOATTYPE),
         International.getString("Bootstyp")));
     itemFilterBoatType = (ItemTypeMultiSelectList<String>) item;
@@ -2752,7 +2715,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATSEATS,
         getFilterBoatSeats(),
         EfaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERBOATSEAT),
         International.getString("Bootsplätze")));
     itemFilterBoatSeats = (ItemTypeMultiSelectList<String>) item;
@@ -2764,7 +2727,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATRIGGING,
         getFilterBoatRigging(),
         EfaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERBOATRIGG),
         International.getString("Riggerung")));
     itemFilterBoatRigging = (ItemTypeMultiSelectList<String>) item;
@@ -2777,7 +2740,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATCOXING,
         getFilterBoatCoxing(),
         EfaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-        .makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            .makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERBOATCOXING),
         International.getString("Steuerung")));
     itemFilterBoatCoxing = (ItemTypeMultiSelectList<String>) item;
@@ -2811,7 +2774,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       ((ItemTypeStringAutoComplete) item).parseAndShowValue(getFilterByPersonText());
     }
     ((ItemTypeStringAutoComplete) item)
-    .setAlternateFieldNameForPlainText(StatisticsRecord.FILTERBYPERSONTEXT);
+        .setAlternateFieldNameForPlainText(StatisticsRecord.FILTERBYPERSONTEXT);
     v.add(item = getGuiItemTypeStringAutoComplete(StatisticsRecord.FILTERBYBOATID, null,
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERINDIVIDUAL),
         getPersistence().getProject().getBoats(false), System.currentTimeMillis(),
@@ -2823,7 +2786,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       ((ItemTypeStringAutoComplete) item).parseAndShowValue(getFilterByBoatText());
     }
     ((ItemTypeStringAutoComplete) item)
-    .setAlternateFieldNameForPlainText(StatisticsRecord.FILTERBYBOATTEXT);
+        .setAlternateFieldNameForPlainText(StatisticsRecord.FILTERBYBOATTEXT);
     v.add(item = getGuiItemTypeStringAutoComplete(StatisticsRecord.FILTERBYGROUPID,
         getFilterByGroupId(),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERINDIVIDUAL),
@@ -2996,8 +2959,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         new String[] { Daten.ENCODING_UTF, Daten.ENCODING_ISO },
         new String[] { Daten.ENCODING_UTF, Daten.ENCODING_ISO },
         IItemType.TYPE_PUBLIC, CAT_OUTPUT,
-        International.getStringWithMnemonic("Zeichensatz")
-        ));
+        International.getStringWithMnemonic("Zeichensatz")));
     item.setNotNull(true);
     this.itemOutputEncoding = (ItemTypeStringList) item;
     v.add(item = new ItemTypeBoolean(StatisticsRecord.OUTPUTHTMLUPDATETABLE,
@@ -3357,20 +3319,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                   p.getQualifiedName()));
               return false;
             }
-            if (p != null && p.getPassword() != null && p.getPassword().length() > 0) {
-              String pwd = null;
-              do {
-                pwd = EnterPasswordDialog.enterPassword(pParentDialog,
-                    International.getMessage("Paßwort für {name}", p.getQualifiedName()) + "?",
-                    false);
-                if (pwd != null && !pwd.equals(p.getPassword())) {
-                  Dialog.error(International.getString("Paßwort ist falsch."));
-                }
-              } while (pwd != null && !pwd.equals(p.getPassword()));
-              if (pwd == null) {
-                return false;
-              }
-            }
           }
         } else {
           sFilterByPersonText = (String) o;
@@ -3388,15 +3336,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (o instanceof UUID) {
           sFilterByBoatId = (UUID) o;
           sFilterByBoatText = null;
-          if (sPublicStatistic) {
-            BoatRecord b = getPersistence().getProject().getBoats(false)
-                .getBoat(sFilterByBoatId, sValidAt);
-            if (b != null && b.getExcludeFromPublicStatistics()) {
-              Dialog.error(International.getMessage("Statistik für {name} nicht erlaubt.",
-                  b.getQualifiedName()));
-              return false;
-            }
-          }
         } else {
           sFilterByBoatText = (String) o;
           sFilterByBoatId = null;
@@ -3416,8 +3355,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       }
     }
 
-    DataTypeList<String> fields = (sStatisticCategory != StatisticCategory.other ?
-        getShowFields() : getShowOtherFields());
+    DataTypeList<String> fields = (sStatisticCategory != StatisticCategory.other ? getShowFields()
+        : getShowOtherFields());
     for (int i = 0; fields != null && i < fields.length(); i++) {
       String s = fields.get(i);
       if (s.equals(FIELDS_POSITION)) {
@@ -3539,7 +3478,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       } else if (s.equals(AGGR_DAMAGEDURATION)
           && sStatisticTypeEnum == StatisticType.boatdamagestat) {
         sIsAggrDamageDuration = true;
-      } else if (s.equals(AGGR_DAMAGEAVGDUR) && sStatisticTypeEnum == StatisticType.boatdamagestat) {
+      } else if (s.equals(AGGR_DAMAGEAVGDUR)
+          && sStatisticTypeEnum == StatisticType.boatdamagestat) {
         sIsAggrDamageAvgDuration = true;
       } else if (s.equals(AGGR_CLUBWORK) && sStatisticTypeEnum == StatisticType.clubwork) {
         sIsAggrClubwork = true;
@@ -4092,7 +4032,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     if (itemType.getName().equals(FILTERBOATSEATSALL) && event instanceof ActionEvent) {
       if (itemFilterBoatSeats != null && itemType.getValueFromField() != null) {
         itemFilterBoatSeats
-        .setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
+            .setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
       }
     }
     if (itemType.getName().equals(FILTERBOATRIGGINGALL) && event instanceof ActionEvent) {
@@ -4110,7 +4050,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     if (itemType.getName().equals(FILTERBOATOWNERALL) && event instanceof ActionEvent) {
       if (itemFilterBoatOwner != null && itemType.getValueFromField() != null) {
         itemFilterBoatOwner
-        .setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
+            .setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
       }
     }
     if (itemType.getName().equals(OUTPUTTYPE) && event instanceof ItemEvent) {
@@ -4128,8 +4068,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
     if (itemType.getName().equals(PUBLICLYAVAILABLE) && event instanceof ActionEvent) {
       ((ItemTypeBoolean) itemType).setColor(
-          (itemType.getValueFromField().equals(Boolean.toString(true)) ?
-              Color.blue : Color.black));
+          (itemType.getValueFromField().equals(Boolean.toString(true)) ? Color.blue : Color.black));
     }
     if (itemType.getName().equals(COMPYEAR) &&
         event instanceof FocusEvent &&

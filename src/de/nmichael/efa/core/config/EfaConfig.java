@@ -240,12 +240,12 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_autoPopupOnBoatLists;
   private ItemTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
   private ItemTypeBoolean efaDirekt_showEingabeInfos;
+  private ItemTypeInteger efaDirekt_anzahlFahrtenFuerKuerzelTipp;
   private ItemTypeBoolean efaDirekt_showBootsschadenButton;
   private ItemTypeBoolean boatNotCleanedButton;
   private ItemTypeString uuidBootshaus;
   private ItemTypeString maximaleEndUhrzeitFolgetagBeiBootshausReservierung;
   private ItemTypeString emailToBootshausnutzungWolle;
-  private ItemTypeBoolean reservierungAnMitgliedEmailen;
   private ItemTypeBoolean reservierungAnMitgliedMitKuerzelEmailen;
   private ItemTypeBoolean reservierungsEmailMitStornoLink;
   private ItemTypeInteger anzahlTageErinnerungBootshaus;
@@ -637,6 +637,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efaDirekt_showEingabeInfos = new ItemTypeBoolean("InputShowHints", true,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getString("Eingabehinweise anzeigen")));
+      addParameter(efaDirekt_anzahlFahrtenFuerKuerzelTipp = new ItemTypeInteger(
+          "anzahlFahrtenFuerKuerzelTipp", 10, 0, 30, false,
+          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+          International.getString("Minimum #Fahrten für Kürzeltipp in Mail")));
       addParameter(aliasFormat = new ItemTypeString("InputShortcutFormat", "{F1}{F2}-{N1}",
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getString("Format der Eingabe-Kürzel")));
@@ -796,11 +800,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("EmailTo bei Bootshausreservierung")));
-      addParameter(reservierungAnMitgliedEmailen = new ItemTypeBoolean(
-          "reservierungAnMitgliedEmailen", false, IItemType.TYPE_PUBLIC,
-          BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-          International
-              .getString("jede Reservierung an das Mitglied emailen. Insert, Update, Delete")));
       addParameter(reservierungAnMitgliedMitKuerzelEmailen = new ItemTypeBoolean(
           "reservierungAnMitgliedMitKuerzelEmailen",
           true,
@@ -2112,10 +2111,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return emailToBootshausnutzungWolle.getValue();
   }
 
-  public boolean isReservierungAnMitgliedEmailen() {
-    return reservierungAnMitgliedEmailen.getValue();
-  }
-
   public boolean isReservierungAnMitgliedMitKuerzelEmailen() {
     return reservierungAnMitgliedMitKuerzelEmailen.getValue();
   }
@@ -2134,6 +2129,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   public int getAnzahlTageAbgelaufenesBootshausSichtbar() {
     return anzahlTageAbgelaufenesBootshausSichtbar.getValue();
+  }
+
+  public int getAnzahlFahrtenFuerKuerzelTipp() {
+    return efaDirekt_anzahlFahrtenFuerKuerzelTipp.getValue();
   }
 
   public boolean isAutomaticStartLogbookFromReservation() {

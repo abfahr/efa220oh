@@ -162,7 +162,8 @@ public class Groups extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record,
+      boolean add, boolean update, boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, GroupRecord.ID);
@@ -172,8 +173,6 @@ public class Groups extends StorageObject {
     if (delete) {
       assertNotReferenced(record, getProject().getBoats(false),
           new String[] { BoatRecord.ALLOWEDGROUPIDLIST });
-      assertNotReferenced(record, getProject().getBoats(false),
-          new String[] { BoatRecord.REQUIREDGROUPID });
     }
   }
 

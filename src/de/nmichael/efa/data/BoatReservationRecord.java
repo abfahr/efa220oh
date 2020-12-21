@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import java.io.File;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -358,6 +359,11 @@ public class BoatReservationRecord extends DataRecord {
     String strTo = getDateTimeToDescription(replaceHeute);
     if (strFrom.contains("heute")) {
       strTo = strTo.replace("heute ", "");
+      return strFrom + "-" + strTo;
+    }
+    if (getDateFrom().equals(getDateTo())) {
+      strTo = strTo.replace(getDateFrom() + " ", "");
+      return strFrom + "-" + strTo;
     }
     return strFrom + " - " + strTo;
   }
@@ -496,6 +502,8 @@ public class BoatReservationRecord extends DataRecord {
         if (dateTo == null) {
           dateTo = new DataTypeDate(now);
         }
+        dateFrom = new DataTypeDate(now);
+        dateTo = new DataTypeDate(now);
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(now);
         int weekday = cal.get(Calendar.DAY_OF_WEEK);
@@ -546,12 +554,12 @@ public class BoatReservationRecord extends DataRecord {
       long resEnd = dateTo.getTimestamp(timeTo);
 
       // ist die vorliegende Reservierung jetzt gültig
-      if (now >= resStart && now <= resEnd) {
+      if (now > resStart && now < resEnd) {
         return 0;
       }
 
       // ist die vorliegende Reservierung innerhalb von minutesAhead gültig
-      if (now < resStart && now + lookAheadMinutes * 60 * 1000 >= resStart) {
+      if (now < resStart && now + lookAheadMinutes * 60 * 1000 > resStart) {
         return (resStart - now) / (60 * 1000);
       }
 
@@ -850,7 +858,7 @@ public class BoatReservationRecord extends DataRecord {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo Bootshausnutzungswart Wolfgang!");
     msg.add("");
-    msg.add("Hier die neueste Reservierung von EFA am Isekai");
+    msg.add("Hier die neueste Reservierung von EFa am Isekai");
     msg.add("Eingabe durch: " + getPersonAsName() + " "
         + (p != null ? p.getMembershipNo() + " " + p.getStatusName() : "(wer ist das?)"));
     msg.add(getStringEingabeAm(getLastModified()));
@@ -858,8 +866,8 @@ public class BoatReservationRecord extends DataRecord {
     msg.add("Reservierung des " + getBoatName());
     msg.add("für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE));
     msg.add("Kontakt: " + getContact());
-    msg.add("Telefon (aus Sewobe): " + (p != null ? p.getTelefonFestnetz() : "..."));
-    msg.add("Handy (aus Sewobe): " + (p != null ? p.getTelefonHandy() : "..."));
+    msg.add("Telefon (aus Sewobe): " + (p != null ? p.getFestnetz1() : "..."));
+    msg.add("Handy (aus Sewobe): " + (p != null ? p.getHandy2() : "..."));
     msg.add("Email (aus Sewobe): " + (p != null ? p.getEmail() : "..."));
     if (isBootshausOH()) {
       msg.add("Grund der Reservierung: " + getReason());
@@ -895,15 +903,15 @@ public class BoatReservationRecord extends DataRecord {
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
     } else {
-      msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. "
+      msg.add("Hier eine Erinnerung an Deine Reservierung in EFa am Isekai. "
           + "(" + getStringEingabeAm(getLastModified()) + ")");
     }
     msg.add("");
-    msg.add("Reservierung des " + getBoatName());
-    msg.add("für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
+    msg.add(" Reservierung des " + getBoatName());
+    msg.add(" für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
         + getPersonAsName());
     if (isBootshausOH()) {
-      msg.add("Grund der Reservierung: " + getReason());
+      msg.add(" Grund der Reservierung: " + getReason());
     }
     msg.add("");
 
@@ -924,8 +932,8 @@ public class BoatReservationRecord extends DataRecord {
       if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
           && getHashId().length() > 0
           && personRecord != null) {
-        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: \n"
-            + getStornoURL(personRecord.getMembershipNo()));
+        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: ");
+        msg.add(" " + getWebOnlineURL("storno/", personRecord.getMembershipNo()));
       }
       if (isBootshausOH()) {
         msg.add(
@@ -933,7 +941,17 @@ public class BoatReservationRecord extends DataRecord {
       }
       msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
     }
-
+    if (aktion.contains("INSERT")
+        && personRecord != null
+        && personRecord.isErlaubtKuerzel() == false
+        && personRecord.getInputShortcut() == null) {
+      int anzahlFahrten = personRecord.getAnzahlFahrtenDiesJahrAnVerschiedenenTagen();
+      if (anzahlFahrten >= Daten.efaConfig.getAnzahlFahrtenFuerKuerzelTipp()) {
+        msg.add("");
+        msg.add("Tipp: Mühsame Eingaben am PC erleichtern? Mit Namenskürzel und Telefonnummer?");
+        msg.add(" " + getWebOnlineURL("efa/", personRecord.getMembershipNo()));
+      }
+    }
     msg.add("");
     msg.add("mit freundlichen Grüßen");
     msg.add("Efa-PC im Bootshaus");
@@ -941,23 +959,14 @@ public class BoatReservationRecord extends DataRecord {
     msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
     if (personRecord != null) {
       msg.add(International.getMessage("Newsletter abmelden {url}",
-          getNewsletterURL(personRecord.getMembershipNo())));
+          getWebOnlineURL("abmelden/", personRecord.getMembershipNo())));
     }
     return join(msg);
   }
 
-  private String getStornoURL(String mitgliedNr) {
+  private String getWebOnlineURL(String folder, String mitgliedNr) {
     String url = "https://overfreunde.abfx.de/";
-    url += "storno/";
-    url += "?mitgliedNr=" + mitgliedNr;
-    url += "&hashId=" + getHashId();
-    url += "&efaId=" + getEfaId();
-    return url;
-  }
-
-  private String getNewsletterURL(String mitgliedNr) {
-    String url = "https://overfreunde.abfx.de/";
-    url += "abmelden/";
+    url += folder;
     url += "?mitgliedNr=" + mitgliedNr;
     url += "&hashId=" + getHashId();
     url += "&efaId=" + getEfaId();
@@ -995,7 +1004,7 @@ public class BoatReservationRecord extends DataRecord {
 
     PersonRecord personRecord = getPersonRecord();
     if (personRecord != null) {
-      kombinierteEmailErlaubnis = personRecord.istEmailErlaubnisErteilt();
+      kombinierteEmailErlaubnis = personRecord.isErlaubtEmail();
       emailToAdresse = personRecord.getEmail();
       anrede = personRecord.getFirstName();
     }
@@ -1019,11 +1028,14 @@ public class BoatReservationRecord extends DataRecord {
     }
     emailSubject += " " + getBoatName();
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);
+    if (new File(Daten.efaBaseConfig.efaUserDirectory + Daten.DEBUG_MODE_SPECIAL).exists()) {
+      System.out.println(emailMessage);
+    }
 
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
     Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS,
-        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
+        "Mail " + aktion + " verschickt an " + anrede + " " + emailToAdresse);
   }
 
   public void sendEmailReminder(String aktion) {
@@ -1034,7 +1046,7 @@ public class BoatReservationRecord extends DataRecord {
 
     PersonRecord personRecord = getPersonRecord();
     if (personRecord != null) {
-      kombinierteEmailErlaubnis = personRecord.istEmailErlaubnisErteilt();
+      kombinierteEmailErlaubnis = personRecord.isErlaubtEmail();
       emailToAdresse = personRecord.getEmail();
       anrede = personRecord.getFirstName();
     }
@@ -1062,7 +1074,7 @@ public class BoatReservationRecord extends DataRecord {
     Messages messages = Daten.project.getMessages(false);
     messages.createAndSaveMessageRecord(emailToAdresse, emailSubject, emailMessage);
     Logger.log(Logger.INFO, Logger.MSG_DEBUG_GUI_ICONS,
-        "Mail verschickt " + aktion + " an " + anrede + " " + emailToAdresse);
+        "Mail " + aktion + " verschickt an " + anrede + " " + emailToAdresse);
   }
 
   private void sendEmailBootshausnutzungswart(String aktion) {

@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.BoatStatus;
 import de.nmichael.efa.data.BoatStatusRecord;
 import de.nmichael.efa.data.Boats;
+import de.nmichael.efa.data.DestinationRecord;
+import de.nmichael.efa.data.Destinations;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.MessageRecord;
@@ -384,11 +387,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
         boatStatusRecord.setLogbook(null);
         boatStatusRecord.setBoatText(logbookRecord.getBoatAsName());
         try {
-          boatStatus.data().update(boatStatusRecord);
           currentLogbook.data().update(logbookRecord); // saveEntry();
+          boatStatus.data().update(boatStatusRecord);
         } catch (EfaException e) {
           Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, e);
-          e.printStackTrace();
         }
       }
     }
@@ -685,8 +687,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
       LogbookRecord newLogbookRecord = createAndPersistNewLogbookRecord(boatReservationRecord);
       if (newLogbookRecord != null) {
         EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
-            International.getString("Fahrtbeginn") + " (reserv)", newLogbookRecord);
-        boatReservationRecord.setInvisible(true); // unnötig - kann raus!
+            International.getString("Fahrtbeginn") + "(reserv)", newLogbookRecord);
+        boatReservationRecord.setInvisible(true); // TODO unnötig - kann raus!
         updateReservation(boatReservationRecord);
         return newLogbookRecord;
       }
@@ -725,7 +727,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
     newLogbookRecord.setEndTime(boatReservationRecord.getTimeTo());
     String reason = boatReservationRecord.getReason();
     reason = reason.isEmpty() ? "anhand Reservierung" : reason;
-    newLogbookRecord.setDestinationName(reason);
+    Destinations destinations = Daten.project.getDestinations(false);
+    DestinationRecord dr = destinations.getDestination(reason, System.currentTimeMillis());
+    UUID destinationId = dr.getId();
+    if (destinationId != null) {
+      newLogbookRecord.setDestinationId(destinationId);
+    } else {
+      newLogbookRecord.setDestinationName(reason);
+    }
     // newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km));
     // // 1km
     newLogbookRecord.setComments("(efa: Fahrt gestartet aufgrund einer Reservierung)");
@@ -760,17 +769,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     Persons persons = Daten.project.getPersons(false);
     PersonRecord person = getValidPersonBehindRequest(persons, strMap);
+    String oldEmailTo = person == null ? null : person.getEmail();
 
     String aktion = strMap.get("action");
     if (aktion != null) {
       switch (aktion) {
         case "DELETE":
           resultText = performDeleteReservationRequest(strMap);
-          break;
-
+          break; // return; // to avoid two Mails
         case "INSERT":
           resultText = performInsertReservationRequest(person, strMap);
-          break;
+          break; // return; // to avoid two Mails
 
         case "UNSUBSCRIBE":
         case "SUBSCRIBE":
@@ -778,7 +787,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           break;
 
         case "CHANGE_NAME":
-        case "SETEMAIL":
+        case "SETMAIL":
         case "SETPHONENR":
         case "SETKÜRZEL":
           resultText = performSetPersonMitgliedRequest(persons, person, strMap);
@@ -789,7 +798,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
     }
     if (person != null) {
-      person.sendEmailConfirmation("CONFIRM_" + aktion, resultText);
+      String emailToAdresse = person.getEmail();
+      if (oldEmailTo != null && !oldEmailTo.equals(emailToAdresse)) {
+        person.sendEmailConfirmation(oldEmailTo, "CONFIRM_" + aktion, resultText);
+      }
+      person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
     }
   }
 
@@ -1063,7 +1076,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   private String performSetPersonMitgliedRequest(Persons persons, PersonRecord person,
       Map<String, String> strMap) {
-    String aktion = strMap.get("action"); // "SETKÜRZEL" "SETPHONENR" "SETEMAIL" "CHANGE_NAME"
+    String aktion = strMap.get("action"); // "SETKÜRZEL" "SETPHONENR" "SETMAIL" "CHANGE_NAME"
     if (aktion == null || aktion.isBlank()) {
       String error = "Person-Profil-Link: keine Aktion angegeben " + aktion;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
@@ -1114,7 +1127,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return error;
     }
 
-    if (aktion.equalsIgnoreCase("SETEMAIL")) {
+    if (aktion.equalsIgnoreCase("SETMAIL")) {
       return performChangePersonEmailRequest(strMap, persons, person);
     }
     if (aktion.equalsIgnoreCase("SETPHONENR")) {
@@ -1233,9 +1246,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   private String performChangePersonEmailRequest(Map<String, String> strMap,
       Persons persons, PersonRecord person) {
-    String aktion = strMap.get("action"); // "SETEMAIL"
-    if (!aktion.equalsIgnoreCase("SETEMAIL") &&
-        !aktion.equalsIgnoreCase("email")) {
+    String aktion = strMap.get("action"); // "SETMAIL"
+    if (!aktion.equalsIgnoreCase("SETMAIL")) {
       String error = "Person-Profil-Link: keine gültige Aktion angegeben " + aktion;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
@@ -1337,26 +1349,26 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     if (person.isErlaubtTelefon()) {
-      if (neuesTelefon.equals(person.getFreeUse1())) {
+      if (neuesTelefon.equals(person.getFestnetz1())) {
         String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-            + " hat bereits Telefon '" + person.getFreeUse1()
+            + " hat bereits Telefon '" + person.getFestnetz1()
             + "' und Erlaubnis: " + person.isErlaubtTelefon();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
-      if (neuesTelefon.equals(person.getFreeUse2())) {
+      if (neuesTelefon.equals(person.getHandy2())) {
         String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-            + " hat bereits Telefon '" + person.getFreeUse2()
+            + " hat bereits Telefon '" + person.getHandy2()
             + "' und Erlaubnis: " + person.isErlaubtTelefon();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
     } else {
-      if (neuesTelefon.isBlank() && person.getFreeUse1() == null && person.getFreeUse2() == null) {
-        String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-            + " hat kein Telefon zum Entfernen. "
-            + person.isErlaubtTelefon() + " " + person.getFreeUse1() + " "
-            + person.getFreeUse2();
+      if (neuesTelefon.isBlank() && person.getFestnetz1() == null && person.getHandy2() == null) {
+        String error = "Person-Profil-" + aktion + ": "
+            + person.getFirstLastName() + " hat kein Telefon zum Entfernen. "
+            + person.isErlaubtTelefon() + " "
+            + person.getFestnetz1() + " " + person.getHandy2();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
@@ -1389,8 +1401,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     person.setErlaubnisTelefon(!neuesTelefon.isBlank());
-    person.setFreeUse1(neuesTelefon);
-    person.setFreeUse2(null);
+    person.setFestnetz1(null);
+    person.setHandy2(neuesTelefon);
 
     if (persons == null) {
       String error = "Person-Profil-" + aktion
@@ -1401,7 +1413,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       persons.data().update(person);
       String info = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
-          + " hat nun die TelefonNr '" + person.getFreeUse1()
+          + " hat nun die TelefonNr '" + person.getHandy2()
           + "' und die Erlaubnis: " + person.isErlaubtTelefon();
       Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
       return info;
@@ -1524,30 +1536,32 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       List<Path> listTxtFiles = new ArrayList<Path>();
       DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folderTodo), "*.{txt,json}");
-      for (Path fileName : stream) {
-        listTxtFiles.add(fileName);
+      stream.forEach(listTxtFiles::add);
+      listTxtFiles.sort(Comparator.comparing(Path::toString));
+      if (listTxtFiles.isEmpty()) {
+        return stringMap;
       }
-      if (!listTxtFiles.isEmpty()) {
-        // erste Datei rausnehmen (älteste) (nur eine)
-        Path firstFilename = listTxtFiles.get(0);
-        Charset charset = Charset.defaultCharset();
-        List<String> stringList = Files.readAllLines(firstFilename, charset);
 
-        if (!stringList.isEmpty()) {
-          for (String string : stringList) {
-            String[] array = string.split("=");
-            if (array.length > 1) {
-              stringMap.put(array[0], array[1]);
-            }
+      // erste Datei rausnehmen (älteste) (nur eine)
+      Path firstFilename = listTxtFiles.get(0);
+      Charset charset = Charset.defaultCharset();
+      List<String> stringList = Files.readAllLines(firstFilename, charset);
+
+      if (!stringList.isEmpty()) {
+        for (String string : stringList) {
+          String[] array = string.split("=");
+          if (array.length > 1) {
+            stringMap.put(array[0], array[1]);
           }
         }
-
-        // Datei nach done=backup verschieben into backup
-        Path targetPath = Path
-            .of(Daten.efaBakDirectory + "efa.linkedReservations" + Daten.fileSep);
-        Path targetFilename = targetPath.resolve(firstFilename.getFileName());
-        Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
       }
+
+      // Datei nach done=backup verschieben into backup
+      Path targetPath = Path
+          .of(Daten.efaBakDirectory + "efa.linkedReservations" + Daten.fileSep);
+      Path targetFilename = targetPath.resolve(firstFilename.getFileName());
+      Files.move(firstFilename, targetFilename, StandardCopyOption.REPLACE_EXISTING);
+
     } catch (IOException e) {
       Logger.log(Logger.ERROR, Logger.MSG_DATAADM_RECORDDELETED, e);
     }

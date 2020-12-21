@@ -130,7 +130,6 @@ public class StatisticTask extends ProgressTask {
   private Date entryClubworkDate;
   private String entryClubworkDescription;
   private int entryClubworkHours;
-  private boolean entryPersonExcludeFromClubwork;
   // internal variables
   private ArrayList<String> successfulDoneMessages = new ArrayList<String>();
 
@@ -181,7 +180,6 @@ public class StatisticTask extends ProgressTask {
     entryClubworkDate = null;
     entryClubworkDescription = null;
     entryClubworkHours = 0;
-    entryPersonExcludeFromClubwork = false;
   }
 
   private void calculateSessionHistory(LogbookRecord r, Object key, StatisticsData sd,
@@ -985,12 +983,6 @@ public class StatisticTask extends ProgressTask {
       if (entryPersonRecord == null) {
         continue;
       }
-      if (entryPersonRecord.getExcludeFromCompetition()) {
-        sr.pStatIgnored.put((entryPersonRecord != null
-            ? entryPersonRecord.getQualifiedName()
-            : entryPersonName), "foo");
-        continue;
-      }
       if (isInPersonFilter() && isInGroupFilter()) {
         // Statistics for Competitions are only calculated based on known Names
         Object aggregationKey = getAggregationKeyForCompetition(r);
@@ -1193,7 +1185,7 @@ public class StatisticTask extends ProgressTask {
     if (isInPersonFilter() && isInGroupFilter()) {
       Object aggregationKey = null;
       Double targetHours = 0.0;
-      if (!entryPersonIsGuest && !entryPersonIsOther && !entryPersonExcludeFromClubwork) {
+      if (!entryPersonIsGuest && !entryPersonIsOther) {
         DataTypeDate[] range = new DataTypeDate[0];
         try {
           range = DataTypeDate.getRangeOverlap(sr.sStartDate, sr.sEndDate, sr.sClubworkStartDate,
@@ -1340,8 +1332,7 @@ public class StatisticTask extends ProgressTask {
     if (entryBoatRecord != null) {
       entryBoatOwner = entryBoatRecord.getOwnerOwnOrOther();
     }
-    entryBoatExclude = (entryBoatRecord != null && entryBoatRecord.getExcludeFromPublicStatistics()
-        && sr.getPubliclyAvailable());
+    entryBoatExclude = false;
   }
 
   private void getEntryPerson(LogbookRecord r, int pos) {
@@ -1353,8 +1344,6 @@ public class StatisticTask extends ProgressTask {
 
   private void getEntryPerson(ClubworkRecord r) {
     getEntryPerson(r.getPersonId());
-    entryPersonExcludeFromClubwork = (entryPersonRecord != null && entryPersonRecord
-        .getExcludeFromClubwork());
   }
 
   private void getEntryPerson(UUID entryPersonId) {
@@ -1863,7 +1852,7 @@ public class StatisticTask extends ProgressTask {
         }
         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition && pr != null) {
           sd.gender = pr.getGender();
-          sd.disabled = pr.getDisability();
+          sd.disabled = false;
         }
       }
 

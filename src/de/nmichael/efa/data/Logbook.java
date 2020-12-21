@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -104,7 +106,7 @@ public class Logbook extends StorageObject {
     return getLogbookRecord(LogbookRecord.getKey(entryNo));
   }
 
-  public LogbookRecord getLogbookRecord(DataKey key) {
+  public LogbookRecord getLogbookRecord(DataKey<?, ?, ?> key) {
     try {
       return (LogbookRecord) (data().get(key));
     } catch (Exception e) {
@@ -122,7 +124,7 @@ public class Logbook extends StorageObject {
     Vector<String> p = r.getAllCoxAndCrewAsNames();
     try {
       DataKeyIterator it = data().getStaticIterator();
-      DataKey k = it.getLast();
+      DataKey<?, ?, ?> k = it.getLast();
       while (k != null && rangeFromEnd-- > 0) {
         LogbookRecord r0 = getLogbookRecord(k);
         if (r0 != null &&
@@ -154,7 +156,7 @@ public class Logbook extends StorageObject {
     try {
       LogbookRecord latest = null;
       DataKeyIterator it = data().getStaticIterator();
-      for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+      for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
         LogbookRecord r = (LogbookRecord) data().get(k);
         if (r == null || r.getBoatId() == null || !r.getBoatId().equals(boatId)) {
           continue;
@@ -186,16 +188,46 @@ public class Logbook extends StorageObject {
     int count = 0;
     try {
       DataKeyIterator it = data().getStaticIterator();
-      for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+      for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
         LogbookRecord r = (LogbookRecord) data().get(k);
-        if (r == null || 
-            r.getBoatId() == null || 
+        if (r == null ||
+            r.getBoatId() == null ||
             !r.getBoatId().equals(boatId)) {
           continue;
         }
-        if (r.getDate() != null && 
+        if (r.getDate() != null &&
             r.getDate().isSet()) {
           count++;
+        }
+      }
+    } catch (Exception e) {
+      Logger.logdebug(e);
+    }
+    return count;
+  }
+
+  public int countPersonUsage(UUID personId, boolean allowSameDay) {
+    int count = 0;
+    List<DataTypeDate> listOfDates = new ArrayList<DataTypeDate>();
+    try {
+      DataKeyIterator it = data().getStaticIterator();
+      for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
+        LogbookRecord r = (LogbookRecord) data().get(k);
+        if (r != null && (r.getCoxId() != null && r.getCoxId().equals(personId))
+            || (r.getCrewId(0) != null && r.getCrewId(0).equals(personId)) // Cox
+            || (r.getCrewId(1) != null && r.getCrewId(1).equals(personId))
+            || (r.getCrewId(2) != null && r.getCrewId(2).equals(personId))
+            || (r.getCrewId(3) != null && r.getCrewId(3).equals(personId))
+            || (r.getCrewId(4) != null && r.getCrewId(4).equals(personId))) {
+          DataTypeDate dateUsage = r.getDate();
+          if (dateUsage != null && dateUsage.isSet()) {
+            if (allowSameDay) {
+              count++;
+            } else if (!listOfDates.contains(dateUsage)) {
+              listOfDates.add(dateUsage);
+              count++;
+            }
+          }
         }
       }
     } catch (Exception e) {
@@ -236,7 +268,8 @@ public class Logbook extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update,
+      boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, LogbookRecord.ENTRYID);
@@ -254,7 +287,7 @@ public class Logbook extends StorageObject {
                 International.getMessage(
                     "Datum {date} muß innerhalb des Zeitraums {startdate} - {enddate} liegen.",
                     r.getDate().toString(), getStartDate().toString(), getEndDate().toString()),
-                    Thread.currentThread().getStackTrace());
+            Thread.currentThread().getStackTrace());
       }
       if (!isDateWithinLogbookRange(r.getEndDate())) {
         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
@@ -265,7 +298,7 @@ public class Logbook extends StorageObject {
                 International.getMessage(
                     "Datum {date} muß innerhalb des Zeitraums {startdate} - {enddate} liegen.",
                     r.getDate().toString(), getStartDate().toString(), getEndDate().toString()),
-                    Thread.currentThread().getStackTrace());
+            Thread.currentThread().getStackTrace());
       }
 
       // make sure enddate is after startdate
@@ -274,7 +307,7 @@ public class Logbook extends StorageObject {
         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
             "#" + r.getEntryId().toString() + ": " +
                 International.getString("Das Enddatum muß nach dem Startdatum liegen."),
-                Thread.currentThread().getStackTrace());
+            Thread.currentThread().getStackTrace());
       }
 
       // make sure that the entry's date fits into the selected session group
@@ -284,8 +317,8 @@ public class Logbook extends StorageObject {
             International.getMessage(
                 "Das Datum des Fahrtenbucheintrags {entry} liegt außerhalb des Zeitraums, "
                     + "der für die ausgewählte Fahrtgruppe '{name}' angegeben wurde.",
-                    r.getEntryId().toString(), sg.getName()),
-                    Thread.currentThread().getStackTrace());
+                r.getEntryId().toString(), sg.getName()),
+            Thread.currentThread().getStackTrace());
       }
 
       // select boat variant, if empty

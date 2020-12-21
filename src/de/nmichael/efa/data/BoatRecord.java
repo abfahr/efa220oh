@@ -65,7 +65,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   // =========================================================================
 
   public static final String ID = "Id";
-  public static final String EFBID = "EfbId";
   public static final String NAME = "Name";
   public static final String NAMEAFFIX = "NameAffix";
   public static final String OWNER = "Owner";
@@ -80,27 +79,14 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   // RESERVATIONS stored in BoatReservations
   // DAMAGES stored in BoatDamages
   public static final String ALLOWEDGROUPIDLIST = "AllowedGroupIdList";
-  public static final String MAXNOTINGROUP = "MaxNotInGroup";
-  public static final String REQUIREDGROUPID = "RequiredGroupId";
   public static final String ONLYWITHBOATCAPTAIN = "OnlyWithBoatCaptain";
   public static final String MANUFACTURER = "Manufacturer";
   public static final String MODEL = "Model";
   public static final String MAXCREWWEIGHT = "MaxCrewWeight";
-  public static final String MANUFACTIONDATE = "ManufactionDate";
-  public static final String SERIALNO = "SerialNo";
   public static final String PURCHASEDATE = "PurchaseDate";
   public static final String PURCHASEPRICE = "PurchasePrice";
   public static final String SELLINGDATE = "SellingDate";
   public static final String SELLINGPRICE = "SellingPrice";
-  public static final String INSURANCEVALUE = "InsuranceValue";
-  public static final String CURRENCY = "PurchasePriceCurrency";
-  public static final String DEFAULTCREWID = "DefaultCrewId";
-  public static final String DEFAULTSESSIONTYPE = "DefaultSessionType";
-  public static final String DEFAULTDESTINATIONID = "DefaultDestinationId";
-  public static final String EXCLUDEFROMSTATISTIC = "ExcludeFromStatistics";
-  public static final String FREEUSE1 = "FreeUse1";
-  public static final String FREEUSE2 = "FreeUse2";
-  public static final String FREEUSE3 = "FreeUse3";
 
   public static final String[] IDX_NAME_NAMEAFFIX = new String[] { NAME, NAMEAFFIX };
 
@@ -143,10 +129,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     t.add(IDataAccess.DATA_LIST_STRING);
     f.add(ALLOWEDGROUPIDLIST);
     t.add(IDataAccess.DATA_LIST_UUID);
-    f.add(MAXNOTINGROUP);
-    t.add(IDataAccess.DATA_INTEGER);
-    f.add(REQUIREDGROUPID);
-    t.add(IDataAccess.DATA_UUID);
     f.add(ONLYWITHBOATCAPTAIN);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(MANUFACTURER);
@@ -155,10 +137,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     t.add(IDataAccess.DATA_STRING);
     f.add(MAXCREWWEIGHT);
     t.add(IDataAccess.DATA_INTEGER);
-    f.add(MANUFACTIONDATE);
-    t.add(IDataAccess.DATA_DATE);
-    f.add(SERIALNO);
-    t.add(IDataAccess.DATA_STRING);
     f.add(PURCHASEDATE);
     t.add(IDataAccess.DATA_DATE);
     f.add(PURCHASEPRICE);
@@ -167,26 +145,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     t.add(IDataAccess.DATA_DATE);
     f.add(SELLINGPRICE);
     t.add(IDataAccess.DATA_DECIMAL);
-    f.add(CURRENCY);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(INSURANCEVALUE);
-    t.add(IDataAccess.DATA_DECIMAL);
-    f.add(DEFAULTCREWID);
-    t.add(IDataAccess.DATA_UUID);
-    f.add(DEFAULTSESSIONTYPE);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(DEFAULTDESTINATIONID);
-    t.add(IDataAccess.DATA_UUID);
-    f.add(EXCLUDEFROMSTATISTIC);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(FREEUSE1);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(FREEUSE2);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(FREEUSE3);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(EFBID);
-    t.add(IDataAccess.DATA_STRING);
     MetaData metaData = constructMetaData(Boats.DATATYPE, f, t, true);
     metaData.setKey(new String[] { ID }); // plus VALID_FROM
     metaData.addIndex(IDX_NAME_NAMEAFFIX);
@@ -216,14 +174,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
   public UUID getId() {
     return getUUID(ID);
-  }
-
-  public void setEfbId(String id) {
-    setString(EFBID, id);
-  }
-
-  public String getEfbId() {
-    return getString(EFBID);
   }
 
   public void setName(String name) {
@@ -565,34 +515,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return EfaUtil.vector2string(v, ", ");
   }
 
-  public void setMaxNotInGroup(int maxNotInGroup) {
-    setInt(MAXNOTINGROUP, maxNotInGroup);
-  }
-
-  public int getMaxNotInGroup() {
-    return getInt(MAXNOTINGROUP);
-  }
-
-  public void setRequiredGroupId(UUID id) {
-    setUUID(REQUIREDGROUPID, id);
-  }
-
-  public UUID getRequiredGroupId() {
-    return getUUID(REQUIREDGROUPID);
-  }
-
-  public String getRequiredGroupAsName(long validAt) {
-    UUID id = getUUID(REQUIREDGROUPID);
-    Groups groups = getPersistence().getProject().getGroups(false);
-    if (groups != null) {
-      DataRecord r = groups.findGroupRecord(id, validAt);
-      if (r != null) {
-        return r.getQualifiedName();
-      }
-    }
-    return null;
-  }
-
   public void setOnlyWithBoatCaptain(boolean onlyWithBoatCaptain) {
     setBool(ONLYWITHBOATCAPTAIN, onlyWithBoatCaptain);
   }
@@ -625,22 +547,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return getInt(MAXCREWWEIGHT);
   }
 
-  public void setManufactionDate(DataTypeDate date) {
-    setDate(MANUFACTIONDATE, date);
-  }
-
-  public DataTypeDate getManufactionDate() {
-    return getDate(MANUFACTIONDATE);
-  }
-
-  public void setSerialNo(String serialNo) {
-    setString(SERIALNO, serialNo);
-  }
-
-  public String getSerialNo() {
-    return getString(SERIALNO);
-  }
-
   public void setPurchaseDate(DataTypeDate date) {
     setDate(PURCHASEDATE, date);
   }
@@ -657,14 +563,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return getDecimal(PURCHASEPRICE);
   }
 
-  public void setCurrency(String currency) {
-    setString(CURRENCY, currency);
-  }
-
-  public String getCurrency() {
-    return getString(CURRENCY);
-  }
-
   public void setSellingDate(DataTypeDate date) {
     setDate(SELLINGDATE, date);
   }
@@ -679,94 +577,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
   public DataTypeDecimal getSellingPrice() {
     return getDecimal(SELLINGPRICE);
-  }
-
-  public void setInsuranceValue(DataTypeDecimal price) {
-    setDecimal(INSURANCEVALUE, price);
-  }
-
-  public DataTypeDecimal getInsuranceValue() {
-    return getDecimal(INSURANCEVALUE);
-  }
-
-  public void setDefaultCrewId(UUID id) {
-    setUUID(DEFAULTCREWID, id);
-  }
-
-  public UUID getDefaultCrewId() {
-    return getUUID(DEFAULTCREWID);
-  }
-
-  public String getDefaultCrewAsName() {
-    UUID id = getUUID(DEFAULTCREWID);
-    Crews crews = getPersistence().getProject().getCrews(false);
-    if (crews != null) {
-      DataRecord r = crews.getCrew(id);
-      if (r != null) {
-        return r.getQualifiedName();
-      }
-    }
-    return null;
-  }
-
-  public void setDefaultSessionType(String type) {
-    setString(DEFAULTSESSIONTYPE, type);
-  }
-
-  public String getDefaultSessionType() {
-    return getString(DEFAULTSESSIONTYPE);
-  }
-
-  public void setDefaultDestinationId(UUID id) {
-    setUUID(DEFAULTDESTINATIONID, id);
-  }
-
-  public UUID getDefaultDestinationId() {
-    return getUUID(DEFAULTDESTINATIONID);
-  }
-
-  public String getDefaultDestinationAsName(long validAt) {
-    UUID id = getUUID(DEFAULTDESTINATIONID);
-    Destinations destinations = getPersistence().getProject().getDestinations(false);
-    if (destinations != null) {
-      DataRecord r = destinations.getDestination(id, validAt);
-      if (r != null) {
-        return r.getQualifiedName();
-      }
-    }
-    return null;
-  }
-
-  public void setExcludeFromPublicStatistics(boolean exclude) {
-    setBool(EXCLUDEFROMSTATISTIC, exclude);
-  }
-
-  public boolean getExcludeFromPublicStatistics() {
-    return getBool(EXCLUDEFROMSTATISTIC);
-  }
-
-  public void setFreeUse1(String s) {
-    setString(FREEUSE1, s);
-  }
-
-  public String getFreeUse1() {
-    return getString(FREEUSE1);
-  }
-
-  public void setFreeUse2(String s) {
-    setString(FREEUSE2, s);
-  }
-
-  public String getFreeUse2() {
-    return getString(FREEUSE2);
-  }
-
-  public void setFreeUse3(String s) {
-    setString(FREEUSE3, s);
-  }
-
-  public String getFreeUse3() {
-    return getString(FREEUSE3);
   }
 
   public String getQualifiedVariantName(int variant) {
@@ -963,9 +773,9 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
     if (itemName.equals(BoatRecord.GUIITEM_ALLOWEDGROUPIDLIST)) {
       IItemType[] items = new IItemType[1];
-      String CAT_USAGE = "%03%" + International.getString("Benutzung");
+      String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
       items[0] = getGuiItemTypeStringAutoComplete(BoatRecord.ALLOWEDGROUPIDLIST, null,
-          IItemType.TYPE_PUBLIC, CAT_USAGE,
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA,
           getPersistence().getProject().getGroups(false), getValidFrom(), getInvalidFrom() - 1,
           International.getString("Gruppe"));
       items[0].setFieldSize(300, -1);
@@ -1035,22 +845,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         return getAllowedGroupsAsNameString(System.currentTimeMillis());
       }
     }
-    if (fieldName.equals(REQUIREDGROUPID)) {
-      return getRequiredGroupAsName(System.currentTimeMillis());
-    }
-    if (fieldName.equals(DEFAULTCREWID)) {
-      return getDefaultCrewAsName();
-    }
-    if (fieldName.equals(DEFAULTSESSIONTYPE)) {
-      String s = getAsString(fieldName);
-      if (s != null) {
-        return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, s);
-      }
-      return null;
-    }
-    if (fieldName.equals(DEFAULTDESTINATIONID)) {
-      return getDefaultDestinationAsName(System.currentTimeMillis());
-    }
+
     return super.getAsText(fieldName);
   }
 
@@ -1107,29 +902,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
       if (list.length() > 0) {
         set(fieldName, list);
       }
-    } else if (fieldName.equals(REQUIREDGROUPID)) {
-      Groups groups = getPersistence().getProject().getGroups(false);
-      GroupRecord gr = groups.findGroupRecord(value, -1);
-      if (gr != null) {
-        set(fieldName, gr.getId());
-      }
-    } else if (fieldName.equals(DEFAULTCREWID)) {
-      Crews crews = getPersistence().getProject().getCrews(false);
-      CrewRecord gr = crews.findCrewRecord(value);
-      if (gr != null) {
-        set(fieldName, gr.getId());
-      }
-    } else if (fieldName.equals(DEFAULTSESSIONTYPE)) {
-      String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
-      if (s != null) {
-        set(fieldName, s);
-      }
-    } else if (fieldName.equals(DEFAULTDESTINATIONID)) {
-      Destinations destinations = getPersistence().getProject().getDestinations(false);
-      DestinationRecord dr = destinations.getDestination(value, -1);
-      if (dr != null) {
-        set(fieldName, dr.getId());
-      }
     } else {
       return super.setFromText(fieldName, value);
     }
@@ -1140,10 +912,9 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
     String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-    String CAT_USAGE = "%03%" + International.getString("Benutzung");
-    String CAT_RESERVATIONS = "%04%" + International.getString("Reservierungen");
-    String CAT_DAMAGES = "%05%" + International.getString("Bootsschäden");
-    String CAT_FREEUSE = "%07%" + International.getString("Freie Verwendung");
+    String CAT_RESERVATIONS = "%03%" + International.getString("Reservierungen");
+    String CAT_DAMAGES = "%04%" + International.getString("Bootsschäden");
+    String CAT_FREEUSE = "%05%" + International.getString("Freie Verwendung");
 
     Groups groups = getPersistence().getProject().getGroups(false);
     Crews crews = getPersistence().getProject().getCrews(false);
@@ -1163,8 +934,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Namenszusatz")));
     ((ItemTypeString) item).setNotAllowedCharacters("()");
     v.add(item = new ItemTypeString(BoatRecord.OWNER, getOwner(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eigentümer") +
-            " (" + International.getString("Fremdboot") + ")"));
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eigentümer")));
     ((ItemTypeString) item).setNotAllowedCharacters("()");
 
     itemList = new Vector<IItemType[]>();
@@ -1193,11 +963,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         Integer.MAX_VALUE, true,
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
             .getString("Maximales Mannschaftsgewicht")));
-    v.add(item = new ItemTypeDate(BoatRecord.MANUFACTIONDATE, getManufactionDate(),
-        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Herstellungsdatum")));
-    ((ItemTypeDate) item).setAllowYearOnly(true);
-    v.add(item = new ItemTypeString(BoatRecord.SERIALNO, getSerialNo(),
-        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Seriennummer")));
     v.add(item = new ItemTypeDate(BoatRecord.PURCHASEDATE, getPurchaseDate(),
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufdatum")));
     ((ItemTypeDate) item).setAllowYearOnly(true);
@@ -1207,21 +972,9 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verkaufdatum")));
     ((ItemTypeDate) item).setAllowYearOnly(true);
     v.add(item = new ItemTypeDecimal(BoatRecord.SELLINGPRICE, getSellingPrice(), 2, true,
-        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verkaufspreis")));
-    v.add(item = new ItemTypeDecimal(BoatRecord.INSURANCEVALUE, getInsuranceValue(), 2, true,
-        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Versicherungswert")));
-    v.add(item = new ItemTypeString(BoatRecord.CURRENCY, getCurrency(),
-        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
-    v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
-        getExcludeFromPublicStatistics(),
-        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-            .getString("von allgemein verfügbaren Statistiken ausnehmen")));
-    if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-      v.add(item = new ItemTypeString(BoatRecord.EFBID, getEfbId(),
-          IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID", "de")));
-    }
+        IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Verkaufspreis")));
 
-    // CAT_USAGE
+    // CAT_MOREDATA
     itemList = new Vector<IItemType[]>();
     DataTypeList<UUID> agList = getAllowedGroupIdList();
     for (int i = 0; agList != null && i < agList.length(); i++) {
@@ -1230,40 +983,15 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
       itemList.add(items);
     }
     v.add(item = new ItemTypeItemList(GUIITEM_ALLOWEDGROUPIDLIST, itemList, this,
-        IItemType.TYPE_PUBLIC, CAT_USAGE, International
+        IItemType.TYPE_EXPERT, CAT_MOREDATA, International
             .getString("Gruppen, die dieses Boot benutzen dürfen")));
     ((ItemTypeItemList) item).setXForAddDelButtons(3);
     ((ItemTypeItemList) item).setPadYbetween(0);
     ((ItemTypeItemList) item).setRepeatTitle(false);
     ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
-    v.add(item = new ItemTypeInteger(BoatRecord.MAXNOTINGROUP, getMaxNotInGroup(), 0,
-        Integer.MAX_VALUE, true,
-        IItemType.TYPE_PUBLIC, CAT_USAGE, International
-            .getString("Maxmimale Personenzahl nicht aus erlaubten Gruppen")));
-    v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.REQUIREDGROUPID, getRequiredGroupId(),
-        IItemType.TYPE_PUBLIC, CAT_USAGE,
-        groups, getValidFrom(), getInvalidFrom() - 1,
-        International.getString("Gruppe, der mindestens eine Person angehören muß")));
-    item.setFieldSize(300, -1);
     v.add(item = new ItemTypeBoolean(BoatRecord.ONLYWITHBOATCAPTAIN, getOnlyWithBoatCaptain(),
-        IItemType.TYPE_PUBLIC, CAT_USAGE, International
+        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
             .getString("Boot darf nur mit Obmann genutzt werden")));
-    v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.DEFAULTCREWID, getDefaultCrewId(),
-        IItemType.TYPE_PUBLIC, CAT_USAGE,
-        crews, getValidFrom(), getInvalidFrom() - 1,
-        International.getString("Standard-Mannschaft")));
-    item.setFieldSize(300, -1);
-    v.add(item = new ItemTypeStringList(BoatRecord.DEFAULTSESSIONTYPE, getDefaultSessionType(),
-        EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES, true), EfaTypes
-            .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY, true),
-        IItemType.TYPE_PUBLIC, CAT_USAGE,
-        International.getString("Standard-Fahrtart")));
-    v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.DEFAULTDESTINATIONID,
-        getDefaultDestinationId(),
-        IItemType.TYPE_PUBLIC, CAT_USAGE,
-        destinations, getValidFrom(), getInvalidFrom() - 1,
-        International.getString("Standard-Ziel")));
-    item.setFieldSize(300, -1);
 
     // CAT_RESERVATIONS
     if (getId() != null && admin != null && admin.isAllowedEditBoatReservation()) {
@@ -1292,14 +1020,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         v.addAll(boatStatusRecord.getGuiItems(admin));
       }
     }
-
-    // CAT_FREEUSE
-    v.add(item = new ItemTypeString(BoatRecord.FREEUSE1, getFreeUse1(),
-        IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 1"));
-    v.add(item = new ItemTypeString(BoatRecord.FREEUSE2, getFreeUse2(),
-        IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 2"));
-    v.add(item = new ItemTypeString(BoatRecord.FREEUSE3, getFreeUse3(),
-        IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
 
     return v;
   }

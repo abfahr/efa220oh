@@ -189,9 +189,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
   }
 
   public int getYearOfBirth() {
-    PersonRecord p = getPersonRecord();
-    return (p != null && p.getBirthday() != null && p.getBirthday().isSet() ? p.getBirthday()
-        .getYear() : 0);
+    return 1970;
   }
 
   public void setAbzeichen(int abzeichen) {
@@ -368,7 +366,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
     item.setColor(Color.red);
     item.setVisible(false);
 
-    v.add(item = new ItemTypeString(GUI_YEAROFBIRTH, Integer.toString(getYearOfBirth()),
+    v.add(item = new ItemTypeString(GUI_YEAROFBIRTH, Integer.toString(1970),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Jahrgang")));
     item.setEditable(false);
     v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.ABZEICHEN, getAbzeichen(), 0, 99,
@@ -531,7 +529,8 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
     itemPerson.getValueFromGui();
     PersonRecord person = getPersonRecord((UUID) itemPerson.getId(itemPerson.getValueFromField()));
     String sig = getGuiItem(FAHRTENHEFT).getValueFromField();
-    DRVSignatur drvSignatur = (sig != null && sig.trim().length() > 0 ? new DRVSignatur(sig) : null);
+    DRVSignatur drvSignatur = (sig != null && sig.trim().length() > 0 ? new DRVSignatur(sig)
+        : null);
     if (drvSignatur != null) {
       drvSignatur.checkSignature();
     }
@@ -540,7 +539,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
 
     getGuiItem(GUI_NAMEMISMATCH).setVisible(
         sigName != null && person != null && person.getFirstLastName() != null &&
-        !sigName.equals(person.getFirstLastName()));
+            !sigName.equals(person.getFirstLastName()));
     getGuiItem(ABZEICHEN).setEditable(drvSignatur == null);
     getGuiItem(KILOMETER).setEditable(drvSignatur == null);
     getGuiItem(ABZEICHENAB).setEditable(drvSignatur == null);
@@ -552,11 +551,10 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
       getGuiItem(KILOMETERAB).parseAndShowValue(Integer.toString(drvSignatur.getGesKmAB()));
     }
     updateGuiItem(GUI_YEAROFBIRTH, (person != null && person.getBirthday() != null
-        && person.getBirthday().isSet() ?
-            Integer.toString(person.getBirthday().getYear()) : ""));
+        && person.getBirthday().isSet() ? Integer.toString(person.getBirthday().getYear()) : ""));
     updateGuiItem(GUI_LETZTESFAHRTENABZEICHEN,
-        (drvSignatur != null ? drvSignatur.getJahr() + " (" + drvSignatur.getLetzteKm() + " Km)" :
-          International.onlyFor("- keine elektronisches Fahrtenheft vorhanden -", "de")));
+        (drvSignatur != null ? drvSignatur.getJahr() + " (" + drvSignatur.getLetzteKm() + " Km)"
+            : International.onlyFor("- keine elektronisches Fahrtenheft vorhanden -", "de")));
     updateGuiItem(GUI_TEILNEHMERNUMMER, (drvSignatur != null ? drvSignatur.getTeilnNr() : ""));
     updateGuiItem(GUI_VORNAME, (drvSignatur != null ? drvSignatur.getVorname() : ""));
     updateGuiItem(GUI_NACHNAME, (drvSignatur != null ? drvSignatur.getNachname() : ""));
@@ -572,8 +570,10 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         : ""));
     updateGuiItem(GUI_LETZTEKM, (drvSignatur != null ? Integer.toString(drvSignatur.getLetzteKm())
         : ""));
-    updateGuiItem(GUI_LETZTESDATUM, (drvSignatur != null ? drvSignatur.getSignaturDatum(true) : ""));
-    updateGuiItem(GUI_VERSION, (drvSignatur != null ? Byte.toString(drvSignatur.getVersion()) : ""));
+    updateGuiItem(GUI_LETZTESDATUM,
+        (drvSignatur != null ? drvSignatur.getSignaturDatum(true) : ""));
+    updateGuiItem(GUI_VERSION,
+        (drvSignatur != null ? Byte.toString(drvSignatur.getVersion()) : ""));
     updateGuiItem(GUI_SCHLUESSEL, (drvSignatur != null ? Integer.toString(drvSignatur.getKeyNr())
         : ""));
     updateGuiItem(GUI_SIGNATUR, (drvSignatur != null ? drvSignatur.getSignaturString() : ""));
@@ -581,8 +581,8 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         : ""));
     if (drvSignatur != null) {
       ((ItemTypeString) getGuiItem(GUI_STATUS))
-      .setFieldColor((drvSignatur.getSignatureState() == DRVSignatur.SIG_VALID ? Color.blue
-          : Color.red));
+          .setFieldColor((drvSignatur.getSignatureState() == DRVSignatur.SIG_VALID ? Color.blue
+              : Color.red));
       ((ItemTypeString) getGuiItem(GUI_STATUS)).setUnchanged();
     }
     getGuiItem(GUI_STATUS).setVisible(drvSignatur != null);

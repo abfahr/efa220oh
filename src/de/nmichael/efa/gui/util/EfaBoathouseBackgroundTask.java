@@ -857,8 +857,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     // hashId = Reservierung suchen // hashId = code prüfen
     BoatReservationRecord[] brrArray = boatReservations.findBoatReservationsByHashId(strHashId);
     if (brrArray == null || brrArray.length == 0) {
-      String error = "Storno-Link: keine Reservierung mit hashId " + strHashId + " gefunden. "
-          + brrArray;
+      String error = "Storno-Link: Reservierung mit hashId " + strHashId
+          + " nicht (mehr) gefunden. " + brrArray;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
     }

@@ -34,7 +34,6 @@ import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.Dialog;
@@ -73,7 +72,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
   private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
   private static String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-  private static String CAT_ADDRESS = "%03%" + International.getString("Adresse");
   private static String CAT_GROUPS = "%04%" + International.getString("Gruppen");
   private static String CAT_FREEUSE = "%05%" + International.getString("Freie Verwendung");
   private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
@@ -590,27 +588,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           getExcludeFromPublicStatistics(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
               .getString("von allgemein verfügbaren Statistiken ausnehmen")));
-
-      // CAT_GROUPS
-      if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
-        Vector<IItemType[]> itemList = new Vector<IItemType[]>();
-        GroupRecord[] groupList = getGroupList();
-        DataTypeList<UUID> agList = new DataTypeList<UUID>();
-        for (int i = 0; groupList != null && i < groupList.length; i++) {
-          agList.add(groupList[i].getId());
-        }
-        for (int i = 0; agList != null && i < agList.length(); i++) {
-          IItemType[] items = getDefaultItems(GUIITEM_GROUPS);
-          ((ItemTypeStringAutoComplete) items[0]).setId(agList.get(i));
-          itemList.add(items);
-        }
-        v.add(item = new ItemTypeItemList(GUIITEM_GROUPS, itemList, this,
-            IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Gruppenzugehörigkeit")));
-        ((ItemTypeItemList) item).setXForAddDelButtons(3);
-        ((ItemTypeItemList) item).setPadYbetween(0);
-        ((ItemTypeItemList) item).setRepeatTitle(false);
-        ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
-      } // CAT_GROUPS
 
     } // admin visible
 

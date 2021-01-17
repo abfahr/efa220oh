@@ -1806,13 +1806,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
       }
 
-      if (clubworkName == null || clubworkName.length() == 0) {
-        if (admin != null && admin.isAllowedAdministerProjectClubwork()) {
-          OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this,
-              OpenProjectOrLogbookDialog.Type.clubwork, admin);
-          clubworkName = dlg.openDialog();
-        }
-      }
       if ((clubworkName == null || clubworkName.length() == 0)
           && clubworkNameBefore != null && clubworkNameBefore.length() > 0 && admin != null) {
         // Admin-Mode: There was a clubwork opened before, but admin aborted dialog and didn't

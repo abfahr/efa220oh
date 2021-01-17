@@ -98,20 +98,12 @@ public class MenuMain extends MenuBase {
         return runCommandWithArgs(args);
       }
       if (cmd.equalsIgnoreCase(CLI.MENU_CREWS)) {
-        if (!cli.getAdminRecord().isAllowedEditCrews()) {
-          cli.logerr("You don't have permission to access this function.");
-          return CLI.RC_NO_PERMISSION;
-        }
-        menuStack.push(CLI.MENU_CREWS);
-        return runCommandWithArgs(args);
+        cli.logerr("You don't have permission to access this function.");
+        return CLI.RC_NO_PERMISSION;
       }
       if (cmd.equalsIgnoreCase(CLI.MENU_GROUPS)) {
-        if (!cli.getAdminRecord().isAllowedEditGroups()) {
-          cli.logerr("You don't have permission to access this function.");
-          return CLI.RC_NO_PERMISSION;
-        }
-        menuStack.push(CLI.MENU_GROUPS);
-        return runCommandWithArgs(args);
+        cli.logerr("You don't have permission to access this function.");
+        return CLI.RC_NO_PERMISSION;
       }
       if (cmd.equalsIgnoreCase(CLI.MENU_STATUS)) {
         if (!cli.getAdminRecord().isAllowedEditPersons()) {
@@ -130,12 +122,8 @@ public class MenuMain extends MenuBase {
         return runCommandWithArgs(args);
       }
       if (cmd.equalsIgnoreCase(CLI.MENU_FAHRTENABZEICHEN)) {
-        if (!cli.getAdminRecord().isAllowedEditFahrtenabzeichen()) {
-          cli.logerr("You don't have permission to access this function.");
-          return CLI.RC_NO_PERMISSION;
-        }
-        menuStack.push(CLI.MENU_FAHRTENABZEICHEN);
-        return runCommandWithArgs(args);
+        cli.logerr("You don't have permission to access this function.");
+        return CLI.RC_NO_PERMISSION;
       }
       if (cmd.equalsIgnoreCase(CLI.MENU_MESSAGES)) {
         if (!cli.getAdminRecord().isAllowedMsgReadAdmin()) {
@@ -154,12 +142,8 @@ public class MenuMain extends MenuBase {
         return runCommandWithArgs(args);
       }
       if (cmd.equalsIgnoreCase(CLI.MENU_SYNCEFB)) {
-        if (!cli.getAdminRecord().isAllowedSyncKanuEfb()) {
-          cli.logerr("You don't have permission to access this function.");
-          return CLI.RC_NO_PERMISSION;
-        }
-        menuStack.push(CLI.MENU_SYNCEFB);
-        return runCommandWithArgs(args);
+        cli.logerr("You don't have permission to access this function.");
+        return CLI.RC_NO_PERMISSION;
       }
       if (cmd.equalsIgnoreCase(CLI.MENU_BACKUP)) {
         if (!cli.getAdminRecord().isAllowedCreateBackup() &&

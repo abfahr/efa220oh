@@ -13,11 +13,6 @@ import javax.swing.JDialog;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.data.Clubwork;
-import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.gui.AdminDialog;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
 /**
@@ -31,21 +26,13 @@ import de.nmichael.efa.util.Logger;
 public class AdminTask extends Thread {
 
   private static AdminTask task;
-  private AdminRecord admin;
-  private JDialog parent;
 
-  public AdminTask(AdminRecord admin, JDialog parent) {
-    this.admin = admin;
-    this.parent = parent;
-  }
+  public AdminTask(AdminRecord admin, JDialog parent) {}
 
   private void runActions() {
     Logger.log(Logger.DEBUG, Logger.MSG_CORE_ADMINTASK, "running AdminTask ...");
     // Actions to be implemented here!
     // For each action, check whether admin has necessary permissions.
-    if (admin.isAllowedAdministerProjectClubwork()) {
-      checkForClubworkCarryOver();
-    }
   }
 
   @Override
@@ -84,35 +71,5 @@ public class AdminTask extends Thread {
     }
     task = new AdminTask(admin, dlg);
     task.start();
-  }
-
-  private void checkForClubworkCarryOver() {
-    String[] clubworkNames = Daten.project.getAllClubworkNames();
-    if (clubworkNames == null || clubworkNames.length == 0) {
-      return;
-    }
-    Clubwork clubwork = Daten.project.getCurrentClubwork();
-    if (clubwork == null) {
-      return;
-    }
-    if (!clubwork.isOpen()) {
-      Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet.")
-          + " " + International.getMessage("Berechnen des {verb}s nicht möglich.",
-              International.getString("Übertrag")));
-      return;
-    }
-    DataTypeDate date = clubwork.getEndDate();
-    if (date == null || DataTypeDate.today().isBefore(date)) {
-      return;
-    }
-    int res = Dialog.yesNoDialog(
-        International.getString("Übertrag berechnen"),
-        International.getMessage(
-            "Möchtest Du den Übertrag für das Vereinsarbeitsbuch '{record}' wirklich berechnen?",
-            clubwork.getName()));
-    if (res == Dialog.YES) {
-      clubwork.doCarryOver(1, parent);
-      ((AdminDialog) parent).updateInfos();
-    }
   }
 }

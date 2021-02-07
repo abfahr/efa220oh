@@ -470,19 +470,44 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   @Override
   public boolean setFromText(String fieldName, String value) {
-    if (fieldName.equals(GENDER)) {
-      String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, value);
-      if (s != null) {
-        set(fieldName, s);
-      }
-    } else if (fieldName.equals(STATUSID)) {
-      Status status = getPersistence().getProject().getStatus(false);
-      StatusRecord sr = status.findStatusByName(value);
-      if (sr != null) {
-        set(fieldName, sr.getId());
-      }
-    } else {
-      return super.setFromText(fieldName, value);
+    switch (fieldName) {
+      case GENDER:
+        String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, value);
+        if (s != null) {
+          set(fieldName, s);
+        }
+        break;
+      case EMAIL:
+        // mit jeder Email auch Erlaubnis setzen
+        if (value != null && !value.trim().isBlank()) {
+          setErlaubnisEmail(true);
+        }
+        return super.setFromText(fieldName, value);
+      case STATUSID:
+        switch (value) {
+          case "Mitglieder ausgetreten":
+          case "Mitglieder verstorben":
+          case "Mitglieder ausgeschlossen":
+          case "Passives Mitglied":
+          case "Externe Adressen":
+          case "andere":
+          case "Gast":
+            setInvalidFrom(System.currentTimeMillis());
+            setDeleted(true);
+          default:
+        }
+        if ("Mitglieder gek?ndigt".equals(value)) {
+          value = "Mitglieder gekündigt"; // Umlaute
+        }
+        Status status = getPersistence().getProject().getStatus(false);
+        StatusRecord statusRecord = status.findStatusByName(value);
+        if (statusRecord != null) {
+          set(fieldName, statusRecord.getId());
+        }
+
+        break;
+      default:
+        return super.setFromText(fieldName, value);
     }
     return (value.equals(getAsText(fieldName)));
   }

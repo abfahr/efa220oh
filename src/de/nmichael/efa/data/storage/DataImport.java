@@ -73,6 +73,8 @@ public class DataImport extends ProgressTask {
   private long validAt;
   private String updMode;
   private int importCount = 0;
+  private int changeCount = 0;
+  private int newCount = 0;
   private int errorCount = 0;
   private int warningCount = 0;
   private boolean isLogbook = false;
@@ -162,12 +164,17 @@ public class DataImport extends ProgressTask {
 
   private void addRecord(DataRecord r) {
     try {
+      if (r.getDeleted()) {
+        return;
+      }
       if (versionized) {
         long myValidAt = getValidFrom(r);
         dataAccess.addValidAt(r, myValidAt);
+        newCount++;
         setCurrentWorkDone(++importCount);
       } else {
         dataAccess.add(r);
+        newCount++;
         setCurrentWorkDone(++importCount);
       }
     } catch (Exception e) {
@@ -175,37 +182,62 @@ public class DataImport extends ProgressTask {
     }
   }
 
-  private void updateRecord(DataRecord r, ArrayList<String> fieldsInInport) {
+  private void updateRecord(DataRecord r, ArrayList<String> fieldsInImport) {
     try {
-      DataRecord rorig = (versionized
+      DataRecord rOrig = (versionized
           ? dataAccess.getValidAt(r.getKey(), validAt)
           : dataAccess.get(r.getKey()));
-      if (rorig == null) {
-        logImportFailed(r,
-            International.getString("Keine gültige Version des Datensatzes gefunden."), null);
+      if (rOrig == null) {
+        logImportFailed(r, International.getString(
+            "Keine gültige Version des Datensatzes gefunden."), null);
         return;
       }
 
       // has the import record an InvalidFrom field?
       long invalidFrom = (versionized ? getInvalidFrom(r) : -1);
-      if (invalidFrom <= rorig.getValidFrom()) {
+      if (invalidFrom <= rOrig.getValidFrom()) {
         invalidFrom = -1;
       }
       boolean changed = false;
 
+      boolean isPerson = (rOrig instanceof PersonRecord);
       for (int i = 0; i < fields.length; i++) {
-        Object o = r.get(fields[i]);
-        if ((o != null || fieldsInInport.contains(fields[i]))
-            && !r.isKeyField(fields[i])
-            && !fields[i].equals(DataRecord.LASTMODIFIED)
-            && !fields[i].equals(DataRecord.VALIDFROM)
-            && !fields[i].equals(DataRecord.INVALIDFROM)
-            && !fields[i].equals(DataRecord.INVISIBLE)
-            && !fields[i].equals(DataRecord.DELETED)) {
-          Object obefore = rorig.get(fields[i]);
-          rorig.set(fields[i], o);
-          if ((o != null && !o.equals(obefore)) ||
-              (o == null && obefore != null)) {
+        String fieldName = fields[i];
+        Object objValue = r.get(fieldName);
+        if ((objValue != null || fieldsInImport.contains(fieldName))
+            && !r.isKeyField(fieldName)
+            && !fieldName.equals(DataRecord.LASTMODIFIED)
+            && !fieldName.equals(DataRecord.VALIDFROM)
+            && !fieldName.equals(DataRecord.INVALIDFROM)
+            && !fieldName.equals(DataRecord.INVISIBLE)
+            && !fieldName.equals(DataRecord.DELETED)) {
+
+          Object oBefore = rOrig.get(fieldName);
+          if (isPerson) {
+            PersonRecord personBisher = (PersonRecord) rOrig;
+            switch (fieldName) {
+              case PersonRecord.EMAIL:
+              case PersonRecord.ISALLOWEDEMAIL:
+                // kein Update von Sewobe, falls Mitglied Nutzung verboten hat
+                // es sei denn, Person hat nun erstmalig Email TODO 2021-02-08 abf
+                if (!personBisher.isErlaubtEmail()) {
+                  continue;
+                }
+                break;
+              case PersonRecord.FESTNETZ1:
+              case PersonRecord.HANDY2:
+                // kein Update von Sewobe, falls Mitglied bisherige Nummer freigegeben hat.
+                if (personBisher.isErlaubtTelefon()) {
+                  continue;
+                }
+                break;
+              default:
+            }
+          }
+
+          rOrig.set(fieldName, objValue);
+          if ((objValue != null && !objValue.equals(oBefore)) ||
+              (objValue == null && oBefore != null)) {
             changed = true;
           }
         }
@@ -214,21 +246,24 @@ public class DataImport extends ProgressTask {
       if (invalidFrom <= 0) {
         long myValidAt = getValidFrom(r);
         if (!versionized || updMode.equals(UPDMODE_UPDATEVALIDVERSION)
-            || rorig.getValidFrom() == myValidAt) {
+            || rOrig.getValidFrom() == myValidAt) {
           if (changed) {
-            dataAccess.update(rorig);
+            dataAccess.update(rOrig);
+            changeCount++;
           }
           setCurrentWorkDone(++importCount);
         }
         if (versionized && updMode.equals(UPPMODE_CREATENEWVERSION)
-            && rorig.getValidFrom() != myValidAt) {
+            && rOrig.getValidFrom() != myValidAt) {
           if (changed) {
-            dataAccess.addValidAt(rorig, myValidAt);
+            dataAccess.addValidAt(rOrig, myValidAt);
+            changeCount++;
           }
           setCurrentWorkDone(++importCount);
         }
       } else {
-        dataAccess.changeValidity(rorig, rorig.getValidFrom(), invalidFrom);
+        dataAccess.changeValidity(rOrig, rOrig.getValidFrom(), invalidFrom);
+        changeCount++;
         setCurrentWorkDone(++importCount);
       }
     } catch (Exception e) {
@@ -387,11 +422,7 @@ public class DataImport extends ProgressTask {
             // header
             header = new String[fields.size()];
             for (int i = 0; i < fields.size(); i++) {
-              if (isPersons) {
-                header[i] = korrigiereHeader(fields.get(i));
-              } else {
-                header[i] = fields.get(i);
-              }
+              header[i] = fields.get(i);
               if (header[i].startsWith("#") && header[i].endsWith("#") && header.length > 2) {
                 header[i] = header[i].substring(1, header[i].length() - 1).trim();
                 overrideKeyField = header[i];
@@ -410,9 +441,6 @@ public class DataImport extends ProgressTask {
                 String headerField = header[i];
                 try {
                   value = value.trim();
-                  if (isPersons) {
-                    value = korrigiereFelder(headerField, value);
-                  }
                   boolean isSameValue = r.setFromText(headerField, value);
                   if (!isSameValue) {
                     String asText = r.getAsText(headerField);
@@ -429,9 +457,6 @@ public class DataImport extends ProgressTask {
             }
             if (isPersons && !((PersonRecord) r).isValidMemberOH()) {
               continue;
-            }
-            if (isPersons && ((PersonRecord) r).isDyingMember()) {
-              r.setInvalidFrom(System.currentTimeMillis());
             }
             if (importRecord(r, fieldsInImport)) {
               count++;
@@ -452,58 +477,6 @@ public class DataImport extends ProgressTask {
     return count;
   }
 
-  private String korrigiereHeader(String candidate) {
-    String header = candidate;
-    if ("VornameAnsprechpartner".equals(header)) {
-      header = PersonRecord.FIRSTNAME;
-    } else if ("NachnameAnsprechpartner".equals(header)) {
-      header = PersonRecord.LASTNAME;
-    }
-    return header;
-  }
-
-  private String korrigiereFelder(String type, String candidate) {
-    String korrigiert = candidate;
-    if (type.equals(PersonRecord.GENDER)) { // "Gender"
-      korrigiert = candidate.toLowerCase();
-      if ("M?nnlich".equals(candidate)) {
-        korrigiert = "männlich"; // Umlaute
-      }
-      if ("nicht bekannt".equals(candidate)) {
-        korrigiert = "null"; // Firmenkontakte
-      }
-    } else if (type.equals(PersonRecord.STATUSID)) { // "StatusId"
-      if ("Mitglieder gek?ndigt".equals(candidate)) {
-        korrigiert = "Mitglieder gekündigt"; // Umlaute
-      }
-    } else if (type.equals(PersonRecord.BOATUSAGEBAN)) { // "BoatUsageBan"
-      if ("Nein".equals(candidate)) { // hat Schlüssel NEIN
-        korrigiert = "true"; // von Booten verbannt
-      } else if ("Ja".equals(candidate)) { // hat Schlüssel JA
-        korrigiert = "false"; // von Booten nicht verbannt
-      }
-    } else if (type.equals("Eintrittsdatum")) {
-      korrigiert = "null"; // wichtig
-    } else if (type.equals("Bootshausschlüssel")) {
-      korrigiert = "null"; // wichtig
-    } else if (type.equals("Bootshausschl?ssel")) {
-      korrigiert = "null"; // Umlaute
-    } else if (type.equals("Schlüsselvergabe")) {
-      korrigiert = "null"; // neu
-    } else if (type.equals("Schl?sselvergabe")) {
-      korrigiert = "null"; // Umlaute
-    } else if (type.equals("SchlüsselvergabeAm")) {
-      korrigiert = "null"; // wichtig
-    } else if (type.equals("Schl?sselvergabeAm")) {
-      korrigiert = "null"; // Umlaute
-    } else if (type.equals("Schlüsselrückgabe")) {
-      korrigiert = "null"; // wichtig
-    } else if (type.equals("Schl?sselr?ckgabe")) {
-      korrigiert = "null"; // Umlaute
-    }
-    return korrigiert;
-  }
-
   @Override
   public void run() {
     setRunning(true);
@@ -516,6 +489,8 @@ public class DataImport extends ProgressTask {
     }
     this.logInfo("\n\n"
         + International.getMessage("{count} Datensätze erfolgreich importiert.", importCount));
+    this.logInfo("\n" + International.getMessage("{count} Änderungen.", changeCount));
+    this.logInfo("\n" + International.getMessage("{count} neue Mitglieder.", newCount));
     this.logInfo("\n" + International.getMessage("{count} Fehler.", errorCount));
     this.logInfo("\n" + International.getMessage("{count} Warnungen.", warningCount));
 
@@ -533,7 +508,8 @@ public class DataImport extends ProgressTask {
   @Override
   public String getSuccessfullyDoneMessage() {
     return International.getMessage("{count} Datensätze erfolgreich importiert.",
-        "" + importCount + " " + storageObject.getDescription());
+        "" + changeCount + "+" + newCount + "=" + importCount + " "
+            + storageObject.getDescription());
   }
 
   public void runImport(ProgressDialog progressDialog) {

@@ -98,8 +98,8 @@ public class EfaMenuButton {
   public final static String BUTTON_SYNCKANUEFB = "SYNCKANUEFB";
 
   public final static String MENU_INFO = "INFO";
-  public final static String BUTTON_HELP = "HELP";
   public final static String BUTTON_LOGFILE = "LOGFILE";
+  public final static String BUTTON_HELP = "HELP";
   public final static String BUTTON_ABOUT = "ABOUT";
 
   public final static String MENU_DEVELOPMENT = "DEVELOPMENT";
@@ -417,26 +417,16 @@ public class EfaMenuButton {
           BaseFrame.getIcon("menu_translate.png")));
     }
 
-    v.add(new EfaMenuButton(MENU_INFO, BUTTON_HELP,
-        International.getStringWithMnemonic("Info"),
-        International.getStringWithMnemonic("Hilfe"),
-        BaseFrame.getIcon("menu_help.png")));
-    if (v.size() > 0 && v.get(v.size() - 1).getMenuName().equals(MENU_INFO)
-        && !v.get(v.size() - 1).isSeparator()) {
-      v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
-          null, null, null));
-    }
     if (admin == null || admin.isAllowedShowLogfile()) {
       v.add(new EfaMenuButton(MENU_INFO, BUTTON_LOGFILE,
           International.getStringWithMnemonic("Info"),
           International.getStringWithMnemonic("Logdatei"),
           BaseFrame.getIcon("menu_logfile.png")));
     }
-    if (v.size() > 0 && v.get(v.size() - 1).getMenuName().equals(MENU_INFO)
-        && !v.get(v.size() - 1).isSeparator()) {
-      v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
-          null, null, null));
-    }
+    v.add(new EfaMenuButton(MENU_INFO, BUTTON_HELP,
+        International.getStringWithMnemonic("Info"),
+        International.getStringWithMnemonic("Hilfe"),
+        BaseFrame.getIcon("menu_help.png")));
     v.add(new EfaMenuButton(MENU_INFO, BUTTON_ABOUT,
         International.getStringWithMnemonic("Info"),
         International.getStringWithMnemonic("Über"),

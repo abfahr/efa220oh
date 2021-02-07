@@ -74,6 +74,7 @@ import de.nmichael.efa.gui.MultiInputDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationListDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
+import de.nmichael.efa.gui.dataedit.DataListDialog;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.gui.util.TableCellRenderer;
@@ -227,7 +228,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               break;
             default:
               Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
-                  "actionAbortSession(): unreachable switch: "
+                  "setActions(): unreachable switch: "
                       + "setActions() actionTypes = " + actionTypes[i]);
               break;
           }
@@ -530,7 +531,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       return;
                     default:
                       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
-                          "actionAbortSession(): unreachable switch: "
+                          "itemListenerAction()1: unreachable switch: "
                               + "Datensatz wiederherstellen auswahlYesNoCancelDialog = "
                               + auswahlYesNoCancelDialog);
                       break;
@@ -657,9 +658,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               Dialog.error(ex.toString());
             }
             break;
+          case DataListDialog.ACTION_IMPORT:
+          case DataListDialog.ACTION_EXPORT:
+          case DataListDialog.ACTION_MERGE:
+          case DataListDialog.ACTION_PRINTLIST:
+          case DataListDialog.ACTION_EDITASSISTENT:
+            break;
           default:
             Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR,
-                "actionAbortSession(): unreachable switch: "
+                "itemListenerAction()2: unreachable switch: "
                     + "itemListenerAction actionId = " + actionId);
             break;
         }

@@ -75,6 +75,7 @@ import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationListDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.gui.dataedit.DataListDialog;
+import de.nmichael.efa.gui.dataedit.StatisticsListDialog;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.gui.util.TableCellRenderer;
@@ -663,6 +664,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           case DataListDialog.ACTION_MERGE:
           case DataListDialog.ACTION_PRINTLIST:
           case DataListDialog.ACTION_EDITASSISTENT:
+          case StatisticsListDialog.ACTION_CREATESTATISTICS: // Lasse
             break;
           default:
             Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR,

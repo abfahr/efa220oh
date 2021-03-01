@@ -852,6 +852,17 @@ public class BoatReservationRecord extends DataRecord {
     return fehlermeldung;
   }
 
+  public long getValidAtTimestamp() {
+    return getValidAtTimestamp(getDateFrom(), getTimeFrom());
+  }
+
+  public static long getValidAtTimestamp(DataTypeDate d, DataTypeTime t) {
+    if (d != null && d.isSet()) {
+      return d.getTimestamp(t);
+    }
+    return System.currentTimeMillis();
+  }
+
   private String getFormattedEmailtextBootshausnutzungswart() {
     PersonRecord p = getPersonRecord();
 
@@ -932,7 +943,7 @@ public class BoatReservationRecord extends DataRecord {
       if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
           && getHashId().length() > 0
           && personRecord != null) {
-        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: ");
+        msg.add("Alternativ kannst Du diese Reservierung auch mit ein paar Klicks stornieren: ");
         msg.add(" " + getWebOnlineURL("storno/", personRecord.getMembershipNo()));
       }
       if (isBootshausOH()) {

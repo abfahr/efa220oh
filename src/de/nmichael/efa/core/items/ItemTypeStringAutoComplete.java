@@ -36,15 +36,10 @@ import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 
 public class ItemTypeStringAutoComplete extends ItemTypeString implements
-AutoCompletePopupWindowCallback {
+    AutoCompletePopupWindowCallback {
 
   private enum Mode {
-    none,
-    normal,
-    up,
-    delete,
-    enter,
-    escape
+    none, normal, up, delete, enter, escape
   }
 
   protected boolean showButton;
@@ -333,7 +328,8 @@ AutoCompletePopupWindowCallback {
       mode = Mode.escape; // 5
     }
 
-    // System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' in mode "+mode);
+    // System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' in
+    // mode "+mode);
     if (e == null || mode == Mode.enter || mode == Mode.escape) {
       field.setText(field.getText().trim());
     }
@@ -406,7 +402,7 @@ AutoCompletePopupWindowCallback {
       }
       if (withPopup && popupComplete && e != null && mode != Mode.none) {
         AutoCompletePopupWindow
-        .showAndSelect(field, list, (complete != null ? complete : ""), null);
+            .showAndSelect(field, list, (complete != null ? complete : ""), null);
       }
     }
 
@@ -432,7 +428,7 @@ AutoCompletePopupWindowCallback {
       }
       if (withPopup && popupComplete) {
         AutoCompletePopupWindow
-        .showAndSelect(field, list, (complete != null ? complete : ""), null);
+            .showAndSelect(field, list, (complete != null ? complete : ""), null);
       }
     }
 
@@ -448,8 +444,8 @@ AutoCompletePopupWindowCallback {
     String ignoredString = null;
     int ignorePos = -1;
     for (int i = 0; ignoreEverythingAfter != null && i < ignoreEverythingAfter.length(); i++) {
-      ignorePos = (prefix != null ? prefix.indexOf(ignoreEverythingAfter.charAt(i)) :
-        field.getText().indexOf(ignoreEverythingAfter.charAt(i)));
+      ignorePos = (prefix != null ? prefix.indexOf(ignoreEverythingAfter.charAt(i))
+          : field.getText().indexOf(ignoreEverythingAfter.charAt(i)));
       if (ignorePos >= 0) {
         break;
       }
@@ -498,20 +494,22 @@ AutoCompletePopupWindowCallback {
     if (matching) {
       setButtonColor((ignoredString == null ? Color.green : Color.yellow));
     } else {
-      setButtonColor((valid ? Color.red :
-        Color.orange)); // @todo should be green or orange? used to be orange instead of green;
+      setButtonColor((valid ? Color.red : Color.orange));
+      // @todo should be green or orange? used
+      // to be orange instead of green;
       // used for hidden records. Color.orange) );
     }
     if (Logger.isTraceOn(Logger.TT_GUI, 5)) {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE,
           "field=" + field.getText()
-          + ", complete=" + complete
-          + ", matching=" + matching
-          + ", valid=" + valid
-          + ", validAtDateItem=" + validAtDateItem
-          + ", ignoredString=" + ignoredString);
+              + ", complete=" + complete
+              + ", matching=" + matching
+              + ", valid=" + valid
+              + ", validAtDateItem=" + validAtDateItem
+              + ", ignoredString=" + ignoredString);
     }
-    // System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' -> matching="+matching);
+    // System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' ->
+    // matching="+matching);
 
     if (mode == Mode.enter) {
       field.select(-1, -1);
@@ -580,10 +578,10 @@ AutoCompletePopupWindowCallback {
       if (SimpleOptionInputDialog.showOptionInputDialog(dlg,
           International.getString("Tippfehler?"), item,
           new String[] { International.getString("Ersetzen"),
-        International.getString("Abbruch") },
-        new int[] { SimpleOptionInputDialog.OPTION_OK,
-        SimpleOptionInputDialog.OPTION_CANCEL },
-        null)) {
+              International.getString("Abbruch") },
+          new int[] { SimpleOptionInputDialog.OPTION_OK,
+              SimpleOptionInputDialog.OPTION_CANCEL },
+          null)) {
         String suggestedName = item.getSelectedText();
         if (suggestedName != null && suggestedName.length() > 0) {
           this.parseAndShowValue(suggestedName);

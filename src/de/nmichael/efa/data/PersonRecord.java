@@ -59,7 +59,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String ISALLOWEDEMAIL = "erlaubtEmail";
   public static final String ISALLOWEDPHONE = "erlaubtTelefon";
   public static final String ISALLOWEDSHORT = "erlaubtKürzel";
-  public static final String ISALLOWEDSPELL = "erlaubtSchreibweise";
+  public static final String HASCHANGEDSPELLNAME = "hatSchreibweiseGeaendert";
   public static final String MEMBERSHIPNO = "MembershipNo";
   public static final String EXCLUDEFROMSTATISTIC = "ExcludeFromStatistics";
   public static final String BOATUSAGEBAN = "BoatUsageBan";
@@ -102,7 +102,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(ISALLOWEDSHORT);
     t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(ISALLOWEDSPELL);
+    f.add(HASCHANGEDSPELLNAME);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(MEMBERSHIPNO);
     t.add(IDataAccess.DATA_STRING);
@@ -257,12 +257,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     setBool(ISALLOWEDSHORT, isErlaubtKuerzel);
   }
 
-  public boolean isErlaubtSchreibweise() {
-    return getBool(ISALLOWEDSPELL);
+  public boolean hatSchreibweiseNameGeaendert() {
+    return getBool(HASCHANGEDSPELLNAME);
   }
 
-  public void setErlaubnisSchreibweise(boolean isErlaubtSchreibweise) {
-    setBool(ISALLOWEDSPELL, isErlaubtSchreibweise);
+  public void setSchreibweiseGeaendert(boolean schreibweiseGeaendert) {
+    setBool(HASCHANGEDSPELLNAME, schreibweiseGeaendert);
   }
 
   public void setMembershipNo(String no) {
@@ -567,15 +567,16 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
       v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
+      v.add(item = new ItemTypeBoolean(PersonRecord.HASCHANGEDSPELLNAME,
+          hatSchreibweiseNameGeaendert(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA,
+          International.getString("hat eigene Schreibweise Name")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDEMAIL, isErlaubtEmail(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Email")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDPHONE, isErlaubtTelefon(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Telefon")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSHORT, isErlaubtKuerzel(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Kürzel")));
-      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSPELL, isErlaubtSchreibweise(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA,
-          International.getString("ist Erlaubt Schreibweise")));
       v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
       item.setFieldSize(300, -1);

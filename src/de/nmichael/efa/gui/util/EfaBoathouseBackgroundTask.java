@@ -1151,11 +1151,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
       neuerName = neuerName.trim();
     }
 
-    if (person.isErlaubtSchreibweise()) {
+    if (person.hatSchreibweiseNameGeaendert()) {
       if (neuerName.equals(person.getFirstLastName())) {
         String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
             + " heißt bereits '" + neuerName
-            + "' und hat Erlaubnis: " + person.isErlaubtSchreibweise();
+            + "' und hat bereits: " + person.hatSchreibweiseNameGeaendert();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
@@ -1222,7 +1222,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     String oldName = person.getFirstLastName();
-    person.setErlaubnisSchreibweise(!neuerName.isBlank());
+    person.setSchreibweiseGeaendert(!neuerName.isBlank());
     person.setFirstName(neuerVorname);
     person.setLastName(neuerNachname);
 
@@ -1230,7 +1230,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       persons.data().update(person);
       String info = "Person-Profil-" + aktion + ": " + oldName
           + " hat seinen Namen in '" + person.getFirstLastName()
-          + "' geändert und die Erlaubnis: " + person.isErlaubtSchreibweise();
+          + "' geändert und hat nun: " + person.hatSchreibweiseNameGeaendert();
       Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
       return info;
     } catch (EfaException e2) {

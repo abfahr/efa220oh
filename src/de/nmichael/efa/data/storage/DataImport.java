@@ -231,6 +231,13 @@ public class DataImport extends ProgressTask {
                   continue;
                 }
                 break;
+              case PersonRecord.LASTNAME:
+              case PersonRecord.FIRSTNAME:
+              case PersonRecord.FIRSTLASTNAME:
+                // kein Update von Sewobe, falls Mitglied bereits Namen geändert hat.
+                if (personBisher.hatSchreibweiseNameGeaendert()) {
+                  continue;
+                }
               default:
             }
           }

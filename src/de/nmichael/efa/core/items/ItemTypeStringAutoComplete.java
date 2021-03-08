@@ -381,6 +381,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
         }
         String aliasCandidate = list.getAlias(prefix);
         if (aliasCandidate != null) {
+          Logger.log(Logger.INFO, Logger.MSG_DEBUG_AUTOCOMPLETE,
+              "Kürzel " + prefix + " wird zu " + aliasCandidate);
           complete = aliasCandidate;
           prefix = aliasCandidate;
         }

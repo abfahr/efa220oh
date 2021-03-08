@@ -420,10 +420,6 @@ public class StatisticTask extends ProgressTask {
       boolean isGuest, boolean isOther) {
     if (sr.sSumGuestsByClub && isGuest) {
       String clubName = International.getString("unbekannt");
-      if (person != null && person.getAssocitation() != null
-          && person.getAssocitation().length() > 0) {
-        clubName = person.getAssocitation();
-      }
       return StatisticsData.SORTTOEND_PREFIX
           + International.getMessage("Gäste von {club}", clubName);
     }
@@ -704,10 +700,6 @@ public class StatisticTask extends ProgressTask {
       case name:
         if (sr.sSumGuestsByClub && entryPersonIsGuest) {
           String clubName = International.getString("unbekannt");
-          if (entryPersonRecord != null && entryPersonRecord.getAssocitation() != null
-              && entryPersonRecord.getAssocitation().length() > 0) {
-            clubName = entryPersonRecord.getAssocitation();
-          }
           return StatisticsData.SORTTOEND_PREFIX
               + International.getMessage("Gäste von {club}", clubName);
         }

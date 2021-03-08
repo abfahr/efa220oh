@@ -68,9 +68,6 @@ public class ImportPersons extends ImportBase {
     if (!isIdentical(r.getBirthday(), d.get(Mitglieder.JAHRGANG))) {
       return true;
     }
-    if (!isIdentical(r.getNameAffix(), d.get(Mitglieder.VEREIN))) {
-      return true;
-    }
     if (!isIdentical(r.getStatusId(), getStatusKey(d.get(Mitglieder.STATUS)))) {
       return true;
     }
@@ -105,7 +102,7 @@ public class ImportPersons extends ImportBase {
         // First search, whether we have imported this person already
         PersonRecord r = null;
         String personName = PersonRecord.getFullName(d.get(Mitglieder.VORNAME),
-            d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN), true);
+            d.get(Mitglieder.NACHNAME), true);
         String mainPersonName = task.synMitglieder_getMainName(personName);
         DataKey k = null;
         DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_NAMEAFFIX,
@@ -144,9 +141,6 @@ public class ImportPersons extends ImportBase {
           }
           if (d.get(Mitglieder.NACHNAME).length() > 0) {
             r.setLastName(d.get(Mitglieder.NACHNAME));
-          }
-          if (d.get(Mitglieder.VEREIN).length() > 0) {
-            r.setNameAffix(d.get(Mitglieder.VEREIN));
           }
           // always set status
           String s = d.get(Mitglieder.STATUS).trim();

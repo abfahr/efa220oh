@@ -167,9 +167,6 @@ public class AutoCompleteList {
               if (((PersonRecord) r).isErlaubtKuerzel()) {
                 alias = ((PersonRecord) r).getInputShortcut();
               }
-              if (Daten.efaConfig.getValuePostfixPersonsWithClubName()) {
-                s = s + ((PersonRecord) r).getAssociationPostfix();
-              }
 
             }
             if (!r.getDeleted()) {

@@ -51,27 +51,22 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String FIRSTNAME = "FirstName";
   public static final String LASTNAME = "LastName";
   public static final String FIRSTLASTNAME = "FirstLastName";
-  public static final String NAMEAFFIX = "NameAffix";
-  public static final String TITLE = "Title";
-  public static final String ASSOCIATION = "Association";
   public static final String STATUSID = "StatusId";
   public static final String EMAIL = "Email";
   public static final String ISALLOWEDEMAIL = "erlaubtEmail";
   public static final String ISALLOWEDPHONE = "erlaubtTelefon";
   public static final String ISALLOWEDSHORT = "erlaubtKürzel";
-  public static final String HASCHANGEDSPELLNAME = "hatSchreibweiseGeaendert";
+  public static final String HASCHANGEDSPELLNAME = "hatSchreibweiseGeändert";
   public static final String MEMBERSHIPNO = "MembershipNo";
   public static final String EXCLUDEFROMSTATISTIC = "ExcludeFromStatistics";
-  public static final String BOATUSAGEBAN = "BoatUsageBan";
   public static final String INPUTSHORTCUT = "InputShortcut";
   public static final String FESTNETZ1 = "FreeUse1";
   public static final String HANDY2 = "FreeUse2";
-  public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
+  public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME };
   private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
   private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
   private static String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-  private static String CAT_GROUPS = "%04%" + International.getString("Gruppen");
-  private static String CAT_FREEUSE = "%05%" + International.getString("Freie Verwendung");
+  private static String CAT_GROUPS = "%03%" + International.getString("Gruppen");
   private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
   public static void initialize() {
@@ -86,12 +81,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_STRING);
     f.add(FIRSTLASTNAME);
     t.add(IDataAccess.DATA_VIRTUAL);
-    f.add(NAMEAFFIX);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(TITLE);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(ASSOCIATION);
-    t.add(IDataAccess.DATA_STRING);
     f.add(STATUSID);
     t.add(IDataAccess.DATA_UUID);
     f.add(EMAIL);
@@ -107,8 +96,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     f.add(MEMBERSHIPNO);
     t.add(IDataAccess.DATA_STRING);
     f.add(EXCLUDEFROMSTATISTIC);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(BOATUSAGEBAN);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(INPUTSHORTCUT);
     t.add(IDataAccess.DATA_STRING);
@@ -168,32 +155,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   public String getFirstLastName(boolean alwaysFirstFirst) {
-    return getFullName(getString(FIRSTNAME), getString(LASTNAME), null,
+    return getFullName(getString(FIRSTNAME), getString(LASTNAME),
         (alwaysFirstFirst ? true : Daten.efaConfig.getValueNameFormatIsFirstNameFirst()));
-  }
-
-  public void setNameAffix(String affix) {
-    setString(NAMEAFFIX, affix);
-  }
-
-  public String getNameAffix() {
-    return getString(NAMEAFFIX);
-  }
-
-  public void setTitle(String title) {
-    setString(TITLE, title);
-  }
-
-  public String getTitle() {
-    return getString(TITLE);
   }
 
   public DataTypeDate getBirthday() {
     return null;
-  }
-
-  public String getAssocitation() {
-    return getString(ASSOCIATION);
   }
 
   public void setStatusId(UUID id) {
@@ -277,14 +244,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return getBool(EXCLUDEFROMSTATISTIC);
   }
 
-  public void setBoatUsageBan(boolean banned) {
-    setBool(BOATUSAGEBAN, banned);
-  }
-
-  public boolean getBoatUsageBan() {
-    return getBool(BOATUSAGEBAN);
-  }
-
   public void setInputShortcut(String shortcut) {
     setString(INPUTSHORTCUT, shortcut);
   }
@@ -322,7 +281,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return null;
   }
 
-  public static String getFullName(String first, String last, String affix, boolean firstFirst) {
+  public static String getFullName(String first, String last, boolean firstFirst) {
     String s = "";
     if (firstFirst) {
       if (first != null && first.length() > 0) {
@@ -339,9 +298,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         s = s + (s.length() > 0 ? ", " : "") + first.trim();
       }
     }
-    if (affix != null && affix.length() > 0) {
-      s = s + " (" + affix + ")";
-    }
     return s;
   }
 
@@ -357,7 +313,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   public String getQualifiedName(boolean firstFirst) {
-    return getFullName(getFirstName(), getLastName(), getNameAffix(), firstFirst);
+    return getFullName(getFirstName(), getLastName(), firstFirst);
   }
 
   @Override
@@ -372,7 +328,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   @Override
   public String[] getQualifiedNameFieldsTranslateVirtualToReal() {
-    return new String[] { FIRSTNAME, LASTNAME, NAMEAFFIX };
+    return new String[] { FIRSTNAME, LASTNAME };
   }
 
   @Override
@@ -500,17 +456,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return DataTypeDate.getMonthIntersect(from, to, startDate, endDate);
   }
 
-  public static String getAssociationPostfix(PersonRecord p) {
-    if (p != null && p.getAssocitation() != null && p.getAssocitation().length() > 0) {
-      return " (" + p.getAssocitation() + ")";
-    }
-    return "";
-  }
-
-  public String getAssociationPostfix() {
-    return getAssociationPostfix(this);
-  }
-
   public static String trimAssociationPostfix(String s) {
     int pos = s.lastIndexOf(" (");
     if (pos > 0) {
@@ -577,8 +522,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Telefon")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSHORT, isErlaubtKuerzel(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Kürzel")));
-      v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
       item.setFieldSize(300, -1);
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
@@ -586,15 +529,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
               .getString("von allgemein verfügbaren Statistiken ausnehmen")));
 
     } // admin visible
-
-    v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Verein")));
-    v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Titel")));
-    ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Namenszusatz")));
-    ((ItemTypeString) item).setNotAllowedCharacters(",");
 
     // hidden parameter, just for BatchEditDialog
     v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.FIRSTLASTNAME, null,
@@ -682,10 +616,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public boolean cleanPerson() {
     boolean retVal = false;
-    // 1. bestimmte Felder leeren
-    setBoatUsageBan(false); // kommt nicht mehr
-    setNameAffix(null); // immer leer gewesen
-
     if (!isDyingMember()) {
       return retVal;
     }

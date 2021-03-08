@@ -164,7 +164,8 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
         changePanel.setLayout(new BorderLayout());
         JLabel label = new JLabel(
             International
-            .getString("Dieser Assistent sucht im Fahrtenbuch nach falsch geschriebenen Namen und bietet diese zur Korrektur an."));
+                .getString(
+                    "Dieser Assistent sucht im Fahrtenbuch nach falsch geschriebenen Namen und bietet diese zur Korrektur an."));
         label.setHorizontalAlignment(SwingConstants.CENTER);
         changePanel.add(label, BorderLayout.CENTER);
         changePane.getViewport().add(changePanel, null);
@@ -286,7 +287,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
               if (pos >= 0 && !newname.toLowerCase().equals(guest.toLowerCase()) &&
                   (pos == 0 || !Character.isLetter(newname.charAt(pos - 1))) &&
                   (pos + guest.length() == newname.length() ||
-                  !Character.isLetter(newname.charAt(pos + guest.length())))) {
+                      !Character.isLetter(newname.charAt(pos + guest.length())))) {
                 int length = guest.length();
                 if (pos + length < newname.length() && newname.charAt(pos + length) == ')') {
                   length++;
@@ -296,8 +297,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                   length++;
                 }
                 newname = (pos > 0 ? newname.substring(0, pos) : "") +
-                    (pos + length < newname.length() ?
-                        newname.substring(pos + length) : "");
+                    (pos + length < newname.length() ? newname.substring(pos + length) : "");
                 newname = newname.trim() + " (" + guest + ")";
               }
 
@@ -344,8 +344,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                 if (c == ')') {
                   inAffix = false;
                 }
-                boolean shouldBeUpper =
-                    pos == 0
+                boolean shouldBeUpper = pos == 0
                     || !Character.isLetter(newname.charAt(pos - 1));
                 if (shouldBeUpper && !Character.isUpperCase(c)) {
                   newname = newname.substring(0, pos)
@@ -374,7 +373,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
               if ((firstLastName && pos > 0)
                   || (!firstLastName && pos < 0)) {
                 String[] parts = PersonRecord.tryGetFirstLastNameAndAffix(newname);
-                String s = PersonRecord.getFullName(parts[0], parts[1], parts[2], firstLastName);
+                String s = PersonRecord.getFullName(parts[0], parts[1], firstLastName);
                 if (s != null && s.length() > 0) {
                   newname = s;
                 }
@@ -399,7 +398,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
 
               // try whether swapping order of names helps
               String[] parts = PersonRecord.tryGetFirstLastNameAndAffix(newname);
-              String s = PersonRecord.getFullName(parts[1], parts[2], parts[2], firstLastName);
+              String s = PersonRecord.getFullName(parts[1], parts[2], firstLastName);
               neighbour = getNeighbour(s, autoCompleteListPersons, false);
               if (neighbour != null && neighbour.length() > 0) {
                 newname = neighbour;
@@ -617,8 +616,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                   LogString.operationFailed(International.getMessage(
                       "Korrektur von {oldname} nach {newname} in Eintrag {entry}",
                       change.oldValue, (id != null ? id.toString() : newtext), r.getEntryId()
-                      .toString()),
-                      eupdate.getMessage()) + "\n");
+                          .toString()),
+                      eupdate.getMessage())
+                  + "\n");
               cntErr++;
             }
           }

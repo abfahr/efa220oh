@@ -56,11 +56,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
   public static final String FLAG = "Flag";
 
   public enum Flags {
-
-    UNDEFINED,
-    Normal,
-    CarryOver,
-    Credit
+    UNDEFINED, Normal, CarryOver, Credit
   }
 
   private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
@@ -158,15 +154,6 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
   public String getFirstLastName() {
     PersonRecord pr = tryGetPerson(PERSONID, System.currentTimeMillis());
     return pr != null ? pr.getFirstLastName() : null;
-  }
-
-  public void setNameAffix(String affix) {
-    // nothing to do (this column in virtual)
-  }
-
-  public String getNameAffix() {
-    PersonRecord pr = tryGetPerson(PERSONID, System.currentTimeMillis());
-    return pr != null ? pr.getNameAffix() : null;
   }
 
   public void setWorkDate(DataTypeDate date) {
@@ -532,7 +519,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 
         aggregations[3] += "/"
             + Math.round(clubworkBook.getDefaultMonthlyClubworkTargetHours() * groupMonth * 100)
-            / 100d;
+                / 100d;
       }
     }
 

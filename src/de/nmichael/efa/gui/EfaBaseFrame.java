@@ -1397,19 +1397,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             (r != null ? r.getBoatVariant() : 0));
       }
       if (field == cox) {
-        return (r != null ? r.getCoxAsName(getValidAtTimestamp(r))
-            +
-            (Daten.efaConfig.getValuePostfixPersonsWithClubName() ? PersonRecord
-                .getAssociationPostfix(r.getCrewRecord(0, getValidAtTimestamp(r))) : "")
-            : "");
+        return (r != null ? r.getCoxAsName(getValidAtTimestamp(r)) : "");
       }
       for (int i = 0; i < crew.length; i++) {
         if (field == crew[i]) {
-          return (r != null ? r.getCrewAsName(i + 1, getValidAtTimestamp(r))
-              +
-              (Daten.efaConfig.getValuePostfixPersonsWithClubName() ? PersonRecord
-                  .getAssociationPostfix(r.getCrewRecord(i + 1, getValidAtTimestamp(r))) : "")
-              : "");
+          return (r != null ? r.getCrewAsName(i + 1, getValidAtTimestamp(r)) : "");
         }
       }
       if (field == phoneNr) {
@@ -2165,10 +2157,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       if (name != null && name[1] != null) {
         r.setLastName(name[1]);
-        anyNameSet = true;
-      }
-      if (name != null && name[2] != null) {
-        r.setNameAffix(name[2]);
         anyNameSet = true;
       }
       if (!anyNameSet && s != null) {
@@ -2993,35 +2981,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           String ptext = myRecord.getCrewName(i);
           if (p == null && ptext == null) {
             continue;
-          }
-
-          if (p != null && p.getBoatUsageBan()) {
-            int ergebnisAuswahlDialog = Dialog.auswahlDialog(
-                International.getString("Bootsbenutzungs-Sperre"),
-                International.getMessage(
-                    "Für {name} liegt zur Zeit eine Bootsbenutzungs-Sperre vor.",
-                    p.getQualifiedName()) + "\n"
-                    + International.getString("Was möchtest Du tun?"),
-                International.getString("Mannschaft ändern"),
-                International.getString("Trotzdem benutzen"),
-                International.getString("Eintrag abbrechen"));
-            switch (ergebnisAuswahlDialog) {
-              case 0:
-                if (i == 0) {
-                  cox.requestFocus();
-                } else {
-                  crew[i - 1].requestFocus();
-                }
-                return false;
-              case 1:
-                break;
-              case 2:
-                cancel();
-                return false;
-              default:
-                cancel();
-                return false;
-            }
           }
 
           boolean inAnyGroup = false;

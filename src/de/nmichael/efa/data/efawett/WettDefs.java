@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.util.EfaUtil;
@@ -599,27 +598,11 @@ public class WettDefs extends DatenListe {
     return wett;
   }
 
-  private int getGender(String gender) {
-    if (gender != null && gender.equals(EfaTypes.TYPE_GENDER_MALE)) {
-      return 0;
-    }
-    if (gender != null && gender.equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-      return 1;
-    }
-    return 2;
-  }
-
   private int get100Meters(long distanceInDefaultUnit) {
     return (int) (DataTypeDistance.getDistance(distanceInDefaultUnit).getValueInMeters() / 100);
   }
 
-  public boolean inGruppe(int wettnr, int wettJahr, int gruppe, int jahrgang, String gender,
-      boolean behind) {
-    return inGruppe(wettnr, wettJahr, gruppe, jahrgang, getGender(gender), behind);
-  }
-
-  public boolean inGruppe(int wettnr, int wettJahr, int gruppe, int jahrgang, int geschlecht,
-      boolean behind) {
+  public boolean inGruppe(int wettnr, int wettJahr, int gruppe, int jahrgang, boolean behind) {
     if (wettnr == LRVBERLIN_BLAUERWIMPEL || wettnr == DRV_WANDERRUDERSTATISTIK) {
       return true;
     }
@@ -634,9 +617,6 @@ public class WettDefs extends DatenListe {
         || jahrgang > wettJahr - wett.gruppen[gruppe].mindalter) {
       return false;
     }
-    if (wett.gruppen[gruppe].geschlecht != 2 && geschlecht != wett.gruppen[gruppe].geschlecht) {
-      return false;
-    }
     if ((behind && wett.gruppen[gruppe].behinderung == BEHIND_NEIN)
         || (!behind && wett.gruppen[gruppe].behinderung == BEHIND_JA)) {
       return false;
@@ -644,18 +624,18 @@ public class WettDefs extends DatenListe {
     return true;
   }
 
-  public boolean erfuelltGruppe(int wettnr, int wettJahr, int gruppe, int jahrgang, String gender,
+  public boolean erfuelltGruppe(int wettnr, int wettJahr, int gruppe, int jahrgang,
       boolean behind, long distance, int zusatz, int zusatz2, int zusatz3, int zusatz4) {
-    return erfuelltGruppe(wettnr, wettJahr, gruppe, jahrgang, getGender(gender), behind,
+    return erfuelltGruppe(wettnr, wettJahr, gruppe, jahrgang, behind,
         get100Meters(distance), zusatz, zusatz2, zusatz3, zusatz4);
   }
 
-  public boolean erfuelltGruppe(int wettnr, int wettJahr, int gruppe, int jahrgang, int geschlecht,
+  public boolean erfuelltGruppe(int wettnr, int wettJahr, int gruppe, int jahrgang,
       boolean behind, int km, int zusatz, int zusatz2, int zusatz3, int zusatz4) {
     if (wettnr == LRVBERLIN_BLAUERWIMPEL || wettnr == DRV_WANDERRUDERSTATISTIK) {
       return true;
     }
-    if (jahrgang != 0 && !inGruppe(wettnr, wettJahr, gruppe, jahrgang, geschlecht, behind)) {
+    if (jahrgang != 0 && !inGruppe(wettnr, wettJahr, gruppe, jahrgang, behind)) {
       return false;
     }
     WettDef wett = getWettDef(wettnr, wettJahr);
@@ -668,14 +648,15 @@ public class WettDefs extends DatenListe {
     switch (wettnr) {
       case DRV_FAHRTENABZEICHEN: // zusatz:= wafaKm/10 zusatz2:= wafaAnzMTour zusatz3:= jumAnz
         if (!((wett.gruppen[gruppe].gruppe < 3 && zusatz >= wett.gruppen[gruppe].zusatz) || // Gruppe
-            // 1/2:
-            // WafaKm
-            // erfüllt?
+        // 1/2:
+        // WafaKm
+        // erfüllt?
             (wett.gruppen[gruppe].gruppe == 3 && (zusatz2 >= 3 || // Gruppe 3: Anz Wafa erfüllt?
-            wett.gruppen[gruppe].untergruppe <= 2 && (zusatz2 == 2 && zusatz3 >= 2 || // oder bei a/b
-            // mit Hilfe von
-            // JuM erfüllt?
-            zusatz3 >= 4))))) {
+                wett.gruppen[gruppe].untergruppe <= 2 && (zusatz2 == 2 && zusatz3 >= 2 || // oder
+                                                                                          // bei a/b
+                // mit Hilfe von
+                // JuM erfüllt?
+                    zusatz3 >= 4))))) {
           return false;
         }
         break;
@@ -711,13 +692,13 @@ public class WettDefs extends DatenListe {
 
   // prüft, ob der angegebene Teilnummer in einer beliebigen Gruppe erfüllt hat.
   // Rückgabe: Name der Gruppe oder null, wenn nicht erfüllt
-  public String erfuellt(int wettnr, int wettJahr, int jahrgang, String gender, boolean behind,
+  public String erfuellt(int wettnr, int wettJahr, int jahrgang, boolean behind,
       long distance, int zusatz, int zusatz2, int zusatz3, int zusatz4) {
-    return erfuellt(wettnr, wettJahr, jahrgang, getGender(gender), behind, get100Meters(distance),
+    return erfuellt(wettnr, wettJahr, jahrgang, behind, get100Meters(distance),
         zusatz, zusatz2, zusatz3, zusatz4);
   }
 
-  public String erfuellt(int wettnr, int wettJahr, int jahrgang, int geschlecht, boolean behind,
+  public String erfuellt(int wettnr, int wettJahr, int jahrgang, boolean behind,
       int km, int zusatz, int zusatz2, int zusatz3, int zusatz4) {
     if (wettnr == LRVBERLIN_BLAUERWIMPEL || wettnr == DRV_WANDERRUDERSTATISTIK) {
       return ""; // erfüllt
@@ -727,7 +708,7 @@ public class WettDefs extends DatenListe {
       return null;
     }
     for (int i = 0; i < wett.gruppen.length; i++) {
-      if (erfuelltGruppe(wettnr, wettJahr, i, jahrgang, geschlecht, behind, km, zusatz, zusatz2,
+      if (erfuelltGruppe(wettnr, wettJahr, i, jahrgang, behind, km, zusatz, zusatz2,
           zusatz3, zusatz4)) {
         return wett.gruppen[i].bezeichnung; // erfüllt
       }

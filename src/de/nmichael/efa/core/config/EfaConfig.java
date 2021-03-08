@@ -88,7 +88,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   public final String CATEGORY_TYPES_SEAT = "%143%" + International.getString("Anzahl Bootsplätze");
   public final String CATEGORY_TYPES_RIGG = "%144%" + International.getString("Riggerung");
   public final String CATEGORY_TYPES_COXD = "%145%" + International.getString("mit/ohne Stm.");
-  public final String CATEGORY_TYPES_GEND = "%146%" + International.getString("Geschlecht");
   public final String CATEGORY_TYPES_STAT = "%147%" + International.getString("Status");
   public final String CATEGORY_SYNC = "%15%" + International.getString("Synchronisation");
   public final String CATEGORY_KANUEFB = "%16%" + International.onlyFor("Kanu-eFB", "de");
@@ -326,7 +325,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeAction typesAddAllDefault;
   private ItemTypeAction typesAddAllDefaultRowingBoats;
   private ItemTypeAction typesAddAllDefaultCanoeingBoats;
-  private ItemTypeHashtable<String> typesGender;
   private ItemTypeHashtable<String> typesBoat;
   private ItemTypeHashtable<String> typesNumSeats;
   private ItemTypeHashtable<String> typesRigging;
@@ -2449,10 +2447,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return typesAddAllDefaultCanoeingBoats;
   }
 
-  public ItemTypeHashtable<String> getValueTypesGender() {
-    return typesGender;
-  }
-
   public ItemTypeHashtable<String> getValueTypesBoat() {
     return typesBoat;
   }
@@ -2660,9 +2654,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     myEfaTypes = getMyEfaTypes();
     if (myEfaTypes != null) {
       boolean changed = false;
-      if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
-        changed = true;
-      }
       if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_BOAT, typesBoat)) {
         changed = true;
       }
@@ -2843,9 +2834,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     if (myEfaTypes == null) {
       return;
     }
-    addParameter(typesGender = new ItemTypeHashtable<String>("_TYPES_GENDER", "", true,
-        IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_GEND),
-        International.getString("Geschlecht")));
     addParameter(typesBoat = new ItemTypeHashtable<String>("_TYPES_BOAT", "", true,
         IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
         International.getString("Bootsart")));
@@ -2879,7 +2867,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     }
 
     typesStatus.setAllowed(false, false);
-    iniTypes(typesGender, EfaTypes.CATEGORY_GENDER);
     iniTypes(typesBoat, EfaTypes.CATEGORY_BOAT);
     iniTypes(typesNumSeats, EfaTypes.CATEGORY_NUMSEATS);
     iniTypes(typesRigging, EfaTypes.CATEGORY_RIGGING);

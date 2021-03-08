@@ -210,8 +210,7 @@ public class EmilFrame extends JFrame {
 
   // ActionHandler Events
   public void keyAction(ActionEvent evt) {
-    if (evt == null || evt.getActionCommand() == null)
-    {
+    if (evt == null || evt.getActionCommand() == null) {
       return;
       // if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
       // nothing
@@ -642,70 +641,70 @@ public class EmilFrame extends JFrame {
     jMenuBar1.add(jMenu1);
     jMenuBar1.add(jMenuHelp);
     contentPane.add(wettPanel, BorderLayout.NORTH);
-    wettPanel.add(jLabel1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    wettPanel.add(wett, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    wettPanel.add(jLabel2, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    wettPanel.add(wettJahr, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    wettPanel.add(jLabel1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    wettPanel.add(wett, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    wettPanel.add(jLabel2, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+        GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+    wettPanel.add(wettJahr, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     contentPane.add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(vereinPanel, BorderLayout.NORTH);
-    vereinPanel.add(jLabel3, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    vereinPanel.add(vereinsname, new GridBagConstraints(1, 0, 3, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    vereinPanel.add(jLabel4, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    vereinPanel.add(benutzername, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    vereinPanel.add(jLabel5, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    vereinPanel.add(mitglieder, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    vereinPanel.add(jLabel3, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    vereinPanel.add(vereinsname, new GridBagConstraints(1, 0, 3, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    vereinPanel.add(jLabel4, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    vereinPanel.add(benutzername, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    vereinPanel.add(jLabel5, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+        GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+    vereinPanel.add(mitglieder, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(jPanel2, BorderLayout.CENTER);
     jPanel2.add(meldPanel, BorderLayout.NORTH);
-    meldPanel.add(jLabel6, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    meldPanel.add(meldName, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    meldPanel.add(jLabel7, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    meldPanel.add(meldEmail, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    meldPanel.add(jLabel6, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    meldPanel.add(meldName, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    meldPanel.add(jLabel7, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+    meldPanel.add(meldEmail, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     jPanel2.add(jPanel3, BorderLayout.CENTER);
     jPanel3.add(versandPanel, BorderLayout.NORTH);
-    versandPanel.add(jLabel8, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    versandPanel.add(versandName, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    versandPanel.add(jLabel10, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
-    versandPanel.add(versandStrasse, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    versandPanel.add(jLabel11, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
-    versandPanel.add(versandOrt, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    versandPanel.add(jLabel8, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    versandPanel.add(versandName, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    versandPanel.add(jLabel10, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
+    versandPanel.add(versandStrasse, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    versandPanel.add(jLabel11, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
+    versandPanel.add(versandOrt, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel3.add(jPanel5, BorderLayout.SOUTH);
     jPanel5.add(jPanel6, BorderLayout.CENTER);
-    jPanel6.add(jLabel9, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel6.add(teilnehmerAnz, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel6.add(jLabel13, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    jPanel6.add(meldegeld, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel6.add(jLabel18, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel6.add(wimpelKm, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel6.add(jLabel20, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    jPanel6.add(wimpelSchnitt, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    jPanel6.add(jLabel9, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    jPanel6.add(teilnehmerAnz, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    jPanel6.add(jLabel13, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+    jPanel6.add(meldegeld, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    jPanel6.add(jLabel18, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    jPanel6.add(wimpelKm, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    jPanel6.add(jLabel20, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+    jPanel6.add(wimpelSchnitt, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     teilnehmerPanel.add(jPanel7, BorderLayout.SOUTH);
     jPanel7.add(saveButton, null);
     jPanel3.add(teilnehmerPanel, BorderLayout.CENTER);
@@ -746,50 +745,50 @@ public class EmilFrame extends JFrame {
 
     teilnehmerScrollPane.getViewport().add(teilnehmerDatenPanel, null);
     teilnehmerPanel.add(teilnehmerScrollPane, BorderLayout.CENTER);
-    teilnehmerDatenPanel.add(jLabel12, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel14, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel15, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel16, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(nachname, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(vorname, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jahrgang, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(geschlecht, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel17, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(kilometer, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(erfuellt, new GridBagConstraints(0, 7, 2, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel19, new GridBagConstraints(0, 3 + n, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(adresse, new GridBagConstraints(1, 3 + n, 6, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel21, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(gruppe, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel22, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel23, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel24, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    teilnehmerDatenPanel.add(jLabel25, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel12, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel14, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel15, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel16, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(nachname, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(vorname, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jahrgang, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(geschlecht, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel17, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(kilometer, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(erfuellt, new GridBagConstraints(0, 7, 2, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel19, new GridBagConstraints(0, 3 + n, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(adresse, new GridBagConstraints(1, 3 + n, 6, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel21, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(gruppe, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel22, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel23, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel24, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    teilnehmerDatenPanel.add(jLabel25, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
+        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     for (int i = 0; i < n; i++) {
       fahrtLabel[i] = new JLabel();
       fahrtLabel[i].setText("Fahrt " + (i + 1) + ": ");
-      teilnehmerDatenPanel.add(fahrtLabel[i], new GridBagConstraints(2, i + 1, 1, 1, 0.0, 0.0
-          , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 30, 0, 0), 0, 0));
+      teilnehmerDatenPanel.add(fahrtLabel[i], new GridBagConstraints(2, i + 1, 1, 1, 0.0, 0.0,
+          GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 30, 0, 0), 0, 0));
     }
     for (int i = 0; i < n; i++) {
       fahrtDatum[i] = new JTextField();
@@ -811,8 +810,8 @@ public class EmilFrame extends JFrame {
           fahrtDatumValidate(e);
         }
       });
-      teilnehmerDatenPanel.add(fahrtDatum[i], new GridBagConstraints(3, i + 1, 1, 1, 0.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      teilnehmerDatenPanel.add(fahrtDatum[i], new GridBagConstraints(3, i + 1, 1, 1, 0.0, 0.0,
+          GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     }
     for (int i = 0; i < n; i++) {
       fahrtZiel[i] = new JTextField();
@@ -828,8 +827,8 @@ public class EmilFrame extends JFrame {
           validateErfuellt(e);
         }
       });
-      teilnehmerDatenPanel.add(fahrtZiel[i], new GridBagConstraints(4, i + 1, 1, 1, 0.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      teilnehmerDatenPanel.add(fahrtZiel[i], new GridBagConstraints(4, i + 1, 1, 1, 0.0, 0.0,
+          GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     }
     for (int i = 0; i < n; i++) {
       fahrtKm[i] = new JTextField();
@@ -851,8 +850,8 @@ public class EmilFrame extends JFrame {
           fahrtKmValidate(e);
         }
       });
-      teilnehmerDatenPanel.add(fahrtKm[i], new GridBagConstraints(5, i + 1, 1, 1, 0.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      teilnehmerDatenPanel.add(fahrtKm[i], new GridBagConstraints(5, i + 1, 1, 1, 0.0, 0.0,
+          GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     }
     for (int i = 0; i < n; i++) {
       fahrtZf[i] = new JTextField();
@@ -874,8 +873,8 @@ public class EmilFrame extends JFrame {
           fahrtZfValidate(e);
         }
       });
-      teilnehmerDatenPanel.add(fahrtZf[i], new GridBagConstraints(6, i + 1, 1, 1, 0.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      teilnehmerDatenPanel.add(fahrtZf[i], new GridBagConstraints(6, i + 1, 1, 1, 0.0, 0.0,
+          GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       if (i + 1 < n) {
         fahrtZf[i].setNextFocusableComponent(fahrtDatum[i + 1]);
       }
@@ -995,15 +994,15 @@ public class EmilFrame extends JFrame {
     if (anStdCsvAngehaengt) {
       Dialog.infoDialog("Warnung",
           "Die aktuellen Daten wurden bereits an die Standard-CSV-Datei angehängt!\n" +
-          "Um die Daten erneut anzuhängen, öffne die aktuelle Datei neu.");
+              "Um die Daten erneut anzuhängen, öffne die aktuelle Datei neu.");
       return;
     }
     if (Dialog.yesNoCancelDialog("An Standard-CVS-Datei anhängen",
         "Sollen alle Teilnehmer"
             + (cfg.getExportNurErfuellt() ? ", die die Bedingungen erfüllt haben, "
-                : " (auch welche, die die Bedingungen nicht erfüllt haben) ") + "an die Datei\n'"
-                + cfg.getStdCsv() + "'\nangehängt werden?"
-        ) != Dialog.YES) {
+                : " (auch welche, die die Bedingungen nicht erfüllt haben) ")
+            + "an die Datei\n'"
+            + cfg.getStdCsv() + "'\nangehängt werden?") != Dialog.YES) {
       return;
     }
 
@@ -1366,7 +1365,7 @@ public class EmilFrame extends JFrame {
         if (wettDefs.getWettDef(i, EfaUtil.string2int(efw.allg_wettjahr, 9999)) != null
             &&
             efw.allg_wett
-            .equals(wettDefs.getWettDef(i, EfaUtil.string2int(efw.allg_wettjahr, 9999)).key)) {
+                .equals(wettDefs.getWettDef(i, EfaUtil.string2int(efw.allg_wettjahr, 9999)).key)) {
           efw.wettId = i;
           wett.setSelectedIndex(i);
         }
@@ -1733,7 +1732,7 @@ public class EmilFrame extends JFrame {
         }
         break;
     }
-    return wettDefs.erfuellt(wettbewerb, _jahr, _jahrgang, _geschlecht, _behinderung, _km, _z1,
+    return wettDefs.erfuellt(wettbewerb, _jahr, _jahrgang, _behinderung, _km, _z1,
         _z2, 0, 0);
   }
 
@@ -1992,11 +1991,11 @@ public class EmilFrame extends JFrame {
         .yesNoCancelDialog(
             "Änderungen nicht gespeichert",
             "Änderungen am aktuellen Eintrag wurden noch nicht gespeichert.\nSollen sie jetzt gespeichert werden?")) {
-              case Dialog.YES:
-                speichereEintrag();
-                return true;
-              case Dialog.NO:
-                return true;
+      case Dialog.YES:
+        speichereEintrag();
+        return true;
+      case Dialog.NO:
+        return true;
     }
     return false;
   }
@@ -2011,10 +2010,10 @@ public class EmilFrame extends JFrame {
     switch (Dialog
         .yesNoCancelDialog("Änderungen nicht gespeichert",
             "Änderungen an der Meldedatei wurden noch nicht gespeichert.\nSollen sie jetzt gespeichert werden?")) {
-              case Dialog.YES:
-                return speichereDatei(false);
-              case Dialog.NO:
-                return true;
+      case Dialog.YES:
+        return speichereDatei(false);
+      case Dialog.NO:
+        return true;
     }
     return false;
   }

@@ -82,8 +82,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public static final String STATISTICCATEGORY = "StatisticCategory";
   public static final String STATISTICTYPE = "StatisticType";
   public static final String STATISTICKEY = "StatisticKey";
-  public static final String FILTERGENDER = "FilterGender";
-  public static final String FILTERGENDERALL = "FilterGenderAll";
   public static final String FILTERSTATUS = "FilterStatus";
   public static final String FILTERSTATUSALL = "FilterStatusAll";
   public static final String FILTERSESSIONTYPEALL = "FilterSessionTypeAll";
@@ -112,7 +110,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public static final String FILTERONLYOPENDAMAGES = "FilterOnlyOpenDamages";
   public static final String FILTERALSOOPENSESSIONS = "FilterAlsoOpenSessions";
   public static final String FILTERONLYLOGBOOK = "FilterOnlyLogbook";
-  public static final String SHOWFIELDS = "ShowFields"; // like Name, Status, Gender, BoatType, ...
+  public static final String SHOWFIELDS = "ShowFields"; // like Name, Status, BoatType, ...
   public static final String SHOWLOGBOOKFIELDS = "ShowLogbookFields"; // like EntryNo, Date, Boat,
   // Cox, Crew, ...
   public static final String SHOWOTHERFIELDS = "ShowOtherFields"; // like boat damages,
@@ -176,7 +174,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public static final String SKEY_NAME = "Name"; // based on Persons or Boats
   public static final String SKEY_STATUS = "Status"; // based on Persons
   public static final String SKEY_YEAROFBIRTH = "YearOfBirth"; // based on Persons
-  public static final String SKEY_GENDER = "Gender"; // based on Persons
   public static final String SKEY_BOATTYPE = "BoatType"; // based on Boats
   public static final String SKEY_BOATSEATS = "BoatSeats"; // based on Boats
   public static final String SKEY_BOATTYPEDETAIL = "BoatTypeDetail"; // based on Boats
@@ -198,7 +195,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
   public static final String FIELDS_POSITION = "Position";
   public static final String FIELDS_NAME = "Name";
-  public static final String FIELDS_GENDER = "Gender";
   public static final String FIELDS_STATUS = "Status";
   public static final String FIELDS_YEAROFBIRTH = "YearOfBirth";
   public static final String FIELDS_BOATTYPE = "BoatType";
@@ -258,7 +254,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public static final String SORTING_DURATION = "Duration";
   public static final String SORTING_SPEED = "Speed";
   public static final String SORTING_NAME = "Name";
-  public static final String SORTING_GENDER = "Geschlecht";
   public static final String SORTING_STATUS = "Status";
   public static final String SORTING_YEAROFBIRTH = "YearOfBirth";
   public static final String SORTING_BOATTYPE = "BoatType";
@@ -301,11 +296,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   }
 
   public enum StatisticKey {
-    name, status, yearOfBirth, gender, boatType, boatSeats, boatTypeDetail, destination, waters, distance, month, weekday, timeOfDay, year
+    name, status, yearOfBirth, boatType, boatSeats, boatTypeDetail, destination, waters, distance, month, weekday, timeOfDay, year
   }
 
   public enum SortingCriteria {
-    UNKNOWN, distance, rowdistance, coxdistance, sessions, avgDistance, duration, days, speed, name, gender, status, yearOfBirth, boatType, entryNo, date, damageCount, damageDuration, damageAvgDuration, clubwork
+    UNKNOWN, distance, rowdistance, coxdistance, sessions, avgDistance, duration, days, speed, name, status, yearOfBirth, boatType, entryNo, date, damageCount, damageDuration, damageAvgDuration, clubwork
   }
 
   public enum OutputTypes {
@@ -323,7 +318,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   private ItemTypeDate itemDateFrom;
   private ItemTypeDate itemDateTo;
   private ItemTypeInteger itemCompYear;
-  private ItemTypeMultiSelectList<String> itemFilterGender;
   private ItemTypeMultiSelectList<String> itemFilterStatus;
   private ItemTypeMultiSelectList<String> itemFilterBoatType;
   private ItemTypeMultiSelectList<String> itemFilterBoatSeats;
@@ -360,8 +354,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public StatisticType sStatisticTypeEnum;
   public StatisticKey sStatistikKey;
   // --- Filter Settings
-  public Hashtable<String, String> sFilterGender;
-  public boolean sFilterGenderAll;
   public Hashtable<UUID, String> sFilterStatus;
   public boolean sFilterStatusOther;
   public boolean sFilterStatusAll;
@@ -390,7 +382,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   // --- Field Settings
   public boolean sIsFieldsPosition;
   public boolean sIsFieldsName;
-  public boolean sIsFieldsGender;
   public boolean sIsFieldsStatus;
   public boolean sIsFieldsYearOfBirth;
   public boolean sIsFieldsBoatType;
@@ -552,10 +543,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     t.add(IDataAccess.DATA_STRING);
     f.add(STATISTICKEY);
     t.add(IDataAccess.DATA_STRING);
-    f.add(FILTERGENDER);
-    t.add(IDataAccess.DATA_LIST_STRING);
-    f.add(FILTERGENDERALL);
-    t.add(IDataAccess.DATA_BOOLEAN);
     f.add(FILTERSTATUS);
     t.add(IDataAccess.DATA_LIST_UUID);
     f.add(FILTERSTATUSALL);
@@ -695,9 +682,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     setStatisticType(StatisticsRecord.STYPE_PERSONS);
     setStatisticKey(SKEY_NAME);
 
-    setFilterGender(new DataTypeList<String>(
-        EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
-    setFilterGenderAll(true);
     setFilterStatus(new DataTypeList<UUID>(getFilterStatusListValues(false)));
     setFilterStatusAll(false);
     setFilterBoatType(new DataTypeList<String>(
@@ -1039,8 +1023,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       return StatisticKey.status;
     } else if (key.equals(SKEY_YEAROFBIRTH)) {
       return StatisticKey.yearOfBirth;
-    } else if (key.equals(SKEY_GENDER)) {
-      return StatisticKey.gender;
     } else if (key.equals(SKEY_BOATTYPE)) {
       return StatisticKey.boatType;
     } else if (key.equals(SKEY_BOATSEATS)) {
@@ -1093,8 +1075,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return International.getString("Status");
       case yearOfBirth:
         return International.getString("Jahrgänge");
-      case gender:
-        return International.getString("Geschlechter");
       case boatType:
         return International.getString("Bootstypen");
       case boatSeats:
@@ -1133,7 +1113,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     allKeys.put(SKEY_NAME, International.getString("Name"));
     allKeys.put(SKEY_STATUS, International.getString("Status"));
     allKeys.put(SKEY_YEAROFBIRTH, International.getString("Jahrgang"));
-    allKeys.put(SKEY_GENDER, International.getString("Geschlecht"));
     allKeys.put(SKEY_BOATTYPE, International.getString("Bootstyp"));
     allKeys.put(SKEY_BOATSEATS, International.getString("Bootsplätze"));
     allKeys.put(SKEY_BOATTYPEDETAIL, International.getString("Bootstyp") + " (" +
@@ -1158,9 +1137,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
     if (sType == null || sType.equals(STYPE_PERSONS)) {
       selectedKeys.add(SKEY_YEAROFBIRTH);
-    }
-    if (sType == null || sType.equals(STYPE_PERSONS)) {
-      selectedKeys.add(SKEY_GENDER);
     }
     if (sType == null || sType.equals(STYPE_BOATS)) {
       selectedKeys.add(SKEY_BOATTYPE);
@@ -1318,33 +1294,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
   }
 
-  public void setFilterGender(DataTypeList<String> list) {
-    setList(FILTERGENDER, list);
-  }
-
-  public DataTypeList<String> getFilterGender() {
-    if (getFilterGenderAll()) {
-      return new DataTypeList<String>(
-          EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES));
-    }
-    return getList(FILTERGENDER, IDataAccess.DATA_STRING);
-  }
-
-  public void setFilterGenderAll(boolean all) {
-    setBool(FILTERGENDERALL, all);
-  }
-
-  public boolean getFilterGenderAll() {
-    return getBool(FILTERGENDERALL);
-  }
-
-  public boolean isFilterGenderAllSelected() {
-    DataTypeList list = getFilterGender();
-    return getFilterGenderAll()
-        || (list != null && list.length() == EfaTypes
-            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
-  }
-
   private String getFilterEfaTypesSelectedListAsText(DataTypeList<String> list, String cat) {
     if (list == null || list.length() == 0) {
       return "<" + International.getString("leer") + ">";
@@ -1354,10 +1303,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       slist = (slist != null ? slist + "; " : "") + Daten.efaTypes.getValue(cat, list.get(i));
     }
     return slist;
-  }
-
-  public String getFilterGenderSelectedListAsText() {
-    return getFilterEfaTypesSelectedListAsText(getFilterGender(), EfaTypes.CATEGORY_GENDER);
   }
 
   public void setFilterStatus(DataTypeList<UUID> list) {
@@ -1770,10 +1715,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     String filter = null;
     if (getStatisticCategoryEnum() != StatisticCategory.other ||
         getStatisticTypeEnum() == StatisticType.clubwork) {
-      if (!isFilterGenderAllSelected()) {
-        filter = (filter == null ? "" : filter + "\n")
-            + International.getString("Geschlecht") + ": " + getFilterGenderSelectedListAsText();
-      }
       if (!isFilterStatusAllSelected()) {
         filter = (filter == null ? "" : filter + "\n")
             + International.getString("Status") + ": " + getFilterStatusSelectedListAsText();
@@ -1883,7 +1824,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       return new String[] {
           FIELDS_POSITION,
           FIELDS_NAME,
-          FIELDS_GENDER,
           FIELDS_STATUS,
           FIELDS_YEAROFBIRTH,
           FIELDS_BOATTYPE
@@ -1892,7 +1832,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       return new String[] {
           International.getString("Position"),
           International.getString("Name"),
-          International.getString("Geschlecht"),
           International.getString("Status"),
           International.getString("Jahrgang"),
           International.getString("Bootstyp")
@@ -2206,8 +2145,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       return SortingCriteria.speed;
     } else if (sort.equals(SORTING_NAME)) {
       return SortingCriteria.name;
-    } else if (sort.equals(SORTING_GENDER)) {
-      return SortingCriteria.gender;
     } else if (sort.equals(SORTING_STATUS)) {
       return SortingCriteria.status;
     } else if (sort.equals(SORTING_YEAROFBIRTH)) {
@@ -2288,7 +2225,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
           SORTING_AVGDISTANCE,
           SORTING_DURATION,
           SORTING_SPEED,
-          SORTING_GENDER,
           SORTING_STATUS,
           SORTING_YEAROFBIRTH,
           SORTING_BOATTYPE,
@@ -2313,7 +2249,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
           International.getString("Km/Fahrt"),
           International.getString("Dauer"),
           International.getString("Geschwindigkeit"),
-          International.getString("Geschlecht"),
           International.getString("Status"),
           International.getString("Jahrgang"),
           International.getString("Bootstyp"),
@@ -2565,7 +2500,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     String CAT_BASEDATA = "%01%" + International.getString("Statistik");
     String CAT_FILTER = "%02%" + International.getString("Filter");
-    String CAT_FILTERGENDER = "%021%" + International.getString("Geschlecht");
     String CAT_FILTERSTATUS = "%022%" + International.getString("Status");
     String CAT_FILTERBOATTYPE = "%024%" + International.getString("Bootstyp");
     String CAT_FILTERBOATSEAT = "%025%" + International.getString("Bootsplätze");
@@ -2623,18 +2557,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         International.getString("Statistikschlüssel")));
     this.itemStatisticKey = (ItemTypeStringList) item;
 
-    v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERGENDER,
-        getFilterGender(),
-        EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERGENDER),
-        International.getString("Geschlecht")));
-    itemFilterGender = (ItemTypeMultiSelectList<String>) item;
-    itemFilterGender.setEnabled(!getFilterGenderAll());
-    v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERGENDERALL, getFilterGenderAll(),
-        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERGENDER),
-        International.getString("alle")));
-    item.registerItemListener(this);
     v.add(item = new ItemTypeMultiSelectList<UUID>(StatisticsRecord.FILTERSTATUS,
         getFilterStatus(),
         getFilterStatusListValues(), getFilterStatusListDisplay(),
@@ -3046,7 +2968,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
     sIsFieldsPosition = false;
     sIsFieldsName = false;
-    sIsFieldsGender = false;
     sIsFieldsStatus = false;
     sIsFieldsYearOfBirth = false;
     sIsFieldsBoatType = false;
@@ -3143,13 +3064,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     sStatisticTypeEnum = getStatisticTypeEnum();
     sStatistikKey = getStatisticKeyEnum();
 
-    sFilterGender = new Hashtable<String, String>();
-    DataTypeList<String> listString = getFilterGender();
-    for (int i = 0; listString != null && i < listString.length(); i++) {
-      sFilterGender.put(listString.get(i), "foo");
-    }
-    sFilterGenderAll = isFilterGenderAllSelected();
-
     sFilterStatus = new Hashtable<UUID, String>();
     DataTypeList<UUID> listUUID = getFilterStatus();
     for (int i = 0; listUUID != null && i < listUUID.length(); i++) {
@@ -3180,7 +3094,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     sFilterBoatType = new Hashtable<String, String>();
-    listString = getFilterBoatType();
+    DataTypeList<String> listString = getFilterBoatType();
     for (int i = 0; listString != null && i < listString.length(); i++) {
       sFilterBoatType.put(listString.get(i), "foo");
     }
@@ -3301,8 +3215,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sIsFieldsPosition = true;
       } else if (s.equals(FIELDS_NAME)) {
         sIsFieldsName = true;
-      } else if (s.equals(FIELDS_GENDER)) {
-        sIsFieldsGender = true;
       } else if (s.equals(FIELDS_STATUS)) {
         sIsFieldsStatus = true;
       } else if (s.equals(FIELDS_YEAROFBIRTH)) {
@@ -3455,7 +3367,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       this.sIsAggrDistance = true;
       this.sIsAggrSessions = true;
       this.sIsFieldsName = true;
-      this.sIsFieldsGender = true;
       this.sIsFieldsStatus = true;
       this.sIsFieldsYearOfBirth = true;
       if (sStatisticType.equals(WettDefs.STR_LRVBERLIN_SOMMER)) {
@@ -3543,8 +3454,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return ".pdf";
       case efawett:
         return ".efw";
+      default:
+        return ".out";
     }
-    return ".out";
   }
 
   private Object promptForInput(UUID id, String text, StorageObject so, String description) {
@@ -3603,9 +3515,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       if (sIsFieldsName) {
         String s = getStatisticKeyDescription();
         pTableColumns.add((s != null ? s : International.getString("Name")));
-      }
-      if (sIsFieldsGender) {
-        pTableColumns.add(International.getString("Geschlecht"));
       }
       if (sIsFieldsStatus) {
         pTableColumns.add(International.getString("Status"));
@@ -3940,11 +3849,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         event instanceof ItemEvent &&
         ((ItemEvent) event).getStateChange() == ItemEvent.SELECTED) {
       selectedStatisticsType(itemType);
-    }
-    if (itemType.getName().equals(FILTERGENDERALL) && event instanceof ActionEvent) {
-      if (itemFilterGender != null && itemType.getValueFromField() != null) {
-        itemFilterGender.setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
-      }
     }
     if (itemType.getName().equals(FILTERSTATUSALL) && event instanceof ActionEvent) {
       if (itemFilterStatus != null && itemType.getValueFromField() != null) {

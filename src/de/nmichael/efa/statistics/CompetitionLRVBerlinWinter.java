@@ -11,7 +11,6 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.efawett.EfaWettMeldung;
@@ -126,7 +125,6 @@ public class CompetitionLRVBerlinWinter extends Competition {
                 sr.sCompYear,
                 g,
                 Integer.parseInt(sd[i].sYearOfBirth),
-                sd[i].gender,
                 sd[i].disabled)) {
 
           // Teilnehmer ist in der Gruppe!
@@ -138,7 +136,6 @@ public class CompetitionLRVBerlinWinter extends Competition {
               sr.sCompYear,
               g,
               Integer.parseInt(sd[i].sYearOfBirth),
-              sd[i].gender,
               sd[i].disabled,
               sd[i].distance,
               winterAnz,
@@ -151,9 +148,11 @@ public class CompetitionLRVBerlinWinter extends Competition {
 
           // sollen Daten für den Teilnehmer ausgegeben werden?
           if (erfuellt
-              || ((DataTypeDistance.getDistance(sd[i].distance).getTruncatedValueInKilometers() >=
-              gruppen[g].km * sr.sCompPercentFulfilled / 100) &&
-              sr.sCompPercentFulfilled < 100)) {
+              || ((DataTypeDistance.getDistance(sd[i].distance)
+                  .getTruncatedValueInKilometers() >= gruppen[g].km * sr.sCompPercentFulfilled
+                      / 100)
+                  &&
+                  sr.sCompPercentFulfilled < 100)) {
 
             EfaWettMeldung ewm = null;
 
@@ -164,27 +163,27 @@ public class CompetitionLRVBerlinWinter extends Competition {
                 switch (m) {
                   case 0:
                     monate = monate + (monate.equals("") ? "" : ", ")
-                    + (sr.sIsOutputCompShort ? "Nov" : "November");
+                        + (sr.sIsOutputCompShort ? "Nov" : "November");
                     break;
                   case 1:
                     monate = monate + (monate.equals("") ? "" : ", ")
-                    + (sr.sIsOutputCompShort ? "Dez" : "Dezember");
+                        + (sr.sIsOutputCompShort ? "Dez" : "Dezember");
                     break;
                   case 2:
                     monate = monate + (monate.equals("") ? "" : ", ")
-                    + (sr.sIsOutputCompShort ? "Jan" : "Januar");
+                        + (sr.sIsOutputCompShort ? "Jan" : "Januar");
                     break;
                   case 3:
                     monate = monate + (monate.equals("") ? "" : ", ")
-                    + (sr.sIsOutputCompShort ? "Feb" : "Februar");
+                        + (sr.sIsOutputCompShort ? "Feb" : "Februar");
                     break;
                   case 4:
                     monate = monate + (monate.equals("") ? "" : ", ")
-                    + (sr.sIsOutputCompShort ? "Mar" : "März");
+                        + (sr.sIsOutputCompShort ? "Mar" : "März");
                     break;
                   case 5:
                     monate = monate + (monate.equals("") ? "" : ", ")
-                    + (sr.sIsOutputCompShort ? "Apr" : "April");
+                        + (sr.sIsOutputCompShort ? "Apr" : "April");
                     break;
                 }
               }
@@ -199,13 +198,7 @@ public class CompetitionLRVBerlinWinter extends Competition {
                 ewm.vorname = sd[i].personRecord.getFirstName();
                 ewm.jahrgang = sd[i].sYearOfBirth;
                 ewm.gruppe = gruppen[g].bezeichnung;
-                if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_MALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_M;
-                } else if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_W;
-                } else {
-                  ewm.geschlecht = "X";
-                }
+                ewm.geschlecht = "X";
                 ewm.kilometer = DataTypeDistance.getDistance(sd[i].distance)
                     .getStringValueInKilometers(false, 0, 0);
               }
@@ -220,7 +213,7 @@ public class CompetitionLRVBerlinWinter extends Competition {
             }
             if (!sr.sIsOutputCompWithoutDetails && erfuellt) {
               participant.sDetailsArray = new String[gruppen[g].zusatz
-                                                     + (winterAnz > gruppen[g].zusatz ? 1 : 0)][3]; // eine Fahrt mehr für den Hinweis
+                  + (winterAnz > gruppen[g].zusatz ? 1 : 0)][3]; // eine Fahrt mehr für den Hinweis
               // "weitere Fahrten"
             } else {
               // Warnung, wenn Fahrten nicht gewertet wurden
@@ -298,15 +291,16 @@ public class CompetitionLRVBerlinWinter extends Competition {
         } else {
           // Teilnehmer ohne Jahrgang
           if (sd[i].sYearOfBirth.equals("")
-              && Daten.wettDefs.erfuellt(WettDefs.LRVBERLIN_WINTER, sr.sCompYear, 0, sd[i].gender,
+              && Daten.wettDefs.erfuellt(WettDefs.LRVBERLIN_WINTER, sr.sCompYear, 0,
                   sd[i].disabled, sd[i].distance, 9999, 9999, 0, 0) != null
-                  && nichtBeruecksichtigt.get(sd[i].sName) == null) {
+              && nichtBeruecksichtigt.get(sd[i].sName) == null) {
             nichtBeruecksichtigt.put(
                 sd[i].sName,
                 "Wegen fehlenden Jahrgangs ignoriert ("
                     +
                     DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true,
-                        0, 0) + ")");
+                        0, 0)
+                    + ")");
             continue;
           }
         }

@@ -180,7 +180,7 @@ public class EfaMenuButton {
           null, null, null));
     }
     if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-      if (admin == null || false) {
+      if (admin == null) {
         v.add(new EfaMenuButton(MENU_FILE, BUTTON_SYNCKANUEFB,
             International.getStringWithMnemonic("Datei"),
             International.onlyFor("Mit Kanu-eFB synchronisieren", "de"),
@@ -297,20 +297,20 @@ public class EfaMenuButton {
           International.getStringWithMnemonic("Status"),
           BaseFrame.getIcon("menu_status.png")));
     }
-    if (admin == null || false) {
+    if (admin == null) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_GROUPS,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Gruppen"),
           BaseFrame.getIcon("menu_groups.png")));
     }
-    if (admin == null || false) {
+    if (admin == null) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CREWS,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Mannschaften"),
           BaseFrame.getIcon("menu_crews2.png")));
     }
     if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
-      if (admin == null || false) {
+      if (admin == null) {
         v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_FAHRTENABZEICHEN,
             International.getStringWithMnemonic("Administration"),
             International.onlyFor("Fahrtenabzeichen", "de"),
@@ -340,7 +340,7 @@ public class EfaMenuButton {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
           null, null, null));
     }
-    if (admin == null || false) {
+    if (admin == null) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CLUBWORK,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Vereinsarbeit"),

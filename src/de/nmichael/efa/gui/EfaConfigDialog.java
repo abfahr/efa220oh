@@ -105,10 +105,6 @@ public class EfaConfigDialog extends BaseTabbedDialog {
     return (ItemTypeHashtable<String>) getItem(myEfaConfig.getValueTypesCoxing().getName());
   }
 
-  public ItemTypeHashtable<String> getTypesGender() {
-    return (ItemTypeHashtable<String>) getItem(myEfaConfig.getValueTypesGender().getName());
-  }
-
   public ItemTypeHashtable<String> getTypesSession() {
     return (ItemTypeHashtable<String>) getItem(myEfaConfig.getValueTypesSession().getName());
   }

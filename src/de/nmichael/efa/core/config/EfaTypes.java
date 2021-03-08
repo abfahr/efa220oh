@@ -34,16 +34,12 @@ public class EfaTypes extends StorageObject {
 
   public static final String DATATYPE = "efa2types";
 
-  public static final String CATEGORY_GENDER = "GENDER"; // GESCHLECHT
   public static final String CATEGORY_BOAT = "BOAT"; // BART
   public static final String CATEGORY_NUMSEATS = "NUMSEATS"; // BANZAHL
   public static final String CATEGORY_RIGGING = "RIGGING"; // BRIGGER
   public static final String CATEGORY_COXING = "COXING"; // BSTM
   public static final String CATEGORY_SESSION = "SESSION"; // FAHRT
   public static final String CATEGORY_STATUS = "STATUS"; // n/a
-
-  public static final String TYPE_GENDER_MALE = "MALE"; // MAENNLICH
-  public static final String TYPE_GENDER_FEMALE = "FEMALE"; // WEIBLICH
 
   public static final String TYPE_BOAT_RACING = "RACING"; // RENNBOOT
   public static final String TYPE_BOAT_WHERRY = "WHERRY"; // WHERRY
@@ -209,7 +205,6 @@ public class EfaTypes extends StorageObject {
 
   private void iniCategories() {
     categories = new Vector<String>();
-    categories.add(CATEGORY_GENDER);
     categories.add(CATEGORY_BOAT);
     categories.add(CATEGORY_NUMSEATS);
     categories.add(CATEGORY_RIGGING);
@@ -637,11 +632,6 @@ public class EfaTypes extends StorageObject {
 
     boolean createNew = (custSettings != null ? true : false);
 
-    setToLanguage(CATEGORY_GENDER, TYPE_GENDER_MALE, International.getString("männlich"),
-        "männlich", bundle, createNew);
-    setToLanguage(CATEGORY_GENDER, TYPE_GENDER_FEMALE, International.getString("weiblich"),
-        "weiblich", bundle, createNew);
-
     setToLanguage(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast"), "Gast",
         bundle, createNew);
     setToLanguage(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere"), "andere",
@@ -693,10 +683,6 @@ public class EfaTypes extends StorageObject {
       types = types2;
     }
     return types;
-  }
-
-  public static String[] makeGenderArray(int type) {
-    return makeTypeArray(type, EfaTypes.CATEGORY_GENDER);
   }
 
   public static String[] makeBoatTypeArray(int type) {

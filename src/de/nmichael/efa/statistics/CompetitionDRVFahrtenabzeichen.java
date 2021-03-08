@@ -15,7 +15,6 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.Fahrtenabzeichen;
 import de.nmichael.efa.data.FahrtenabzeichenRecord;
 import de.nmichael.efa.data.LogbookRecord;
@@ -206,7 +205,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
 
         if (!sd[i].sYearOfBirth.equals("")
             && Daten.wettDefs.inGruppe(WettDefs.DRV_FAHRTENABZEICHEN, sr.sCompYear, g, jahrgang,
-                sd[i].gender, sd[i].disabled)) {
+                sd[i].disabled)) {
           // Teilnehmer ist in der Gruppe!
 
           // Wanderfahrten zusammenstellen
@@ -321,7 +320,6 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
               sr.sCompYear,
               g,
               jahrgang,
-              sd[i].gender,
               sd[i].disabled,
               sd[i].distance,
               (int) (totalWafaMeters / 1000),
@@ -355,13 +353,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                 ewm.vorname = sd[i].personRecord.getFirstName();
                 ewm.jahrgang = sd[i].sYearOfBirth;
                 ewm.gruppe = gruppen[g].bezeichnung;
-                if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_MALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_M;
-                } else if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_W;
-                } else {
-                  ewm.geschlecht = "X";
-                }
+                ewm.geschlecht = "X";
                 // Kilometer auf- oder abrunden auf ganze Kilometer!
                 ewm.kilometer = Long.toString(DataTypeDistance.getDistance(sd[i].distance)
                     .getRoundedValueInKilometers());
@@ -518,7 +510,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
           // Teilnehmer ohne Jahrgang
           if (sd[i].sYearOfBirth.equals("")
               && Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN, sr.sCompYear, 0,
-                  sd[i].gender, sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
+                  sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
               && nichtBeruecksichtigt.get(sd[i].sName) == null) {
             nichtBeruecksichtigt.put(
                 sd[i].sName,

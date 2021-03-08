@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemFactory;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
@@ -54,7 +53,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String FIRSTLASTNAME = "FirstLastName";
   public static final String NAMEAFFIX = "NameAffix";
   public static final String TITLE = "Title";
-  public static final String GENDER = "Gender";
   public static final String ASSOCIATION = "Association";
   public static final String STATUSID = "StatusId";
   public static final String EMAIL = "Email";
@@ -91,8 +89,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     f.add(NAMEAFFIX);
     t.add(IDataAccess.DATA_STRING);
     f.add(TITLE);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(GENDER);
     t.add(IDataAccess.DATA_STRING);
     f.add(ASSOCIATION);
     t.add(IDataAccess.DATA_STRING);
@@ -190,19 +186,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public String getTitle() {
     return getString(TITLE);
-  }
-
-  public void setGender(String gender) {
-    setString(GENDER, gender);
-  }
-
-  public String getGender() {
-    return getString(GENDER);
-  }
-
-  public String getGenderAsString() {
-    String s = getGender();
-    return (s != null ? Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, s) : null);
   }
 
   public DataTypeDate getBirthday() {
@@ -455,13 +438,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     if (fieldName.equals(FIRSTLASTNAME)) {
       return getFirstLastName(false);
     }
-    if (fieldName.equals(GENDER)) {
-      String s = getAsString(fieldName);
-      if (s != null) {
-        return Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, s);
-      }
-      return null;
-    }
     if (fieldName.equals(STATUSID)) {
       return getStatusName();
     }
@@ -471,12 +447,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   @Override
   public boolean setFromText(String fieldName, String value) {
     switch (fieldName) {
-      case GENDER:
-        String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, value);
-        if (s != null) {
-          set(fieldName, s);
-        }
-        break;
       case EMAIL:
         // mit jeder Email auch Erlaubnis setzen
         if (value != null && !value.trim().isBlank()) {
@@ -624,10 +594,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
         IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Namenszusatz")));
     ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
-        EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Geschlecht")));
 
     // hidden parameter, just for BatchEditDialog
     v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.FIRSTLASTNAME, null,

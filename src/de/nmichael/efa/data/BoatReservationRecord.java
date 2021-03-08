@@ -892,11 +892,7 @@ public class BoatReservationRecord extends DataRecord {
           "PS: Hi Wolle, der nachfolgende Text ist eine Vorlage für eine Antwort an das Mitglied "
               + p.getEmail());
       // msg.add("");
-      if (p.getGender().equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-        msg.add("Liebe " + p.getFirstName() + ",");
-      } else {
-        msg.add("Lieber " + p.getFirstName() + ",");
-      }
+      msg.add("Hallo " + p.getFirstName() + ",");
       msg.add(
           "Dein Vertrag ist beim Nutzungswart eingegangen und wurde in die Datenbank eingegeben. Mit der nächsten Abbuchung wird das Nutzungsentgeld abgebucht. Bitte beachte, dass der Verein bis vier Wochen vor dem beantragten Veranstaltungstermin das Vortrittsrecht hat (siehe allgemeine Vertragsinhalte). In diesem Falle wird das Entgelt zurück überwiesen.");
       msg.add("Reservierung des " + getBoatName() + " für die Zeit: "

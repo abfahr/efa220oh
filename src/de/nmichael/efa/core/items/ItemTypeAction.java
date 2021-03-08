@@ -99,8 +99,6 @@ public class ItemTypeAction extends ItemTypeButton {
         EfaTypes.CATEGORY_RIGGING, true);
     count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesCoxing(), EfaTypes.CATEGORY_COXING,
         true);
-    count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesGender(), EfaTypes.CATEGORY_GENDER,
-        true);
     count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesSession(),
         EfaTypes.CATEGORY_SESSION, true);
     count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesStatus(), EfaTypes.CATEGORY_STATUS,

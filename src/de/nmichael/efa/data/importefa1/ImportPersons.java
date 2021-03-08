@@ -65,9 +65,6 @@ public class ImportPersons extends ImportBase {
     if (!isIdentical(r.getLastName(), d.get(Mitglieder.NACHNAME))) {
       return true;
     }
-    if (!isIdentical(r.getGender(), d.get(Mitglieder.GESCHLECHT))) {
-      return true;
-    }
     if (!isIdentical(r.getBirthday(), d.get(Mitglieder.JAHRGANG))) {
       return true;
     }
@@ -147,14 +144,6 @@ public class ImportPersons extends ImportBase {
           }
           if (d.get(Mitglieder.NACHNAME).length() > 0) {
             r.setLastName(d.get(Mitglieder.NACHNAME));
-          }
-          // TITLE does not exist in efa1, so we leave it empty
-          if (d.get(Mitglieder.GESCHLECHT).length() > 0) {
-            String gender = d.get(Mitglieder.GESCHLECHT);
-            if (gender.equals(EfaTypes.TYPE_GENDER_MALE) ||
-                gender.equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-              r.setGender(gender);
-            }
           }
           if (d.get(Mitglieder.VEREIN).length() > 0) {
             r.setNameAffix(d.get(Mitglieder.VEREIN));

@@ -47,7 +47,6 @@ public class StatisticXMLWriter extends StatisticWriter {
   public static final String FIELD_ITEM = "Item";
   public static final String FIELD_ITEM_POSITION = "Position";
   public static final String FIELD_ITEM_NAME = "Name";
-  public static final String FIELD_ITEM_GENDER = "Gender";
   public static final String FIELD_ITEM_STATUS = "Status";
   public static final String FIELD_ITEM_YEAROFBIRTH = "YearOfBirth";
   public static final String FIELD_ITEM_BOATTYPE = "BoatType";
@@ -313,7 +312,6 @@ public class StatisticXMLWriter extends StatisticWriter {
             }
             write(f, indent, xmltag(FIELD_ITEM_POSITION, sd[i].sPosition));
             write(f, indent, xmltag(FIELD_ITEM_NAME, sd[i].sName));
-            write(f, indent, xmltag(FIELD_ITEM_GENDER, sd[i].sGender));
             write(f, indent, xmltag(FIELD_ITEM_STATUS, sd[i].sStatus));
             write(f, indent, xmltag(FIELD_ITEM_YEAROFBIRTH, sd[i].sYearOfBirth));
             write(f, indent, xmltag(FIELD_ITEM_BOATTYPE, sd[i].sBoatType));
@@ -347,8 +345,9 @@ public class StatisticXMLWriter extends StatisticWriter {
             if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
               printAllColumns = true;
               for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
-                StatisticsData sdm = (sd[i].matrixData != null ?
-                    sd[i].matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j))) : null);
+                StatisticsData sdm = (sd[i].matrixData != null
+                    ? sd[i].matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j)))
+                    : null);
                 write(f, indent, xmltag(FIELD_ITEM_MATRIXCOLUMN, getMatrixString(sdm)));
               }
               printAllColumns = false;
@@ -398,7 +397,7 @@ public class StatisticXMLWriter extends StatisticWriter {
       Dialog.error(LogString.fileCreationFailed(sr.sOutputFile,
           International.getString("Ausgabedatei")));
       LogString
-      .logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
+          .logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
       return false;
     } finally {
       try {

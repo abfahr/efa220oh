@@ -940,7 +940,7 @@ public class BoatReservationRecord extends DataRecord {
           && getHashId().length() > 0
           && personRecord != null) {
         msg.add("Alternativ kannst Du diese Reservierung auch mit ein paar Klicks stornieren: ");
-        msg.add(" " + getWebOnlineURL("storno/", personRecord.getMembershipNo()));
+        msg.add(getWebOnlineURL("storno/", personRecord.getMembershipNo()));
       }
       if (isBootshausOH()) {
         msg.add(
@@ -956,7 +956,7 @@ public class BoatReservationRecord extends DataRecord {
       if (anzahlFahrten >= Daten.efaConfig.getAnzahlFahrtenFuerKuerzelTipp()) {
         msg.add("");
         msg.add("Tipp: Mühsame Eingaben am PC erleichtern? Mit Namenskürzel und Telefonnummer?");
-        msg.add(" " + getWebOnlineURL("efa/", personRecord.getMembershipNo()));
+        msg.add(getWebOnlineURL("efa/", personRecord.getMembershipNo()));
       }
     }
     msg.add("");

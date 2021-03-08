@@ -364,6 +364,10 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
     if (bestTelnum == null || bestTelnum.length() == 0) {
       bestTelnum = "";
+    } else {
+      Logger.log(Logger.INFO, Logger.MSG_DEBUG_AUTOCOMPLETE,
+          "TelNum für " + item.getValueFromField() + " automatisch eingetragen. "
+              + person.isErlaubtTelefon());
     }
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
     BoatReservationRecord[] oldReservations = boatReservations

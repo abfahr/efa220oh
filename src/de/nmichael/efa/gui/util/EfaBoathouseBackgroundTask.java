@@ -31,7 +31,6 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatDamages;
 import de.nmichael.efa.data.BoatRecord;
@@ -735,10 +734,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     } else {
       newLogbookRecord.setDestinationName(reason);
     }
-    // newLogbookRecord.setDistance(new DataTypeDistance(new DataTypeDecimal(1, 0), UnitType.km));
-    // // 1km
     newLogbookRecord.setComments("(efa: Fahrt gestartet aufgrund einer Reservierung)");
-    newLogbookRecord.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
     newLogbookRecord.setSessionIsOpen(true);
     try {
       currentLogbook.data().add(newLogbookRecord); // save

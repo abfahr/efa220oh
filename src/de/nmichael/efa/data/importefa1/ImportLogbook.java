@@ -14,7 +14,6 @@ import java.util.Hashtable;
 import java.util.UUID;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.Boats;
 import de.nmichael.efa.data.DestinationRecord;
@@ -24,7 +23,6 @@ import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Persons;
 import de.nmichael.efa.data.ProjectRecord;
-import de.nmichael.efa.data.SessionGroupRecord;
 import de.nmichael.efa.data.SessionGroups;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDistance;
@@ -32,7 +30,6 @@ import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.efa1.Fahrtenbuch;
-import de.nmichael.efa.efa1.Mehrtagesfahrt;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
@@ -233,87 +230,6 @@ public class ImportLogbook extends ImportBase {
             + DataTypeDistance.KILOMETERS));
         if (d.get(Fahrtenbuch.BEMERK).length() > 0) {
           r.setComments(d.get(Fahrtenbuch.BEMERK));
-        }
-
-        if (d.get(Fahrtenbuch.FAHRTART).length() > 0) {
-          String fahrtArt = d.get(Fahrtenbuch.FAHRTART).trim();
-          String mtourName = null;
-          Mehrtagesfahrt mtour = null;
-
-          // in efa 1.8.3, a MultiDay tour is a tour with SessionType "NameOfTour" (*not* prefixed
-          // by TYPE_SESSION_TOUR_EFA1X1)
-          // in efa 1.9.0, a MultiDay tour is a tour with SessionType
-          // "TYPE_SESSION_TOUR_EFA1X2:NameOfTour"
-          if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR + ":") || // this line is bullshit, but
-              // we keep it...
-              fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X1 + ":") || // this line is
-              // bullshit, but we
-              // keep it...
-              fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X2 + ":") ||
-              // the next line is for efa 1.8.3: If this is a unknown session type, we treat it as a
-              // MTour
-              !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, fahrtArt)) {
-            mtourName = Fahrtenbuch.getMehrtagesfahrtName(fahrtArt);
-            mtour = (mtourName != null && mtourName.length() > 0 ? fahrtenbuch
-                .getMehrtagesfahrt(mtourName) : null);
-            fahrtArt = EfaTypes.TYPE_SESSION_TOUR;
-          }
-          if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, fahrtArt)) {
-            r.setSessionType(fahrtArt);
-            if (mtour != null) {
-              // if all in one entry: update fields in LogbookRecord
-              if (!mtour.isEtappen) {
-                if (mtour.start != null && mtour.start.length() > 0) {
-                  r.setDate(DataTypeDate.parseDate(mtour.start));
-                }
-                if (mtour.ende != null && mtour.ende.length() > 0) {
-                  r.setEndDate(DataTypeDate.parseDate(mtour.ende));
-                }
-                if (r.getDate() != null && r.getDate().isSet() &&
-                    r.getEndDate() != null && r.getEndDate().isSet() &&
-                    r.getDate().isAfterOrEqual(r.getEndDate())) {
-                  r.setEndDate(null);
-                }
-              }
-              // set/update SessionGroup
-              UUID id = sessionGroupMapping.get(mtourName);
-              if (id == null) {
-                SessionGroupRecord sg = sessionGroups.createSessionGroupRecord(UUID.randomUUID(),
-                    meta.name);
-                id = sg.getId();
-                sg.setName(mtourName);
-                if (mtour.start != null && mtour.start.length() > 0) {
-                  sg.setStartDate(DataTypeDate.parseDate(mtour.start));
-                }
-                if (mtour.ende != null && mtour.ende.length() > 0) {
-                  sg.setEndDate(DataTypeDate.parseDate(mtour.ende));
-                }
-                if (mtour.rudertage > 0) {
-                  sg.setActiveDays(mtour.rudertage);
-                }
-                // Waters from MultiDayTour's are not imported, but get lost during import.
-                // Should this be fixed? It's only relevant for DRV-Wanderruderstatistik, so it only
-                // matters for years to come, not for any logbooks in the past.
-                // Currently, Waters are only stored in Destinations, but not in SessionGroups,
-                // which
-                // is better from a modeling perspective, but incompatible to efa1.
-                try {
-                  sessionGroups.data().add(sg);
-                  sessionGroupMapping.put(mtourName, id);
-                } catch (Exception e) {
-                  logError(International.getMessage(
-                      "Import von Eintrag fehlgeschlagen: {entry} ({error})", sg.toString(),
-                      e.toString()));
-                  Logger.logdebug(e);
-                }
-              }
-              r.setSessionGroupId(id);
-            }
-          } else {
-            r.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
-          }
-        } else {
-          r.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
         }
 
         try {

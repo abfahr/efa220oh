@@ -181,7 +181,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeInteger maxDialogWidth;
   private ItemTypeStringList lookAndFeel;
   private ItemTypeColor lafButtonFocusColor;
-  private ItemTypeStringList standardFahrtart;
   private ItemTypeStringList defaultDistanceUnit;
   private ItemTypeBoolean debugLogging;
   private ItemTypeString traceTopic;
@@ -573,12 +572,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getString("Namensformat")));
 
-      addParameter(standardFahrtart = new ItemTypeStringList("SessionTypeDefault",
-          EfaTypes.TYPE_SESSION_NORMAL,
-          EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
-          EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
-          International.getString("Standard-Fahrtart")));
       addParameter(defaultObmann = new ItemTypeStringList("BoatCaptainDefault", OBMANN_BOW,
           makeObmannArray(STRINGLIST_VALUES), makeObmannArray(STRINGLIST_DISPLAY),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
@@ -1849,10 +1842,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return lafButtonFocusColor.getColor();
   }
 
-  public String getValueStandardFahrtart() {
-    return standardFahrtart.getValue();
-  }
-
   public String getValueDefaultDistanceUnit() {
     return defaultDistanceUnit.getValue();
   }
@@ -2897,8 +2886,6 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     iniTypes(typesCoxing, EfaTypes.CATEGORY_COXING);
     iniTypes(typesSession, EfaTypes.CATEGORY_SESSION);
     iniTypes(typesStatus, EfaTypes.CATEGORY_STATUS);
-    standardFahrtart.setListData(EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
-        EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY));
     if (widgets != null) {
       for (IWidget w : widgets) {
         if (w.getName().equals(AlertWidget.NAME)) {

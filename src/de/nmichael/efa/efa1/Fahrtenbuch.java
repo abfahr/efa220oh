@@ -58,7 +58,6 @@ public class Fahrtenbuch extends DatenListe {
   public static final int BOOTSKM = 32; // bis 1.3.1: 23
   public static final int MANNSCHKM = 33;// bis 1.3.1: 24
   public static final int BEMERK = 34; // bis 1.3.1: 25
-  public static final int FAHRTART = 35; // bis 1.3.1: 26; neue Bedeutung in 1.3.0; neu in v0.85
 
   public static final int ANZ_MANNSCH = 24;
   public static final String CONFIGURE_MTOUR = "CONFIGUREMTOUR";
@@ -224,46 +223,10 @@ public class Fahrtenbuch extends DatenListe {
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#"))
-              {
+              if (s.equals("") || s.startsWith("#")) {
                 continue; // Kommentare ignorieren
               }
               DatenFelder d = constructFields(s);
-              String fa = d.get(FAHRTART);
-              if (fa.length() == 0) {
-                fa = EfaTypes.TYPE_SESSION_NORMAL;
-              } else {
-                fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, d.get(FAHRTART));
-                if (fa != null && fa.equals(EfaTypes.TYPE_SESSION_TOUR)) {
-                  // Bugfix: Als Fahrtart war "Mehrtagesfahrt" eingetragen; dies ist in efa2
-                  // ein vorbelegter Begriff. Wenn wir das jetzt zu "TOUR" ändern, geht der
-                  // Name der Mehrtagesfahrt verloren, und damit die Metadaten.
-                  // Statt dessen müssen wir ein "TOUR:Mehrtagesfahrt" daraus machen!
-                  fa = EfaTypes.TYPE_SESSION_TOUR + ":" + d.get(FAHRTART);
-                }
-                if (fa == null
-                    && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION,
-                        EfaTypes.TYPE_SESSION_TOUR)) {
-                  if (d.get(FAHRTART).startsWith("Mehrtagesfahrt: konfigurieren!!")) {
-                    fa = CONFIGURE_MTOUR
-                        + d.get(FAHRTART).substring("Mehrtagesfahrt: konfigurieren!!".length());
-                  } else {
-                    fa = EfaTypes.TYPE_SESSION_TOUR + ":" + d.get(FAHRTART);
-                  }
-                }
-              }
-              if (fa == null) {
-                fa = EfaTypes.TYPE_SESSION_NORMAL;
-                /*
-                 * // @efa1 Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
-                 * getFileName() + ": " +
-                 * International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!"
-                 * ,constructKey(d)) + " " + International.getMessage(
-                 * "Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
-                 * d.get(FAHRTART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, fa)));
-                 */
-              }
-              d.set(FAHRTART, fa);
               add(d);
             }
 
@@ -421,8 +384,7 @@ public class Fahrtenbuch extends DatenListe {
   // Einträge auf Gültigkeit prüfen
   @Override
   public void validateValues(DatenFelder d) {
-    if (d.get(LFDNR).trim().equals(""))
-    {
+    if (d.get(LFDNR).trim().equals("")) {
       return; // überspringen, da leere Keys ohnehin nicht hinzugefügt werden
     }
     d.set(LFDNR, EfaUtil.getLfdNr(d.get(LFDNR)));
@@ -433,15 +395,6 @@ public class Fahrtenbuch extends DatenListe {
   }
 
   public static String getMehrtagesfahrtName(String key) {
-    if (key.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X1 + ":")) {
-      return key.substring(EfaTypes.TYPE_SESSION_TOUR_EFA1X1.length() + 1);
-    }
-    if (key.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X2 + ":")) {
-      return key.substring(EfaTypes.TYPE_SESSION_TOUR_EFA1X2.length() + 1);
-    }
-    if (key.startsWith(EfaTypes.TYPE_SESSION_TOUR + ":")) {
-      return key.substring(EfaTypes.TYPE_SESSION_TOUR.length() + 1);
-    }
     return key;
   }
 

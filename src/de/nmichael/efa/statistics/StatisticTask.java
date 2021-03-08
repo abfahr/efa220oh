@@ -122,7 +122,6 @@ public class StatisticTask extends ProgressTask {
   private String entryDestinationNameAndVariant;
   private ZielfahrtFolge entryDestinationAreas;
   private long entryDistanceInDefaultUnit;
-  private String entrySessionType;
   private SessionGroupRecord entrySessionGroup;
   private UUID entryClubworkId;
   private ClubworkRecord entryClubworkRecord;
@@ -171,7 +170,6 @@ public class StatisticTask extends ProgressTask {
     entryDestinationNameAndVariant = null;
     entryDestinationAreas = null;
     entryDistanceInDefaultUnit = 0;
-    entrySessionType = null;
     entrySessionGroup = null;
     // ---
     entryClubworkId = null;
@@ -275,7 +273,7 @@ public class StatisticTask extends ProgressTask {
         && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) ||
         (sr.sIsAggrWanderfahrten
             && (CompetitionDRVFahrtenabzeichen.mayBeWafa(r)
-                || entrySessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)))
+                || false))
         ||
         (sr.sIsAggrWinterfahrten
             && (CompetitionLRVBerlinWinter.mayBeWinterfahrt(r)
@@ -423,7 +421,7 @@ public class StatisticTask extends ProgressTask {
           && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0)
           || (sr.sIsAggrWanderfahrten
               && (CompetitionDRVFahrtenabzeichen.mayBeWafa(r)
-                  || entrySessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)))
+                  || false))
           || (sr.sIsAggrWinterfahrten
               && (CompetitionLRVBerlinWinter.mayBeWinterfahrt(r)
                   && entryPersonRecord != null))
@@ -716,8 +714,6 @@ public class StatisticTask extends ProgressTask {
           distancePerHour.put(k, distance);
         }
         return distancePerHour;
-      case sessionType:
-        return getAggregationKey_sessionType(entrySessionType);
       case year:
         return getAggregationKey_year(entryDate);
     }
@@ -962,11 +958,6 @@ public class StatisticTask extends ProgressTask {
     if (sr.sIsLFieldsMultiDay) {
       sd.logbookFields[col++] = (entrySessionGroup != null
           ? entrySessionGroup.getRoute()
-          : "");
-    }
-    if (sr.sIsLFieldsSessionType) {
-      sd.logbookFields[col++] = (entrySessionType != null
-          ? Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, entrySessionType)
           : "");
     }
     if (sr.sIsLFieldsNotes) {
@@ -1287,13 +1278,6 @@ public class StatisticTask extends ProgressTask {
     entrySessionGroup = r.getSessionGroup();
   }
 
-  private void getEntrySessionType(LogbookRecord r) {
-    entrySessionType = r.getSessionType();
-    if (entrySessionType == null) {
-      entrySessionType = EfaTypes.TYPE_SESSION_NORMAL;
-    }
-  }
-
   private void getEntryBoat(LogbookRecord r) {
     entryBoatId = r.getBoatId();
     entryBoatRecord = (entryBoatId != null ? boats.getBoat(entryBoatId, entryValidAt) : null);
@@ -1411,10 +1395,6 @@ public class StatisticTask extends ProgressTask {
   }
 
   private boolean isInFilter(LogbookRecord r) {
-    getEntrySessionType(r);
-    if (!sr.sFilterSessionTypeAll && !sr.sFilterSessionType.containsKey(entrySessionType)) {
-      return false;
-    }
     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition &&
         !r.isRowingOrCanoeingSession()) {
       return false;
@@ -1774,11 +1754,6 @@ public class StatisticTask extends ProgressTask {
               for (int i = 0; i <= 23; i++) {
                 Object key = getAggregationKey_timeOfDay(i);
                 data.put(key, new StatisticsData(sr, key));
-              }
-              break;
-            case sessionType:
-              for (String t : Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_SESSION)) {
-                data.put(t, new StatisticsData(sr, t));
               }
               break;
             case year:

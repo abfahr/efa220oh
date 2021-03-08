@@ -86,7 +86,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public static final String FILTERGENDERALL = "FilterGenderAll";
   public static final String FILTERSTATUS = "FilterStatus";
   public static final String FILTERSTATUSALL = "FilterStatusAll";
-  public static final String FILTERSESSIONTYPE = "FilterSessionType";
   public static final String FILTERSESSIONTYPEALL = "FilterSessionTypeAll";
   public static final String FILTERBOATTYPE = "FilterBoatType";
   public static final String FILTERBOATTYPEALL = "FilterBoatTypeAll";
@@ -187,7 +186,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public static final String SKEY_MONTH = "Month"; // based on Persons or Boats
   public static final String SKEY_WEEKDAY = "Weekday"; // based on Persons or Boats
   public static final String SKEY_TIMEOFDAY = "TimeOfDay"; // based on Persons or Boats
-  public static final String SKEY_SESSIONTYPE = "SessionType"; // based on Persons or Boats
   public static final String SKEY_YEAR = "Year"; // based on Persons or Boats
 
   public static final String OTYPE_INTERNAL = "Internal";
@@ -303,7 +301,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   }
 
   public enum StatisticKey {
-    name, status, yearOfBirth, gender, boatType, boatSeats, boatTypeDetail, destination, waters, distance, month, weekday, timeOfDay, sessionType, year
+    name, status, yearOfBirth, gender, boatType, boatSeats, boatTypeDetail, destination, waters, distance, month, weekday, timeOfDay, year
   }
 
   public enum SortingCriteria {
@@ -327,7 +325,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   private ItemTypeInteger itemCompYear;
   private ItemTypeMultiSelectList<String> itemFilterGender;
   private ItemTypeMultiSelectList<String> itemFilterStatus;
-  private ItemTypeMultiSelectList<String> itemFilterSessionType;
   private ItemTypeMultiSelectList<String> itemFilterBoatType;
   private ItemTypeMultiSelectList<String> itemFilterBoatSeats;
   private ItemTypeMultiSelectList<String> itemFilterBoatRigging;
@@ -368,8 +365,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public Hashtable<UUID, String> sFilterStatus;
   public boolean sFilterStatusOther;
   public boolean sFilterStatusAll;
-  public Hashtable<String, String> sFilterSessionType;
-  public boolean sFilterSessionTypeAll;
   public Hashtable<String, String> sFilterBoatType;
   public boolean sFilterBoatTypeAll;
   public Hashtable<String, String> sFilterBoatSeats;
@@ -413,7 +408,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   public boolean sIsLFieldsDestinationAreas;
   public boolean sIsLFieldsDistance;
   public boolean sIsLFieldsMultiDay;
-  public boolean sIsLFieldsSessionType;
   public boolean sIsLFieldsNotes;
   public boolean sIsOFieldsBaseStatus;
   public boolean sIsOFieldsCurrentStatus;
@@ -566,8 +560,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     t.add(IDataAccess.DATA_LIST_UUID);
     f.add(FILTERSTATUSALL);
     t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(FILTERSESSIONTYPE);
-    t.add(IDataAccess.DATA_LIST_STRING);
     f.add(FILTERSESSIONTYPEALL);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(FILTERBOATTYPE);
@@ -708,9 +700,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     setFilterGenderAll(true);
     setFilterStatus(new DataTypeList<UUID>(getFilterStatusListValues(false)));
     setFilterStatusAll(false);
-    setFilterSessionType(new DataTypeList<String>(
-        EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
-    setFilterSessionTypeAll(true);
     setFilterBoatType(new DataTypeList<String>(
         EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
     setFilterBoatTypeAll(true);
@@ -1070,8 +1059,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       return StatisticKey.weekday;
     } else if (key.equals(SKEY_TIMEOFDAY)) {
       return StatisticKey.timeOfDay;
-    } else if (key.equals(SKEY_SESSIONTYPE)) {
-      return StatisticKey.sessionType;
     } else if (key.equals(SKEY_YEAR)) {
       return StatisticKey.year;
     }
@@ -1127,8 +1114,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return International.getString("Wochentage");
       case timeOfDay:
         return International.getString("Tageszeiten");
-      case sessionType:
-        return International.getString("Fahrtarten");
       case year:
         return International.getString("Jahre");
     }
@@ -1159,7 +1144,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     allKeys.put(SKEY_MONTH, International.getString("Monat"));
     allKeys.put(SKEY_WEEKDAY, International.getString("Wochentag"));
     allKeys.put(SKEY_TIMEOFDAY, International.getString("Tageszeit"));
-    allKeys.put(SKEY_SESSIONTYPE, International.getString("Fahrtart"));
     allKeys.put(SKEY_YEAR, International.getString("Jahr"));
 
     Vector<String> selectedKeys = new Vector<String>();
@@ -1204,9 +1188,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
     if (sType == null || sType.equals(STYPE_PERSONS) || sType.equals(STYPE_BOATS)) {
       selectedKeys.add(SKEY_TIMEOFDAY);
-    }
-    if (sType == null || sType.equals(STYPE_PERSONS) || sType.equals(STYPE_BOATS)) {
-      selectedKeys.add(SKEY_SESSIONTYPE);
     }
     if (sType == null || sType.equals(STYPE_PERSONS) || sType.equals(STYPE_BOATS)) {
       selectedKeys.add(SKEY_YEAR);
@@ -1434,18 +1415,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     return slist;
   }
 
-  public void setFilterSessionType(DataTypeList<String> list) {
-    setList(FILTERSESSIONTYPE, list);
-  }
-
-  public DataTypeList<String> getFilterSessionType() {
-    if (getFilterSessionTypeAll()) {
-      return new DataTypeList<String>(
-          EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES));
-    }
-    return getList(FILTERSESSIONTYPE, IDataAccess.DATA_STRING);
-  }
-
   public void setFilterSessionTypeAll(boolean all) {
     setBool(FILTERSESSIONTYPEALL, all);
   }
@@ -1455,14 +1424,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
   }
 
   public boolean isFilterSessionTypeAllSelected() {
-    DataTypeList list = getFilterSessionType();
+    DataTypeList list = null;
     return getFilterSessionTypeAll()
         || (list != null && list.length() == EfaTypes
             .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
-  }
-
-  public String getFilterSessionTypeSelectedListAsText() {
-    return getFilterEfaTypesSelectedListAsText(getFilterSessionType(), EfaTypes.CATEGORY_SESSION);
   }
 
   public void setFilterBoatType(DataTypeList<String> list) {
@@ -1814,10 +1779,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             + International.getString("Status") + ": " + getFilterStatusSelectedListAsText();
       }
     }
-    if (!isFilterSessionTypeAllSelected()) {
-      filter = (filter == null ? "" : filter + "\n") +
-          International.getString("Fahrtart") + ": " + getFilterSessionTypeSelectedListAsText();
-    }
     if (!isFilterBoatTypeAllSelected()) {
       filter = (filter == null ? "" : filter + "\n") +
           International.getString("Bootstyp") + ": " + getFilterBoatTypeSelectedListAsText();
@@ -1978,7 +1939,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       }
       strings.add(International.getString("Kilometer"));
       strings.add(International.getString("Wanderfahrten"));
-      strings.add(International.getString("Fahrtart"));
       strings.add(International.getString("Bemerkungen"));
     }
     String[] a = new String[strings.size()];
@@ -2607,7 +2567,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     String CAT_FILTER = "%02%" + International.getString("Filter");
     String CAT_FILTERGENDER = "%021%" + International.getString("Geschlecht");
     String CAT_FILTERSTATUS = "%022%" + International.getString("Status");
-    String CAT_FILTERSESSIONTYPE = "%023%" + International.getString("Fahrtart");
     String CAT_FILTERBOATTYPE = "%024%" + International.getString("Bootstyp");
     String CAT_FILTERBOATSEAT = "%025%" + International.getString("Bootsplätze");
     String CAT_FILTERBOATRIGG = "%026%" + International.getString("Riggerung");
@@ -2685,19 +2644,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     itemFilterStatus.setEnabled(!getFilterStatusAll());
     v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERSTATUSALL, getFilterStatusAll(),
         IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERSTATUS),
-        International.getString("alle")));
-    item.registerItemListener(this);
-    v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERSESSIONTYPE,
-        getFilterSessionType(),
-        EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERSESSIONTYPE),
-        International.getString("Fahrtart")));
-    itemFilterSessionType = (ItemTypeMultiSelectList<String>) item;
-    itemFilterSessionType.setEnabled(!getFilterSessionTypeAll());
-    v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERSESSIONTYPEALL,
-        getFilterSessionTypeAll(),
-        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER, CAT_FILTERSESSIONTYPE),
         International.getString("alle")));
     item.registerItemListener(this);
     v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATTYPE,
@@ -3129,7 +3075,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     sIsLFieldsDestinationAreas = false;
     sIsLFieldsDistance = false;
     sIsLFieldsMultiDay = false;
-    sIsLFieldsSessionType = false;
     sIsLFieldsNotes = false;
     sIsAggrDistance = false;
     sIsAggrRowDistance = false;
@@ -3233,13 +3178,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       sFilterStatusAll = false;
       setFilterStatusAll(false);
     }
-
-    sFilterSessionType = new Hashtable<String, String>();
-    listString = getFilterSessionType();
-    for (int i = 0; listString != null && i < listString.length(); i++) {
-      sFilterSessionType.put(listString.get(i), "foo");
-    }
-    sFilterSessionTypeAll = isFilterSessionTypeAllSelected();
 
     sFilterBoatType = new Hashtable<String, String>();
     listString = getFilterBoatType();
@@ -3439,8 +3377,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sLFieldDistancePos = i;
       } else if (s.equals(LFIELDS_MULTIDAY)) {
         sIsLFieldsMultiDay = true;
-      } else if (s.equals(LFIELDS_SESSIONTYPE)) {
-        sIsLFieldsSessionType = true;
       } else if (s.equals(LFIELDS_NOTES)) {
         sIsLFieldsNotes = true;
       }
@@ -3858,9 +3794,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
       if (sIsLFieldsMultiDay) {
         pTableColumns.add(International.onlyFor("Wanderfahrten", "de"));
       }
-      if (sIsLFieldsSessionType) {
-        pTableColumns.add(International.getString("Fahrtart"));
-      }
       if (sIsLFieldsNotes) {
         pTableColumns.add(International.getString("Bemerkungen"));
       }
@@ -4016,12 +3949,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     if (itemType.getName().equals(FILTERSTATUSALL) && event instanceof ActionEvent) {
       if (itemFilterStatus != null && itemType.getValueFromField() != null) {
         itemFilterStatus.setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
-      }
-    }
-    if (itemType.getName().equals(FILTERSESSIONTYPEALL) && event instanceof ActionEvent) {
-      if (itemFilterSessionType != null && itemType.getValueFromField() != null) {
-        itemFilterSessionType.setEnabled(itemType.getValueFromField().equals(
-            Boolean.toString(false)));
       }
     }
     if (itemType.getName().equals(FILTERBOATTYPEALL) && event instanceof ActionEvent) {

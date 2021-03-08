@@ -163,7 +163,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   ItemTypeDistance distance;
   ItemTypeStringPhone phoneNr;
   ItemTypeString comments;
-  ItemTypeStringList sessiontype;
   ItemTypeStringAutoComplete sessiongroup;
 
   // Supplementary Elements
@@ -851,21 +850,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     comments.displayOnGui(this, mainInputPanel, 0, 15);
     comments.registerItemListener(this);
 
-    // Session Type
-    sessiontype = new ItemTypeStringList(LogbookRecord.SESSIONTYPE, EfaTypes.TYPE_SESSION_NORMAL,
-        EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
-        EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_PUBLIC, null, International.getString("Fahrtart"));
-    sessiontype.setFieldSize(200, 19);
-    sessiontype.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
-    sessiontype.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
-    sessiontype.setBackgroundColorWhenFocused(Daten.efaConfig
-        .getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    sessiontype.displayOnGui(this, mainInputPanel, 0, 16);
-    sessiontype.registerItemListener(this);
-    sessiontype.setVisible(isModeBaseOrAdmin());
-
-    // Session Type
+    // Session Group
     sessiongroup = new ItemTypeStringAutoComplete(LogbookRecord.SESSIONGROUPID,
         "", IItemType.TYPE_PUBLIC, null,
         International.getStringWithMnemonic("Fahrtgruppe"), true);
@@ -1036,7 +1021,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     waters.restoreBackgroundColor();
     distance.restoreBackgroundColor();
     comments.restoreBackgroundColor();
-    sessiontype.restoreBackgroundColor();
     boatDamageButton.restoreBackgroundColor();
     boatNotCleanedButton.restoreBackgroundColor();
     saveButton.restoreBackgroundColor();
@@ -1451,9 +1435,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       if (field == comments) {
         return (r != null ? r.getComments() : "");
       }
-      if (field == sessiontype) {
-        return (r != null ? r.getSessionType() : Daten.efaConfig.getValueStandardFahrtart());
-      }
       if (field == sessiongroup) {
         UUID id = (r != null ? r.getSessionGroupId() : null);
         sessiongroup.setRememberedId(id);
@@ -1509,7 +1490,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     setField(waters, r);
     setField(distance, r);
     setField(comments, r);
-    setField(sessiontype, r);
     setField(sessiongroup, r);
     // replaced by closesessionButton // opensession.setVisible(isModeFull() && r != null &&
     // r.getSessionIsOpen());
@@ -1656,9 +1636,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     } else {
       r.setComments(null);
     }
-
-    // Session Type
-    r.setSessionType(sessiontype.toString());
 
     // Session Group
     r.setSessionGroupId((UUID) sessiongroup.getRememberedId());
@@ -1841,7 +1818,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     waters.setUnchanged();
     distance.setUnchanged();
     comments.setUnchanged();
-    sessiontype.setUnchanged();
     sessiongroup.setUnchanged();
   }
 
@@ -1859,7 +1835,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         waters.isChanged() ||
         distance.isChanged() ||
         comments.isChanged() ||
-        sessiontype.isChanged() ||
         sessiongroup.isChanged();
     for (int i = 0; !changed && i < crew.length; i++) {
       changed = crew[i].isChanged();
@@ -2668,12 +2643,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
 
       // check whether the elapsed time is long enough
-      String sType = (sessiontype.isVisible() ? sessiontype.getValue() : null);
-      sType = sessiontype.getValue(); // EfaTypes.TYPE_SESSION_NORMAL =
-                                      // Daten.efaConfig.getValueStandardFahrtart()
-      if (!sType.equals(EfaTypes.TYPE_SESSION_LATEENTRY) &&
-          !sType.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP) &&
-          starttime.isVisible() && endtime.isVisible() && distance.isVisible() &&
+      if (starttime.isVisible() && endtime.isVisible() && distance.isVisible() &&
           starttime.isSet() && endtime.isSet() && endtime.isEditable() && distance.isSet()) {
         long timediff = Math.abs(endtime.getTime().getTimeAsSeconds()
             - starttime.getTime().getTimeAsSeconds());
@@ -3885,11 +3855,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       infoLabel.setText(International.getString("Bemerkungen eingeben oder frei lassen"));
       return;
     }
-    if (s.equals(LogbookRecord.SESSIONTYPE)) {
-      infoLabel.setText(International.getString("Bitte auswählen")
-          + ": " + International.getString("Art der Fahrt"));
-      return;
-    }
     if (s.equals("REMAININGCREWUP") || s.equals("REMAININGCREWDOWN")) {
       infoLabel.setText(International.getString("weitere Mannschaftsfelder anzeigen"));
       return;
@@ -4309,9 +4274,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       if (c == efaBaseFrame.comments.getComponent()) {
         return efaBaseFrame.comments;
       }
-      if (c == efaBaseFrame.sessiontype.getComponent()) {
-        return efaBaseFrame.sessiontype;
-      }
       if (c == efaBaseFrame.remainingCrewUpButton.getComponent()) {
         return efaBaseFrame.remainingCrewUpButton;
       }
@@ -4663,7 +4625,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
-    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
@@ -4728,7 +4689,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
-    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
@@ -4796,7 +4756,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
-    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
@@ -4827,7 +4786,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
-    setFieldEnabled(false, false, sessiontype);
     setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
         boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
@@ -4939,15 +4897,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           newStatus = BoatStatusRecord.STATUS_ONTHEWATER;
           newEntryNo = currentRecord.getEntryId();
           newComment = BoatStatusRecord.createStatusString(
-              currentRecord.getSessionType(),
               currentRecord.getDestinationAndVariantName(tstmp),
               currentRecord.getDate(),
               currentRecord.getStartTime(),
               currentRecord.getAllCoxAndCrewAsNameString(),
               currentRecord.getEndDate(),
               currentRecord.getEndTime());
-          if (BoatStatusRecord.isOnTheWaterShowNotAvailable(currentRecord.getSessionType(),
-              currentRecord.getEndDate())) {
+          if (BoatStatusRecord.isOnTheWaterShowNotAvailable(currentRecord.getEndDate())) {
             newShowInList = BoatStatusRecord.STATUS_NOTAVAILABLE;
           }
           break;

@@ -665,6 +665,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           case DataListDialog.ACTION_PRINTLIST:
           case DataListDialog.ACTION_EDITASSISTENT:
           case StatisticsListDialog.ACTION_CREATESTATISTICS: // Lasse
+          case StatisticsListDialog.ACTION_ONETIMESTATISTIC: // Boris selber
             break;
           default:
             Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR,

@@ -788,21 +788,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return null;
   }
 
-  public Hashtable<String, TableItem[]> getTableItems(String itemName,
-      Hashtable<String, IItemType[]> data) {
-    if (itemName.equals(BoatRecord.GUIITEM_RESERVATIONS)) {
-      if (data == null) {
-        return null;
-      }
-      String[] keys = data.keySet().toArray(new String[0]);
-      Hashtable<String, TableItem[]> tableItems = new Hashtable<String, TableItem[]>();
-      for (String key : keys) {
-
-      }
-    }
-    return null;
-  }
-
   @Override
   public String getAsText(String fieldName) {
     if (fieldName.equals(TYPEVARIANT) ||

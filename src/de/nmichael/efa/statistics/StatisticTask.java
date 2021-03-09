@@ -2278,7 +2278,7 @@ public class StatisticTask extends ProgressTask {
     }
     logInfo(International.getMessage("Erstelle Statistik für den Zeitraum {from} bis {to} ...",
         sr.sStartDate.toString(), sr.sEndDate.toString()) + "\n", false, true);
-    logInfo(International.getString("Erstelle Statistik ..."),
+    logInfo(International.getString("Erstelle Statistik ...") + " " + sr.getName(),
         true, false);
 
     runPreprocessing();

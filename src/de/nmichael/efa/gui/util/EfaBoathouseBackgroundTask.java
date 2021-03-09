@@ -166,8 +166,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     while (true) {
       try {
         if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
+          long idleMillis = System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction();
           Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-              "EfaBoathouseBackgroundTask: alive!");
+              "EfaBoathouseBackgroundTask: after sleepForAWhile() alive! (idle since "
+                  + idleMillis / 1000 / 60 + "min " + idleMillis / 1000 % 60 + "sec)");
         }
 
         // find out whether a project is open, and whether it's local or remote
@@ -214,7 +216,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           onceAnHour = ONCE_AN_HOUR;
           if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-                "EfaBoathouseBackgroundTask: alive!");
+                "EfaBoathouseBackgroundTask: onceAnHour alive!");
           }
 
           checkWarnings();
@@ -251,14 +253,16 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   private void sleepForAWhile() {
     if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+      long idleMillis = System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction();
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-          "EfaBoathouseBackgroundTask: sleepForAWhile()");
+          "EfaBoathouseBackgroundTask: sleepForAWhile() (idle since "
+              + idleMillis / 1000 / 60 + "min " + idleMillis / 1000 % 60 + "sec)");
     }
     if (!isProjectOpen) {
       // sleep 60 seconds
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-            "EfaBoathouseBackgroundTask: sleep for " + CHECK_INTERVAL + " seconds ...");
+            "EfaBoathouseBackgroundTask: sleep for " + CHECK_INTERVAL + " seconds....");
       }
       try {
         Thread.sleep(CHECK_INTERVAL * 1000);
@@ -276,7 +280,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
             "EfaBoathouseBackgroundTask: sleep for " + cnt + " times " + REMOTE_SCN_CHECK_INTERVAL
-                + " seconds ...");
+                + " seconds.");
       }
       BoatStatus boatStatus = null;
       try {
@@ -287,14 +291,13 @@ public class EfaBoathouseBackgroundTask extends Thread {
       for (int i = 0; i < cnt; i++) {
         if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
           Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-              "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL
-                  + " seconds ...");
+              "EfaBoathouseBackgroundTask: sleep" + i + " for "
+                  + REMOTE_SCN_CHECK_INTERVAL + " seconds...");
         }
         try {
           Thread.sleep(REMOTE_SCN_CHECK_INTERVAL * 1000);
         } catch (Exception e) {
-          // wenn unterbrochen, dann versuch nochmal, kurz zu schlafen, und arbeite dann weiter!!
-          // ;-)
+          // wenn unterbrochen, versuche nochmals kurz zu schlafen, und arbeite dann weiter!! ;-)
           try {
             Thread.sleep(100);
           } catch (Exception ee) {
@@ -303,19 +306,27 @@ public class EfaBoathouseBackgroundTask extends Thread {
         }
         try {
           newBoatStatusScn = (boatStatus != null ? boatStatus.data().getSCN() : -1);
-          if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
-            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-                "EfaBoathouseBackgroundTask: BoatStatus scn is " + newBoatStatusScn
-                    + " (previously " + lastBoatStatusScn + ")");
-          }
           if (newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn) {
             // do NOT set lastBoatStatusScn = scn here!
             // This will be done when boat status is updated.
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
+              Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                  "EfaBoathouseBackgroundTask: BoatStatus scn is " + newBoatStatusScn
+                      + " (previously " + lastBoatStatusScn + ")");
+            }
             break;
           }
           int seconds = Calendar.getInstance().get(Calendar.SECOND);
-          if (seconds < 5) {
+          if (seconds < REMOTE_SCN_CHECK_INTERVAL) {
             // Screen-Update zeitlich verschieben - auf die Zeit mit :00-:05 Sekunden verschieben.
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+              Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                  "EfaBoathouseBackgroundTask: seconds is :0" + seconds
+                      + " (break for-loop to sync gui-clock)");
+            }
+            if (seconds > 0) {
+              Thread.sleep((REMOTE_SCN_CHECK_INTERVAL - seconds) * 1000);
+            }
             break;
           }
         } catch (Exception e) {
@@ -404,6 +415,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     boolean listChanged = false;
     if (newBoatStatusScn != -1 &&
         newBoatStatusScn != lastBoatStatusScn) {
+      // Falls Datenbank BoatStatus sich geändert hat (abf)
       listChanged = true;
     }
     lastBoatStatusScn = newBoatStatusScn;
@@ -600,28 +612,66 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-            "EfaBoathouseBackgroundTask: checkBoatStatus() - calling updateBoatLists("
-                + listChanged + ") ...");
+            "EfaBoathouseBackgroundTask: checkBoatStatus() -"
+                + (listChanged ? "" : " not")
+                + " calling updateBoatLists("
+                + listChanged + ")");
       }
       if (listChanged) {
         efaBoathouseFrame.updateBoatLists(listChanged); // must have
       }
       // Prüfung der letzten User-Interaction Zeitpunkt
-      long idleMillis = now - efaBoathouseFrame.getLastUserInteraction();
-      if (idleMillis > 30 * 1000) {
-        efaBoathouseFrame.clearAllPopups(); // nach 30 Sekunden
-      }
-      if (idleMillis > Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
-        efaBoathouseFrame.resetSorting(); // nach 5 Minuten
-        // includes efaBoathouseFrame.updateBoatLists(listChanged);
-        // true means reset has already done updateBoatLists() and alive()
-      }
+      checkBoatStatusWhileIdle();
+
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
             "EfaBoathouseBackgroundTask: checkBoatStatus() - done");
       }
     } catch (Exception e) {
       Logger.logwarn(e);
+    }
+  }
+
+  private void checkBoatStatusWhileIdle() {
+    long now = System.currentTimeMillis();
+    long idleSec = (now - efaBoathouseFrame.getLastUserInteraction()) / 1000;
+    long waitSec = Daten.AUTO_EXIT_MIN_LAST_USED * 60;
+
+    if (idleSec > 30) {
+      if (Logger.isTraceOn(Logger.TT_BACKGROUND, 6)) {
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+            "EfaBoathouseBackgroundTask: checkBoatStatus() - clearAllPopups() "
+                + "(idle since " + idleSec / 60 + "min " + idleSec % 60 + "sec)");
+      }
+      efaBoathouseFrame.clearAllPopups(); // nach 30 Sekunden
+    }
+    if (idleSec < (waitSec + 0)) {
+      if (Logger.isTraceOn(Logger.TT_BACKGROUND, 6)) {
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+            "EfaBoathouseBackgroundTask: checkBoatStatus() - nix reset. zu kurz "
+                + "(idle since " + idleSec / 60 + "min " + idleSec % 60 + "sec)");
+      }
+      return;
+    }
+    if (idleSec > (waitSec + CHECK_INTERVAL)) {
+      if (Logger.isTraceOn(Logger.TT_BACKGROUND, 6)) {
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+            "EfaBoathouseBackgroundTask: checkBoatStatus() - nix reset. zu lang "
+                + "(idle since " + idleSec / 60 + "min " + idleSec % 60 + "sec)");
+      }
+      return;
+    }
+    if (Logger.isTraceOn(Logger.TT_BACKGROUND, 6)) {
+      Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+          "EfaBoathouseBackgroundTask: checkBoatStatus() -> resetSorting() "
+              + "(idle since " + idleSec / 60 + "min " + idleSec % 60 + "sec)");
+    }
+    if (!efaBoathouseFrame.resetSorting()) { // nach 5 Minuten
+      // includes efaBoathouseFrame.updateBoatLists(listChanged);
+      // true means reset has already done updateBoatLists() and alive()
+
+      // efaBoathouseFrame.boatListRequestFocus(0);
+      efaBoathouseFrame.updateBoatLists(false);
     }
   }
 
@@ -655,7 +705,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       try {
         Daten.project.getBoatReservations(false).data().update(boatReservationRecord);
       } catch (EfaException e) {
-        // TODO abf 2020-01-05 Fehler abfangen
         Logger.logwarn(e);
         e.printStackTrace();
       }

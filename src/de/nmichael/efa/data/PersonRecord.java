@@ -15,8 +15,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.calendar.ICalendarExport;
@@ -62,12 +60,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String INPUTSHORTCUT = "InputShortcut";
   public static final String FESTNETZ1 = "FreeUse1";
   public static final String HANDY2 = "FreeUse2";
-  public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME };
+  public static final String[] IDX_NAME_NAME = new String[] { FIRSTLASTNAME };
   private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
   private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
   private static String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
   private static String CAT_GROUPS = "%03%" + International.getString("Gruppen");
-  private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
   public static void initialize() {
     Vector<String> f = new Vector<String>();
@@ -105,7 +102,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_STRING);
     MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
     metaData.setKey(new String[] { ID }); // plus VALID_FROM
-    metaData.addIndex(IDX_NAME_NAMEAFFIX);
+    metaData.addIndex(IDX_NAME_NAME);
   }
 
   public PersonRecord(Persons persons, MetaData metaData) {
@@ -301,7 +298,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return s;
   }
 
-  public static String getFirstLastName(String name) {
+  private static String getFirstLastName(String name) {
     if (name == null || name.length() == 0) {
       return "";
     }
@@ -312,18 +309,15 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return (name.substring(pos + 2) + " " + name.substring(0, pos)).trim();
   }
 
-  public String getQualifiedName(boolean firstFirst) {
-    return getFullName(getFirstName(), getLastName(), firstFirst);
-  }
-
   @Override
   public String getQualifiedName() {
-    return getQualifiedName(Daten.efaConfig.getValueNameFormatIsFirstNameFirst());
+    return getFullName(getFirstName(), getLastName(),
+        Daten.efaConfig.getValueNameFormatIsFirstNameFirst());
   }
 
   @Override
   public String[] getQualifiedNameFields() {
-    return IDX_NAME_NAMEAFFIX;
+    return IDX_NAME_NAME;
   }
 
   @Override
@@ -333,27 +327,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   @Override
   public String[] getQualifiedNameValues(String qname) {
-    Matcher m = qnamePattern.matcher(qname);
-    if (m.matches()) {
-      return new String[] {
-          getFirstLastName(m.group(1).trim()),
-          m.group(2).trim()
-      };
-    } else {
-      return new String[] {
-          getFirstLastName(qname.trim())
-      };
-    }
+    return new String[] { getFirstLastName(qname.trim()) };
   }
 
-  public static String[] tryGetFirstLastNameAndAffix(String s) {
-    Matcher m = qnamePattern.matcher(s);
+  public static String[] tryGetFirstLastName(String s) {
     String name = s.trim();
-    String affix = null;
-    if (m.matches()) {
-      name = m.group(1).trim();
-      affix = m.group(2).trim();
-    }
 
     boolean firstFirst = Daten.efaConfig.getValueNameFormatIsFirstNameFirst();
     String firstName = (firstFirst ? name : null); // if first and last name cannot be found, ...
@@ -369,18 +347,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       firstName = name.substring(pos + 2);
       lastName = name.substring(0, pos).trim();
     }
-    return new String[] { firstName, lastName, affix };
-  }
-
-  public static String[] tryGetNameAndAffix(String s) {
-    Matcher m = qnamePattern.matcher(s);
-    String name = s.trim();
-    String affix = null;
-    if (m.matches()) {
-      name = m.group(1).trim();
-      affix = m.group(2).trim();
-    }
-    return new String[] { name, affix };
+    return new String[] { firstName, lastName };
   }
 
   @Override

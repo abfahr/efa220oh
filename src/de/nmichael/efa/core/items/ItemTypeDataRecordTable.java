@@ -488,6 +488,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       + reservation.getBoatName() + " "
                       + reservation.getDateTimeFromDescription(
                           BoatReservationRecord.REPLACE_HEUTE));
+                  // TODO 2021-03-10 abf JETZT den Background-Job unterbrechen
+                  // efaBoathouseBackgroundTask.interrupt();
                 } else {
                   try {
                     // allowed for identified Persons with Id

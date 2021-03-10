@@ -105,7 +105,8 @@ public class ImportPersons extends ImportBase {
             d.get(Mitglieder.NACHNAME), true);
         String mainPersonName = task.synMitglieder_getMainName(personName);
         DataKey k = null;
-        DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_NAMEAFFIX,
+        DataKey[] keys = persons.data().getByFields(
+            PersonRecord.IDX_NAME_NAME,
             persons.staticPersonRecord.getQualifiedNameValues(personName));
         if (keys != null && keys.length > 0) {
           // We've found one or more persons with same Name and Association.

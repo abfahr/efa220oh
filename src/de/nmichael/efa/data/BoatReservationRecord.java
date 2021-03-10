@@ -869,7 +869,7 @@ public class BoatReservationRecord extends DataRecord {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo Bootshausnutzungswart Wolfgang!");
     msg.add("");
-    msg.add("Hier die neueste Reservierung von EFa am Isekai");
+    msg.add("Hier die neueste Reservierung von EFA am Isekai");
     msg.add("Eingabe durch: " + getPersonAsName() + " "
         + (p != null ? p.getMembershipNo() + " " + p.getStatusName() : "(wer ist das?)"));
     msg.add(getStringEingabeAm(getLastModified()));
@@ -907,13 +907,14 @@ public class BoatReservationRecord extends DataRecord {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo " + anrede + "!");
     msg.add("");
+
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
     } else {
-      msg.add("Hier eine Erinnerung an Deine Reservierung in EFa am Isekai. "
-          + "(" + getStringEingabeAm(getLastModified()) + ")");
+      msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. ");
     }
     msg.add("");
+
     msg.add(" Reservierung des " + getBoatName());
     msg.add(" für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
         + getPersonAsName());
@@ -925,48 +926,66 @@ public class BoatReservationRecord extends DataRecord {
     PersonRecord personRecord = getPersonRecord();
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
+      msg.add("Dein Efa-PC im Bootshaus");
+      msg.add("");
     } else {
       if (isBootshausOH()) {
+        msg.add("Bootshausnutzung?");
+        msg.add(
+            "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen!");
         msg.add(
             "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
                 + "dann fülle das Formular umgehend aus (https://www.overfreunde.de/downloads.html) "
-                + "und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab "
-                + "(ansonsten werden Dir automatisch 75 Euro berechnet).");
+                + "und gib es im Bootshaus rechtzeitig vor Deiner Bootshausnutzung ab. "
+                + "Ansonsten werden Dir automatisch 75EUR berechnet.");
+        msg.add("");
       }
-      msg.add(
-          "Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
-              + "dann trage Dich bitte im Bootshaus wieder aus.");
-      if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
-          && getHashId().length() > 0
-          && personRecord != null) {
-        msg.add("Alternativ kannst Du diese Reservierung auch mit ein paar Klicks stornieren: ");
+
+      msg.add("Liebe Grüße und viel Spaß mit/im " + getBoatName());
+      msg.add("Dein Efa-PC im Bootshaus");
+      msg.add("");
+
+      msg.add("Kalender?");
+      msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
+      msg.add("");
+
+      msg.add("Storno?");
+      msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
+          + "dann trage Dich bitte im Bootshaus wieder aus.");
+      if (personRecord != null && getHashId().length() > 0) {
+        msg.add("Alternativ kannst Du diese Reservierung hier mit ein paar Klicks stornieren: ");
         msg.add(getWebOnlineURL("storno/", personRecord.getMembershipNo()));
       }
-      if (isBootshausOH()) {
-        msg.add(
-            "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
+      msg.add("");
+
+      if (aktion.contains("INSERT")
+          && personRecord != null
+          && personRecord.isErlaubtKuerzel() == false
+          && personRecord.getInputShortcut() == null) {
+        int anzahlFahrten = personRecord.getAnzahlFahrtenDiesJahrAnVerschiedenenTagen();
+        if (anzahlFahrten >= Daten.efaConfig.getAnzahlFahrtenFuerKuerzelTipp()) {
+          msg.add("Tipp! ");
+          msg.add("Als Vielnutzer.in unbedingt Namenskürzel eintragen und Handynummer freigeben!");
+          msg.add(getWebOnlineURL("efa/", personRecord.getMembershipNo()));
+          // msg.add("");
+        }
       }
-      msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
-    }
-    if (aktion.contains("INSERT")
-        && personRecord != null
-        && personRecord.isErlaubtKuerzel() == false
-        && personRecord.getInputShortcut() == null) {
-      int anzahlFahrten = personRecord.getAnzahlFahrtenDiesJahrAnVerschiedenenTagen();
-      if (anzahlFahrten >= Daten.efaConfig.getAnzahlFahrtenFuerKuerzelTipp()) {
-        msg.add("");
-        msg.add("Tipp: Mühsame Eingaben am PC erleichtern? Mit Namenskürzel und Telefonnummer?");
+      if (personRecord != null) {
+        msg.add("Erleichterungen einstellen?");
+        msg.add("Und mit diesem Link kannst Du Dir die Eingaben bei EFA sparen, "
+            + "zB. die Handynummer praktischerweise im Profil hinterlegen und "
+            + "gleich einen kurzen Spitznamen statt des vollständigen Namens nutzen.");
         msg.add(getWebOnlineURL("efa/", personRecord.getMembershipNo()));
+        msg.add("");
       }
-    }
-    msg.add("");
-    msg.add("mit freundlichen Grüßen");
-    msg.add("Efa-PC im Bootshaus");
-    msg.add("");
-    msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
+
+    } // else DELETE
+
     if (personRecord != null) {
+      msg.add("Spam von EFA?");
       msg.add(International.getMessage("Newsletter abmelden {url}",
           getWebOnlineURL("abmelden/", personRecord.getMembershipNo())));
+      msg.add("");
     }
     return join(msg);
   }

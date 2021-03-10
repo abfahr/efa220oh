@@ -372,7 +372,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
               pos = newname.indexOf(",");
               if ((firstLastName && pos > 0)
                   || (!firstLastName && pos < 0)) {
-                String[] parts = PersonRecord.tryGetFirstLastNameAndAffix(newname);
+                String[] parts = PersonRecord.tryGetFirstLastName(newname);
                 String s = PersonRecord.getFullName(parts[0], parts[1], firstLastName);
                 if (s != null && s.length() > 0) {
                   newname = s;
@@ -397,7 +397,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
               }
 
               // try whether swapping order of names helps
-              String[] parts = PersonRecord.tryGetFirstLastNameAndAffix(newname);
+              String[] parts = PersonRecord.tryGetFirstLastName(newname);
               String s = PersonRecord.getFullName(parts[1], parts[2], firstLastName);
               neighbour = getNeighbour(s, autoCompleteListPersons, false);
               if (neighbour != null && neighbour.length() > 0) {

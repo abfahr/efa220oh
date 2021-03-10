@@ -2149,7 +2149,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (r == null) {
       Persons persons = Daten.project.getPersons(false);
       r = persons.createPersonRecord(UUID.randomUUID());
-      String[] name = PersonRecord.tryGetFirstLastNameAndAffix(s);
+      String[] name = PersonRecord.tryGetFirstLastName(s);
       boolean anyNameSet = false;
       if (name != null && name[0] != null) {
         r.setFirstName(name[0]);

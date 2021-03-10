@@ -37,6 +37,7 @@ import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Persons;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.InvalidValueException;
@@ -229,7 +230,18 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
             dateTo.setValueDate(dateFrom.getDate());
           }
           dateTo.showValue();
-          break;
+          dateTo.setSelection(0, 10);
+        }
+        if (it.getName().equals(BoatReservationRecord.TIMEFROM)) {
+          if (dateFrom.getDate().equals(DataTypeDate.today())) {
+            ItemTypeTime timeFrom = (ItemTypeTime) it;
+            DataTypeTime now = DataTypeTime.now();
+            now.setSecond(0);
+            now.add((5 - now.getMinute() % 5) * 60);
+            timeFrom.parseValue(now.toString());
+            timeFrom.showValue();
+            timeFrom.setSelection(0, 5);
+          }
         }
       }
     }
@@ -248,6 +260,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
             timeTo.parseValue(newEndtime.toString(false)); // ohne Sekunden
           }
           timeTo.showValue();
+          timeTo.setSelection(0, 5);
           break;
         }
       }
@@ -265,6 +278,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           if (admin == null && !dateTo.isSet()) {
             dateTo.setValueDate(dateFrom.getDate());
             dateTo.showValue();
+            dateTo.setSelection(0, 10);
           }
           anzahlStunden = dateTo.getDate().getDifferenceDays(dateFrom.getDate()) * 24;
           break;
@@ -282,6 +296,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           }
           reason.setValue(reasonString);
           reason.showValue();
+          reason.setSelection(0, 999);
           break;
         }
       }
@@ -305,6 +320,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           }
           reason.setValue(reasonString);
           reason.showValue();
+          reason.setSelection(0, 999);
           break;
         }
       }
@@ -336,6 +352,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           }
           reason.setValue(reasonString);
           reason.showValue();
+          reason.setSelection(0, 999);
           break;
         }
       }
@@ -418,6 +435,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         ItemTypeStringPhone phoneContactGuiField = (ItemTypeStringPhone) it;
         if (phoneContactGuiField.getValueFromField().isEmpty()) {
           phoneContactGuiField.setValue(bestTelnum);
+          phoneContactGuiField.showValue();
+          phoneContactGuiField.setSelection(0, 30);
         }
       }
       if (it.getName().equals(BoatReservationRecord.REASON)) {
@@ -426,6 +445,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
             && getDataRecord().isBootshausOH()) {
           reasonGuiField.setValue(bestReason);
           reasonGuiField.setValue(latestReason);
+          reasonGuiField.showValue();
+          reasonGuiField.setSelection(0, 999);
         }
       }
     }

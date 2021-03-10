@@ -62,7 +62,7 @@ public class ImportFahrtenabzeichen extends ImportBase {
       Fahrtenabzeichen fahrtenabzeichen = Daten.project.getFahrtenabzeichen(true);
       Persons persons = Daten.project.getPersons(false); // must be imported first!
 
-      String[] IDXP = PersonRecord.IDX_NAME_NAMEAFFIX;
+      String[] IDXP = PersonRecord.IDX_NAME_NAME;
 
       de.nmichael.efa.efa1.DatenFelder d = fahrtenabzeichen1.getCompleteFirst();
       while (d != null) {

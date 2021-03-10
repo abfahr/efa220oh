@@ -46,7 +46,7 @@ public class ImportLogbook extends ImportBase {
   private Destinations destinations;
   private SessionGroups sessionGroups;
   private String[] boatIdx = BoatRecord.IDX_NAME_NAMEAFFIX;
-  private String[] personIdx = PersonRecord.IDX_NAME_NAMEAFFIX;
+  private String[] personIdx = PersonRecord.IDX_NAME_NAME;
   private String[] destinationIdx = DestinationRecord.IDX_NAME;
 
   public ImportLogbook(ImportTask task, String efa1fname, ImportMetadata meta) {

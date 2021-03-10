@@ -341,8 +341,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       };
     } else {
       return new String[] {
-          getFirstLastName(qname.trim()),
-          null
+          getFirstLastName(qname.trim())
       };
     }
   }

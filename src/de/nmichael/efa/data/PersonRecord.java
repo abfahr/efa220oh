@@ -11,6 +11,7 @@ package de.nmichael.efa.data;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
@@ -582,31 +583,47 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public boolean cleanPerson() {
     boolean retVal = false;
+    // ist Person ein Mitglied? mit korrektem Status?
     if (!isDyingMember()) {
       return retVal;
     }
-    // 2. nur aktive Mitglieder behalten
-    long oneMinute = 60 * 1000;
-    long oneWeek = 7 * 24 * 60 * oneMinute;
-    long now = System.currentTimeMillis();
-    long invalidMillisAgo = now - getInvalidFrom();
-    if (invalidMillisAgo < oneWeek) {
-      return retVal; // nicht alt genug
-    }
+
+    // ist Person ewig gülig, d.h. ohne GültigBisDatum
     if (getInvalidFrom() == Long.MAX_VALUE) {
       return retVal; // ewig gültig
     }
+
+    long now = System.currentTimeMillis();
+
+    // Person erst kürzlich ungültig (dies Jahr)
+    Calendar c = Calendar.getInstance();
+    c.setTimeInMillis(now);
+    int yearActual = c.get(Calendar.YEAR);
+    c.setTimeInMillis(getInvalidFrom());
+    int yearInvalid = c.get(Calendar.YEAR);
+    if (yearActual == yearInvalid) {
+      return retVal; // nicht <uy diesem Jahr
+    }
+
+    // Person erst kürzlich ungültig (diese Woche)
+    long invalidMillisAgo = now - getInvalidFrom();
+    long oneWeek = 7 * 24 * 60 * 60 * 1000;
+    if (invalidMillisAgo < oneWeek) {
+      return retVal; // nicht alt genug
+    }
+
+    // jetzt wirklich löschen (zur Löschung markieren)
     setDeleted(true); // doof - Datensatz fehlt dann
     retVal = true;
     return retVal;
   }
 
   public boolean isDyingMember() {
-    String statusDesMitglieds = getStatusName();
-    if (statusDesMitglieds == null) {
-      return false;
+    if (!isStatusMember()) {
+      return true; // Person ist kein Mitglied
     }
-    switch (statusDesMitglieds) {
+
+    switch (getStatusName()) {
       case "Aktives Mitglied":
       case "Mitglieder gekündigt":
         return false;

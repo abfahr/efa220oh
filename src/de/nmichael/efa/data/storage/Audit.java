@@ -1559,7 +1559,10 @@ public class Audit extends Thread {
           if (correctErrors) {
             String addStatus = "";
             if (r instanceof PersonRecord) {
-              addStatus = "(" + ((PersonRecord) r).getStatusName() + ") ";
+              String statusName = ((PersonRecord) r).getStatusName();
+              if (statusName != null) {
+                addStatus = "(" + statusName + ") ";
+              }
             }
             so.dataAccess.delete(k);
             auditWarning(Logger.MSG_DATA_AUDIT_RECPURGED,

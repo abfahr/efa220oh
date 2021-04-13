@@ -1428,7 +1428,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
       long now = System.currentTimeMillis();
       PersonRecord otherPerson = persons.getPersonWithTelefon(neuesTelefon, now);
-      if (otherPerson != null) {
+      if (otherPerson != null &&
+          !otherPerson.getId().equals(person.getId()) &&
+          !otherPerson.getMembershipNo().equals(person.getMembershipNo())) {
         String error = "Person-Profil-" + aktion + ": Die Telefonnummer '" + neuesTelefon
             + "' ist bereits vergeben: an " + otherPerson.getFirstLastName();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
@@ -1522,7 +1524,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
       long now = System.currentTimeMillis();
       PersonRecord otherPerson = persons.getPersonWithInputShortcut(neuesKürzel, now);
-      if (otherPerson != null) {
+      if (otherPerson != null &&
+          !otherPerson.getId().equals(person.getId()) &&
+          !otherPerson.getMembershipNo().equals(person.getMembershipNo())) {
         String error = "Person-Profil-" + aktion + ": Das Kürzel '" + neuesKürzel
             + "' ist bereits vergeben: an " + otherPerson.getFirstLastName();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);

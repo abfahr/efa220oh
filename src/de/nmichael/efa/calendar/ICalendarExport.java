@@ -274,6 +274,7 @@ public class ICalendarExport {
       DataTypeDate dateFrom = boatReservationRecord.getDateFrom();
       DataTypeTime timeFrom = boatReservationRecord.getTimeFrom();
       DataTypeDate dateTo = boatReservationRecord.getDateTo();
+      DataTypeDate dateSeriesTo = dateTo;
       DataTypeTime timeTo = boatReservationRecord.getTimeTo();
       String contactPhone = boatReservationRecord.getContact();
       String personAsName = boatReservationRecord.getPersonAsName();
@@ -308,9 +309,7 @@ public class ICalendarExport {
         if (dateFrom.equals(DataTypeDate.today())) {
           dateFrom = new DataTypeDate(lastModified);
         }
-        if (dateTo == null) {
-          dateTo = dateFrom;
-        }
+        dateTo = dateFrom;
       }
       DateTime startDateTime = new DateTime(dateFrom.getTimestamp(timeFrom));
       DateTime endDateTime = new DateTime(dateTo.getTimestamp(timeTo));
@@ -337,8 +336,8 @@ public class ICalendarExport {
         }
         // String recur3 = "RRULE:FREQ=" + type + ";BYDAY=" + dayOfWeek.substring(0, 2);
         Recur recur = null;
-        if (boatReservationRecord.getDateTo() != null) {
-          recur = new Recur(Recur.WEEKLY, endDateTime);
+        if (dateSeriesTo != null) {
+          recur = new Recur(Recur.WEEKLY, new DateTime(dateSeriesTo.getTimestamp(timeTo)));
         } else {
           recur = new Recur(Recur.WEEKLY, 4 * 52);
         }

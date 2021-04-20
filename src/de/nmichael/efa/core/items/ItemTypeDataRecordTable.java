@@ -1182,7 +1182,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             if (filterByAnyText == null
                 || (filterByAnyText != null && allFieldsAsLowerText.indexOf(filterByAnyText) >= 0)
                 || (wochentagFilter != null
-                    && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0)) {
+                    && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0
+                    && (r instanceof BoatReservationRecord)
+                    && ((BoatReservationRecord) r).getDateTo() == null)) {
               if (!(r instanceof ClubworkRecord) || Daten.isAdminMode()
                   || isToday(r.getLastModified())) {
                 data.add(r);

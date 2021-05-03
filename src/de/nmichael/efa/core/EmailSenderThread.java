@@ -171,6 +171,8 @@ public class EmailSenderThread extends Thread {
       if (auth) {
         props.put("mail." + protocol + ".auth", "true");
       }
+      props.put("mail.smtp.ssl.trust", "*");
+      props.put("mail." + protocol + ".ssl.trust", "*");
       if (Daten.efaConfig.getValueEmailSSL()) {
         props.put("mail." + protocol + ".ssl.enable", "true");
       } else {

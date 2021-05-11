@@ -201,6 +201,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_eintragHideUnnecessaryInputFields;
   private ItemTypeBoolean efaDirekt_AlteReservierungDurchsuchen;
   private ItemTypeBoolean efaDirekt_FindenNachHaeufigsterStattNeuesterReservierung;
+  private ItemTypeBoolean efaDirekt_AlleMenschenZumVormerkenDerHandyNummerAuffordern;
   private ItemTypeInteger efaDirekt_plusMinutenAbfahrt;
   private ItemTypeInteger efaDirekt_minusMinutenAnkunft;
   private ItemTypeBoolean allowEnterEndDate;
@@ -975,6 +976,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           "FindenNachHaeufigsterStattNeuesterReservierung", false,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
           International.getString("Finden nach häufigster statt neuester Reservierung")));
+      addParameter(efaDirekt_AlleMenschenZumVormerkenDerHandyNummerAuffordern = new ItemTypeBoolean(
+          "AlleMenschenZumVormerkenDerHandyNummerAuffordern", true,
+          IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+          International.getString("Alle Menschen zum Vormerken der Handynummer auffordern")));
 
       addParameter(regexForVorUndNachname = new ItemTypeString(
           "regexForVorUndNachname",
@@ -1928,6 +1933,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     return efaDirekt_FindenNachHaeufigsterStattNeuesterReservierung.getValue();
   }
 
+  public boolean getValueEfaDirekt_AlleMenschenZumVormerkenDerHandyNummerAuffordern() {
+    return efaDirekt_AlleMenschenZumVormerkenDerHandyNummerAuffordern.getValue();
+  }
+
   public int getValueEfaDirekt_plusMinutenAbfahrt() {
     return efaDirekt_plusMinutenAbfahrt.getValue();
   }
@@ -2793,11 +2802,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
   private String getDefaultLookAndFeel() {
     String[] laf = makeLookAndFeelArray(STRINGLIST_VALUES);
-    if (true || Daten.isOsLinux()) { // let's do this for all OS'es
-      for (String element : laf) {
-        if (element.endsWith("MetalLookAndFeel")) {
-          return element;
-        }
+    for (String element : laf) {
+      if (element.endsWith("MetalLookAndFeel")) {
+        return element;
       }
     }
     return ""; // default
@@ -2985,7 +2992,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
             return true;
           }
           DataKeyIterator it = data().getStaticIterator();
-          DataKey k = it.getFirst();
+          DataKey<?, ?, ?> k = it.getFirst();
           synchronized (configValues) {
             while (k != null) {
               EfaConfigRecord r = (EfaConfigRecord) data().get(k);

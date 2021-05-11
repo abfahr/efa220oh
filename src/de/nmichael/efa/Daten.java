@@ -67,8 +67,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_145";
-  public final static String VERSIONRELEASEDATE = "03.05.2021"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_146";
+  public final static String VERSIONRELEASEDATE = "11.05.2021"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -227,8 +227,6 @@ public class Daten {
   public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt
   // wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als
   // AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
-  public final static int WINDOWCLOSINGTIMEOUT = 600; // Timeout in Sekunden, nach denen im
-  // Direkt-Modus manche Fenster automatisch geschlossen werden
   public final static int MIN_FREEMEM_PERCENTAGE = 90;
   public final static int WARN_FREEMEM_PERCENTAGE = 70;
   public final static int MIN_FREEMEM_COLLECTION_THRESHOLD = 99;

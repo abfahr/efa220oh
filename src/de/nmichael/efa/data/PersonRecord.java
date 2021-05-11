@@ -774,27 +774,32 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return logbook.countPersonUsage(getId(), false /* allowSameDay */);
   }
 
-  public String checkUndAktualisiereHandyNr(String action, String newPhone) {
-    if (!isErlaubtTelefon()) {
-      return "noQuestion";
-    }
-    String telnumAusProfil = getFestnetz1();
-    if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
-      return "noQuestion";
-    }
-    telnumAusProfil = getHandy2();
-    if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
-      return "noQuestion"; // Nummer unverändert
-    }
-    if (telnumAusProfil == null) {
+  public String checkUndAktualisiereHandyNr(String action, String newPhone, boolean alleFragen) {
+    // true = nur zugesagte Leute werden korrigiert.
+    // false = alle Leute werden gefragt, Ausnahme zugesagte Nummer stimmt noch
+    String telnumAusProfil = International.getString("keine Nummer bzw nix"); // keine bzw. nix
+    if (!alleFragen || isErlaubtTelefon()) {
+      if (!isErlaubtTelefon()) {
+        return "noQuestion";
+      }
       telnumAusProfil = getFestnetz1();
+      if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
+        return "noQuestion";
+      }
+      telnumAusProfil = getHandy2();
+      if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
+        return "noQuestion"; // Nummer unverändert
+      }
+      if (telnumAusProfil == null) {
+        telnumAusProfil = getFestnetz1();
+      }
     }
 
     // weder noch
     String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:\n";
     frage += "- Heutige Telefonnummer ist: " + newPhone + ",\n";
     frage += "- sonst übliche TelefonNr lautete: " + telnumAusProfil + ".\n";
-    frage += "Wenn Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
+    frage += "Falls Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
     frage += "\n";
     frage += "Darf sich EFa die neue Nummer merken? ";
     frage += "Soll EFa in Zukunft die neue Nummer vorschlagen?\n";
@@ -816,11 +821,17 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         setErlaubnisTelefon(false);
         return "savedEmpty"; // muss noch gespeichert werden / persistiert
       case 2: // alten Vorschlag beibehalten (links)
-        setHandy2(telnumAusProfil);
-        setFestnetz1(null);
-        setErlaubnisTelefon(true);
-        return "savedOld"; // muss noch gespeichert werden / persistiert
-
+        if (isErlaubtTelefon()) {
+          setHandy2(telnumAusProfil);
+          setFestnetz1(null);
+          setErlaubnisTelefon(true);
+          return "savedOld"; // muss noch gespeichert werden / persistiert
+        } else {
+          setHandy2(null);
+          setFestnetz1(null);
+          setErlaubnisTelefon(false);
+          return "savedEmpty"; // muss noch gespeichert werden / persistiert
+        }
       case 3: // hier könnte ein Button "abbrechen" rein...
         return "abbrechen"; // = nix tun
       case -1: // abbrechen = cancel = ESC = x // zurück, nochmal die Nummer ändern

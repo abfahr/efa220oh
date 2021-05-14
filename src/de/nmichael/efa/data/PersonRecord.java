@@ -679,7 +679,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     msg.add("Hallo " + anrede + "!");
     msg.add("");
     if (errorText != null && !errorText.isBlank()) {
-      msg.add("Das Ergebnis Deiner Anfrage lautet: " + aktion);
+      msg.add("Das Ergebnis Deiner Änderung lautet: " + aktion);
       msg.add("-->  \"" + errorText + "\"  <--");
       msg.add("");
       switch (aktion) {

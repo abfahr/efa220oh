@@ -3700,12 +3700,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     info += " und die Erlaubnis '" + person.isErlaubtTelefon() + "'";
     try {
+      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+      person.sendEmailConfirmation(person.getEmail(), "CONFIRM_SETPHONENR", info);
       Persons persons = Daten.project.getPersons(false);
       persons.data().update(person);
-      Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
-      if (antwort.contentEquals("savedNew")) {
-        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
-      }
       return true; // TelefonNr wurde aktualisiert, weiter mit Fahrt beginnen
     } catch (EfaException e3) {
       String error = action + ": e3 " + e3.getLocalizedMessage();

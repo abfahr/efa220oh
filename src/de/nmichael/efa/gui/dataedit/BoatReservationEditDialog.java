@@ -192,11 +192,9 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
     info += " und die Erlaubnis '" + person.isErlaubtTelefon() + "'";
     try {
-      persons.data().update(person);
       Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
-      if (antwort.contentEquals("savedNew")) {
-        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
-      }
+      person.sendEmailConfirmation(person.getEmail(), "CONFIRM_SETPHONENR", info);
+      persons.data().update(person);
       return true; // TelefonNr wurde aktualisiert, weiter mit Reservierung speichern
     } catch (EfaException e3) {
       String error = action + ": e3 " + e3.getLocalizedMessage();

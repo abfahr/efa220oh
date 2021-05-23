@@ -98,7 +98,7 @@ public class EfaErrorPrintStream extends PrintStream {
           text += "\nStack Trace:\n" + stacktrace;
         }
         text += "\n"
-            + International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EMAILBUGS);
+            + International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EMAILSUPPORT);
         Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, text);
         if (Daten.isGuiAppl()) {
           new ErrorThread(o.toString(), stacktrace).start();

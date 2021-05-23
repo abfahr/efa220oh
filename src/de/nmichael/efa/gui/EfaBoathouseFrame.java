@@ -165,7 +165,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   JRadioButton toggleAvailableBoatsToDescriptionOrt = new JRadioButton(); // Tor 1
   JRadioButton toggleAvailableBoatsToBoatType = new JRadioButton(); // Wildwasser
   JRadioButton toggleAvailableBoatsToBoatNameAffix = new JRadioButton(); // (PE, Rot)
-  JRadioButton toggleAvailableBoatsToOwner = new JRadioButton(); // Eigentümer Overfreunde
+  JRadioButton toggleAvailableBoatsToOwner = new JRadioButton(); // Eigentümer OHverfreunde
   JRadioButton toggleAvailableBoatsToPaddelArt = new JRadioButton(); // Riggering
   JRadioButton toggleAvailableBoatsToSteuermann = new JRadioButton(); // Coxing
 

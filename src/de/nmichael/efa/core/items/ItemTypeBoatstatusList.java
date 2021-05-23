@@ -50,7 +50,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     DescriptionOrt, // Tor 1
     BoatType, // Wildwasser
     BoatNameAffix, // (PE, Rot)
-    Owner, // Eigentümer Overfreunde
+    Owner, // Eigentümer OHverfreunde
     PaddelArt, // Riggering
     Steuermann // Coxing
   }

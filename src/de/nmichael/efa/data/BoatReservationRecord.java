@@ -25,7 +25,6 @@ import java.util.Vector;
 import java.util.zip.Adler32;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemType;
@@ -840,11 +839,9 @@ public class BoatReservationRecord extends DataRecord {
       // ist die vorliegende Reservierung jetzt schon angefangen?
       if (System.currentTimeMillis() >= startTime) {
         fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
-        fehlermeldung += "--> '" + getReason() + "' ab " + getDateTimeFromDescription(REPLACE_HEUTE)
+        fehlermeldung += "--> seit " + getDateTimeFromDescription(REPLACE_HEUTE) + " " + getReason()
             + "\n";
-        fehlermeldung += "'Angefangene' Reservierungen werden nicht sofort gestartet.\n";
-        fehlermeldung += "Nur zur Info: Es kann bis zu einer Minute dauern.\n";
-        fehlermeldung += "Falls nicht, muss evtl. alles neu eingegeben werden. Sorry!\n";
+        fehlermeldung += "Gib EFA eine Minute, damit das Boot auf Fahrt geht...\n";
       }
       // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp.
       // Lange-Ausleihe.
@@ -935,7 +932,7 @@ public class BoatReservationRecord extends DataRecord {
             "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen!");
         msg.add(
             "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
-                + "dann fülle das Formular umgehend aus (https://www.overfreunde.de/downloads.html) "
+                + "dann fülle das Formular umgehend aus (" + Daten.WEB_DOWNLOAD_VERTRAG + ") "
                 + "und gib es im Bootshaus rechtzeitig vor Deiner Bootshausnutzung ab. "
                 + "Ansonsten werden Dir automatisch 75EUR berechnet.");
         msg.add("");
@@ -946,7 +943,8 @@ public class BoatReservationRecord extends DataRecord {
       msg.add("");
 
       msg.add("Kalender?");
-      msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
+      msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId} {url1} {url2}",
+          getEfaId(), Daten.WEB_KALENDER_TERMINE, Daten.WEB_DOMAIN_EFA_BOOTSHAUS + "efa/"));
       msg.add("");
 
       msg.add("Storno?");
@@ -991,7 +989,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   private String getWebOnlineURL(String folder, String mitgliedNr) {
-    String url = "https://overfreunde.abfx.de/";
+    String url = Daten.WEB_DOMAIN_EFA_BOOTSHAUS;
     url += folder;
     url += "?mitgliedNr=" + mitgliedNr;
     url += "&hashId=" + getHashId();
@@ -1049,7 +1047,7 @@ public class BoatReservationRecord extends DataRecord {
         + " " + getDateFrom();
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getPersonAsName();
     }
     emailSubject += " " + getBoatName();
@@ -1078,7 +1076,7 @@ public class BoatReservationRecord extends DataRecord {
     }
 
     if (!isValidEmail(emailToAdresse)) {
-      emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no.invalidEmailMitglied" + Daten.EMAILDEBUG_DOMAIN;
       emailSubject = "Error efa.invalidEmail " + getPersonAsName() + " ";
       kombinierteEmailErlaubnis = false;
     }
@@ -1092,7 +1090,7 @@ public class BoatReservationRecord extends DataRecord {
         + " " + getReason();
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getPersonAsName();
     }
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);

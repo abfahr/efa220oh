@@ -16,7 +16,6 @@ import java.util.Vector;
 import javax.swing.UIManager;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.EfaSec;
 import de.nmichael.efa.core.items.IItemFactory;
 import de.nmichael.efa.core.items.IItemType;
@@ -788,7 +787,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("speichere BH-Reservierungen für Wolle")));
       addParameter(emailToBootshausnutzungWolle = new ItemTypeString(
-          "emailToBootshausnutzungWolle", "bootshausnutzung" + ICalendarExport.ABFX_DE,
+          "emailToBootshausnutzungWolle", Daten.EMAILBOOTSHAUSNUTZUNGSWART,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("EmailTo bei Bootshausreservierung")));

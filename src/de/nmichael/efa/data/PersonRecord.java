@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemFactory;
 import de.nmichael.efa.core.items.IItemType;
@@ -646,7 +645,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     boolean kombinierteEmailErlaubnis = false;
     kombinierteEmailErlaubnis = isErlaubtEmail();
     if (!isValidEmail(emailToAdresse)) {
-      emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no.invalidEmailMitglied" + Daten.EMAILDEBUG_DOMAIN;
       emailSubject = "Error efa.invalidEmail " + getFirstLastName() + " ";
       kombinierteEmailErlaubnis = false;
     }
@@ -658,7 +657,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     emailSubject += "OH Änderung Bestätigung " + aktion;
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getFirstLastName();
     }
     String anrede = getFirstName();
@@ -687,7 +686,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         case "CONFIRM_SETMAIL":
         case "CONFIRM_SETPHONENR":
           msg.add("Bitte teile dem Schriftwart des Vereins Deine Änderungen auch mit.");
-          msg.add("Du könntest zB. diese Mail an schriftwart@overfreunde.de weiterleiten.");
+          msg.add("Du könntest zB. diese Mail an " + Daten.EMAILSCHRIFTWART + " weiterleiten.");
           msg.add("");
           break;
         default:
@@ -750,7 +749,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   private String getEfaURL(String folder) {
-    String url = "https://overfreunde.abfx.de/";
+    String url = Daten.WEB_DOMAIN_EFA_BOOTSHAUS;
     url += folder;
     url += "?mitgliedNr=" + getMembershipNo();
     return url;

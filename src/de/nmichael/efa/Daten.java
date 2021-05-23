@@ -29,7 +29,6 @@ import javax.swing.plaf.ColorUIResource;
 
 import org.apache.commons.io.FileUtils;
 
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.CrontabThread;
 import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.core.EfaRunning;
@@ -67,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_147";
-  public final static String VERSIONRELEASEDATE = "14.05.2021"; // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "2.2.0_148";
+  public final static String VERSIONRELEASEDATE = "23.05.2021"; // Release Date: TT.MM.JJJJ
   public final static String MAJORVERSION = "2";
   public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -111,10 +110,13 @@ public class Daten {
   public final static String EFAWETTURL = "http://efa.rudern.de";
   public final static String NICOLASURL = "http://www.nmichael.de";
   public final static String EFAEMAILNAME = "efa";
-  public final static String EMAILINFO = "info.efa" + ICalendarExport.ABFX_DE;
-  public final static String EMAILBUGS = "bugs.efa" + ICalendarExport.ABFX_DE;
-  public final static String EMAILHELP = "help.efa" + ICalendarExport.ABFX_DE;
-  public final static String EMAILDEV = "dev.efa" + ICalendarExport.ABFX_DE;
+  public final static String EMAILSUPPORT = "info@overfreunde.de";
+  public final static String EMAILSCHRIFTWART = "schriftwart@overfreunde.de";
+  public final static String EMAILBOOTSHAUSNUTZUNGSWART = "bootshausnutzung@overfreunde.de";
+  public final static String EMAILDEBUG_DOMAIN = "@abfx.de";
+  public final static String WEB_DOMAIN_EFA_BOOTSHAUS = "https://overfreunde.abfx.de/";
+  public final static String WEB_KALENDER_TERMINE = "https://www.overfreunde.de/termine.html";
+  public final static String WEB_DOWNLOAD_VERTRAG = "https://www.overfreunde.de/downloads.html";
   public static final String EFA_USERDATA_DIR = "efa2"; // <efauser> = ~/efa2/ Directory for efauser
   // data (if not efa program directory)
   public static final String EFA_RUNNING = "efa.run"; // <efauser>/efa.run Indiz, daß efaDirekt

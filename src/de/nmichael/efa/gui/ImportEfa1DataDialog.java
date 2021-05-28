@@ -57,9 +57,6 @@ import de.nmichael.efa.util.LogString;
 
 public class ImportEfa1DataDialog extends StepwiseDialog {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   private static final String OLDEFADATADIR = "OLDEFADATADIR";
   private static final String IMPORTDATA = "IMPORTDATA";
@@ -99,22 +96,21 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
   String getDescription(int step) {
     switch (step) {
       case 0:
-        return International
-            .getString("Mit der Import-Funktion werden alle Daten von efa 1.x nach efa 2.x importiert. "
+        return International.getString(
+            "Mit der Import-Funktion werden alle Daten von efa 1.x nach efa 2.x importiert. "
                 +
                 "Falls Du mehrere efa-Installationen parallel genutzt hast, wähle bitte diejenige aus, aus der Du die Daten importieren möchtest.");
       case 1:
         return International.getString("Bitte wähle aus, welche Daten importiert werden sollen.");
       case 2:
-        return International
-            .getString("Bitte wähle aus, welche Fahrtenbücher, Mitglieder-, Boots- und Ziellisten importiert werden sollen.");
+        return International.getString(
+            "Bitte wähle aus, welche Fahrtenbücher, Mitglieder-, Boots- und Ziellisten importiert werden sollen.");
       case 3:
-        return International
-            .getString("In efa 2.x hat jedes Fahrtenbuch einen (beliebigen) eindeutigen Namen, eine optionale Beschreibung und einen Zeitraum. Alle Fahrten des Fahrtenbuchs müssen in diesem Zeitraum liegen.")
+        return International.getString(
+            "In efa 2.x hat jedes Fahrtenbuch einen (beliebigen) eindeutigen Namen, eine optionale Beschreibung und einen Zeitraum. Alle Fahrten des Fahrtenbuchs müssen in diesem Zeitraum liegen.")
             + " \n"
-            +
-            International
-            .getString("Üblicherweise solltest Du pro Jahr genau ein Fahrtenbuch anlegen. Vereine mit mehreren Bootshäusern sollten pro Bootshaus ein Fahrtenbuch pro Jahr verwenden.");
+            + International.getString(
+                "Üblicherweise solltest Du pro Jahr genau ein Fahrtenbuch anlegen. Vereine mit mehreren Bootshäusern sollten pro Bootshaus ein Fahrtenbuch pro Jahr verwenden.");
     }
     return "";
   }
@@ -236,13 +232,13 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         dir = Dialog.dateiDialog(this,
             International.getMessage("{item} auswählen",
                 International.getString("Verzeichnis für Nutzerdaten")),
-                International.getString("Verzeichnisse"),
-                null,
-                Daten.userHomeDir,
-                null,
-                null,
-                false,
-                true);
+            International.getString("Verzeichnisse"),
+            null,
+            Daten.userHomeDir,
+            null,
+            null,
+            false,
+            true);
       }
 
       importData = new HashMap<String, ImportMetadata>();
@@ -253,18 +249,18 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
           International.getString("Adressen"));
       checkImportData(importData, dir, new Synonyme("boote.efs"),
           ImportMetadata.TYPE_SYNONYME_BOOTE, International.getString("Synonyme")
-          + " (" + International.getString("Boote") + ")");
+              + " (" + International.getString("Boote") + ")");
       checkImportData(importData, dir, new Synonyme("mitglieder.efs"),
           ImportMetadata.TYPE_SYNONYME_MITGLIEDER, International.getString("Synonyme")
-          + " (" + International.getString("Personen") + ")");
+              + " (" + International.getString("Personen") + ")");
       checkImportData(importData, dir, new Synonyme("ziele.efs"),
           ImportMetadata.TYPE_SYNONYME_ZIELE, International.getString("Synonyme")
-          + " (" + International.getString("Ziele") + ")");
+              + " (" + International.getString("Ziele") + ")");
       checkImportData(importData, dir, new BootStatus("bootstatus.efdb"),
           ImportMetadata.TYPE_BOOTSTATUS, International.getString("Bootsstatus"));
       checkImportData(importData, dir, new de.nmichael.efa.efa1.Fahrtenabzeichen(
-          "fahrtenabzeichen.eff"), ImportMetadata.TYPE_FAHRTENABZEICHEN, International.onlyFor(
-              "Fahrtenabzeichen", "de"));
+          "fahrtenabzeichen.eff"), ImportMetadata.TYPE_FAHRTENABZEICHEN,
+          International.onlyFor("Fahrtenabzeichen", "de"));
       checkImportData(importData, dir, new de.nmichael.efa.efa1.DatenListe("keystore_pub.dat", 1,
           0, false), ImportMetadata.TYPE_KEYSTORE, "KeyStore"); // DatenList is just dummy to pass
       // filename of keystore!
@@ -316,12 +312,12 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         ImportMetadata meta = importData.get(key);
         if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH && meta.selected) {
           DataTypeDate dateFrom = new DataTypeDate();
-          dateFrom.setDate((meta.firstDate != null ? meta.firstDate.toString() : DataTypeDate
-              .today().toString()));
+          dateFrom.setDate((meta.firstDate != null ? meta.firstDate.toString()
+              : DataTypeDate.today().toString()));
           dateFrom.setDayMonth(1, 1);
           DataTypeDate dateTo = new DataTypeDate();
-          dateTo.setDate((meta.lastDate != null ? meta.lastDate.toString() : DataTypeDate.today()
-              .toString()));
+          dateTo.setDate((meta.lastDate != null ? meta.lastDate.toString()
+              : DataTypeDate.today().toString()));
           dateTo.setDayMonth(31, 12);
 
           String name = Integer.toString(dateFrom.getYear());
@@ -405,7 +401,8 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
           meta.numRecords = datenListe.countElements();
         }
       } else {
-        EfaKeyStore keyStore = new EfaKeyStore(datenListe.getFileName(), "efa".toCharArray());
+        EfaKeyStore keyStore = new EfaKeyStore(datenListe.getFileName(),
+            Daten.EFA_SHORTNAME.toCharArray());
         meta.filename = datenListe.getFileName();
         meta.numRecords = keyStore.size();
       }
@@ -432,7 +429,8 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
   private String getLogbookKey(ImportMetadata meta, String filename) {
     return (meta.firstDate != null && meta.firstDate.isSet()
-        ? meta.firstDate.getDateString("YYYYMMDD") : "00000000") + "-" + filename;
+        ? meta.firstDate.getDateString("YYYYMMDD")
+        : "00000000") + "-" + filename;
   }
 
   private void recursiveAddLogbook(HashMap<String, ImportMetadata> importData, String fname) {
@@ -586,8 +584,9 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
     for (String key : keys) {
       ImportMetadata meta = importData.get(key);
       if (meta.selected && meta.type == ImportMetadata.TYPE_FAHRTENBUCH) {
-        String newkey = (meta.firstDate != null && meta.firstDate.isSet() ?
-            meta.firstDate.getDateString("YYYYMMDD") : "00000000") + "-" + key;
+        String newkey = (meta.firstDate != null && meta.firstDate.isSet()
+            ? meta.firstDate.getDateString("YYYYMMDD")
+            : "00000000") + "-" + key;
         importData.remove(key);
         importData.put(newkey, meta);
       }

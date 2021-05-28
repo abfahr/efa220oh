@@ -58,52 +58,52 @@ import de.nmichael.efa.util.Logger;
 
 public class EfaMenuButton {
 
-  public final static String SEPARATOR = "SEPARATOR";
+  public static final String SEPARATOR = "SEPARATOR";
 
-  public final static String MENU_FILE = "FILE";
-  public final static String BUTTON_PROJECTS = "PROJECTS";
-  public final static String BUTTON_LOGBOOKS = "LOGBOOKS";
-  public final static String BUTTON_BACKUP = "BACKUP";
-  public final static String BUTTON_UPDATE = "UPDATE";
-  public final static String BUTTON_PLUGINS = "PLUGINS";
-  public final static String BUTTON_OSCOMMAND = "OSCOMMAND";
-  public final static String BUTTON_EXIT = "EXIT";
+  public static final String MENU_FILE = "FILE";
+  public static final String BUTTON_PROJECTS = "PROJECTS";
+  public static final String BUTTON_LOGBOOKS = "LOGBOOKS";
+  public static final String BUTTON_BACKUP = "BACKUP";
+  public static final String BUTTON_UPDATE = "UPDATE";
+  public static final String BUTTON_PLUGINS = "PLUGINS";
+  public static final String BUTTON_OSCOMMAND = "OSCOMMAND";
+  public static final String BUTTON_EXIT = "EXIT";
 
-  public final static String MENU_ADMINISTRATION = "ADMINISTRATION";
-  public final static String BUTTON_LOGBOOK = "LOGBOOK";
-  public final static String BUTTON_CLUBWORKBOOK = "CLUBWORKBOOK";
-  public final static String BUTTON_LOGBOOKLIST = "LOGBOOKLIST";
-  public final static String BUTTON_SESSIONGROUPS = "SESSIONGROUPS";
-  public final static String BUTTON_BOATS = "BOATS";
-  public final static String BUTTON_BOATSTATUS = "BOATSTATUS";
-  public final static String BUTTON_BOATRESERVATIONS = "BOATRESERVATIONS";
-  public final static String BUTTON_BOATDAMAGES = "BOATDAMAGES";
-  public final static String BUTTON_PERSONS = "PERSONS";
-  public final static String BUTTON_STATUS = "STATUS";
-  public final static String BUTTON_GROUPS = "GROUPS";
-  public final static String BUTTON_CREWS = "CREWS";
-  public final static String BUTTON_FAHRTENABZEICHEN = "FAHRTENABZEICHEN";
-  public final static String BUTTON_DESTINATIONS = "DESTINATIONS";
-  public final static String BUTTON_WATERS = "WATERS";
-  public final static String BUTTON_CLUBWORK = "CLUBWORK";
+  public static final String MENU_ADMINISTRATION = "ADMINISTRATION";
+  public static final String BUTTON_LOGBOOK = "LOGBOOK";
+  public static final String BUTTON_CLUBWORKBOOK = "CLUBWORKBOOK";
+  public static final String BUTTON_LOGBOOKLIST = "LOGBOOKLIST";
+  public static final String BUTTON_SESSIONGROUPS = "SESSIONGROUPS";
+  public static final String BUTTON_BOATS = "BOATS";
+  public static final String BUTTON_BOATSTATUS = "BOATSTATUS";
+  public static final String BUTTON_BOATRESERVATIONS = "BOATRESERVATIONS";
+  public static final String BUTTON_BOATDAMAGES = "BOATDAMAGES";
+  public static final String BUTTON_PERSONS = "PERSONS";
+  public static final String BUTTON_STATUS = "STATUS";
+  public static final String BUTTON_GROUPS = "GROUPS";
+  public static final String BUTTON_CREWS = "CREWS";
+  public static final String BUTTON_FAHRTENABZEICHEN = "FAHRTENABZEICHEN";
+  public static final String BUTTON_DESTINATIONS = "DESTINATIONS";
+  public static final String BUTTON_WATERS = "WATERS";
+  public static final String BUTTON_CLUBWORK = "CLUBWORK";
 
-  public final static String MENU_MANAGEMENT = "MANAGEMENT";
-  public final static String BUTTON_CONFIGURATION = "CONFIGURATION";
-  public final static String BUTTON_MESSAGES = "MESSAGES";
-  public final static String BUTTON_ADMINS = "ADMINS";
-  public final static String BUTTON_PASSWORD = "PASSWORD";
+  public static final String MENU_MANAGEMENT = "MANAGEMENT";
+  public static final String BUTTON_CONFIGURATION = "CONFIGURATION";
+  public static final String BUTTON_MESSAGES = "MESSAGES";
+  public static final String BUTTON_ADMINS = "ADMINS";
+  public static final String BUTTON_PASSWORD = "PASSWORD";
 
-  public final static String MENU_OUTPUT = "OUTPUT";
-  public final static String BUTTON_STATISTICS = "STATISTICS";
-  public final static String BUTTON_SYNCKANUEFB = "SYNCKANUEFB";
+  public static final String MENU_OUTPUT = "OUTPUT";
+  public static final String BUTTON_STATISTICS = "STATISTICS";
+  public static final String BUTTON_SYNCKANUEFB = "SYNCKANUEFB";
 
-  public final static String MENU_INFO = "INFO";
-  public final static String BUTTON_LOGFILE = "LOGFILE";
-  public final static String BUTTON_HELP = "HELP";
-  public final static String BUTTON_ABOUT = "ABOUT";
+  public static final String MENU_INFO = "INFO";
+  public static final String BUTTON_LOGFILE = "LOGFILE";
+  public static final String BUTTON_HELP = "HELP";
+  public static final String BUTTON_ABOUT = "ABOUT";
 
-  public final static String MENU_DEVELOPMENT = "DEVELOPMENT";
-  public final static String BUTTON_TRANSLATE = "TRANSLATE";
+  public static final String MENU_DEVELOPMENT = "DEVELOPMENT";
+  public static final String BUTTON_TRANSLATE = "TRANSLATE";
 
   public enum MenuMode {
     all, efaBaseGui, efaBthsGui, efaBthsLogbookGui

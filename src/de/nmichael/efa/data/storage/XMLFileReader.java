@@ -91,7 +91,7 @@ public class XMLFileReader extends XmlHandler {
     if (inHeaderSection) {
       try {
         if (fieldName.equals(XMLFile.FIELD_HEADER_PROGRAM)) {
-          if (!getFieldValue().equals(Daten.EFA)) {
+          if (!getFieldValue().equals(Daten.EFA_SHORTNAME)) {
             documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName
                 + ": " + getFieldValue();
           }

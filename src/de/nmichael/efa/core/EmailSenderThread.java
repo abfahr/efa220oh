@@ -103,7 +103,7 @@ public class EmailSenderThread extends Thread {
         mailFromEmail = null;
       }
       if (mailFromName != null && mailFromName.trim().length() == 0) {
-        mailFromName = Daten.EFAEMAILNAME;
+        mailFromName = Daten.EFA_SHORTNAME;
       }
       if (mailSubjectPrefix != null && mailSubjectPrefix.trim().length() == 0) {
         mailSubjectPrefix = null;

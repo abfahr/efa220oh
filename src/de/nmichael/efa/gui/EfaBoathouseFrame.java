@@ -666,7 +666,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     Mnemonics.setButton(this, toggleAvailableBoatsToPersons,
         International.getStringWithMnemonic("Personen"));
     if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories()) {
-      Mnemonics.setButton(this, toggleAvailableBoatsToBoats, "EFA");
+      Mnemonics.setButton(this, toggleAvailableBoatsToBoats, Daten.EFA_GROSS);
     }
     Mnemonics.setButton(this, toggleAvailableBoatsToDescriptionOrt,
         International.getStringWithMnemonic("Ort"));

@@ -44,7 +44,6 @@ import net.fortuna.ical4j.model.property.XProperty;
 public class ICalendarExport {
 
   public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
-  public static final String DOMAIN_ID = "@overfreunde.de";
 
   public void saveAllReservationToCalendarFile() {
     try {
@@ -200,7 +199,7 @@ public class ICalendarExport {
       long lastModified = logbookRecord.getLastModified();
       String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
       String efaId = logbookRecord.getEfaId();
-      String uid = dateTimeLastModifiedStr + "." + efaId + DOMAIN_ID;
+      String uid = dateTimeLastModifiedStr + "." + efaId + Daten.DOMAIN_ID;
       String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
 
       String description = reservationTimeDescription + CRLF;
@@ -284,7 +283,7 @@ public class ICalendarExport {
       long lastModified = boatReservationRecord.getLastModified();
       String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
       String efaId = boatReservationRecord.getEfaId();
-      String uid = dateTimeLastModifiedStr + "." + efaId + DOMAIN_ID;
+      String uid = dateTimeLastModifiedStr + "." + efaId + Daten.DOMAIN_ID;
       String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
 
       String description = reservationTimeDescription + CRLF;
@@ -376,7 +375,7 @@ public class ICalendarExport {
       DateTime dateTimeLastModified = new DateTime(clubworkRecord.getLastModified());
       String dateTimeLastModifiedStr = dateTimeLastModified.toString().replace('T', '.');
       String efaId = clubworkRecord.getEfaId();
-      String uid = dateTimeLastModifiedStr + "." + efaId + DOMAIN_ID;
+      String uid = dateTimeLastModifiedStr + "." + efaId + Daten.DOMAIN_ID;
 
       String descriptionAlle = firstLastName + CRLF;
       descriptionAlle += description + CRLF;

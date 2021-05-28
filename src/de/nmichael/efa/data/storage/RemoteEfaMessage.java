@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.Logger;
@@ -108,8 +109,7 @@ public class RemoteEfaMessage {
   public static final int ERROR_NOTYETSUPPORTED = 99;
 
   enum Type {
-    request,
-    response
+    request, response
   }
 
   private int msgId;
@@ -423,7 +423,8 @@ public class RemoteEfaMessage {
 
   // ===================================== Responses =====================================
 
-  public static RemoteEfaMessage createResponseResult(int msgId, int resultCode, String resultText) {
+  public static RemoteEfaMessage createResponseResult(int msgId, int resultCode,
+      String resultText) {
     RemoteEfaMessage r = new RemoteEfaMessage(msgId, Type.response, OPERATION_RESULT);
     r.addField(FIELD_RESULTCODE, Integer.toString(resultCode));
     if (resultText != null) {
@@ -472,7 +473,7 @@ public class RemoteEfaMessage {
   public static OutputStream getOutputStream(OutputStream out) {
     try {
       ZipOutputStream zip = new ZipOutputStream(out);
-      zip.putNextEntry(new ZipEntry("efa"));
+      zip.putNextEntry(new ZipEntry(Daten.EFA_SHORTNAME));
       return zip;
     } catch (Exception e) {
       return null;

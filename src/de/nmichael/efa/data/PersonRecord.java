@@ -694,14 +694,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       }
     }
     if (aktion.contains("CONFIRM")) {
-      msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFa am Isekai. ");
+      msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFA am Isekai. ");
       msg.add(" Vor- und Nachname: " + getFirstLastName());
       msg.add(" OH-MitgliedNr: " + getMembershipNo());
       msg.add(" Telefon: " + getHandy2() + " " + suppressNull(getFestnetz1()));
-      msg.add(" Telefon als Eingabehilfe in EFa "
+      msg.add(" Telefon als Eingabehilfe in EFA "
           + (isErlaubtTelefon() ? "" : "nicht ") + "freigegeben.");
       msg.add(" Email: " + suppressNull(getEmail()));
-      msg.add(" Emails versenden ist EFa " + (isErlaubtEmail() ? "" : "nicht ") + "erlaubt.");
+      msg.add(" Emails versenden ist EFA " + (isErlaubtEmail() ? "" : "nicht ") + "erlaubt.");
       msg.add(" Kürzel: \"" + suppressNull(getInputShortcut()) + "\" (Spitzname)");
       msg.add(" Kürzel ist bei Fahrtbeginn "
           + (isErlaubtKuerzel() ? "benutzbar." : "nicht erwünscht."));
@@ -714,7 +714,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     msg.add("Allerdings brauchst Du dort zur Identifizierung eine aktuelle Bootsreservierung.");
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("EFa-Touchscreen im Bootshaus");
+    msg.add("EFA-Touchscreen im Bootshaus");
     msg.add("");
     msg.add(International.getMessage("Newsletter abmelden {url}", getEfaURL("abmelden/")));
     return join(msg);
@@ -800,8 +800,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     frage += "- sonst übliche TelefonNr lautete: " + telnumAusProfil + ".\n";
     frage += "Falls Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
     frage += "\n";
-    frage += "Darf sich EFa die neue Nummer merken? ";
-    frage += "Soll EFa in Zukunft die neue Nummer vorschlagen?\n";
+    frage += "Darf sich EFA die neue Nummer merken? ";
+    frage += "Soll EFA in Zukunft die neue Nummer vorschlagen?\n";
     frage += "alte Nummer                                   Drücke ESC für zurück                        neue Nummer\n";
     int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
         newPhone + " vorschlagen", // 0 ja neue Nummer übernehmen

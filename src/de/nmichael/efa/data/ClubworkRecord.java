@@ -38,8 +38,6 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class ClubworkRecord extends DataRecord implements IItemFactory {
 
-  private static final String EFA = "efa";
-
   // =========================================================================
   // Field Names
   // =========================================================================
@@ -212,7 +210,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
   }
 
   public String getEfaId() {
-    return EFA + getFirstLastName().substring(0, 1).toUpperCase();
+    return Daten.EFA_SHORTNAME + getFirstLastName().substring(0, 1).toUpperCase();
   }
 
   public String getQualifiedName(boolean firstFirst) {

@@ -50,8 +50,6 @@ import de.nmichael.efa.util.XmlHandler;
 
 public class LogbookRecord extends DataRecord {
 
-  private static final String EFA = "efa";
-
   // =========================================================================
   // Field Names
   // =========================================================================
@@ -773,7 +771,7 @@ public class LogbookRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return EFA + getEntryId().intValue() + "-"
+    return Daten.EFA_SHORTNAME + getEntryId().intValue() + "-"
         + (getAllCoxAndCrewAsNameString() + " ").substring(0, 1).toUpperCase();
   }
 

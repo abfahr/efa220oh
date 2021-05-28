@@ -14,7 +14,7 @@ package de.nmichael.efa.data.storage;
 
 public class DataLock {
 
-  public final static DataKey GLOBAL_EXCLUSIVE_LOCK = new DataKey<String, String, String>(
+  public static final DataKey GLOBAL_EXCLUSIVE_LOCK = new DataKey<String, String, String>(
       "%%%GLOBAL_LOCK%%%", null, null);
 
   private long lockID;

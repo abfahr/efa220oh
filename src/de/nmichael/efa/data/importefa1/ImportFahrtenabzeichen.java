@@ -56,7 +56,8 @@ public class ImportFahrtenabzeichen extends ImportBase {
       ImportMetadata keyStoreMetadata = task.getKeyStoreMetadata();
       EfaKeyStore efa1KeyStore = null;
       if (keyStoreMetadata != null && keyStoreMetadata.filename != null) {
-        efa1KeyStore = new EfaKeyStore(keyStoreMetadata.filename, "efa".toCharArray());
+        efa1KeyStore = new EfaKeyStore(keyStoreMetadata.filename,
+            Daten.EFA_SHORTNAME.toCharArray());
       }
 
       Fahrtenabzeichen fahrtenabzeichen = Daten.project.getFahrtenabzeichen(true);

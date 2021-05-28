@@ -52,7 +52,6 @@ import net.fortuna.ical4j.model.DateTime;
 public class BoatReservationRecord extends DataRecord {
 
   private static final long LONG_MILLI_SECONDS_PER_DAY = 24 * 60 * 60 * 1000;
-  private static final String EFA = "efa";
   public static final boolean REPLACE_HEUTE = true;
   public static final boolean KEEP_NUM_DATE = false;
   public static final boolean IS_FROM = true;
@@ -808,7 +807,8 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return EFA + getReservation() + "" + getPersonAsName().substring(0, 1).toUpperCase();
+    return Daten.EFA_SHORTNAME + getReservation() + ""
+        + getPersonAsName().substring(0, 1).toUpperCase();
   }
 
   @Override
@@ -882,7 +882,7 @@ public class BoatReservationRecord extends DataRecord {
     }
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("Efa");
+    msg.add(Daten.EFA_GROSS);
     msg.add("");
     if (p != null) {
       msg.add(
@@ -969,10 +969,9 @@ public class BoatReservationRecord extends DataRecord {
         }
       }
       if (personRecord != null) {
-        msg.add("Erleichterungen einstellen?");
-        msg.add("Und mit diesem Link kannst Du Dir die Eingaben bei EFA sparen, "
-            + "zB. die Handynummer praktischerweise im Profil hinterlegen und "
-            + "gleich einen kurzen Spitznamen statt des vollständigen Namens nutzen.");
+        msg.add("Erleichterungen einstellen? Stimmt Deine Mailadresse noch?");
+        msg.add("Mit diesem Link kannst Du Dir die Eingaben bei EFA sparen, "
+            + "zB. einen kurzen Spitznamen statt des vollständigen Namens hinterlegen.");
         msg.add(getWebOnlineURL("efa/", personRecord.getMembershipNo()));
         msg.add("");
       }

@@ -1356,7 +1356,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
               + International.getString("Betreff")
               + " (" + International.getString("Präfix") + ")"));
       addParameter(efaDirekt_emailSignatur = new ItemTypeString("NotificationEmailSignature",
-          International.getString("Diese Nachricht wurde von efa verschickt."),
+          International.getString("Diese Nachricht wurde von EFA verschickt."),
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_NOTIFICATIONS),
           International.getString("email") + ": "

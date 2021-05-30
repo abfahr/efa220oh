@@ -344,6 +344,7 @@ public class EmailSenderThread extends Thread {
                       if (isValidEmailAdress(msg.getReplyTo())) {
                         emailListe.add(msg.getReplyTo());
                       }
+                      emailListe.add("noreply" + Daten.DOMAIN_ID);
                       markDone = sendMail(msg, emailListe);
                       if (markDone) {
                         countSuccess++;
@@ -351,6 +352,7 @@ public class EmailSenderThread extends Thread {
                     }
                     if (MessageRecord.TO_BOATMAINTENANCE.equals(msg.getTo())
                         && emailAddressesBoatMaintenance != null) {
+                      emailAddressesBoatMaintenance.add("noreply" + Daten.DOMAIN_ID);
                       markDone = sendMail(msg, emailAddressesBoatMaintenance);
                       if (markDone) {
                         countSuccess++;
@@ -359,6 +361,7 @@ public class EmailSenderThread extends Thread {
                     if (isValidEmailAdress(msg.getTo())) {
                       Vector<String> emailListe = new Vector<String>();
                       emailListe.add(msg.getTo());
+                      emailListe.add("noreply" + Daten.DOMAIN_ID);
                       markDone = sendMail(msg, emailListe);
                       if (markDone) {
                         countSuccess++;
@@ -374,6 +377,7 @@ public class EmailSenderThread extends Thread {
                 }
                 if (markDone) {
                   msg.setToBeMailed(false);
+                  msg.setRead(true); // true = bereits gelesen
                   messages.data().update(msg);
                   errorCount = 0;
                 } else {

@@ -654,7 +654,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       emailSubject = "Error LastModified ";
       kombinierteEmailErlaubnis = false;
     }
-    emailSubject += "OH Änderung Bestätigung " + aktion;
+    emailSubject += "OH Änderung " + aktion;
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
       emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;

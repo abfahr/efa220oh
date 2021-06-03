@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_151";
-  public static final String VERSIONRELEASEDATE = "30.05.2021"; // Release Date: TT.MM.JJJJ
+  public static final String VERSIONID = "2.2.0_152";
+  public static final String VERSIONRELEASEDATE = "03.06.2021"; // Release Date: TT.MM.JJJJ
   public static final String MAJORVERSION = "2";
   public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -106,7 +106,6 @@ public class Daten {
   public static final String NICOLASURL = "http://www.nmichael.de";
   public static final String DOMAIN_ID = "@overfreunde.de";
   public static final String EMAILSUPPORT = "info@overfreunde.de";
-  public static final String EMAILSCHRIFTWART = "schriftwart@overfreunde.de";
   public static final String EMAILBOOTSHAUSNUTZUNGSWART = "bootshausnutzung@overfreunde.de";
   public static final String EMAILDEBUG_DOMAIN = "@abfx.de";
   public static final String WEB_DOMAIN_EFA_BOOTSHAUS = "https://overfreunde.abfx.de/";

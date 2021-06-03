@@ -681,17 +681,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       msg.add("Das Ergebnis Deiner Änderung lautet: " + aktion);
       msg.add("-->  \"" + errorText + "\"  <--");
       msg.add("");
-      switch (aktion) {
-        case "CONFIRM_CHANGE_NAME":
-        case "CONFIRM_SETMAIL":
-        case "CONFIRM_SETPHONENR":
-          msg.add("Bitte teile dem Schriftwart des Vereins Deine Änderungen auch mit.");
-          msg.add("Du könntest zB. diese Mail an " + Daten.EMAILSCHRIFTWART + " weiterleiten.");
-          msg.add("");
-          break;
-        default:
-          break;
-      }
     }
     if (aktion.contains("CONFIRM")) {
       msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFA am Isekai. ");
@@ -812,7 +801,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         setHandy2(newPhone);
         setFestnetz1(null);
         setErlaubnisTelefon(true);
-        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
         return "savedNew"; // muss noch gespeichert werden / persistiert
       case 1: // gar nix mehr vorschlagen
         setHandy2(null);

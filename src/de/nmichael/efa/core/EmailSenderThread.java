@@ -49,9 +49,8 @@ public class EmailSenderThread extends Thread {
 
   // Constructor just for Plugin Check
   public EmailSenderThread() {
-    javax.mail.Session session = javax.mail.Session.getInstance(new Properties(), null); // just
-    // dummy
-    // statement
+    // just dummy statement
+    javax.mail.Session session = javax.mail.Session.getInstance(new Properties(), null);
   }
 
   public void enqueueMessage(javax.mail.Multipart message,
@@ -126,7 +125,7 @@ public class EmailSenderThread extends Thread {
       emailAddressesAdmin = new Vector<String>();
       emailAddressesBoatMaintenance = new Vector<String>();
       DataKeyIterator it = Daten.admins.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         AdminRecord admin = (AdminRecord) Daten.admins.data().get(k);
         if (admin != null && admin.getEmail() != null && admin.getEmail().length() > 0) {
@@ -326,7 +325,7 @@ public class EmailSenderThread extends Thread {
               continue; // EmailSenderThread must only run for local messages!
             }
             DataKeyIterator it = messages.data().getStaticIterator();
-            DataKey k = it.getFirst();
+            DataKey<?, ?, ?> k = it.getFirst();
             while (k != null) {
               MessageRecord msg = (MessageRecord) messages.data().get(k);
               if (msg != null && msg.getToBeMailed()) {

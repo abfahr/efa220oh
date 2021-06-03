@@ -970,8 +970,8 @@ public class BoatReservationRecord extends DataRecord {
       }
       if (personRecord != null) {
         msg.add("Erleichterungen einstellen? Stimmt Deine Mailadresse noch?");
-        msg.add("Mit diesem Link kannst Du Dir die Eingaben bei EFA sparen, "
-            + "zB. einen kurzen Spitznamen statt des vollständigen Namens hinterlegen.");
+        msg.add("Mit diesem Link kannst Du Dir Eingaben bei EFA sparen, "
+            + "zB. einen kurzen Spitznamen hinterlegen statt des vollständigen Namens.");
         msg.add(getWebOnlineURL("efa/", personRecord.getMembershipNo()));
         msg.add("");
       }

@@ -1,0 +1,200 @@
+
+J
+java:S1121°".Extract the assignment out of this expression.(õÕöÓøÿÿÿÿ
+S
+java:S2589ñ"7Remove this expression which always evaluates to "true"(¯Âÿÿûÿÿÿÿ
+n
+java:S3776…"RRefactor this method to reduce its Cognitive Complexity from 35 to the 15 allowed.(Úä½Öûÿÿÿÿ
+T
+java:S1854¤"8Remove this useless assignment to local variable "item".(–Â÷İüÿÿÿÿ
+E
+java:S1121É".Extract the assignment out of this expression.(ˆ¶‚Ò
+p
+java:S2293™"YReplace the type specification in this constructor call with the diamond operator ("<>").(ƒ•Èû
+E
+java:S1121Ş".Extract the assignment out of this expression.(”¦„
+p
+java:S2293»"YReplace the type specification in this constructor call with the diamond operator ("<>").(–†Æş
+u
+java:S2293‘"YReplace the type specification in this constructor call with the diamond operator ("<>").(À°´Èûÿÿÿÿ
+]
+java:S1126—	"AReplace this if-then-else statement by a single return statement.(ñšÒäøÿÿÿÿ
+O
+java:S1854í"8Remove this useless assignment to local variable "item".(Äö»Ã
+J
+java:S1121å".Extract the assignment out of this expression.(çª¯ßüÿÿÿÿ
+J
+java:S1121".Extract the assignment out of this expression.(“ÎÅÿÿÿÿÿ
+D
+java:S1121›".Extract the assignment out of this expression.(»¶©,
+E
+java:S1121•".Extract the assignment out of this expression.(ğ°è
+O
+java:S1854á"8Remove this useless assignment to local variable "item".(ñŞ÷ä
+i
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(’Â
+d
+java:S5361Ø"HReplace this call to "replaceAll()" by a call to the "replace()" method.(¿ÍÖíùÿÿÿÿ
+`
+java:S1192–"IDefine a constant instead of duplicating this literal "Nachname" 3 times.(œÙ½ê
+k
+java:S3008["URename this field "CAT_GROUPS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ï‡¡û
+T
+java:S1854°"8Remove this useless assignment to local variable "item".(õÕöÓøÿÿÿÿ
+J
+java:S1121Š".Extract the assignment out of this expression.(‡ŠÉ›üÿÿÿÿ
+E
+java:S1121¬".Extract the assignment out of this expression.(ïÇœ
+T
+java:S1854Á"8Remove this useless assignment to local variable "item".(Äª“Àûÿÿÿÿ
+p
+java:S2293ô"YReplace the type specification in this constructor call with the diamond operator ("<>").(ò²ŸÅ
+O
+java:S1854¬"8Remove this useless assignment to local variable "item".(ïÇœ
+t
+java:S2293a"YReplace the type specification in this constructor call with the diamond operator ("<>").(•ÁŒ‹ÿÿÿÿÿ
+T
+java:S1854ç"8Remove this useless assignment to local variable "item".(ÀÏóùÿÿÿÿ
+€
+java:S1149a"eReplace the synchronized class "Vector" by an unsynchronized one such as "ArrayList" or "LinkedList".(•ÁŒ‹ÿÿÿÿÿ
+T
+java:S1854å"8Remove this useless assignment to local variable "item".(çª¯ßüÿÿÿÿ
+T
+java:S1854²"8Remove this useless assignment to local variable "item".(³ Ü¥şÿÿÿÿ
+N
+java:S1854Å"8Remove this useless assignment to local variable "item".(¢‚Û
+J
+java:S1121®".Extract the assignment out of this expression.(Ì·Óêøÿÿÿÿ
+O
+java:S1854·"8Remove this useless assignment to local variable "item".(ç²À±
+m
+java:S3008X"WRename this field "CAT_BASEDATA" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(«Õ†ú
+T
+java:S1854Ì"8Remove this useless assignment to local variable "item".(«ìñŒÿÿÿÿÿ
+J
+java:S1121ë".Extract the assignment out of this expression.(ŠÍÏªúÿÿÿÿ
+
+java:S1149‘"eReplace the synchronized class "Vector" by an unsynchronized one such as "ArrayList" or "LinkedList".(À°´Èûÿÿÿÿ
+u
+java:S2293·"YReplace the type specification in this constructor call with the diamond operator ("<>").(°Ğã øÿÿÿÿ
+S
+java:S2589ø"7Remove this expression which always evaluates to "true"(ñŠíÿÿÿÿÿ
+i
+java:S3776»"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(Ä•¾
+O
+java:S1854Ş"8Remove this useless assignment to local variable "item".(”¦„
+u
+java:S2293æ"YReplace the type specification in this constructor call with the diamond operator ("<>").(«³·Ğşÿÿÿÿ
+J
+java:S1121ı".Extract the assignment out of this expression.(‚š¯Àüÿÿÿÿ
+N
+java:S1854¿"8Remove this useless assignment to local variable "item".(®Ÿ‡n
+{
+java:S1149`"eReplace the synchronized class "Vector" by an unsynchronized one such as "ArrayList" or "LinkedList".(ŞÁÛ
+J
+java:S1121˜".Extract the assignment out of this expression.(Ï»üîúÿÿÿÿ
+J
+java:S1121¹".Extract the assignment out of this expression.(„³Äÿÿÿÿÿ
+J
+java:S1121’".Extract the assignment out of this expression.(ğÊÁÿÿÿÿÿ
+R	java:S125¦"<This block of commented-out lines of code should be removed.(¿Åã©
+T
+java:S1854"8Remove this useless assignment to local variable "item".(“ÎÅÿÿÿÿÿ
+E
+java:S1121»".Extract the assignment out of this expression.(Ê„‚½
+J
+java:S1121¤".Extract the assignment out of this expression.(–Â÷İüÿÿÿÿ
+T
+java:S1854Š"8Remove this useless assignment to local variable "item".(‡ŠÉ›üÿÿÿÿ
+]
+java:S1126×"AReplace this if-then-else statement by a single return statement.(ÒÌ —øÿÿÿÿ
+T
+java:S1854é"8Remove this useless assignment to local variable "item".(©¢š¤üÿÿÿÿ
+E
+java:S1121·".Extract the assignment out of this expression.(ç²À±
+E
+java:S1121Ô".Extract the assignment out of this expression.(Òâı÷
+O
+java:S1854µ"8Remove this useless assignment to local variable "item".(Ú„Œı
+J
+java:S1121Ì".Extract the assignment out of this expression.(«ìñŒÿÿÿÿÿ
+D
+java:S1125è"(Remove the literal "true" boolean value.(ÛÖúûüÿÿÿÿ
+D
+java:S1121¿".Extract the assignment out of this expression.(®Ÿ‡n
+J
+java:S1121ç".Extract the assignment out of this expression.(ÀÏóùÿÿÿÿ
+o
+java:S2293`"YReplace the type specification in this constructor call with the diamond operator ("<>").(ŞÁÛ
+R	java:S125İ"<This block of commented-out lines of code should be removed.(Úèñº
+J
+java:S1121é".Extract the assignment out of this expression.(©¢š¤üÿÿÿÿ
+O
+java:S1854Ã"8Remove this useless assignment to local variable "item".(“ÔíÒ
+E
+java:S1121…".Extract the assignment out of this expression.(™ÈıÛ
+q
+java:S3008\"VRename this field "CAT_FREEUSE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ù¹µüÿÿÿÿ
+O
+java:S1854Ô"8Remove this useless assignment to local variable "item".(Òâı÷
+R	java:S125"<This block of commented-out lines of code should be removed.(ı¨¶»
+T
+java:S1854ë"8Remove this useless assignment to local variable "item".(ŠÍÏªúÿÿÿÿ
+l
+java:S3008Z"VRename this field "CAT_ADDRESS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(»çº´
+T
+java:S1854Ğ"8Remove this useless assignment to local variable "item".(şÎÃúÿÿÿÿ
+m
+java:S1149™"VReplace the synchronized class "Hashtable" by an unsynchronized one such as "HashMap".(ƒ•Èû
+E
+java:S1121á".Extract the assignment out of this expression.(ñŞ÷ä
+J
+java:S1121Ğ".Extract the assignment out of this expression.(şÎÃúÿÿÿÿ
+O
+java:S1854É"8Remove this useless assignment to local variable "item".(ˆ¶‚Ò
+T
+java:S1854¹"8Remove this useless assignment to local variable "item".(„³Äÿÿÿÿÿ
+Q
+java:S1854Æ":Remove this useless assignment to local variable "anrede".(Â¨Û®
+E
+java:S1121µ".Extract the assignment out of this expression.(Ú„Œı
+E
+java:S1121Ù".Extract the assignment out of this expression.(§ŞÅÿ
+J
+java:S1121Á".Extract the assignment out of this expression.(Äª“Àûÿÿÿÿ
+3
+java:S2386V"Make this member "protected".(ï¸Ï
+u
+java:S2293ò"YReplace the type specification in this constructor call with the diamond operator ("<>").(ïÚ¥œÿÿÿÿÿ
+J
+java:S1121×".Extract the assignment out of this expression.(Áµòúÿÿÿÿ
+b
+java:S2184›"FCast one of the operands of this multiplication operation to a "long".(Ü£Ä¼úÿÿÿÿ
+T
+java:S1854×"8Remove this useless assignment to local variable "item".(Áµòúÿÿÿÿ
+E
+java:S1121Ã".Extract the assignment out of this expression.(“ÔíÒ
+O
+java:S1854…"8Remove this useless assignment to local variable "item".(™ÈıÛ
+d
+java:S1192“"HDefine a constant instead of duplicating this literal "Vorname" 3 times.(É›«úÿÿÿÿ
+J
+java:S1121²".Extract the assignment out of this expression.(³ Ü¥şÿÿÿÿ
+E
+java:S1121í".Extract the assignment out of this expression.(Äö»Ã
+=
+java:S1168ˆ"&Return an empty array instead of null.(¥¹ï
+D
+java:S1121Å".Extract the assignment out of this expression.(¢‚Û
+m
+java:S3008Y"WRename this field "CAT_MOREDATA" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(é¡çŞ
+T
+java:S1854®"8Remove this useless assignment to local variable "item".(Ì·Óêøÿÿÿÿ
+
+java:S1149ò"eReplace the synchronized class "Vector" by an unsynchronized one such as "ArrayList" or "LinkedList".(ïÚ¥œÿÿÿÿÿ
+o
+java:S3008W"YRename this field "GUIITEM_GROUPS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÍŞàœ
+B
+java:S1452º"&Remove usage of generic wildcard type.(ŠÅÜúÿÿÿÿ
+M
+java:S5411ñ"*Use the primitive boolean expression here.(¯Âÿÿûÿÿÿÿ8•šŠµè.

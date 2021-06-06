@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/efa-dependencies/efa-dependencies.iml" filepath="$PROJECT_DIR$/efa-dependencies/efa-dependencies.iml" />
+      <module fileurl="file://$PROJECT_DIR$/efa-help/efa-help.iml" filepath="$PROJECT_DIR$/efa-help/efa-help.iml" />
+      <module fileurl="file://$PROJECT_DIR$/efa-main/efa-main.iml" filepath="$PROJECT_DIR$/efa-main/efa-main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/efa-parent/efa-parent.iml" filepath="$PROJECT_DIR$/efa-parent/efa-parent.iml" />
+    </modules>
+  </component>
+</project>

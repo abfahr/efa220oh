@@ -847,7 +847,13 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (oldEmailTo != null && !oldEmailTo.equals(emailToAdresse)) {
         person.sendEmailConfirmation(oldEmailTo, "CONFIRM_" + aktion, resultText);
       }
-      person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
+      switch (aktion) {
+        case "DELETE":
+        case "INSERT":
+          break; // return; // to avoid two Mails
+        default:
+          person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
+      }
     }
   }
 

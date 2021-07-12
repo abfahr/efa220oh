@@ -38,7 +38,7 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class DatenListe {
 
-  public final static String VEREINSCONFIG = "verein.efv"; // <efauser>/data/verein.efv
+  public static final String VEREINSCONFIG = "verein.efv"; // <efauser>/data/verein.efv
   // Konfigurationsdatei für
   // Vereinseinstellungen
   public static final String ADRESSENFILE = "adressen.efd"; // <efauser>/data/adressen.efd
@@ -53,9 +53,9 @@ public class DatenListe {
   // DRV Fahrtenabzeichen
   public static final String GRUPPEN = "gruppen.efg"; // <efauser>/data/gruppen.efg Gruppendatei
   public static final String PUBKEYSTORE = "keystore_pub.dat"; // <efauser>/data/keystore_pub.dat
-  public final static String DIREKTBOOTSTATUS = "bootstatus.efdb"; // <efauser>/data/bootstatus.efdb
+  public static final String DIREKTBOOTSTATUS = "bootstatus.efdb"; // <efauser>/data/bootstatus.efdb
   // Status der Boote
-  public final static String DIREKTNACHRICHTEN = "nachrichten.efdn"; // <efauser>/data/nachrichten.efdn
+  public static final String DIREKTNACHRICHTEN = "nachrichten.efdn"; // <efauser>/data/nachrichten.efdn
   // Nachrichten an Admin
   protected static final int CT_UNCHANGED = 0;
   protected static final int CT_ONLYONEAPPENDED = 1;

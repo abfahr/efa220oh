@@ -68,21 +68,20 @@ public abstract class ImportBase {
       return null;
     }
     String[] qname = persons.staticPersonRecord.getQualifiedNameValues(name); // PersonRecord.tryGetNameAndAffix(name);
-    return findPerson(persons, IDX, qname[0], qname[1], warnIfNotFound, validAt);
+    return findPerson2(persons, IDX, qname[0], warnIfNotFound, validAt);
   }
 
-  protected UUID findPerson(Persons persons, String[] IDX, String name, String affix,
+  protected UUID findPerson2(Persons persons, String[] IDX, String name,
       boolean warnIfNotFound, long validAt) {
     try {
       DataKey[] keys = persons.data().getByFields(IDX,
           new String[] {
-          (name != null && name.length() > 0 ? name : null),
-          (affix != null && affix.length() > 0 ? affix : null) });
+              (name != null && name.length() > 0 ? name : null),
+              (null) });
       if (keys != null && keys.length > 0) {
-        for (DataKey key : keys) {
+        for (DataKey<?, ?, ?> key : keys) {
           PersonRecord r = (PersonRecord) persons.data().get(key);
-          if (r != null && r.isValidAt(validAt) &&
-              (affix != null || r.getNameAffix() == null || r.getNameAffix().length() == 0)) {
+          if (r != null && r.isValidAt(validAt)) {
             return (UUID) key.getKeyPart1();
           }
         }
@@ -92,7 +91,7 @@ public abstract class ImportBase {
     if (warnIfNotFound) {
       logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
           International.getString("Person"),
-          name + (affix != null && affix.length() > 0 ? " (" + affix + ")" : ""),
+          name,
           International.getString("Mitglieder")));
     }
     return null;
@@ -113,10 +112,10 @@ public abstract class ImportBase {
     try {
       DataKey[] keys = boats.data().getByFields(IDX,
           new String[] {
-          (boatName != null && boatName.length() > 0 ? boatName : null),
-          (nameAffix != null && nameAffix.length() > 0 ? nameAffix : null) });
+              (boatName != null && boatName.length() > 0 ? boatName : null),
+              (nameAffix != null && nameAffix.length() > 0 ? nameAffix : null) });
       if (keys != null && keys.length > 0) {
-        for (DataKey key : keys) {
+        for (DataKey<?, ?, ?> key : keys) {
           BoatRecord r = (BoatRecord) boats.data().get(key);
           if (r != null && r.isValidAt(validAt) &&
               (nameAffix != null || r.getNameAffix() == null || r.getNameAffix().length() == 0)) {
@@ -145,7 +144,7 @@ public abstract class ImportBase {
       DataKey[] keys = destinations.data().getByFields(IDX,
           new String[] { name });
       if (keys != null && keys.length > 0) {
-        for (DataKey key : keys) {
+        for (DataKey<?, ?, ?> key : keys) {
           DataRecord r = destinations.data().get(key);
           if (r != null && r.isValidAt(validAt)) {
             return (UUID) key.getKeyPart1();

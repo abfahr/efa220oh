@@ -28,12 +28,10 @@ import de.nmichael.efa.util.Logger;
 
 public class ImportFahrtenabzeichen extends ImportBase {
 
-  private ImportMetadata meta;
   private String efa1fname;
 
   public ImportFahrtenabzeichen(ImportTask task, String efa1fname, ImportMetadata meta) {
     super(task);
-    this.meta = meta;
     this.efa1fname = efa1fname;
   }
 
@@ -58,22 +56,23 @@ public class ImportFahrtenabzeichen extends ImportBase {
       ImportMetadata keyStoreMetadata = task.getKeyStoreMetadata();
       EfaKeyStore efa1KeyStore = null;
       if (keyStoreMetadata != null && keyStoreMetadata.filename != null) {
-        efa1KeyStore = new EfaKeyStore(keyStoreMetadata.filename, "efa".toCharArray());
+        efa1KeyStore = new EfaKeyStore(keyStoreMetadata.filename,
+            Daten.EFA_SHORTNAME.toCharArray());
       }
 
       Fahrtenabzeichen fahrtenabzeichen = Daten.project.getFahrtenabzeichen(true);
       Persons persons = Daten.project.getPersons(false); // must be imported first!
 
-      String[] IDXP = PersonRecord.IDX_NAME_NAMEAFFIX;
+      String[] IDXP = PersonRecord.IDX_NAME_NAME;
 
       de.nmichael.efa.efa1.DatenFelder d = fahrtenabzeichen1.getCompleteFirst();
       while (d != null) {
-        UUID personID = findPerson(
+        UUID personID = findPerson2(
             persons,
             IDXP,
             d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.VORNAME) + " "
                 + d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.NACHNAME),
-                "", true, -1);
+            true, -1);
         if (personID != null) {
           // create new FahrtenabzeichenRecord
           FahrtenabzeichenRecord r = fahrtenabzeichen.createFahrtenabzeichenRecord(personID);
@@ -100,8 +99,9 @@ public class ImportFahrtenabzeichen extends ImportBase {
             fahrtenabzeichen.data().add(r);
             logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
 
-            String key = (r.getDRVSignatur() != null ?
-                DRVSignatur.getKeyName(r.getDRVSignatur().getKeyNr()) : null);
+            String key = (r.getDRVSignatur() != null
+                ? DRVSignatur.getKeyName(r.getDRVSignatur().getKeyNr())
+                : null);
             try {
               if (key != null && efa1KeyStore != null) {
                 if (Daten.keyStore.getPublicKey(key) == null) {
@@ -117,7 +117,8 @@ public class ImportFahrtenabzeichen extends ImportBase {
             }
           } catch (Exception e) {
             logError(International.getMessage(
-                "Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                "Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(),
+                e.toString()));
             Logger.logdebug(e);
           }
         }

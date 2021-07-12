@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete
@@ -27,7 +25,6 @@ public class Mitglieder extends DatenListe {
   public static final int NACHNAME = 1;
   public static final int ALIAS = 2; // in 060: JAHRGANG
   public static final int JAHRGANG = 3; // in 060: GESCHLECHT
-  public static final int GESCHLECHT = 4; // in 060: STATUS1
   public static final int STATUS = 5; // in 060: STATUS2
   public static final int VEREIN = 6;
   public static final int BEHINDERUNG = 7;// neu in 110
@@ -75,25 +72,10 @@ public class Mitglieder extends DatenListe {
           try {
             while ((s = freadLine()) != null) {
               s = s.trim();
-              if (s.equals("") || s.startsWith("#"))
-              {
+              if (s.equals("") || s.startsWith("#")) {
                 continue; // Kommentare ignorieren
               }
               DatenFelder d = constructFields(s);
-              String gender = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER,
-                  d.get(GESCHLECHT));
-              if (gender == null) {
-                gender = EfaTypes.TYPE_GENDER_MALE;
-                /*
-                 * // @efa1 Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
-                 * getFileName() + ": " +
-                 * International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!"
-                 * ,constructKey(d)) + " " + International.getMessage(
-                 * "Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
-                 * d.get(GESCHLECHT), Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, gender)));
-                 */
-              }
-              d.set(GESCHLECHT, gender);
               add(d);
             }
           } catch (IOException e) {
@@ -291,7 +273,8 @@ public class Mitglieder extends DatenListe {
     return getFullName(vor, nach, ver, Fahrtenbuch.fahrtenbuch.getDaten().erstVorname);
   }
 
-  public static String getFullName(String first, String last, String association, boolean firstFirst) {
+  public static String getFullName(String first, String last, String association,
+      boolean firstFirst) {
     String s = "";
     if (firstFirst) {
       if (first != null && first.length() > 0) {

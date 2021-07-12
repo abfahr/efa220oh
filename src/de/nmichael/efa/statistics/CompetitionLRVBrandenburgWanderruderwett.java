@@ -72,7 +72,7 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
             && Daten.wettDefs.inGruppe(WettDefs.LRVBRB_WANDERRUDERWETT,
                 sr.sCompYear,
                 g,
-                jahrgang, sd[i].gender,
+                jahrgang,
                 sd[i].disabled)) {
           // Teilnehmer ist in der Gruppe!
 
@@ -97,7 +97,8 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
                 if (drvel != null
                     && drvel.jum == false
                     &&
-                    drvel.distanceInMeters / 1000 >= CompetitionDRVFahrtenabzeichen.WAFA_MINDISTANCE_ONEDAY
+                    drvel.distanceInMeters
+                        / 1000 >= CompetitionDRVFahrtenabzeichen.WAFA_MINDISTANCE_ONEDAY
                     &&
                     drvel.days == 1) {
                   drvel.ok = true;
@@ -108,8 +109,9 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
             if (drvel != null && drvel.ok) {
               wafa[nr][0] = drvel.entryNo;
               wafa[nr][1] = drvel.dateStart.toString();
-              wafa[nr][2] = (drvel.dateEnd != null ? drvel.dateEnd.toString() : drvel.dateStart
-                  .toString());
+              wafa[nr][2] = (drvel.dateEnd != null ? drvel.dateEnd.toString()
+                  : drvel.dateStart
+                      .toString());
               wafa[nr][3] = drvel.destination;
               wafa[nr][4] = DataTypeDistance.getDistanceFromMeters(drvel.distanceInMeters)
                   .getStringValueInKilometers(false, 0, 1);
@@ -137,7 +139,6 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
               sr.sCompYear,
               g,
               jahrgang,
-              sd[i].gender,
               sd[i].disabled,
               sd[i].distance,
               sd[i].compData.gigbootmeters / 1000,
@@ -149,9 +150,11 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
           }
 
           if (erfuellt
-              || ((DataTypeDistance.getDistance(sd[i].distance).getTruncatedValueInKilometers() >=
-              gruppen[g].km * sr.sCompPercentFulfilled / 100) &&
-              sr.sCompPercentFulfilled < 100)) {
+              || ((DataTypeDistance.getDistance(sd[i].distance)
+                  .getTruncatedValueInKilometers() >= gruppen[g].km * sr.sCompPercentFulfilled
+                      / 100)
+                  &&
+                  sr.sCompPercentFulfilled < 100)) {
 
             if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
               // Ausgabe für efaWett
@@ -166,7 +169,8 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
               if (!sr.sIsOutputCompWithoutDetails && erfuellt) {
                 participant.sAdditional = "davon "
                     + DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters)
-                    .getStringValueInKilometers() + " Gigboot-Km";
+                        .getStringValueInKilometers()
+                    + " Gigboot-Km";
                 participant.sDetailsArray = new String[anzWafa][6];
                 for (int j = 0; j < wafa.length && j < anzWafa; j++) {
                   participant.sDetailsArray[j] = wafa[j];
@@ -186,7 +190,8 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
                 } else {
                   participant.sAdditional = "davon "
                       + DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters)
-                      .getStringValueInKilometers() + " Gigboot-Km und " + anzWafaTage
+                          .getStringValueInKilometers()
+                      + " Gigboot-Km und " + anzWafaTage
                       + " Wanderfahrt-Tage";
                 }
               }
@@ -206,13 +211,14 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
           // Teilnehmer ohne Jahrgang
           if (sd[i].sYearOfBirth.equals("")
               && Daten.wettDefs.erfuellt(WettDefs.LRVBRB_WANDERRUDERWETT, sr.sCompYear, 0,
-                  sd[i].gender, sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
-                  && nichtBeruecksichtigt.get(sd[i].sName) == null) {
+                  sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
+              && nichtBeruecksichtigt.get(sd[i].sName) == null) {
             nichtBeruecksichtigt.put(
                 sd[i].sName,
                 "Wegen fehlenden Jahrgangs ignoriert ("
                     + DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true,
-                        0, 0) + ")");
+                        0, 0)
+                    + ")");
             continue;
           }
         }

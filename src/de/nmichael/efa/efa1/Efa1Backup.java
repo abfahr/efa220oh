@@ -27,9 +27,9 @@ import de.nmichael.efa.util.LogString;
 // @i18n complete
 public class Efa1Backup {
 
-  public final static int SAVE = 0; // Typen von Aktionen, die ein Backup.create()
-  public final static int CONV = 1; // auslösen können
-  public final static String BACKUP = "%%BACKUP%%"; // Kennung im Dateikopf, daß es sich um ein
+  public static final int SAVE = 0; // Typen von Aktionen, die ein Backup.create()
+  public static final int CONV = 1; // auslösen können
+  public static final String BACKUP = "%%BACKUP%%"; // Kennung im Dateikopf, daß es sich um ein
   // Backup handelt
   private String dir = null;
   private boolean save = false;

@@ -37,6 +37,7 @@ import de.nmichael.efa.data.BoatReservationRecord;
 import de.nmichael.efa.data.BoatReservations;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Persons;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.InvalidValueException;
@@ -146,19 +147,28 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     if (phoneNr == null || phoneNr.getValue().isBlank()) {
       return true;
     }
+    String action = getTitle(); // "Reservierung"
+    boolean booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern = Daten.efaConfig
+        .getValueEfaDirekt_AlleMenschenZumVormerkenDerHandyNummerAuffordern();
     ItemTypeStringAutoComplete cox = (ItemTypeStringAutoComplete) getItem(
         BoatReservationRecord.PERSONID);
     if (cox == null || !cox.isKnown()) {
+      if (booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern) {
+        fragenUndLoggen(action, cox, phoneNr);
+      }
       return true;
     }
     UUID personId = (UUID) cox.getId(cox.getValue());
     Persons persons = Daten.project.getPersons(false);
     PersonRecord person = persons.getPerson(personId, System.currentTimeMillis());
     if (person == null) {
+      if (booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern) {
+        fragenUndLoggen(action, cox, phoneNr);
+      }
       return true;
     }
-    String action = getTitle(); // "Reservierung"
-    String antwort = person.checkUndAktualisiereHandyNr(action, phoneNr.getValue());
+    String antwort = person.checkUndAktualisiereHandyNr(action, phoneNr.getValue(),
+        booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern);
     if (antwort.contentEquals("noQuestion")) {
       return true; // Frage nicht mögich, also weiter
     }
@@ -182,16 +192,57 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
     info += " und die Erlaubnis '" + person.isErlaubtTelefon() + "'";
     try {
-      persons.data().update(person);
       Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
-      if (antwort.contentEquals("savedNew")) {
-        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
-      }
+      person.sendEmailConfirmation(person.getEmail(), "CONFIRM_SETPHONENR", info);
+      persons.data().update(person);
       return true; // TelefonNr wurde aktualisiert, weiter mit Reservierung speichern
     } catch (EfaException e3) {
       String error = action + ": e3 " + e3.getLocalizedMessage();
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
       return true; // TelefonNr wurde aktualisiert, weiter mit Reservierung speichern
+    }
+  }
+
+  private void fragenUndLoggen(String action,
+      ItemTypeStringAutoComplete cox,
+      ItemTypeStringPhone phoneNr) {
+    String info = checkUndAktualisiereHandyNr(action, phoneNr.getValue());
+    String coxName = (cox != null) ? cox.getValue() + " (unbekannt)" : "Ein unbekanntes Mitglied";
+    info = coxName + " hätte vielleicht gerne " + phoneNr + " gespeichert: " + info;
+    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+  }
+
+  public String checkUndAktualisiereHandyNr(String action, String newPhone) {
+    // true = nur zugesagte Leute werden korrigiert.
+    // false = alle Leute werden gefragt, Ausnahme zugesagte Nummer stimmt noch
+    String telnumAusProfil = International.getString("keine Nummer bzw nix"); // keine bzw. nix
+
+    // weder noch
+    String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:\n";
+    frage += "- Heutige Telefonnummer ist: " + newPhone + ",\n";
+    frage += "- sonst übliche TelefonNr lautete: " + telnumAusProfil + ".\n";
+    frage += "Falls Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
+    frage += "\n";
+    frage += "Darf sich EFA die neue Nummer merken? ";
+    frage += "Soll EFA in Zukunft die neue Nummer vorschlagen?\n";
+    frage += "alte Nummer                                   Drücke ESC für zurück                        neue Nummer\n";
+    int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
+        newPhone + " vorschlagen", // 0 ja neue Nummer übernehmen
+        "nix mehr vorschlagen", // 1 Erlaubnis entziehen
+        telnumAusProfil + " vorschlagen"); // 2 = alte bisherige Nummer
+    switch (antwort) {
+      case 0: // neue Nummer zukünftig merken (rechts, default, selektiert)
+        return "savedNew"; // muss noch gespeichert werden / persistiert
+      case 1: // gar nix mehr vorschlagen
+        return "savedEmpty"; // muss noch gespeichert werden / persistiert
+      case 2: // alten Vorschlag beibehalten (links)
+        return "savedEmpty"; // muss noch gespeichert werden / persistiert
+      case 3: // hier könnte ein Button "abbrechen" rein...
+        return "abbrechen"; // = nix tun
+      case -1: // abbrechen = cancel = ESC = x // zurück, nochmal die Nummer ändern
+        return "abbrechen"; // = nix tun
+      default: // unbekannt
+        return "abbrechen"; // = nix tun
     }
   }
 
@@ -229,7 +280,18 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
             dateTo.setValueDate(dateFrom.getDate());
           }
           dateTo.showValue();
-          break;
+          dateTo.setSelection(0, 10);
+        }
+        if (it.getName().equals(BoatReservationRecord.TIMEFROM)) {
+          if (dateFrom.getDate().equals(DataTypeDate.today())) {
+            ItemTypeTime timeFrom = (ItemTypeTime) it;
+            DataTypeTime now = DataTypeTime.now();
+            now.setSecond(0);
+            now.add((5 - now.getMinute() % 5) * 60);
+            timeFrom.parseValue(now.toString());
+            timeFrom.showValue();
+            timeFrom.setSelection(0, 5);
+          }
         }
       }
     }
@@ -248,6 +310,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
             timeTo.parseValue(newEndtime.toString(false)); // ohne Sekunden
           }
           timeTo.showValue();
+          timeTo.setSelection(0, 5);
           break;
         }
       }
@@ -265,6 +328,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           if (admin == null && !dateTo.isSet()) {
             dateTo.setValueDate(dateFrom.getDate());
             dateTo.showValue();
+            dateTo.setSelection(0, 10);
           }
           anzahlStunden = dateTo.getDate().getDifferenceDays(dateFrom.getDate()) * 24;
           break;
@@ -282,6 +346,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           }
           reason.setValue(reasonString);
           reason.showValue();
+          reason.setSelection(0, 999);
           break;
         }
       }
@@ -305,6 +370,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           }
           reason.setValue(reasonString);
           reason.showValue();
+          reason.setSelection(0, 999);
           break;
         }
       }
@@ -336,6 +402,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           }
           reason.setValue(reasonString);
           reason.showValue();
+          reason.setSelection(0, 999);
           break;
         }
       }
@@ -364,6 +431,10 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
     if (bestTelnum == null || bestTelnum.length() == 0) {
       bestTelnum = "";
+    } else {
+      Logger.log(Logger.INFO, Logger.MSG_DEBUG_AUTOCOMPLETE,
+          "Formular: TelNum für " + item.getValueFromField() + " automatisch eingetragen. "
+              + person.isErlaubtTelefon());
     }
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
     BoatReservationRecord[] oldReservations = boatReservations
@@ -414,6 +485,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         ItemTypeStringPhone phoneContactGuiField = (ItemTypeStringPhone) it;
         if (phoneContactGuiField.getValueFromField().isEmpty()) {
           phoneContactGuiField.setValue(bestTelnum);
+          phoneContactGuiField.showValue();
+          phoneContactGuiField.setSelection(0, 30);
         }
       }
       if (it.getName().equals(BoatReservationRecord.REASON)) {
@@ -422,6 +495,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
             && getDataRecord().isBootshausOH()) {
           reasonGuiField.setValue(bestReason);
           reasonGuiField.setValue(latestReason);
+          reasonGuiField.showValue();
+          reasonGuiField.setSelection(0, 999);
         }
       }
     }

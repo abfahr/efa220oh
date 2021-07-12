@@ -11,11 +11,6 @@
 package de.nmichael.efa.cli;
 
 import java.util.Stack;
-import java.util.Vector;
-
-import de.nmichael.efa.Daten;
-import de.nmichael.efa.data.Logbook;
-import de.nmichael.efa.data.sync.KanuEfbSyncTask;
 
 public class MenuSyncEfb extends MenuBase {
 
@@ -31,42 +26,8 @@ public class MenuSyncEfb extends MenuBase {
   }
 
   private int syncEfb(String args) {
-    if (!cli.getAdminRecord().isAllowedSyncKanuEfb()) {
-      cli.logerr("You don't have permission to access this function.");
-      return CLI.RC_NO_PERMISSION;
-    }
-    Vector<String> options = super.getCommandOptions(args);
-    if (options != null && options.size() > 1) {
-      printHelpContext();
-      return CLI.RC_INVALID_COMMAND;
-    }
-
-    String logbookName = (options != null && options.size() == 1 ? options.get(0) :
-      Daten.project.getCurrentLogbookEfaBoathouse());
-    if (logbookName == null) {
-      cli.logerr("Failed to synchronize: No logbook specified.");
-      return CLI.RC_COMMAND_FAILED;
-    }
-
-    Logbook logbook = Daten.project.getLogbook(logbookName, false);
-    if (logbook == null) {
-      cli.logerr("Failed to synchronize: Could not open logbook '" + logbookName + "'.");
-      return CLI.RC_COMMAND_FAILED;
-    }
-
-    cli.loginfo("Running synchronization for logbook '" + logbookName + "' ...");
-    KanuEfbSyncTask syncTask = new KanuEfbSyncTask(logbook, cli.getAdminRecord());
-    syncTask.startSynchronization(null);
-    try {
-      syncTask.join();
-    } catch (Exception e) {
-      cli.logerr("Error during synchronization: " + e.toString());
-      return CLI.RC_COMMAND_FAILED;
-    }
-    if (syncTask.isSuccessfullyCompleted()) {
-      return CLI.RC_OK;
-    }
-    return CLI.RC_COMMAND_FAILED;
+    cli.logerr("You don't have permission to access this function.");
+    return CLI.RC_NO_PERMISSION;
   }
 
   @Override

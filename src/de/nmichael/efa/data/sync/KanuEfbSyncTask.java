@@ -299,7 +299,7 @@ public class KanuEfbSyncTask extends ProgressTask {
         if (firstName != null && lastName != null) {
           firstName = firstName.trim();
           lastName = lastName.trim();
-          personName = PersonRecord.getFullName(firstName, lastName, "", false);
+          personName = PersonRecord.getFullName(firstName, lastName, false);
           PersonRecord[] plist = persons.getPersons(personName, thisSync);
           PersonRecord p = (plist != null && plist.length == 1 ? plist[0] : null);
 

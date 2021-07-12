@@ -65,13 +65,7 @@ public class ImportPersons extends ImportBase {
     if (!isIdentical(r.getLastName(), d.get(Mitglieder.NACHNAME))) {
       return true;
     }
-    if (!isIdentical(r.getGender(), d.get(Mitglieder.GESCHLECHT))) {
-      return true;
-    }
     if (!isIdentical(r.getBirthday(), d.get(Mitglieder.JAHRGANG))) {
-      return true;
-    }
-    if (!isIdentical(r.getNameAffix(), d.get(Mitglieder.VEREIN))) {
       return true;
     }
     if (!isIdentical(r.getStatusId(), getStatusKey(d.get(Mitglieder.STATUS)))) {
@@ -108,10 +102,11 @@ public class ImportPersons extends ImportBase {
         // First search, whether we have imported this person already
         PersonRecord r = null;
         String personName = PersonRecord.getFullName(d.get(Mitglieder.VORNAME),
-            d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN), true);
+            d.get(Mitglieder.NACHNAME), true);
         String mainPersonName = task.synMitglieder_getMainName(personName);
         DataKey k = null;
-        DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_NAMEAFFIX,
+        DataKey[] keys = persons.data().getByFields(
+            PersonRecord.IDX_NAME_NAME,
             persons.staticPersonRecord.getQualifiedNameValues(personName));
         if (keys != null && keys.length > 0) {
           // We've found one or more persons with same Name and Association.
@@ -147,17 +142,6 @@ public class ImportPersons extends ImportBase {
           }
           if (d.get(Mitglieder.NACHNAME).length() > 0) {
             r.setLastName(d.get(Mitglieder.NACHNAME));
-          }
-          // TITLE does not exist in efa1, so we leave it empty
-          if (d.get(Mitglieder.GESCHLECHT).length() > 0) {
-            String gender = d.get(Mitglieder.GESCHLECHT);
-            if (gender.equals(EfaTypes.TYPE_GENDER_MALE) ||
-                gender.equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-              r.setGender(gender);
-            }
-          }
-          if (d.get(Mitglieder.VEREIN).length() > 0) {
-            r.setNameAffix(d.get(Mitglieder.VEREIN));
           }
           // always set status
           String s = d.get(Mitglieder.STATUS).trim();

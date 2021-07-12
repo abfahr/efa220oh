@@ -210,8 +210,12 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   }
 
   public int getNumberOfVariants() {
+    int numVariants = 0;
     DataTypeList l = getList(TYPEVARIANT, IDataAccess.DATA_INTEGER);
-    return (l != null ? l.length() : 0);
+    if (l != null) {
+      numVariants = l.length();
+    }
+    return numVariants;
   }
 
   public int getVariantIndex(int variant) {
@@ -784,21 +788,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return null;
   }
 
-  public Hashtable<String, TableItem[]> getTableItems(String itemName,
-      Hashtable<String, IItemType[]> data) {
-    if (itemName.equals(BoatRecord.GUIITEM_RESERVATIONS)) {
-      if (data == null) {
-        return null;
-      }
-      String[] keys = data.keySet().toArray(new String[0]);
-      Hashtable<String, TableItem[]> tableItems = new Hashtable<String, TableItem[]>();
-      for (String key : keys) {
-
-      }
-    }
-    return null;
-  }
-
   @Override
   public String getAsText(String fieldName) {
     if (fieldName.equals(TYPEVARIANT) ||
@@ -912,13 +901,9 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
     String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-    String CAT_RESERVATIONS = "%03%" + International.getString("Reservierungen");
-    String CAT_DAMAGES = "%04%" + International.getString("Bootsschäden");
-    String CAT_FREEUSE = "%05%" + International.getString("Freie Verwendung");
+    String CAT_DAMAGES = "%08%" + International.getString("Bootsschäden");
+    String CAT_RESERVATIONS = "%09%" + International.getString("Reservierungen");
 
-    Groups groups = getPersistence().getProject().getGroups(false);
-    Crews crews = getPersistence().getProject().getCrews(false);
-    Destinations destinations = getPersistence().getProject().getDestinations(false);
     BoatStatus boatStatus = getPersistence().getProject().getBoatStatus(false);
     BoatReservations boatReservations = getPersistence().getProject().getBoatReservations(false);
     BoatDamages boatDamages = getPersistence().getProject().getBoatDamages(false);
@@ -972,7 +957,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verkaufdatum")));
     ((ItemTypeDate) item).setAllowYearOnly(true);
     v.add(item = new ItemTypeDecimal(BoatRecord.SELLINGPRICE, getSellingPrice(), 2, true,
-        IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Verkaufspreis")));
+        IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verkaufspreis")));
 
     // CAT_MOREDATA
     itemList = new Vector<IItemType[]>();
@@ -993,14 +978,12 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
             .getString("Boot darf nur mit Obmann genutzt werden")));
 
-    // CAT_RESERVATIONS
-    if (getId() != null && admin != null && admin.isAllowedEditBoatReservation()) {
-      v.add(item = new ItemTypeDataRecordTable(GUIITEM_RESERVATIONS,
-          boatReservations.createNewRecord().getGuiTableHeader(),
-          boatReservations, 0, admin,
-          BoatReservationRecord.BOATID, getId().toString(),
-          null, null, null, this,
-          IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
+    // CAT_STATUS
+    if (getId() != null && admin != null && admin.isAllowedEditBoatStatus()) {
+      BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
+      if (boatStatusRecord != null) {
+        v.addAll(boatStatusRecord.getGuiItems(admin));
+      }
     }
 
     // CAT_DAMAGES
@@ -1013,12 +996,14 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
           IItemType.TYPE_PUBLIC, CAT_DAMAGES, International.getString("Bootsschäden")));
     }
 
-    // CAT_STATUS
-    if (getId() != null && admin != null && admin.isAllowedEditBoatStatus()) {
-      BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
-      if (boatStatusRecord != null) {
-        v.addAll(boatStatusRecord.getGuiItems(admin));
-      }
+    // CAT_RESERVATIONS
+    if (getId() != null && admin != null && admin.isAllowedEditBoatReservation()) {
+      v.add(item = new ItemTypeDataRecordTable(GUIITEM_RESERVATIONS,
+          boatReservations.createNewRecord().getGuiTableHeader(),
+          boatReservations, 0, admin,
+          BoatReservationRecord.BOATID, getId().toString(),
+          null, null, null, this,
+          IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
     }
 
     return v;
@@ -1085,8 +1070,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             int idx = getVariantIndex(variant);
             if (typeItems[1].isChanged() || typeItems[2].isChanged() || typeItems[3].isChanged() ||
                 typeItems[4].isChanged() || typeItems[5].isChanged() || typeItems[6].isChanged()) {
-              setTypeVariant(idx, typeItems[1].toString(), typeItems[2].toString(),
-                  typeItems[3].toString(),
+              setTypeVariant(idx,
+                  typeItems[1].toString(), typeItems[2].toString(), typeItems[3].toString(),
                   typeItems[4].toString(), typeItems[5].toString(), typeItems[6].toString());
             }
           }

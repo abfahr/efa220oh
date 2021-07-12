@@ -210,7 +210,7 @@ public class TranslateDialog extends BaseDialog implements IItemListener, ITable
 
     languageTable = new ItemTypeTable("LANGUAGE_TABLE",
         new String[] { "Key", baseLangDescription + " (Reference)",
-        workLangDescription + " (Translation)" },
+            workLangDescription + " (Translation)" },
         null, null,
         IItemType.TYPE_PUBLIC, "", "Strings");
     languageTable.setFieldSize(1000, 600);
@@ -434,8 +434,7 @@ public class TranslateDialog extends BaseDialog implements IItemListener, ITable
       items[2].setPadding(0, 0, 10, 0);
       items[2].setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL);
       ((ItemTypeLabel) items[2]).setHorizontalAlignment(SwingConstants.CENTER);
-      items[3] = new ItemTypeLabel("L3", IItemType.TYPE_PUBLIC, "",
-          Daten.EMAILDEV);
+      items[3] = new ItemTypeLabel("L3", IItemType.TYPE_PUBLIC, "", Daten.EMAILSUPPORT);
       items[3].setColor(Color.blue);
       items[3].setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL);
       ((ItemTypeLabel) items[3]).setHorizontalAlignment(SwingConstants.CENTER);

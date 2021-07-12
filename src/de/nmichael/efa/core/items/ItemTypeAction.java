@@ -72,8 +72,8 @@ public class ItemTypeAction extends ItemTypeButton {
   private void resetTypesToDefault() {
     if (Dialog.yesNoDialog(International.getString("Frage"),
         International
-        .getString("Möchtest Du alle Typen auf die Standard-Einstellungen zurücksetzen? " +
-            "Manuell hinzugefügte Typen bleiben dabei bestehen.")) != Dialog.YES) {
+            .getString("Möchtest Du alle Typen auf die Standard-Einstellungen zurücksetzen? " +
+                "Manuell hinzugefügte Typen bleiben dabei bestehen.")) != Dialog.YES) {
       return;
     }
 
@@ -98,8 +98,6 @@ public class ItemTypeAction extends ItemTypeButton {
     count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesRigging(),
         EfaTypes.CATEGORY_RIGGING, true);
     count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesCoxing(), EfaTypes.CATEGORY_COXING,
-        true);
-    count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesGender(), EfaTypes.CATEGORY_GENDER,
         true);
     count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesSession(),
         EfaTypes.CATEGORY_SESSION, true);
@@ -129,7 +127,6 @@ public class ItemTypeAction extends ItemTypeButton {
       return;
     }
 
-    Daten.efaTypes.setToLanguage_Sessions(International.getResourceBundle(), true);
     int count = 0;
     count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesSession(),
         EfaTypes.CATEGORY_SESSION, false);
@@ -155,7 +152,8 @@ public class ItemTypeAction extends ItemTypeButton {
     if (Dialog.yesNoDialog(International.getString("Frage"),
         International.getMessage(
             "Möchtest Du alle Standard-Bootstypen für {rowing_or_canoeing} jetzt neu hinzufügen? " +
-                "Manuell geänderte oder hinzugefügte Bootstypen bleiben dabei bestehen.", sel)) != Dialog.YES) {
+                "Manuell geänderte oder hinzugefügte Bootstypen bleiben dabei bestehen.",
+            sel)) != Dialog.YES) {
       return;
     }
 
@@ -169,7 +167,8 @@ public class ItemTypeAction extends ItemTypeButton {
       return;
     }
 
-    int efaTypesBoatsToCreate = (selection == ACTION_GENERATE_ROWING_BOAT_TYPES ? EfaTypes.SELECTION_ROWING
+    int efaTypesBoatsToCreate = (selection == ACTION_GENERATE_ROWING_BOAT_TYPES
+        ? EfaTypes.SELECTION_ROWING
         : EfaTypes.SELECTION_CANOEING);
 
     Daten.efaTypes.setToLanguage_Boats(International.getResourceBundle(), efaTypesBoatsToCreate,

@@ -988,8 +988,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       mainPanel.add(jTabbedPane1, BorderLayout.CENTER);
       jTabbedPane1.add(vereinsdatenPanel, "Vereinsdaten");
       vereinsdatenPanel
-      .add(vereinPanel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
-          GridBagConstraints.HORIZONTAL, new Insets(0, 10, 0, 10), 0, 0));
+          .add(vereinPanel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+              GridBagConstraints.HORIZONTAL, new Insets(0, 10, 0, 10), 0, 0));
       String teilnehmerPanelTitle = null;
       switch (MELDTYP) {
         case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
@@ -1408,16 +1408,16 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     if (changed) {
       switch (Dialog.yesNoCancelDialog("Änderungen speichern",
           "Sollen die Änderungen an der Meldedatei gespeichert werden?")) {
-            case Dialog.YES:
-              if (!saveMeldedatei()) {
-                Logger.log(Logger.ERROR, "Speichern der Meldedatei ist fehlgeschlagen!");
-                Dialog.error("Speichern der Meldedatei ist fehlgeschlagen!");
-                return;
-              }
-            case Dialog.NO:
-              break;
-            default:
-              return;
+        case Dialog.YES:
+          if (!saveMeldedatei()) {
+            Logger.log(Logger.ERROR, "Speichern der Meldedatei ist fehlgeschlagen!");
+            Dialog.error("Speichern der Meldedatei ist fehlgeschlagen!");
+            return;
+          }
+        case Dialog.NO:
+          break;
+        default:
+          return;
       }
     }
     log(false, "ENDE Bearbeiten der Meldung");
@@ -1479,7 +1479,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         }
         for (int i = 1; i < EfaWettMeldung.ABZEICHEN_JUG_GOLD_LIST.length; i++) {
           hAbzeichen
-          .put(EfaWettMeldung.ABZEICHEN_JUG_GOLD_LIST[i], "Jugend gold (" + (i * 5) + ")");
+              .put(EfaWettMeldung.ABZEICHEN_JUG_GOLD_LIST[i], "Jugend gold (" + (i * 5) + ")");
         }
 
         hAequator.put("", "nein");
@@ -1905,7 +1905,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ewm.abzeichen = abzeichen;
         ewm.changed = true;
         return "Teilnehmer hat für Abzeichen '" + gem + "' gemeldet, hat aber Abzeichen '"
-        + abzeichen + "' erlangt. Abzeichen wurde korrigiert!";
+            + abzeichen + "' erlangt. Abzeichen wurde korrigiert!";
       }
     }
     return null;
@@ -1982,8 +1982,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ewm.changed = true;
       }
       return "Gemeldete Teilnehmer-Anzahl '"
-      + gem
-      + "' stimmt nicht mit Summe der einzelnen Altersklassen überein. Teilnehmer-Anzahl wurde korrigiert!";
+          + gem
+          + "' stimmt nicht mit Summe der einzelnen Altersklassen überein. Teilnehmer-Anzahl wurde korrigiert!";
     }
     return null;
   }
@@ -2005,8 +2005,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ewm.changed = true;
       }
       return "Gemeldete Mannschafts-Kilometer '"
-      + gem
-      + "' stimmen nicht mit Summe der einzelnen Altersklassen überein. Mannschafts-Kilometer wurde korrigiert!";
+          + gem
+          + "' stimmen nicht mit Summe der einzelnen Altersklassen überein. Mannschafts-Kilometer wurde korrigiert!";
     }
     return null;
   }
@@ -2079,18 +2079,18 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     if (ewmCur != null && (ewmCur.changed || !mBlocked)) {
       switch (Dialog.yesNoCancelDialog("Änderungen speichern",
           "Änderungen an Eintrag " + (ewmNr + 1)
-          + " wurden noch nicht gespeichert. Jetzt speichern?")) {
-            case Dialog.YES:
-              if (!mBlocked) {
-                getMFields(ewmCur);
-              }
-              replaceMeldung();
-              return true;
-            case Dialog.NO:
-              // nothing to do
-              return true;
-            default: // Cancel
-              return false;
+              + " wurden noch nicht gespeichert. Jetzt speichern?")) {
+        case Dialog.YES:
+          if (!mBlocked) {
+            getMFields(ewmCur);
+          }
+          replaceMeldung();
+          return true;
+        case Dialog.NO:
+          // nothing to do
+          return true;
+        default: // Cancel
+          return false;
       }
     }
     return true;
@@ -2185,7 +2185,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
           mFahrtnachweisErbracht.setSelected(ewmCur.drvint_fahrtErfuellt);
           int anzFahrten = 0;
           for (int i = 0; i < ewmCur.fahrt.length; i++) {
-            if (ewmCur.fahrt[i] != null && ewmCur.fahrt[i].length > 0 && ewmCur.fahrt[i][0] != null) {
+            if (ewmCur.fahrt[i] != null && ewmCur.fahrt[i].length > 0
+                && ewmCur.fahrt[i][0] != null) {
               anzFahrten = i;
             }
           }
@@ -2311,12 +2312,13 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ewm.drv_anzAbzeichenAB = field2int(mAnzAbzeichenAB);
         ewm.drv_gesKmAB = field2int(mGesKmAB);
 
-        if (ewm.drvSignatur != null && ewm.drvSignatur.getSignatureState() == DRVSignatur.SIG_VALID) {
+        if (ewm.drvSignatur != null
+            && ewm.drvSignatur.getSignatureState() == DRVSignatur.SIG_VALID) {
           if (!ewm.drv_anzAbzeichen.equals(Integer.toString(ewm.drvSignatur.getAnzAbzeichen()))
               || !ewm.drv_gesKm.equals(Integer.toString(ewm.drvSignatur.getGesKm()))
               || !ewm.drv_anzAbzeichenAB.equals(Integer.toString(ewm.drvSignatur
                   .getAnzAbzeichenAB()))
-                  || !ewm.drv_gesKmAB.equals(Integer.toString(ewm.drvSignatur.getGesKmAB()))) {
+              || !ewm.drv_gesKmAB.equals(Integer.toString(ewm.drvSignatur.getGesKmAB()))) {
             if (Dialog
                 .auswahlDialog(
                     "Achtung",
@@ -2326,9 +2328,9 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
                         + "Wenn Du diese Änderungen übernehmen möchtest, wird das elektronische Fahrtenheft\n"
                         + "des Vorjahres ignoriert.\n\n"
                         + "Was möchtest Du tun?",
-                        "Änderungen verwerfen und elektr. Fahrtenheft beibehalten",
-                        "Änderungen übernehmen und elektr. Fahrtenheft ignorieren",
-                        false) == 0) {
+                    "Änderungen verwerfen und elektr. Fahrtenheft beibehalten",
+                    "Änderungen übernehmen und elektr. Fahrtenheft ignorieren",
+                    false) == 0) {
               // Änderungen verwerfen und elektr. Fahrtenheft beibehalten
               ewm.drv_anzAbzeichen = Integer.toString(ewm.drvSignatur.getAnzAbzeichen());
               ewm.drv_gesKm = Integer.toString(ewm.drvSignatur.getGesKm());
@@ -2444,7 +2446,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     switch (MELDTYP) {
       case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
         meldegeld += EfaUtil.string2int(ew.drv_nadel_erw_silber, 0)
-        * Main.drvConfig.eur_nadel_erw_silber;
+            * Main.drvConfig.eur_nadel_erw_silber;
         meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_erw_gold, ','))
             * Main.drvConfig.eur_nadel_erw_gold;
         meldegeld += EfaUtil.string2int(ew.drv_nadel_jug_silber, 0)
@@ -2561,7 +2563,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       jumAnz = 99999;
     }
     return Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN, Main.drvConfig.aktJahr, jahrgang,
-        geschlecht, behind, km, wafaKm / 10, wafaAnzTage, jumAnz, 0);
+        behind, km, wafaKm / 10, wafaAnzTage, jumAnz, 0);
   }
 
   void bestaetigenButton_actionPerformed(ActionEvent e) {
@@ -2628,8 +2630,9 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
 
     // Alle Meldungen dieses Vereins vorsichtshalber aus der Meldestatistik entfernen
-    for (DatenFelder d = Main.drvConfig.meldestatistik.getCompleteFirst(); d != null; d = Main.drvConfig.meldestatistik
-        .getCompleteNext()) {
+    for (DatenFelder d = Main.drvConfig.meldestatistik
+        .getCompleteFirst(); d != null; d = Main.drvConfig.meldestatistik
+            .getCompleteNext()) {
       if (d.get(Meldestatistik.VEREINSMITGLNR).equals(ew.verein_mitglnr)) {
         Main.drvConfig.meldestatistik.delete(d.get(Meldestatistik.KEY));
       }
@@ -2677,12 +2680,14 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         // prüfen, ob diese Meldung gewertet werden soll
         if (!m.drvint_wirdGewertet) {
           nichtGewerteteTeilnehmer
-          .add(m.vorname
-              + " "
-              + m.nachname
-              + (m.drvint_nichtGewertetGrund != null
-              && m.drvint_nichtGewertetGrund.length() > 0 ? " (Grund: "
-              + m.drvint_nichtGewertetGrund + ")" : ""));
+              .add(m.vorname
+                  + " "
+                  + m.nachname
+                  + (m.drvint_nichtGewertetGrund != null
+                      && m.drvint_nichtGewertetGrund.length() > 0
+                          ? " (Grund: "
+                              + m.drvint_nichtGewertetGrund + ")"
+                          : ""));
           continue;
         }
 
@@ -3010,13 +3015,14 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         s.append("Nachfrage zu Fahrt "
             +
             (m.drvWS_LfdNr != null && m.drvWS_LfdNr.length() > 0 ? m.drvWS_LfdNr
-                : m.drvWS_StartZiel) +
-                ":\n" +
-                "LfdNr: " + m.drvWS_LfdNr + "\n" +
-                "Bezeichnung: " + m.drvWS_StartZiel + "\n" +
-                "Strecke: " + m.drvWS_Strecke + "\n" +
-                "Gewässer: " + m.drvWS_Gewaesser + "\n" +
-                "Nachfrage: " + m.drvint_nachfrage + "\n\n");
+                : m.drvWS_StartZiel)
+            +
+            ":\n" +
+            "LfdNr: " + m.drvWS_LfdNr + "\n" +
+            "Bezeichnung: " + m.drvWS_StartZiel + "\n" +
+            "Strecke: " + m.drvWS_Strecke + "\n" +
+            "Gewässer: " + m.drvWS_Gewaesser + "\n" +
+            "Nachfrage: " + m.drvint_nachfrage + "\n\n");
       }
     }
     if (s.length() == 0) {
@@ -3193,7 +3199,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   void mUnblockButton_actionPerformed(ActionEvent e) {
     if (ewmCur == null) {
       Dialog
-      .error("Es ist kein Eintrag ausgewählt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
+          .error(
+              "Es ist kein Eintrag ausgewählt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
       return;
     }
     if (!mBlocked) {
@@ -3209,7 +3216,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   void fUnblockButton_actionPerformed(ActionEvent e) {
     if (ewmCur == null) {
       Dialog
-      .error("Es ist kein Eintrag ausgewählt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
+          .error(
+              "Es ist kein Eintrag ausgewählt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
       return;
     }
     if (!mBlocked) {
@@ -3382,8 +3390,9 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
 
     Vector teilnnr = new Vector();
-    for (DatenFelder d = Main.drvConfig.teilnehmer.getCompleteFirst(); d != null; d = Main.drvConfig.teilnehmer
-        .getCompleteNext()) {
+    for (DatenFelder d = Main.drvConfig.teilnehmer
+        .getCompleteFirst(); d != null; d = Main.drvConfig.teilnehmer
+            .getCompleteNext()) {
       if (vorname.equals(d.get(Teilnehmer.VORNAME))
           && nachname.equals(d.get(Teilnehmer.NACHNAME))
           && jahrgang.equals(d.get(Teilnehmer.JAHRGANG))) {
@@ -3428,7 +3437,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.write("<tr><td>Kontonr:</td><td><tt><b>" + ew.meld_kto + "</b></tt></td></tr>\n");
       f.write("<tr><td>Bank:</td><td><tt><b>" + ew.meld_bank + "</b></tt></td></tr>\n");
       f.write("<tr><td>BLZ:</td><td><tt><b>" + ew.meld_blz + "</b></tt></td></tr>\n");
-      f.write("<tr><td colspan=\"2\" align=\"center\"><big>Versandanschrift</big></tt></td></tr>\n");
+      f.write(
+          "<tr><td colspan=\"2\" align=\"center\"><big>Versandanschrift</big></tt></td></tr>\n");
       f.write("<tr><td>Name:</td><td><tt><b>" + ew.versand_name + "</b></tt></td></tr>\n");
       f.write("<tr><td>Straße:</td><td><tt><b>" + ew.versand_strasse + "</b></tt></td></tr>\n");
       f.write("<tr><td>Ort:</td><td><tt><b>" + ew.versand_ort + "</b></tt></td></tr>\n");
@@ -3540,12 +3550,12 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
     if (warnings > 0) {
       Dialog
-      .error("Es gibt "
-          + warnings
-          + " Teilnehmer, die den Äquatorpreis bekommen würden, aber die Bedingungen für dieses\n"
-          + "Jahr nicht erfüllt haben oder nicht gewertet werden sollen. Diese Teilnehmer werden NICHT ausgegeben.\n\n"
-          + "Bitte prüfen Sie erst alle Meldungen dieses Vereins auf Gültigkeit und Drucken Sie anschließend erst\n"
-          + "die Äquatorpreisträger aus.");
+          .error("Es gibt "
+              + warnings
+              + " Teilnehmer, die den Äquatorpreis bekommen würden, aber die Bedingungen für dieses\n"
+              + "Jahr nicht erfüllt haben oder nicht gewertet werden sollen. Diese Teilnehmer werden NICHT ausgegeben.\n\n"
+              + "Bitte prüfen Sie erst alle Meldungen dieses Vereins auf Gültigkeit und Drucken Sie anschließend erst\n"
+              + "die Äquatorpreisträger aus.");
     }
     if (aequator.size() == 0) {
       Dialog.error("Es gibt keine Äquatorpreisträger in diesem Verein.");

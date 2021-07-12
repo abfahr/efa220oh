@@ -19,7 +19,6 @@ import java.util.Vector;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDate;
 import de.nmichael.efa.core.items.ItemTypeDistance;
@@ -50,8 +49,6 @@ import de.nmichael.efa.util.XmlHandler;
 // @i18n complete
 
 public class LogbookRecord extends DataRecord {
-
-  private static final String EFA = "efa";
 
   // =========================================================================
   // Field Names
@@ -136,7 +133,6 @@ public class LogbookRecord extends DataRecord {
 
   public static final String DISTANCE = "Distance";
   public static final String COMMENTS = "Comments";
-  public static final String SESSIONTYPE = "SessionType";
   public static final String SESSIONGROUPID = "SessionGroupId";
 
   public static final String OPEN = "Open";
@@ -315,8 +311,6 @@ public class LogbookRecord extends DataRecord {
     f.add(DISTANCE);
     t.add(IDataAccess.DATA_DISTANCE);
     f.add(COMMENTS);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(SESSIONTYPE);
     t.add(IDataAccess.DATA_STRING);
     f.add(SESSIONGROUPID);
     t.add(IDataAccess.DATA_UUID);
@@ -570,14 +564,6 @@ public class LogbookRecord extends DataRecord {
     return getString(COMMENTS);
   }
 
-  public void setSessionType(String type) {
-    setString(SESSIONTYPE, type);
-  }
-
-  public String getSessionType() {
-    return getString(SESSIONTYPE);
-  }
-
   public void setSessionGroupId(UUID id) {
     setUUID(SESSIONGROUPID, id);
   }
@@ -618,10 +604,7 @@ public class LogbookRecord extends DataRecord {
   }
 
   public boolean isRowingOrCanoeingSession() {
-    String stype = getSessionType();
-    return stype == null ||
-        (!stype.equals(EfaTypes.TYPE_SESSION_ERG) &&
-            !stype.equals(EfaTypes.TYPE_SESSION_MOTORBOAT));
+    return true;
   }
 
   @Override
@@ -788,7 +771,7 @@ public class LogbookRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return EFA + getEntryId().intValue() + "-"
+    return Daten.EFA_SHORTNAME + getEntryId().intValue() + "-"
         + (getAllCoxAndCrewAsNameString() + " ").substring(0, 1).toUpperCase();
   }
 
@@ -1021,13 +1004,6 @@ public class LogbookRecord extends DataRecord {
     if (fieldName.equals(SESSIONGROUPID) || fieldName.equals(EXP_SESSIONGROUP)) {
       return (getSessionGroup() != null ? getSessionGroup().getName() : "");
     }
-    if (fieldName.equals(SESSIONTYPE)) {
-      String s = getAsString(fieldName);
-      if (s != null) {
-        return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, s);
-      }
-      return null;
-    }
     return super.getAsText(fieldName);
   }
 
@@ -1101,13 +1077,6 @@ public class LogbookRecord extends DataRecord {
           ((Logbook) getPersistence()).getName());
       if (sr != null) {
         set(fieldName, sr.getId());
-      }
-      return (value.equals(getAsText(fieldName)));
-    }
-    if (fieldName.equals(SESSIONTYPE)) {
-      String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
-      if (s != null) {
-        set(fieldName, s);
       }
       return (value.equals(getAsText(fieldName)));
     }
@@ -1194,10 +1163,6 @@ public class LogbookRecord extends DataRecord {
         DataTypeDistance.getDefaultUnitName()));
     v.add(item = new ItemTypeString(LogbookRecord.COMMENTS, null, IItemType.TYPE_PUBLIC, null,
         International.getStringWithMnemonic("Bemerkungen")));
-    v.add(item = new ItemTypeStringList(LogbookRecord.SESSIONTYPE, EfaTypes.TYPE_SESSION_NORMAL,
-        EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_PUBLIC, null, International.getString("Fahrtart")));
     v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_SESSIONGROUP,
         "", IItemType.TYPE_PUBLIC, null,
         International.getStringWithMnemonic("Fahrtgruppe"), true));

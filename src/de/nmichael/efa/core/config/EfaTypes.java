@@ -34,16 +34,12 @@ public class EfaTypes extends StorageObject {
 
   public static final String DATATYPE = "efa2types";
 
-  public static final String CATEGORY_GENDER = "GENDER"; // GESCHLECHT
   public static final String CATEGORY_BOAT = "BOAT"; // BART
   public static final String CATEGORY_NUMSEATS = "NUMSEATS"; // BANZAHL
   public static final String CATEGORY_RIGGING = "RIGGING"; // BRIGGER
   public static final String CATEGORY_COXING = "COXING"; // BSTM
   public static final String CATEGORY_SESSION = "SESSION"; // FAHRT
   public static final String CATEGORY_STATUS = "STATUS"; // n/a
-
-  public static final String TYPE_GENDER_MALE = "MALE"; // MAENNLICH
-  public static final String TYPE_GENDER_FEMALE = "FEMALE"; // WEIBLICH
 
   public static final String TYPE_BOAT_RACING = "RACING"; // RENNBOOT
   public static final String TYPE_BOAT_WHERRY = "WHERRY"; // WHERRY
@@ -95,22 +91,6 @@ public class EfaTypes extends StorageObject {
   public static final String TYPE_COXING_COXLESS = "COXLESS"; // OHNE
   public static final String TYPE_COXING_OTHER = "OTHER"; // other
 
-  public static final String TYPE_SESSION_NORMAL = "NORMAL"; // NORMAL
-  public static final String TYPE_SESSION_TRAINING = "TRAINING"; // TRAINING
-  public static final String TYPE_SESSION_REGATTA = "REGATTA"; // REGATTA
-  public static final String TYPE_SESSION_JUMREGATTA = "JUMREGATTA"; // JUMREGATTA
-  public static final String TYPE_SESSION_TRAININGCAMP = "TRAININGCAMP"; // TRAININGSLAGER
-  public static final String TYPE_SESSION_INSTRUCTION = "INSTRUCTION"; // AUSBILDUNG
-  public static final String TYPE_SESSION_LATEENTRY = "LATEENTRY"; // KILOMETERNACHTRAG
-  public static final String TYPE_SESSION_MOTORBOAT = "MOTORBOAT"; // MOTORBOOT
-  public static final String TYPE_SESSION_ERG = "ERG"; // ERGO
-  public static final String TYPE_SESSION_TOUR = "TOUR"; // MEHRTAGESFAHRT
-  public static final String TYPE_SESSION_TOUR_EFA1X1 = "MEHRTAGESFAHRT"; // for import efa 1.x:
-  // MEHRTAGESFAHRT
-  public static final String TYPE_SESSION_TOUR_EFA1X2 = "MULTIDAY"; // for import efa 1.x:
-  // MEHRTAGESFAHRT
-  public static final String TYPE_SESSION_CLUBTRIP = "CLUBTRIP"; // "Vereinsfahrt" für Kanu-eFB
-  public static final String TYPE_SESSION_GROUPTRIP = "GROUPTRIP"; // "Gemeinschaftsfahrt" für
   // Kanu-eFB
 
   public static final String TYPE_STATUS_GUEST = "GUEST"; // Gast
@@ -161,7 +141,8 @@ public class EfaTypes extends StorageObject {
   public void open(boolean createNewIfNotExists) throws EfaException {
     super.open(createNewIfNotExists);
     try {
-      if (createNewIfNotExists && (data().getAllKeys() == null || data().getAllKeys().length == 0)) {
+      if (createNewIfNotExists
+          && (data().getAllKeys() == null || data().getAllKeys().length == 0)) {
         // empty EfaTypes newly created
         // make sure that this.custSettings != null when creating from scratch!
         setCustSettings(custSettings);
@@ -224,7 +205,6 @@ public class EfaTypes extends StorageObject {
 
   private void iniCategories() {
     categories = new Vector<String>();
-    categories.add(CATEGORY_GENDER);
     categories.add(CATEGORY_BOAT);
     categories.add(CATEGORY_NUMSEATS);
     categories.add(CATEGORY_RIGGING);
@@ -527,38 +507,6 @@ public class EfaTypes extends StorageObject {
     return 0;
   }
 
-  public int setToLanguage_Sessions(ResourceBundle bundle, boolean createNew) {
-    int count = 0;
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_NORMAL,
-        International.getString("normale Fahrt"), "normale Fahrt", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TOUR,
-        International.getString("Wanderfahrt"), "Wanderfahrt", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAINING,
-        International.getString("Training"), "Training", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAININGCAMP,
-        International.getString("Trainingslager"), "Trainingslager", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_INSTRUCTION,
-        International.getString("Ausbildung"), "Ausbildung", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_REGATTA,
-        International.getString("Regatta"), "Regatta", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA,
-        International.getString("JuM-Regatta"), "JuM-Regatta", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_LATEENTRY,
-        International.getString("Kilometernachtrag"), "Kilometernachtrag", bundle, createNew);
-    if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-      count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_CLUBTRIP,
-          International.onlyFor("Vereinsfahrt", "de"), "Vereinsfahrt", bundle, createNew);
-      count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_GROUPTRIP,
-          International.onlyFor("Gemeinschaftsfahrt", "de"), "Gemeinschaftsfahrt", bundle,
-          createNew);
-    }
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MOTORBOAT,
-        International.getString("Motorboot"), "Motorboot", bundle, createNew);
-    count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_ERG, International.getString("Ergo"),
-        "Ergo", bundle, createNew);
-    return count;
-  }
-
   public int setToLanguage_Boats(ResourceBundle bundle, int typeSelection, boolean createNew) {
     int count = 0;
     switch (typeSelection) {
@@ -684,17 +632,11 @@ public class EfaTypes extends StorageObject {
 
     boolean createNew = (custSettings != null ? true : false);
 
-    setToLanguage(CATEGORY_GENDER, TYPE_GENDER_MALE, International.getString("männlich"),
-        "männlich", bundle, createNew);
-    setToLanguage(CATEGORY_GENDER, TYPE_GENDER_FEMALE, International.getString("weiblich"),
-        "weiblich", bundle, createNew);
-
     setToLanguage(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast"), "Gast",
         bundle, createNew);
     setToLanguage(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere"), "andere",
         bundle, createNew);
 
-    setToLanguage_Sessions(bundle, createNew);
     setToLanguage_Boats(bundle, SELECTION_ROWING,
         (custSettings != null ? custSettings.activateRowingOptions : false));
     setToLanguage_Boats(bundle, SELECTION_CANOEING,
@@ -732,18 +674,15 @@ public class EfaTypes extends StorageObject {
     String[] types = makeTypeArray(type, EfaTypes.CATEGORY_SESSION);
     if (withEmptyValue && types != null && types.length > 0) {
       String[] types2 = new String[types.length + 1];
-      types2[0] = (type == ARRAY_STRINGLIST_VALUES ? "" : "<"
-          + International.getString("keine Auswahl") + ">");
+      types2[0] = (type == ARRAY_STRINGLIST_VALUES ? ""
+          : "<"
+              + International.getString("keine Auswahl") + ">");
       for (int i = 0; i < types.length; i++) {
         types2[i + 1] = types[i];
       }
       types = types2;
     }
     return types;
-  }
-
-  public static String[] makeGenderArray(int type) {
-    return makeTypeArray(type, EfaTypes.CATEGORY_GENDER);
   }
 
   public static String[] makeBoatTypeArray(int type) {
@@ -791,15 +730,14 @@ public class EfaTypes extends StorageObject {
           day = TYPE_WEEKDAY_SUNDAY;
           break;
       }
-      list[i] = (type == ARRAY_STRINGLIST_VALUES ?
-          day :
-            getValueWeekday(day));
+      list[i] = (type == ARRAY_STRINGLIST_VALUES ? day : getValueWeekday(day));
     }
     return list;
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update,
+      boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, EfaTypeRecord.CATEGORY);

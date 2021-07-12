@@ -11,17 +11,14 @@ package de.nmichael.efa.data;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemFactory;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
@@ -34,7 +31,6 @@ import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.Dialog;
@@ -53,30 +49,22 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String FIRSTNAME = "FirstName";
   public static final String LASTNAME = "LastName";
   public static final String FIRSTLASTNAME = "FirstLastName";
-  public static final String NAMEAFFIX = "NameAffix";
-  public static final String TITLE = "Title";
-  public static final String GENDER = "Gender";
-  public static final String ASSOCIATION = "Association";
   public static final String STATUSID = "StatusId";
   public static final String EMAIL = "Email";
   public static final String ISALLOWEDEMAIL = "erlaubtEmail";
   public static final String ISALLOWEDPHONE = "erlaubtTelefon";
   public static final String ISALLOWEDSHORT = "erlaubtKürzel";
-  public static final String ISALLOWEDSPELL = "erlaubtSchreibweise";
+  public static final String HASCHANGEDSPELLNAME = "hatSchreibweiseGeändert";
   public static final String MEMBERSHIPNO = "MembershipNo";
   public static final String EXCLUDEFROMSTATISTIC = "ExcludeFromStatistics";
-  public static final String BOATUSAGEBAN = "BoatUsageBan";
   public static final String INPUTSHORTCUT = "InputShortcut";
   public static final String FESTNETZ1 = "FreeUse1";
   public static final String HANDY2 = "FreeUse2";
-  public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
+  public static final String[] IDX_NAME_NAME = new String[] { FIRSTLASTNAME };
   private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
   private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
   private static String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-  private static String CAT_ADDRESS = "%03%" + International.getString("Adresse");
-  private static String CAT_GROUPS = "%04%" + International.getString("Gruppen");
-  private static String CAT_FREEUSE = "%05%" + International.getString("Freie Verwendung");
-  private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
+  private static String CAT_GROUPS = "%03%" + International.getString("Gruppen");
 
   public static void initialize() {
     Vector<String> f = new Vector<String>();
@@ -90,14 +78,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_STRING);
     f.add(FIRSTLASTNAME);
     t.add(IDataAccess.DATA_VIRTUAL);
-    f.add(NAMEAFFIX);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(TITLE);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(GENDER);
-    t.add(IDataAccess.DATA_STRING);
-    f.add(ASSOCIATION);
-    t.add(IDataAccess.DATA_STRING);
     f.add(STATUSID);
     t.add(IDataAccess.DATA_UUID);
     f.add(EMAIL);
@@ -108,13 +88,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(ISALLOWEDSHORT);
     t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(ISALLOWEDSPELL);
+    f.add(HASCHANGEDSPELLNAME);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(MEMBERSHIPNO);
     t.add(IDataAccess.DATA_STRING);
     f.add(EXCLUDEFROMSTATISTIC);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(BOATUSAGEBAN);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(INPUTSHORTCUT);
     t.add(IDataAccess.DATA_STRING);
@@ -124,7 +102,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     t.add(IDataAccess.DATA_STRING);
     MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
     metaData.setKey(new String[] { ID }); // plus VALID_FROM
-    metaData.addIndex(IDX_NAME_NAMEAFFIX);
+    metaData.addIndex(IDX_NAME_NAME);
   }
 
   public PersonRecord(Persons persons, MetaData metaData) {
@@ -174,45 +152,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   public String getFirstLastName(boolean alwaysFirstFirst) {
-    return getFullName(getString(FIRSTNAME), getString(LASTNAME), null,
+    return getFullName(getString(FIRSTNAME), getString(LASTNAME),
         (alwaysFirstFirst ? true : Daten.efaConfig.getValueNameFormatIsFirstNameFirst()));
-  }
-
-  public void setNameAffix(String affix) {
-    setString(NAMEAFFIX, affix);
-  }
-
-  public String getNameAffix() {
-    return getString(NAMEAFFIX);
-  }
-
-  public void setTitle(String title) {
-    setString(TITLE, title);
-  }
-
-  public String getTitle() {
-    return getString(TITLE);
-  }
-
-  public void setGender(String gender) {
-    setString(GENDER, gender);
-  }
-
-  public String getGender() {
-    return getString(GENDER);
-  }
-
-  public String getGenderAsString() {
-    String s = getGender();
-    return (s != null ? Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, s) : null);
   }
 
   public DataTypeDate getBirthday() {
     return null;
-  }
-
-  public String getAssocitation() {
-    return getString(ASSOCIATION);
   }
 
   public void setStatusId(UUID id) {
@@ -276,12 +221,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     setBool(ISALLOWEDSHORT, isErlaubtKuerzel);
   }
 
-  public boolean isErlaubtSchreibweise() {
-    return getBool(ISALLOWEDSPELL);
+  public boolean hatSchreibweiseNameGeaendert() {
+    return getBool(HASCHANGEDSPELLNAME);
   }
 
-  public void setErlaubnisSchreibweise(boolean isErlaubtSchreibweise) {
-    setBool(ISALLOWEDSPELL, isErlaubtSchreibweise);
+  public void setSchreibweiseGeaendert(boolean schreibweiseGeaendert) {
+    setBool(HASCHANGEDSPELLNAME, schreibweiseGeaendert);
   }
 
   public void setMembershipNo(String no) {
@@ -294,14 +239,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public boolean getExcludeFromPublicStatistics() {
     return getBool(EXCLUDEFROMSTATISTIC);
-  }
-
-  public void setBoatUsageBan(boolean banned) {
-    setBool(BOATUSAGEBAN, banned);
-  }
-
-  public boolean getBoatUsageBan() {
-    return getBool(BOATUSAGEBAN);
   }
 
   public void setInputShortcut(String shortcut) {
@@ -341,7 +278,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return null;
   }
 
-  public static String getFullName(String first, String last, String affix, boolean firstFirst) {
+  public static String getFullName(String first, String last, boolean firstFirst) {
     String s = "";
     if (firstFirst) {
       if (first != null && first.length() > 0) {
@@ -358,13 +295,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         s = s + (s.length() > 0 ? ", " : "") + first.trim();
       }
     }
-    if (affix != null && affix.length() > 0) {
-      s = s + " (" + affix + ")";
-    }
     return s;
   }
 
-  public static String getFirstLastName(String name) {
+  private static String getFirstLastName(String name) {
     if (name == null || name.length() == 0) {
       return "";
     }
@@ -375,49 +309,29 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return (name.substring(pos + 2) + " " + name.substring(0, pos)).trim();
   }
 
-  public String getQualifiedName(boolean firstFirst) {
-    return getFullName(getFirstName(), getLastName(), getNameAffix(), firstFirst);
-  }
-
   @Override
   public String getQualifiedName() {
-    return getQualifiedName(Daten.efaConfig.getValueNameFormatIsFirstNameFirst());
+    return getFullName(getFirstName(), getLastName(),
+        Daten.efaConfig.getValueNameFormatIsFirstNameFirst());
   }
 
   @Override
   public String[] getQualifiedNameFields() {
-    return IDX_NAME_NAMEAFFIX;
+    return IDX_NAME_NAME;
   }
 
   @Override
   public String[] getQualifiedNameFieldsTranslateVirtualToReal() {
-    return new String[] { FIRSTNAME, LASTNAME, NAMEAFFIX };
+    return new String[] { FIRSTNAME, LASTNAME };
   }
 
   @Override
   public String[] getQualifiedNameValues(String qname) {
-    Matcher m = qnamePattern.matcher(qname);
-    if (m.matches()) {
-      return new String[] {
-          getFirstLastName(m.group(1).trim()),
-          m.group(2).trim()
-      };
-    } else {
-      return new String[] {
-          getFirstLastName(qname.trim()),
-          null
-      };
-    }
+    return new String[] { getFirstLastName(qname.trim()) };
   }
 
-  public static String[] tryGetFirstLastNameAndAffix(String s) {
-    Matcher m = qnamePattern.matcher(s);
+  public static String[] tryGetFirstLastName(String s) {
     String name = s.trim();
-    String affix = null;
-    if (m.matches()) {
-      name = m.group(1).trim();
-      affix = m.group(2).trim();
-    }
 
     boolean firstFirst = Daten.efaConfig.getValueNameFormatIsFirstNameFirst();
     String firstName = (firstFirst ? name : null); // if first and last name cannot be found, ...
@@ -433,18 +347,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       firstName = name.substring(pos + 2);
       lastName = name.substring(0, pos).trim();
     }
-    return new String[] { firstName, lastName, affix };
-  }
-
-  public static String[] tryGetNameAndAffix(String s) {
-    Matcher m = qnamePattern.matcher(s);
-    String name = s.trim();
-    String affix = null;
-    if (m.matches()) {
-      name = m.group(1).trim();
-      affix = m.group(2).trim();
-    }
-    return new String[] { name, affix };
+    return new String[] { firstName, lastName };
   }
 
   @Override
@@ -457,13 +360,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     if (fieldName.equals(FIRSTLASTNAME)) {
       return getFirstLastName(false);
     }
-    if (fieldName.equals(GENDER)) {
-      String s = getAsString(fieldName);
-      if (s != null) {
-        return Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, s);
-      }
-      return null;
-    }
     if (fieldName.equals(STATUSID)) {
       return getStatusName();
     }
@@ -472,19 +368,38 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   @Override
   public boolean setFromText(String fieldName, String value) {
-    if (fieldName.equals(GENDER)) {
-      String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, value);
-      if (s != null) {
-        set(fieldName, s);
-      }
-    } else if (fieldName.equals(STATUSID)) {
-      Status status = getPersistence().getProject().getStatus(false);
-      StatusRecord sr = status.findStatusByName(value);
-      if (sr != null) {
-        set(fieldName, sr.getId());
-      }
-    } else {
-      return super.setFromText(fieldName, value);
+    switch (fieldName) {
+      case EMAIL:
+        // mit jeder Email auch Erlaubnis setzen
+        if (value != null && !value.trim().isBlank()) {
+          setErlaubnisEmail(true);
+        }
+        return super.setFromText(fieldName, value);
+      case STATUSID:
+        switch (value) {
+          case "Mitglieder ausgetreten":
+          case "Mitglieder verstorben":
+          case "Mitglieder ausgeschlossen":
+          case "Passives Mitglied":
+          case "Externe Adressen":
+          case "andere":
+          case "Gast":
+            setInvalidFrom(System.currentTimeMillis());
+            setDeleted(true);
+          default:
+        }
+        if ("Mitglieder gek?ndigt".equals(value)) {
+          value = "Mitglieder gekündigt"; // Umlaute
+        }
+        Status status = getPersistence().getProject().getStatus(false);
+        StatusRecord statusRecord = status.findStatusByName(value);
+        if (statusRecord != null) {
+          set(fieldName, statusRecord.getId());
+        }
+
+        break;
+      default:
+        return super.setFromText(fieldName, value);
     }
     return (value.equals(getAsText(fieldName)));
   }
@@ -505,17 +420,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
 
     return DataTypeDate.getMonthIntersect(from, to, startDate, endDate);
-  }
-
-  public static String getAssociationPostfix(PersonRecord p) {
-    if (p != null && p.getAssocitation() != null && p.getAssocitation().length() > 0) {
-      return " (" + p.getAssocitation() + ")";
-    }
-    return "";
-  }
-
-  public String getAssociationPostfix() {
-    return getAssociationPostfix(this);
   }
 
   public static String trimAssociationPostfix(String s) {
@@ -574,58 +478,23 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
       v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
+      v.add(item = new ItemTypeBoolean(PersonRecord.HASCHANGEDSPELLNAME,
+          hatSchreibweiseNameGeaendert(),
+          IItemType.TYPE_PUBLIC, CAT_MOREDATA,
+          International.getString("hat eigene Schreibweise Name")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDEMAIL, isErlaubtEmail(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Email")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDPHONE, isErlaubtTelefon(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Telefon")));
       v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSHORT, isErlaubtKuerzel(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("ist Erlaubt Kürzel")));
-      v.add(item = new ItemTypeBoolean(PersonRecord.ISALLOWEDSPELL, isErlaubtSchreibweise(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA,
-          International.getString("ist Erlaubt Schreibweise")));
-      v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
-          IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
       item.setFieldSize(300, -1);
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
               .getString("von allgemein verfügbaren Statistiken ausnehmen")));
 
-      // CAT_GROUPS
-      if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
-        Vector<IItemType[]> itemList = new Vector<IItemType[]>();
-        GroupRecord[] groupList = getGroupList();
-        DataTypeList<UUID> agList = new DataTypeList<UUID>();
-        for (int i = 0; groupList != null && i < groupList.length; i++) {
-          agList.add(groupList[i].getId());
-        }
-        for (int i = 0; agList != null && i < agList.length(); i++) {
-          IItemType[] items = getDefaultItems(GUIITEM_GROUPS);
-          ((ItemTypeStringAutoComplete) items[0]).setId(agList.get(i));
-          itemList.add(items);
-        }
-        v.add(item = new ItemTypeItemList(GUIITEM_GROUPS, itemList, this,
-            IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Gruppenzugehörigkeit")));
-        ((ItemTypeItemList) item).setXForAddDelButtons(3);
-        ((ItemTypeItemList) item).setPadYbetween(0);
-        ((ItemTypeItemList) item).setRepeatTitle(false);
-        ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
-      } // CAT_GROUPS
-
     } // admin visible
-
-    v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Verein")));
-    v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Titel")));
-    ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Namenszusatz")));
-    ((ItemTypeString) item).setNotAllowedCharacters(",");
-    v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
-        EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes
-            .makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_EXPERT, CAT_FREEUSE, International.getString("Geschlecht")));
 
     // hidden parameter, just for BatchEditDialog
     v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.FIRSTLASTNAME, null,
@@ -713,35 +582,47 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public boolean cleanPerson() {
     boolean retVal = false;
-    // 1. bestimmte Felder leeren
-    setBoatUsageBan(false); // kommt nicht mehr
-    setNameAffix(null); // immer leer gewesen
-
+    // ist Person ein Mitglied? mit korrektem Status?
     if (!isDyingMember()) {
       return retVal;
     }
-    // 2. nur aktive Mitglieder behalten
-    long oneMinute = 60 * 1000;
-    long oneWeek = 7 * 24 * 60 * oneMinute;
-    long now = System.currentTimeMillis();
-    long invalidMillisAgo = now - getInvalidFrom();
-    if (invalidMillisAgo < oneWeek) {
-      return retVal; // nicht alt genug
-    }
+
+    // ist Person ewig gülig, d.h. ohne GültigBisDatum
     if (getInvalidFrom() == Long.MAX_VALUE) {
       return retVal; // ewig gültig
     }
+
+    long now = System.currentTimeMillis();
+
+    // Person erst kürzlich ungültig (dies Jahr)
+    Calendar c = Calendar.getInstance();
+    c.setTimeInMillis(now);
+    int yearActual = c.get(Calendar.YEAR);
+    c.setTimeInMillis(getInvalidFrom());
+    int yearInvalid = c.get(Calendar.YEAR);
+    if (yearActual == yearInvalid) {
+      return retVal; // nicht <uy diesem Jahr
+    }
+
+    // Person erst kürzlich ungültig (diese Woche)
+    long invalidMillisAgo = now - getInvalidFrom();
+    long oneWeek = 7 * 24 * 60 * 60 * 1000;
+    if (invalidMillisAgo < oneWeek) {
+      return retVal; // nicht alt genug
+    }
+
+    // jetzt wirklich löschen (zur Löschung markieren)
     setDeleted(true); // doof - Datensatz fehlt dann
     retVal = true;
     return retVal;
   }
 
   public boolean isDyingMember() {
-    String statusDesMitglieds = getStatusName();
-    if (statusDesMitglieds == null) {
-      return false;
+    if (!isStatusMember()) {
+      return true; // Person ist kein Mitglied
     }
-    switch (statusDesMitglieds) {
+
+    switch (getStatusName()) {
       case "Aktives Mitglied":
       case "Mitglieder gekündigt":
         return false;
@@ -764,7 +645,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     boolean kombinierteEmailErlaubnis = false;
     kombinierteEmailErlaubnis = isErlaubtEmail();
     if (!isValidEmail(emailToAdresse)) {
-      emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no.invalidEmailMitglied" + Daten.EMAILDEBUG_DOMAIN;
       emailSubject = "Error efa.invalidEmail " + getFirstLastName() + " ";
       kombinierteEmailErlaubnis = false;
     }
@@ -773,10 +654,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       emailSubject = "Error LastModified ";
       kombinierteEmailErlaubnis = false;
     }
-    emailSubject += "OH Änderung Bestätigung " + aktion;
+    emailSubject += "OH Änderung " + aktion;
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getFirstLastName();
     }
     String anrede = getFirstName();
@@ -797,30 +678,19 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     msg.add("Hallo " + anrede + "!");
     msg.add("");
     if (errorText != null && !errorText.isBlank()) {
-      msg.add("Das Ergebnis Deiner Anfrage lautet: " + aktion);
+      msg.add("Das Ergebnis Deiner Änderung lautet: " + aktion);
       msg.add("-->  \"" + errorText + "\"  <--");
       msg.add("");
-      switch (aktion) {
-        case "CONFIRM_CHANGE_NAME":
-        case "CONFIRM_SETMAIL":
-        case "CONFIRM_SETPHONENR":
-          msg.add("Bitte teile dem Schriftwart des Vereins Deine Änderungen auch mit.");
-          msg.add("Du könntest zB. diese Mail an schriftwart@overfreunde.de weiterleiten.");
-          msg.add("");
-          break;
-        default:
-          break;
-      }
     }
     if (aktion.contains("CONFIRM")) {
-      msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFa am Isekai. ");
+      msg.add("Hier ein Auszug Deiner persönlichen Daten bei EFA am Isekai. ");
       msg.add(" Vor- und Nachname: " + getFirstLastName());
       msg.add(" OH-MitgliedNr: " + getMembershipNo());
       msg.add(" Telefon: " + getHandy2() + " " + suppressNull(getFestnetz1()));
-      msg.add(" Telefon als Eingabehilfe in EFa "
+      msg.add(" Telefon als Eingabehilfe in EFA "
           + (isErlaubtTelefon() ? "" : "nicht ") + "freigegeben.");
       msg.add(" Email: " + suppressNull(getEmail()));
-      msg.add(" Emails versenden ist EFa " + (isErlaubtEmail() ? "" : "nicht ") + "erlaubt.");
+      msg.add(" Emails versenden ist EFA " + (isErlaubtEmail() ? "" : "nicht ") + "erlaubt.");
       msg.add(" Kürzel: \"" + suppressNull(getInputShortcut()) + "\" (Spitzname)");
       msg.add(" Kürzel ist bei Fahrtbeginn "
           + (isErlaubtKuerzel() ? "benutzbar." : "nicht erwünscht."));
@@ -833,7 +703,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     msg.add("Allerdings brauchst Du dort zur Identifizierung eine aktuelle Bootsreservierung.");
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("EFa-Touchscreen im Bootshaus");
+    msg.add("EFA-Touchscreen im Bootshaus");
     msg.add("");
     msg.add(International.getMessage("Newsletter abmelden {url}", getEfaURL("abmelden/")));
     return join(msg);
@@ -868,7 +738,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   private String getEfaURL(String folder) {
-    String url = "https://overfreunde.abfx.de/";
+    String url = Daten.WEB_DOMAIN_EFA_BOOTSHAUS;
     url += folder;
     url += "?mitgliedNr=" + getMembershipNo();
     return url;
@@ -892,30 +762,35 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return logbook.countPersonUsage(getId(), false /* allowSameDay */);
   }
 
-  public String checkUndAktualisiereHandyNr(String action, String newPhone) {
-    if (!isErlaubtTelefon()) {
-      return "noQuestion";
-    }
-    String telnumAusProfil = getFestnetz1();
-    if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
-      return "noQuestion";
-    }
-    telnumAusProfil = getHandy2();
-    if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
-      return "noQuestion"; // Nummer unverändert
-    }
-    if (telnumAusProfil == null) {
+  public String checkUndAktualisiereHandyNr(String action, String newPhone, boolean alleFragen) {
+    // true = nur zugesagte Leute werden korrigiert.
+    // false = alle Leute werden gefragt, Ausnahme zugesagte Nummer stimmt noch
+    String telnumAusProfil = International.getString("keine Nummer bzw nix"); // keine bzw. nix
+    if (!alleFragen || isErlaubtTelefon()) {
+      if (!isErlaubtTelefon()) {
+        return "noQuestion";
+      }
       telnumAusProfil = getFestnetz1();
+      if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
+        return "noQuestion";
+      }
+      telnumAusProfil = getHandy2();
+      if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
+        return "noQuestion"; // Nummer unverändert
+      }
+      if (telnumAusProfil == null) {
+        telnumAusProfil = getFestnetz1();
+      }
     }
 
     // weder noch
     String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:\n";
     frage += "- Heutige Telefonnummer ist: " + newPhone + ",\n";
     frage += "- sonst übliche TelefonNr lautete: " + telnumAusProfil + ".\n";
-    frage += "Wenn Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
+    frage += "Falls Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
     frage += "\n";
-    frage += "Darf sich EFa die neue Nummer merken? ";
-    frage += "Soll EFa in Zukunft die neue Nummer vorschlagen?\n";
+    frage += "Darf sich EFA die neue Nummer merken? ";
+    frage += "Soll EFA in Zukunft die neue Nummer vorschlagen?\n";
     frage += "alte Nummer                                   Drücke ESC für zurück                        neue Nummer\n";
     int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
         newPhone + " vorschlagen", // 0 ja neue Nummer übernehmen
@@ -926,7 +801,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         setHandy2(newPhone);
         setFestnetz1(null);
         setErlaubnisTelefon(true);
-        // TODO Dialog "PS: Kennt der Schriftwart Deine neue Nummer schon?"
         return "savedNew"; // muss noch gespeichert werden / persistiert
       case 1: // gar nix mehr vorschlagen
         setHandy2(null);
@@ -934,11 +808,17 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         setErlaubnisTelefon(false);
         return "savedEmpty"; // muss noch gespeichert werden / persistiert
       case 2: // alten Vorschlag beibehalten (links)
-        setHandy2(telnumAusProfil);
-        setFestnetz1(null);
-        setErlaubnisTelefon(true);
-        return "savedOld"; // muss noch gespeichert werden / persistiert
-
+        if (isErlaubtTelefon()) {
+          setHandy2(telnumAusProfil);
+          setFestnetz1(null);
+          setErlaubnisTelefon(true);
+          return "savedOld"; // muss noch gespeichert werden / persistiert
+        } else {
+          setHandy2(null);
+          setFestnetz1(null);
+          setErlaubnisTelefon(false);
+          return "savedEmpty"; // muss noch gespeichert werden / persistiert
+        }
       case 3: // hier könnte ein Button "abbrechen" rein...
         return "abbrechen"; // = nix tun
       case -1: // abbrechen = cancel = ESC = x // zurück, nochmal die Nummer ändern

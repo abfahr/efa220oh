@@ -78,7 +78,6 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
   private ItemTypeBoolean sDestination;
   private ItemTypeBoolean sDistance;
   private ItemTypeBoolean sComments;
-  private ItemTypeBoolean sSessiontype;
   private ItemTypeBoolean sSessiongroup;
   private ItemTypeButton sbAll;
   private ItemTypeButton sbNone;
@@ -137,8 +136,6 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Kilometer")));
     items.add(sComments = new ItemTypeBoolean(LogbookRecord.COMMENTS, true,
         IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Bemerkungen")));
-    items.add(sSessiontype = new ItemTypeBoolean(LogbookRecord.SESSIONTYPE, true,
-        IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Fahrtart")));
     items.add(sSessiongroup = new ItemTypeBoolean(LogbookRecord.SESSIONGROUPID, true,
         IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Fahrtgruppe")));
     items.add(sbAll = new ItemTypeButton("SEARCH_SELECT_ALL",
@@ -282,7 +279,6 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
       sDestination.parseAndShowValue(Boolean.toString(selected));
       sDistance.parseAndShowValue(Boolean.toString(selected));
       sComments.parseAndShowValue(Boolean.toString(selected));
-      sSessiontype.parseAndShowValue(Boolean.toString(selected));
       sSessiongroup.parseAndShowValue(Boolean.toString(selected));
     } else {
       eIncomplete.parseAndShowValue(Boolean.toString(selected));
@@ -374,7 +370,7 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
       Persons persons = Daten.project.getPersons(false);
       Destinations destinations = Daten.project.getDestinations(false);
 
-      DataKey k = (startWithNext ? it.getNext() : it.getCurrent());
+      DataKey<?, ?, ?> k = (startWithNext ? it.getNext() : it.getCurrent());
       while (true) {
         if (k == null) {
           if (JOptionPane.showConfirmDialog(efaBaseFrame,
@@ -449,12 +445,6 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
           if (tryMatch(s, r.getComments(), exact,
               (searchLogbookDialog != null ? searchLogbookDialog.sComments.getValue() : true))) {
             foundMatch(r, efaBaseFrame.comments, jumpToField);
-            return true;
-          }
-          if (tryMatch(s, Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, r.getSessionType()),
-              exact,
-              (searchLogbookDialog != null ? searchLogbookDialog.sSessiontype.getValue() : true))) {
-            foundMatch(r, efaBaseFrame.sessiontype, jumpToField);
             return true;
           }
           if (tryMatch(s, r.getSessionGroupAsName(), exact,

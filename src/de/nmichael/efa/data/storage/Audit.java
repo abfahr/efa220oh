@@ -12,6 +12,7 @@ package de.nmichael.efa.data.storage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -134,7 +135,7 @@ public class Audit extends Thread {
     if (id == null) {
       return false;
     }
-    DataKey k = new DataKey(id, null, null);
+    DataKey<?, ?, ?> k = new DataKey<Object, Object, Object>(id, null, null);
     try {
       if (validAt >= 0) {
         return so.dataAccess.getValidAt(k, validAt) == null;
@@ -172,7 +173,8 @@ public class Audit extends Thread {
 
   private String getNameOfLatestInvalidRecord(UUID id, StorageObject so) {
     try {
-      DataRecord[] recs = so.dataAccess.getValidAny(new DataKey(id, null, null));
+      DataRecord[] recs = so.dataAccess
+          .getValidAny(new DataKey<UUID, Object, Object>(id, null, null));
       long latestValid = -1;
       DataRecord latestRecord = null;
       for (int i = 0; recs != null && i < recs.length; i++) {
@@ -199,15 +201,13 @@ public class Audit extends Thread {
       BoatReservations boatReservations = project.getBoatReservations(false);
       BoatDamages boatDamages = project.getBoatDamages(false);
       Groups groups = project.getGroups(false);
-      Crews crews = project.getCrews(false);
-      Destinations destinations = project.getDestinations(false);
       Persons persons = project.getPersons(false);
 
       Hashtable<UUID, Integer> boatVersions = new Hashtable<UUID, Integer>();
       int[] boathouseIds = project.getAllBoathouseIds();
 
       DataKeyIterator it = boats.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         BoatRecord boat = (BoatRecord) boats.data().get(k);
         if (boat.getId() == null ||
@@ -264,8 +264,7 @@ public class Audit extends Thread {
             if (isReferenceInvalid(uuidList.get(i), groups, -1)) {
               uuidList.remove(i--);
               listChanged = true;
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+              auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
                       + International.getString("Boot") + " "
                       + boat.getQualifiedName() + ": "
@@ -307,8 +306,7 @@ public class Audit extends Thread {
               }
             }
             if (!found) {
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+              auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
                       + International.getString("Bootsstatus") + " "
                       + status.getQualifiedName() + ": "
@@ -367,8 +365,7 @@ public class Audit extends Thread {
             status.setCurrentStatus(status.getBaseStatus());
             status.setEntryNo(null);
             updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
+            auditWarning(Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                 "runAuditBoats(): "
                     + International.getString("Bootsstatus") + " "
                     + status.getBoatText() + ": "
@@ -379,8 +376,7 @@ public class Audit extends Thread {
                     + " (Logbook " + logbookName + " or EntryNo " + entryNo + " not set)");
           }
           if (!logbookName.equals(project.getCurrentLogbookEfaBoathouse())) {
-            auditError(
-                Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+            auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                 "runAuditBoats(): "
                     + International.getString("Bootsstatus") + " "
                     + status.getBoatText() + ": "
@@ -400,8 +396,7 @@ public class Audit extends Thread {
               status.setLogbook(null);
               status.setEntryNo(null);
               updated = true;
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
+              auditWarning(Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                   "runAuditBoats(): "
                       + International.getString("Bootsstatus") + " "
                       + status.getBoatText() + ": "
@@ -417,8 +412,7 @@ public class Audit extends Thread {
                 status.setLogbook(null);
                 status.setEntryNo(null);
                 updated = true;
-                auditWarning(
-                    Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
+                auditWarning(Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                     "runAuditBoats(): "
                         + International.getString("Bootsstatus") + " "
                         + status.getBoatText() + ": "
@@ -470,8 +464,7 @@ public class Audit extends Thread {
               if (correctErrors) {
                 boatReservations.dataAccess.update(reservation);
               }
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_REFTOTEXT,
+              auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditBoats(): "
                       + International.getString("Reservierung") + " "
                       + boat[0].getQualifiedName() + ": "
@@ -483,8 +476,7 @@ public class Audit extends Thread {
               if (correctErrors) {
                 boatReservations.dataAccess.update(reservation);
               }
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+              auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
                       + International.getString("Reservierung") + " "
                       + boat[0].getQualifiedName() + ": "
@@ -527,8 +519,7 @@ public class Audit extends Thread {
               damage.setReportedByPersonId(null);
               damage.setReportedByPersonName(name);
               updated = true;
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_REFTOTEXT,
+              auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditBoats(): "
                       + International.getString("Bootsschaden") + " "
                       + boat[0].getQualifiedName() + ": "
@@ -536,8 +527,7 @@ public class Audit extends Thread {
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
             } else {
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+              auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
                       + International.getString("Bootsschaden") + " "
                       + boat[0].getQualifiedName() + ": "
@@ -555,8 +545,7 @@ public class Audit extends Thread {
               damage.setFixedByPersonId(null);
               damage.setFixedByPersonName(name);
               updated = true;
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_REFTOTEXT,
+              auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditBoats(): "
                       + International.getString("Bootsschaden") + " "
                       + boat[0].getQualifiedName() + ": "
@@ -564,8 +553,7 @@ public class Audit extends Thread {
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
             } else {
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+              auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                   "runAuditBoats(): "
                       + International.getString("Bootsschaden") + " "
                       + boat[0].getQualifiedName() + ": "
@@ -605,7 +593,7 @@ public class Audit extends Thread {
         return crewErr; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = crews.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         CrewRecord crew = (CrewRecord) crews.data().get(k);
         boolean updated = false;
@@ -627,7 +615,7 @@ public class Audit extends Thread {
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditBoats() Caught Exception: " + e.toString());
+          "runAuditCrews() Caught Exception: " + e.toString());
       return ++crewErr;
     }
   }
@@ -641,7 +629,7 @@ public class Audit extends Thread {
         return groupErr; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = groups.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         GroupRecord group = (GroupRecord) groups.data().get(k);
         DataTypeList<UUID> uuidList = group.getMemberIdList();
@@ -650,8 +638,7 @@ public class Audit extends Thread {
           if (isReferenceInvalid(uuidList.get(i), persons, -1)) {
             uuidList.remove(i--);
             listChanged = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditGroups(): "
                     + International.getString("Gruppe") + " "
                     + group.getQualifiedName() + ": "
@@ -674,7 +661,7 @@ public class Audit extends Thread {
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditBoats() Caught Exception: " + e.toString());
+          "runAuditGroups() Caught Exception: " + e.toString());
       return ++groupErr;
     }
   }
@@ -690,7 +677,7 @@ public class Audit extends Thread {
         // list)
       }
       DataKeyIterator it = destinations.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         boolean updated = false;
         DestinationRecord destination = (DestinationRecord) destinations.data().get(k);
@@ -700,8 +687,7 @@ public class Audit extends Thread {
           if (isReferenceInvalid(uuidList.get(i), waters, -1)) {
             uuidList.remove(i--);
             listChanged = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditDestinations(): "
                     + International.getString("Ziel") + " "
                     + destination.getQualifiedName() + ": "
@@ -721,8 +707,7 @@ public class Audit extends Thread {
             }
           }
           if (!found) {
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                 "runAuditDestinations(): "
                     + International.getString("Ziel") + " "
                     + destination.getQualifiedName() + ": "
@@ -764,7 +749,7 @@ public class Audit extends Thread {
         return watersErr; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = waters.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         boolean updated = false;
         WatersRecord water = (WatersRecord) waters.data().get(k);
@@ -812,15 +797,14 @@ public class Audit extends Thread {
         return personErr; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = persons.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         PersonRecord person = (PersonRecord) persons.data().get(k);
         boolean updated = false;
         if (isReferenceInvalid(person.getStatusId(), status, -1)) {
           person.setStatusId(status.getStatusOther().getId());
           updated = true;
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_REFTOTEXT,
+          auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
               "runAuditPersons(): "
                   + International.getString("Person") + " "
                   + person.getQualifiedName() + ": "
@@ -841,7 +825,7 @@ public class Audit extends Thread {
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditBoats() Caught Exception: " + e.toString());
+          "runAuditPersons() Caught Exception: " + e.toString());
       return ++personErr;
     }
   }
@@ -855,13 +839,12 @@ public class Audit extends Thread {
         return faErr; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = fahrtenabzeichen.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         FahrtenabzeichenRecord abzeichen = (FahrtenabzeichenRecord) fahrtenabzeichen.data().get(k);
         if (persons.dataAccess
             .getValidLatest(PersonRecord.getKey(abzeichen.getPersonId(), -1)) == null) {
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_RECNOTFOUND,
+          auditWarning(Logger.MSG_DATA_AUDIT_RECNOTFOUND,
               "runAuditFahrtenabzeichen(): Keine Person zu Fahrtenabzeichen gefunden: "
                   + abzeichen.toString());
           if (correctErrors) {
@@ -878,9 +861,135 @@ public class Audit extends Thread {
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditBoats() Caught Exception: " + e.toString());
+          "runAuditFahrtenabzeichen() Caught Exception: " + e.toString());
       return ++faErr;
     }
+  }
+
+  private int runAuditBoatReservations() {
+    int reservErr = 0;
+    try {
+      BoatReservations boatReservations = project.getBoatReservations(false);
+      Persons persons = project.getPersons(false);
+      if (persons.dataAccess.getNumberOfRecords() == 0) {
+        return reservErr; // don't run check agains empty list (could be due to error opening list)
+      }
+      String logbookName = Daten.project.getCurrentLogbookEfaBoathouse();
+      new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
+      UUID id;
+
+      DataKeyIterator it = boatReservations.data().getStaticIterator();
+      DataKey<?, ?, ?> k = it.getFirst();
+      while (k != null) {
+        BoatReservationRecord brr = (BoatReservationRecord) boatReservations.data().get(k);
+        long validAt = brr.getValidAtTimestamp();
+        boolean updated = false;
+
+        // Person
+        if (brr.getPersonId() != null && brr.getPersonName() != null
+            && brr.getPersonName().length() > 0
+            && !isReferenceInvalid(brr.getPersonId(), persons, validAt)) {
+          // TODO 2021-03-01 abf Wird das jemals benutzt?
+          String name = brr.getPersonName();
+          brr.setPersonName(null);
+          updated = true;
+          auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
+              "runAuditLogbook(): "
+                  + International.getString("Bootsreservierungen") + " " + logbookName + " "
+                  + International.getMessage("Reservierung für {boat}", brr.getEfaId()) + ": "
+                  + International.getMessage(
+                      "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
+                      International.getString("Person"), name + " [redundant]",
+                      persons.getPerson(brr.getPersonId(), validAt).getQualifiedName()));
+        }
+        if (isReferenceInvalid(brr.getPersonId(), persons, validAt)) {
+          // TODO 2021-03-01 abf Wird das jemals benutzt?
+          String name = getNameOfLatestInvalidRecord(brr.getPersonId(), persons);
+          if (name != null) {
+            brr.setPersonName(name);
+            brr.setPersonId(null);
+            updated = true;
+            auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                "runAuditLogbook(): "
+                    + International.getString("Bootsreservierungen") + " " + logbookName + " "
+                    + International.getMessage("Reservierung für {boat}", brr.getEfaId()) + ": "
+                    + International.getMessage(
+                        "Ungültige Referenz für {item} durch '{name}' ersetzt.",
+                        International.getString("Person"), name));
+          } else {
+            // TODO 2021-03-01 abf Wird das jemals benutzt?
+            auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+                "runAuditLogbook(): "
+                    + International.getString("Bootsreservierungen") + " " + logbookName + " "
+                    + International.getMessage("Reservierung für {boat}", brr.getEfaId()) + ": "
+                    + International.getMessage(
+                        "Ungültige Referenz für {item} in Feld '{fieldname}' gefunden.",
+                        International.getString("Person"), International.getString("Mitglied")));
+            reservErr++;
+          }
+        } else {
+          String name = brr.getPersonName();
+          id = findValidReference(name, persons, validAt);
+          if (id == null && name != null) {
+            String nameWithPath = Daten.efaNamesDirectory
+                + logbookName + Daten.fileSep
+                + name.replace("/", "");
+            try {
+              BufferedReader buffer = new BufferedReader(new FileReader(nameWithPath));
+              String nameCandidate = buffer.readLine(); // take first line as new candidate
+              id = findValidReference(nameCandidate, persons, validAt);
+              buffer.close();
+              if (nameCandidate != null && id != null) {
+                touch(new File(nameWithPath), System.currentTimeMillis());
+              }
+            } catch (FileNotFoundException e) {
+              try {
+                new File(nameWithPath).createNewFile();
+              } catch (IOException ioe) {
+                auditInfo(Logger.MSG_ABF_ERROR,
+                    "Error while creating the new empty file " + nameWithPath + " :" + ioe);
+              }
+            }
+          }
+          if (id != null) {
+            brr.setPersonId(id);
+            brr.setPersonName(null);
+            updated = true;
+            auditInfo(Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                "runAuditBoatReservations(): "
+                    + International.getMessage("Reservierung_für_{boat}", brr.getEfaId()) + ": "
+                    + International.getMessage(
+                        "{item} '{name}' durch Referenz zu Datensatz '{name}' ersetzt.",
+                        International.getString("Person"),
+                        name + " [" + International.getString("unbekannt") + "]",
+                        persons.getPerson(id, validAt).getQualifiedName()));
+          }
+        }
+        if (updated) {
+          if (correctErrors) {
+            boatReservations.dataAccess.update(brr);
+            String aktion = "KORREKTUR";
+            brr.sendEmailBeiReservierung(aktion);
+          }
+        }
+        k = it.getNext();
+      }
+
+      return reservErr;
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      auditError(Logger.MSG_DATA_AUDIT,
+          "runAuditBoatReservations() Caught Exception: " + e.toString());
+      return ++reservErr;
+    }
+  }
+
+  private void touch(File file, long timestamp) {
+    try {
+      if (!file.exists())
+        new FileOutputStream(file).close();
+      file.setLastModified(timestamp);
+    } catch (IOException e) {}
   }
 
   private int archiveMessages(Messages messages, boolean all) throws Exception {
@@ -895,7 +1004,7 @@ public class Audit extends Thread {
     int cntMoved = 0;
     try {
       DataKeyIterator it = messages.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         MessageRecord r = (MessageRecord) messages.data().get(k);
         if (all || r.getRead()) {
@@ -913,8 +1022,7 @@ public class Audit extends Thread {
         k = it.getNext();
       }
       archived.close();
-      auditInfo(
-          Logger.MSG_DATA_FILEARCHIVED,
+      auditInfo(Logger.MSG_DATA_FILEARCHIVED,
           (all ? International
               .getMessage(
                   "Alle {count} Nachrichten wurden erfolgreich in die Archivdatei {filename} verschoben.",
@@ -937,8 +1045,7 @@ public class Audit extends Thread {
       if (messages.data().getStorageType() == IDataAccess.TYPE_FILE_XML) {
         long size = ((DataFile) messages.data()).getFileSize();
         if (size > MAX_MESSAGES_FILESIZE) {
-          auditInfo(
-              Logger.MSG_DATA_FILESIZEHIGH,
+          auditInfo(Logger.MSG_DATA_FILESIZEHIGH,
               International
                   .getMessage(
                       "Nachrichtendatei hat maximale Dateigröße überschritten. Derzeitige Größe: {size} byte",
@@ -946,37 +1053,30 @@ public class Audit extends Thread {
           int cntUnread = archiveMessages(messages, false);
           size = ((DataFile) messages.data()).getFileSize();
           if (size > 4 * MAX_MESSAGES_FILESIZE) {
-            auditError(
-                Logger.MSG_DATA_FILESIZEHIGH,
-                International
-                    .getMessage(
-                        "Nachrichtendatei hat maximale Dateigröße überschritten. Derzeitige Größe: {size} byte",
-                        size)
-                    +
-                    " - File Size way too high - Emergency Backup of all Messages");
+            auditError(Logger.MSG_DATA_FILESIZEHIGH,
+                International.getMessage(
+                    "Nachrichtendatei hat maximale Dateigröße überschritten. Derzeitige Größe: {size} byte",
+                    size)
+                    + " - File Size way too high - Emergency Backup of all Messages");
             cntUnread = archiveMessages(messages, true);
             size = ((DataFile) messages.data()).getFileSize();
           }
           if (size > MAX_MESSAGES_FILESIZE / 2) {
-            auditWarning(
-                Logger.MSG_DATA_FILESIZEHIGH,
+            auditWarning(Logger.MSG_DATA_FILESIZEHIGH,
                 International
                     .getMessage(
                         "Nachrichtendatei ist nach Archivierung gelesener Nachrichten noch immer groß. Derzeitige Größe: {size} byte",
                         size));
-            auditWarning(
-                Logger.MSG_DATA_FILESIZEHIGH,
+            auditWarning(Logger.MSG_DATA_FILESIZEHIGH,
                 International
                     .getMessage(
                         "Es gibt {count} ungelesene Nachrichten. Bitte lies die Nachrichten und markiere sie als gelesen.",
                         cntUnread));
           }
           if (size > 2 * MAX_MESSAGES_FILESIZE) {
-            auditError(
-                Logger.MSG_DATA_FILESIZEHIGH,
-                International
-                    .getString(
-                        "Die Nachrichtendatei ist sehr groß. Bitte lösche umgehend alte Nachrichten und markiere gelesene Nachrichten als gelesen!"));
+            auditError(Logger.MSG_DATA_FILESIZEHIGH,
+                International.getString(
+                    "Die Nachrichtendatei ist sehr groß. Bitte lösche umgehend alte Nachrichten und markiere gelesene Nachrichten als gelesen!"));
           }
         }
       }
@@ -995,7 +1095,7 @@ public class Audit extends Thread {
       Statistics statistics = project.getStatistics(false);
       Hashtable<Integer, StatisticsRecord> hash = new Hashtable<Integer, StatisticsRecord>();
       DataKeyIterator it = statistics.dataAccess.getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         StatisticsRecord r = (StatisticsRecord) statistics.dataAccess.get(k);
         if ((r.getFilterBoatOwner() == null || r.getFilterBoatOwner().length() == 0) &&
@@ -1062,7 +1162,7 @@ public class Audit extends Thread {
       boolean wasLogbookOpen = project.isLogbookOpen(logbookName);
       Logbook logbook = project.getLogbook(logbookName, false);
       DataKeyIterator it = logbook.dataAccess.getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         LogbookRecord r = (LogbookRecord) logbook.dataAccess.get(k);
         long validAt = r.getValidAtTimestamp();
@@ -1070,8 +1170,7 @@ public class Audit extends Thread {
 
         // Dates
         if (r.getDate() == null || !r.getDate().isSet()) {
-          auditError(
-              Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
+          auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch") + " "
                   + logbookName + " "
@@ -1082,8 +1181,7 @@ public class Audit extends Thread {
           logbookErr++;
         } else {
           if (!r.getDate().isInRange(prjLogkoobRec.getStartDate(), prjLogkoobRec.getEndDate())) {
-            auditError(
-                Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
+            auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1099,8 +1197,7 @@ public class Audit extends Thread {
         if (r.getEndDate() != null && r.getEndDate().isSet() &&
             r.getDate() != null && r.getDate().isSet() &&
             r.getEndDate().isBeforeOrEqual(r.getDate())) {
-          auditError(
-              Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
+          auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch") + " "
                   + logbookName + " "
@@ -1120,8 +1217,7 @@ public class Audit extends Thread {
           String name = r.getBoatName();
           r.setBoatName(null);
           updated = true;
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_TEXTTOREF,
+          auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch") + " "
                   + logbookName + " "
@@ -1142,8 +1238,7 @@ public class Audit extends Thread {
             r.setBoatName(name);
             r.setBoatId(null);
             updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_REFTOTEXT,
+            auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1154,8 +1249,7 @@ public class Audit extends Thread {
                         "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                         International.getString("Boot"), name));
           } else {
-            auditError(
-                Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+            auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1175,8 +1269,7 @@ public class Audit extends Thread {
             r.setBoatId(id);
             r.setBoatName(null);
             updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_TEXTTOREF,
+            auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1198,8 +1291,7 @@ public class Audit extends Thread {
             String name = r.getCrewName(i);
             r.setCrewName(i, null);
             updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_TEXTTOREF,
+            auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1217,8 +1309,7 @@ public class Audit extends Thread {
               r.setCrewName(i, name);
               r.setCrewId(i, null);
               updated = true;
-              auditWarning(
-                  Logger.MSG_DATA_AUDIT_REFTOTEXT,
+              auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                   "runAuditLogbook(): "
                       + International.getString("Fahrtenbuch") + " "
                       + logbookName + " "
@@ -1229,8 +1320,7 @@ public class Audit extends Thread {
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
             } else {
-              auditError(
-                  Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+              auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                   "runAuditLogbook(): "
                       + International.getString("Fahrtenbuch") + " "
                       + logbookName + " "
@@ -1256,13 +1346,15 @@ public class Audit extends Thread {
                 String nameCandidate = buffer.readLine(); // take first line as new candidate
                 id = findValidReference(nameCandidate, persons, validAt);
                 buffer.close();
+                if (nameCandidate != null && id != null) {
+                  touch(new File(nameWithPath), System.currentTimeMillis());
+                }
               } catch (FileNotFoundException e) {
                 try {
                   new File(nameWithPath).createNewFile();
                 } catch (IOException ioe) {
                   auditInfo(Logger.MSG_ABF_ERROR,
-                      "Error while creating the new empty file "
-                          + nameWithPath + " :" + ioe);
+                      "Error while creating the new empty file " + nameWithPath + " :" + ioe);
                 }
               }
             }
@@ -1270,8 +1362,7 @@ public class Audit extends Thread {
               r.setCrewId(i, id);
               r.setCrewName(i, null);
               updated = true;
-              auditInfo(
-                  Logger.MSG_DATA_AUDIT_TEXTTOREF,
+              auditInfo(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                   "runAuditLogbook(): "
                       + International.getString("Fahrtenbuch") + " "
                       + logbookName + " "
@@ -1294,8 +1385,7 @@ public class Audit extends Thread {
           String name = r.getDestinationName();
           r.setDestinationName(null);
           updated = true;
-          auditInfo(
-              Logger.MSG_DATA_AUDIT_TEXTTOREF,
+          auditInfo(Logger.MSG_DATA_AUDIT_TEXTTOREF,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch") + " "
                   + logbookName + " "
@@ -1314,8 +1404,7 @@ public class Audit extends Thread {
             r.setDestinationName(name);
             r.setDestinationId(null);
             updated = true;
-            auditWarning(
-                Logger.MSG_DATA_AUDIT_REFTOTEXT,
+            auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1326,8 +1415,7 @@ public class Audit extends Thread {
                         "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                         International.getString("Ziel"), name));
           } else {
-            auditError(
-                Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+            auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1347,8 +1435,7 @@ public class Audit extends Thread {
             r.setDestinationId(id);
             r.setDestinationName(null);
             updated = true;
-            auditInfo(
-                Logger.MSG_DATA_AUDIT_TEXTTOREF,
+            auditInfo(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
                     + logbookName + " "
@@ -1366,8 +1453,7 @@ public class Audit extends Thread {
         // SessionGroup
         if (isReferenceInvalid(r.getSessionGroupId(), sessionGroups, -1) &&
             sessionGroups.dataAccess.getNumberOfRecords() > 0) {
-          auditError(
-              Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+          auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch") + " "
                   + logbookName + " "
@@ -1386,8 +1472,7 @@ public class Audit extends Thread {
             boatStatus.getBoatStatus(logbookName, r.getEntryId()) == null) {
           r.setSessionIsOpen(false);
           updated = true;
-          auditWarning(
-              Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+          auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
               "runAuditLogbook(): "
                   + International.getString("Fahrtenbuch") + " "
                   + logbookName + " "
@@ -1474,7 +1559,10 @@ public class Audit extends Thread {
           if (correctErrors) {
             String addStatus = "";
             if (r instanceof PersonRecord) {
-              addStatus = "(" + ((PersonRecord) r).getStatusName() + ") ";
+              String statusName = ((PersonRecord) r).getStatusName();
+              if (statusName != null) {
+                addStatus = "(" + statusName + ") ";
+              }
             }
             so.dataAccess.delete(k);
             auditWarning(Logger.MSG_DATA_AUDIT_RECPURGED,
@@ -1536,6 +1624,7 @@ public class Audit extends Thread {
         runAuditFahrtenabzeichen();
         runAuditMessages();
         runAuditStatistics();
+        runAuditBoatReservations();
         String[] logbookNames = project.getAllLogbookNames();
         for (int i = 0; logbookNames != null && i < logbookNames.length; i++) {
           runAuditLogbook(logbookNames[i]);

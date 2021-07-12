@@ -58,8 +58,7 @@ public class ImportGroups extends ImportBase {
       Groups groups = Daten.project.getGroups(true);
       Persons persons = Daten.project.getPersons(false); // must be imported first!
 
-      String[] IDXP = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME,
-          PersonRecord.ASSOCIATION };
+      String[] IDXP = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME };
       Hashtable<String, UUID> groupMapping = new Hashtable<String, UUID>();
       Vector<String> d = gruppen.getGruppen();
       for (String g : d) {
@@ -73,9 +72,9 @@ public class ImportGroups extends ImportBase {
         for (GruppenMitglied m : gm) {
           DataKey[] keys = persons.data().getByFields(IDXP,
               new String[] {
-              (m.vorname.length() > 0 ? m.vorname : null),
-              (m.nachname.length() > 0 ? m.nachname : null),
-              (m.verein.length() > 0 ? m.verein : null) });
+                  (m.vorname.length() > 0 ? m.vorname : null),
+                  (m.nachname.length() > 0 ? m.nachname : null),
+                  (m.verein.length() > 0 ? m.verein : null) });
           PersonRecord pr = (keys != null && keys.length > 0 ? (PersonRecord) persons.data().get(
               keys[0]) : null);
           if (pr != null) {

@@ -25,7 +25,6 @@ import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.RemoteCommand;
-import de.nmichael.efa.data.sync.KanuEfbSyncTask;
 import de.nmichael.efa.gui.AdminDialog;
 import de.nmichael.efa.gui.AdminPasswordChangeDialog;
 import de.nmichael.efa.gui.BackupDialog;
@@ -36,7 +35,6 @@ import de.nmichael.efa.gui.EfaBaseFrame;
 import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.gui.LogViewDialog;
 import de.nmichael.efa.gui.PluginDialog;
-import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.TranslateDialog;
 import de.nmichael.efa.gui.dataedit.AdminListDialog;
@@ -44,11 +42,7 @@ import de.nmichael.efa.gui.dataedit.BoatDamageListDialog;
 import de.nmichael.efa.gui.dataedit.BoatListDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationListDialog;
 import de.nmichael.efa.gui.dataedit.BoatStatusListDialog;
-import de.nmichael.efa.gui.dataedit.ClubworkListDialog;
-import de.nmichael.efa.gui.dataedit.CrewListDialog;
 import de.nmichael.efa.gui.dataedit.DestinationListDialog;
-import de.nmichael.efa.gui.dataedit.FahrtenabzeichenListDialog;
-import de.nmichael.efa.gui.dataedit.GroupListDialog;
 import de.nmichael.efa.gui.dataedit.LogbookListDialog;
 import de.nmichael.efa.gui.dataedit.MessageListDialog;
 import de.nmichael.efa.gui.dataedit.PersonListDialog;
@@ -64,58 +58,55 @@ import de.nmichael.efa.util.Logger;
 
 public class EfaMenuButton {
 
-  public final static String SEPARATOR = "SEPARATOR";
+  public static final String SEPARATOR = "SEPARATOR";
 
-  public final static String MENU_FILE = "FILE";
-  public final static String BUTTON_PROJECTS = "PROJECTS";
-  public final static String BUTTON_LOGBOOKS = "LOGBOOKS";
-  public final static String BUTTON_BACKUP = "BACKUP";
-  public final static String BUTTON_UPDATE = "UPDATE";
-  public final static String BUTTON_PLUGINS = "PLUGINS";
-  public final static String BUTTON_OSCOMMAND = "OSCOMMAND";
-  public final static String BUTTON_EXIT = "EXIT";
+  public static final String MENU_FILE = "FILE";
+  public static final String BUTTON_PROJECTS = "PROJECTS";
+  public static final String BUTTON_LOGBOOKS = "LOGBOOKS";
+  public static final String BUTTON_BACKUP = "BACKUP";
+  public static final String BUTTON_UPDATE = "UPDATE";
+  public static final String BUTTON_PLUGINS = "PLUGINS";
+  public static final String BUTTON_OSCOMMAND = "OSCOMMAND";
+  public static final String BUTTON_EXIT = "EXIT";
 
-  public final static String MENU_ADMINISTRATION = "ADMINISTRATION";
-  public final static String BUTTON_LOGBOOK = "LOGBOOK";
-  public final static String BUTTON_CLUBWORKBOOK = "CLUBWORKBOOK";
-  public final static String BUTTON_LOGBOOKLIST = "LOGBOOKLIST";
-  public final static String BUTTON_SESSIONGROUPS = "SESSIONGROUPS";
-  public final static String BUTTON_BOATS = "BOATS";
-  public final static String BUTTON_BOATSTATUS = "BOATSTATUS";
-  public final static String BUTTON_BOATRESERVATIONS = "BOATRESERVATIONS";
-  public final static String BUTTON_BOATDAMAGES = "BOATDAMAGES";
-  public final static String BUTTON_PERSONS = "PERSONS";
-  public final static String BUTTON_STATUS = "STATUS";
-  public final static String BUTTON_GROUPS = "GROUPS";
-  public final static String BUTTON_CREWS = "CREWS";
-  public final static String BUTTON_FAHRTENABZEICHEN = "FAHRTENABZEICHEN";
-  public final static String BUTTON_DESTINATIONS = "DESTINATIONS";
-  public final static String BUTTON_WATERS = "WATERS";
-  public final static String BUTTON_CLUBWORK = "CLUBWORK";
+  public static final String MENU_ADMINISTRATION = "ADMINISTRATION";
+  public static final String BUTTON_LOGBOOK = "LOGBOOK";
+  public static final String BUTTON_CLUBWORKBOOK = "CLUBWORKBOOK";
+  public static final String BUTTON_LOGBOOKLIST = "LOGBOOKLIST";
+  public static final String BUTTON_SESSIONGROUPS = "SESSIONGROUPS";
+  public static final String BUTTON_BOATS = "BOATS";
+  public static final String BUTTON_BOATSTATUS = "BOATSTATUS";
+  public static final String BUTTON_BOATRESERVATIONS = "BOATRESERVATIONS";
+  public static final String BUTTON_BOATDAMAGES = "BOATDAMAGES";
+  public static final String BUTTON_PERSONS = "PERSONS";
+  public static final String BUTTON_STATUS = "STATUS";
+  public static final String BUTTON_GROUPS = "GROUPS";
+  public static final String BUTTON_CREWS = "CREWS";
+  public static final String BUTTON_FAHRTENABZEICHEN = "FAHRTENABZEICHEN";
+  public static final String BUTTON_DESTINATIONS = "DESTINATIONS";
+  public static final String BUTTON_WATERS = "WATERS";
+  public static final String BUTTON_CLUBWORK = "CLUBWORK";
 
-  public final static String MENU_MANAGEMENT = "MANAGEMENT";
-  public final static String BUTTON_CONFIGURATION = "CONFIGURATION";
-  public final static String BUTTON_MESSAGES = "MESSAGES";
-  public final static String BUTTON_ADMINS = "ADMINS";
-  public final static String BUTTON_PASSWORD = "PASSWORD";
+  public static final String MENU_MANAGEMENT = "MANAGEMENT";
+  public static final String BUTTON_CONFIGURATION = "CONFIGURATION";
+  public static final String BUTTON_MESSAGES = "MESSAGES";
+  public static final String BUTTON_ADMINS = "ADMINS";
+  public static final String BUTTON_PASSWORD = "PASSWORD";
 
-  public final static String MENU_OUTPUT = "OUTPUT";
-  public final static String BUTTON_STATISTICS = "STATISTICS";
-  public final static String BUTTON_SYNCKANUEFB = "SYNCKANUEFB";
+  public static final String MENU_OUTPUT = "OUTPUT";
+  public static final String BUTTON_STATISTICS = "STATISTICS";
+  public static final String BUTTON_SYNCKANUEFB = "SYNCKANUEFB";
 
-  public final static String MENU_INFO = "INFO";
-  public final static String BUTTON_HELP = "HELP";
-  public final static String BUTTON_LOGFILE = "LOGFILE";
-  public final static String BUTTON_ABOUT = "ABOUT";
+  public static final String MENU_INFO = "INFO";
+  public static final String BUTTON_LOGFILE = "LOGFILE";
+  public static final String BUTTON_HELP = "HELP";
+  public static final String BUTTON_ABOUT = "ABOUT";
 
-  public final static String MENU_DEVELOPMENT = "DEVELOPMENT";
-  public final static String BUTTON_TRANSLATE = "TRANSLATE";
+  public static final String MENU_DEVELOPMENT = "DEVELOPMENT";
+  public static final String BUTTON_TRANSLATE = "TRANSLATE";
 
   public enum MenuMode {
-    all,
-    efaBaseGui,
-    efaBthsGui,
-    efaBthsLogbookGui
+    all, efaBaseGui, efaBthsGui, efaBthsLogbookGui
   }
 
   private static Hashtable<String, String> actionMapping;
@@ -189,7 +180,7 @@ public class EfaMenuButton {
           null, null, null));
     }
     if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-      if (admin == null || admin.isAllowedSyncKanuEfb()) {
+      if (admin == null) {
         v.add(new EfaMenuButton(MENU_FILE, BUTTON_SYNCKANUEFB,
             International.getStringWithMnemonic("Datei"),
             International.onlyFor("Mit Kanu-eFB synchronisieren", "de"),
@@ -249,7 +240,7 @@ public class EfaMenuButton {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOKLIST,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Fahrtenbuch") +
-          " (" + International.getString("Liste") + ")",
+              " (" + International.getString("Liste") + ")",
           BaseFrame.getIcon("menu_logbook_list.png")));
     }
     if (admin == null || admin.isAllowedEditLogbook() && adminMode) { // we have the same menu again
@@ -306,20 +297,20 @@ public class EfaMenuButton {
           International.getStringWithMnemonic("Status"),
           BaseFrame.getIcon("menu_status.png")));
     }
-    if (admin == null || admin.isAllowedEditGroups()) {
+    if (admin == null) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_GROUPS,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Gruppen"),
           BaseFrame.getIcon("menu_groups.png")));
     }
-    if (admin == null || admin.isAllowedEditCrews()) {
+    if (admin == null) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CREWS,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Mannschaften"),
           BaseFrame.getIcon("menu_crews2.png")));
     }
     if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
-      if (admin == null || admin.isAllowedEditFahrtenabzeichen()) {
+      if (admin == null) {
         v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_FAHRTENABZEICHEN,
             International.getStringWithMnemonic("Administration"),
             International.onlyFor("Fahrtenabzeichen", "de"),
@@ -336,7 +327,7 @@ public class EfaMenuButton {
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Ziele") + " / " +
               International.getString("Strecken"),
-              BaseFrame.getIcon("menu_destinations.png")));
+          BaseFrame.getIcon("menu_destinations.png")));
     }
     if (admin == null || admin.isAllowedEditDestinations()) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_WATERS,
@@ -349,7 +340,7 @@ public class EfaMenuButton {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
           null, null, null));
     }
-    if (admin == null || admin.isAllowedEditClubwork()) {
+    if (admin == null) {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CLUBWORK,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Vereinsarbeit"),
@@ -366,7 +357,7 @@ public class EfaMenuButton {
       v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOKLIST,
           International.getStringWithMnemonic("Administration"),
           International.getStringWithMnemonic("Fahrtenbuch") +
-          " (" + International.getString("Liste") + ")",
+              " (" + International.getString("Liste") + ")",
           BaseFrame.getIcon("menu_logbook_list.png")));
     }
     if (admin == null || admin.isAllowedEditLogbook() && !adminMode) { // we have the same menu
@@ -426,26 +417,16 @@ public class EfaMenuButton {
           BaseFrame.getIcon("menu_translate.png")));
     }
 
-    v.add(new EfaMenuButton(MENU_INFO, BUTTON_HELP,
-        International.getStringWithMnemonic("Info"),
-        International.getStringWithMnemonic("Hilfe"),
-        BaseFrame.getIcon("menu_help.png")));
-    if (v.size() > 0 && v.get(v.size() - 1).getMenuName().equals(MENU_INFO)
-        && !v.get(v.size() - 1).isSeparator()) {
-      v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
-          null, null, null));
-    }
     if (admin == null || admin.isAllowedShowLogfile()) {
       v.add(new EfaMenuButton(MENU_INFO, BUTTON_LOGFILE,
           International.getStringWithMnemonic("Info"),
           International.getStringWithMnemonic("Logdatei"),
           BaseFrame.getIcon("menu_logfile.png")));
     }
-    if (v.size() > 0 && v.get(v.size() - 1).getMenuName().equals(MENU_INFO)
-        && !v.get(v.size() - 1).isSeparator()) {
-      v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
-          null, null, null));
-    }
+    v.add(new EfaMenuButton(MENU_INFO, BUTTON_HELP,
+        International.getStringWithMnemonic("Info"),
+        International.getStringWithMnemonic("Hilfe"),
+        BaseFrame.getIcon("menu_help.png")));
     v.add(new EfaMenuButton(MENU_INFO, BUTTON_ABOUT,
         International.getStringWithMnemonic("Info"),
         International.getStringWithMnemonic("Über"),
@@ -499,11 +480,8 @@ public class EfaMenuButton {
     }
 
     if (action.equals(BUTTON_CLUBWORKBOOK)) {
-      if (admin == null || (!admin.isAllowedAdministerProjectClubwork())) {
-        insufficientRights(admin, action);
-        return false;
-      }
-      return true; // ClubworkBooks have to handled individually by the caller
+      insufficientRights(admin, action);
+      return false;
     }
 
     if (action.equals(BUTTON_BACKUP)) {
@@ -512,9 +490,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      BackupDialog dlg = (parentFrame != null ?
-          new BackupDialog(parentFrame, admin) :
-            new BackupDialog(parentDialog, admin));
+      BackupDialog dlg = (parentFrame != null ? new BackupDialog(parentFrame, admin)
+          : new BackupDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -531,13 +508,13 @@ public class EfaMenuButton {
             International.getString("Lokales oder entferntes efa aktualisieren?"),
             International.getString("Lokal"),
             International.getString("Remote"), true)) {
-              case 0:
-                break;
-              case 1:
-                remoteEfa = true;
-                break;
-              default:
-                return false;
+          case 0:
+            break;
+          case 1:
+            remoteEfa = true;
+            break;
+          default:
+            return false;
         }
       }
 
@@ -580,11 +557,10 @@ public class EfaMenuButton {
       }
       ItemTypeString item = new ItemTypeString("CMD", cmd,
           IItemType.TYPE_PUBLIC, "", International.getString("Kommando"));
-      if ((parentFrame != null ?
-          SimpleInputDialog.showInputDialog(parentFrame,
-              International.getString("Betriebssystemkommando ausführen"), item) :
-                SimpleInputDialog.showInputDialog(parentDialog,
-                    International.getString("Betriebssystemkommando ausführen"), item))) {
+      if ((parentFrame != null ? SimpleInputDialog.showInputDialog(parentFrame,
+          International.getString("Betriebssystemkommando ausführen"), item)
+          : SimpleInputDialog.showInputDialog(parentDialog,
+              International.getString("Betriebssystemkommando ausführen"), item))) {
 
         cmd = item.getValueFromField().trim();
         Daten.efaConfig.setValueEfadirekt_adminLastOsCommand(cmd);
@@ -601,7 +577,7 @@ public class EfaMenuButton {
 
     if (action.equals(BUTTON_EXIT)) {
       if (Daten.applID == Daten.APPL_EFABH && // check permissions only for efaBths; other programs
-          // may be exited by anyone
+      // may be exited by anyone
           (admin == null || (!admin.isAllowedExitEfa()))) {
         insufficientRights(admin, action);
         return false;
@@ -614,13 +590,13 @@ public class EfaMenuButton {
             International.getString("Lokales oder entferntes efa beenden?"),
             International.getString("Lokal"),
             International.getString("Remote"), true)) {
-              case 0:
-                break;
-              case 1:
-                remoteEfa = true;
-                break;
-              default:
-                return false;
+          case 0:
+            break;
+          case 1:
+            remoteEfa = true;
+            break;
+          default:
+            return false;
         }
       }
 
@@ -631,15 +607,15 @@ public class EfaMenuButton {
             International.getString("efa beenden oder neu starten?"),
             International.getString("Beenden"),
             International.getString("Neustart"), true)) {
-              case 0:
-                opName = International.getString("Beenden");
-                break;
-              case 1:
-                opName = International.getString("Neustart");
-                restart = true;
-                break;
-              default:
-                return false;
+          case 0:
+            opName = International.getString("Beenden");
+            break;
+          case 1:
+            opName = International.getString("Neustart");
+            restart = true;
+            break;
+          default:
+            return false;
         }
       }
 
@@ -681,9 +657,9 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      LogbookListDialog dlg = (parentFrame != null ?
-          new LogbookListDialog(parentFrame, admin, logbook) :
-            new LogbookListDialog(parentDialog, admin, logbook));
+      LogbookListDialog dlg = (parentFrame != null
+          ? new LogbookListDialog(parentFrame, admin, logbook)
+          : new LogbookListDialog(parentDialog, admin, logbook));
       dlg.showDialog();
     }
 
@@ -696,9 +672,9 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      SessionGroupListDialog dlg = (parentFrame != null ?
-          new SessionGroupListDialog(parentFrame, logbook.getName(), admin) :
-            new SessionGroupListDialog(parentDialog, logbook.getName(), admin));
+      SessionGroupListDialog dlg = (parentFrame != null
+          ? new SessionGroupListDialog(parentFrame, logbook.getName(), admin)
+          : new SessionGroupListDialog(parentDialog, logbook.getName(), admin));
       dlg.showDialog();
     }
 
@@ -711,9 +687,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      BoatListDialog dlg = (parentFrame != null ?
-          new BoatListDialog(parentFrame, -1, admin) :
-            new BoatListDialog(parentDialog, -1, admin));
+      BoatListDialog dlg = (parentFrame != null ? new BoatListDialog(parentFrame, -1, admin)
+          : new BoatListDialog(parentDialog, -1, admin));
       dlg.showDialog();
     }
 
@@ -726,9 +701,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      BoatStatusListDialog dlg = (parentFrame != null ?
-          new BoatStatusListDialog(parentFrame, admin) :
-            new BoatStatusListDialog(parentDialog, admin));
+      BoatStatusListDialog dlg = (parentFrame != null ? new BoatStatusListDialog(parentFrame, admin)
+          : new BoatStatusListDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -741,9 +715,9 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      BoatReservationListDialog dlg = (parentFrame != null ?
-          new BoatReservationListDialog(parentFrame, admin) :
-            new BoatReservationListDialog(parentDialog, admin));
+      BoatReservationListDialog dlg = (parentFrame != null
+          ? new BoatReservationListDialog(parentFrame, admin)
+          : new BoatReservationListDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -756,9 +730,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      BoatDamageListDialog dlg = (parentFrame != null ?
-          new BoatDamageListDialog(parentFrame, admin) :
-            new BoatDamageListDialog(parentDialog, admin));
+      BoatDamageListDialog dlg = (parentFrame != null ? new BoatDamageListDialog(parentFrame, admin)
+          : new BoatDamageListDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -771,9 +744,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      PersonListDialog dlg = (parentFrame != null ?
-          new PersonListDialog(parentFrame, -1, admin) :
-            new PersonListDialog(parentDialog, -1, admin));
+      PersonListDialog dlg = (parentFrame != null ? new PersonListDialog(parentFrame, -1, admin)
+          : new PersonListDialog(parentDialog, -1, admin));
       dlg.showDialog();
     }
 
@@ -786,9 +758,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      StatusListDialog dlg = (parentFrame != null ?
-          new StatusListDialog(parentFrame, admin) :
-            new StatusListDialog(parentDialog, admin));
+      StatusListDialog dlg = (parentFrame != null ? new StatusListDialog(parentFrame, admin)
+          : new StatusListDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -797,14 +768,8 @@ public class EfaMenuButton {
         Dialog.error(International.getString("Kein Projekt geöffnet."));
         return false;
       }
-      if (admin == null || (!admin.isAllowedEditGroups())) {
-        insufficientRights(admin, action);
-        return false;
-      }
-      GroupListDialog dlg = (parentFrame != null ?
-          new GroupListDialog(parentFrame, -1, admin) :
-            new GroupListDialog(parentDialog, -1, admin));
-      dlg.showDialog();
+      insufficientRights(admin, action);
+      return false;
     }
 
     if (action.equals(BUTTON_CREWS)) {
@@ -812,14 +777,8 @@ public class EfaMenuButton {
         Dialog.error(International.getString("Kein Projekt geöffnet."));
         return false;
       }
-      if (admin == null || (!admin.isAllowedEditCrews())) {
-        insufficientRights(admin, action);
-        return false;
-      }
-      CrewListDialog dlg = (parentFrame != null ?
-          new CrewListDialog(parentFrame, admin) :
-            new CrewListDialog(parentDialog, admin));
-      dlg.showDialog();
+      insufficientRights(admin, action);
+      return false;
     }
 
     if (action.equals(BUTTON_FAHRTENABZEICHEN)) {
@@ -827,14 +786,8 @@ public class EfaMenuButton {
         Dialog.error(International.getString("Kein Projekt geöffnet."));
         return false;
       }
-      if (admin == null || (!admin.isAllowedEditFahrtenabzeichen())) {
-        insufficientRights(admin, action);
-        return false;
-      }
-      FahrtenabzeichenListDialog dlg = (parentFrame != null ?
-          new FahrtenabzeichenListDialog(parentFrame, admin) :
-            new FahrtenabzeichenListDialog(parentDialog, admin));
-      dlg.showDialog();
+      insufficientRights(admin, action);
+      return false;
     }
 
     if (action.equals(BUTTON_DESTINATIONS)) {
@@ -846,9 +799,9 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      DestinationListDialog dlg = (parentFrame != null ?
-          new DestinationListDialog(parentFrame, -1, admin) :
-            new DestinationListDialog(parentDialog, -1, admin));
+      DestinationListDialog dlg = (parentFrame != null
+          ? new DestinationListDialog(parentFrame, -1, admin)
+          : new DestinationListDialog(parentDialog, -1, admin));
       dlg.showDialog();
     }
 
@@ -861,9 +814,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      WatersListDialog dlg = (parentFrame != null ?
-          new WatersListDialog(parentFrame, admin) :
-            new WatersListDialog(parentDialog, admin));
+      WatersListDialog dlg = (parentFrame != null ? new WatersListDialog(parentFrame, admin)
+          : new WatersListDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -876,14 +828,8 @@ public class EfaMenuButton {
         Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet."));
         return false;
       }
-      if (admin == null || (!admin.isAllowedEditClubwork())) {
-        insufficientRights(admin, action);
-        return false;
-      }
-      ClubworkListDialog dlg = (parentFrame != null ?
-          new ClubworkListDialog(parentFrame, admin) :
-            new ClubworkListDialog(parentDialog, admin));
-      dlg.showDialog();
+      insufficientRights(admin, action);
+      return false;
     }
 
     if (action.equals(BUTTON_CONFIGURATION)) {
@@ -899,22 +845,22 @@ public class EfaMenuButton {
             International.getString("Lokal"),
             International.getString("Remote"),
             true)) {
-              case 0:
-                break;
-              case 1:
-                myEfaConfig = new EfaConfig(Daten.project.getProjectStorageType(),
-                    Daten.project.getProjectStorageLocation(),
-                    Daten.project.getProjectStorageUsername(),
-                    Daten.project.getProjectStoragePassword());
-                myEfaConfig.updateConfigValuesWithPersistence();
-                break;
-              default:
-                return false;
+          case 0:
+            break;
+          case 1:
+            myEfaConfig = new EfaConfig(Daten.project.getProjectStorageType(),
+                Daten.project.getProjectStorageLocation(),
+                Daten.project.getProjectStorageUsername(),
+                Daten.project.getProjectStoragePassword());
+            myEfaConfig.updateConfigValuesWithPersistence();
+            break;
+          default:
+            return false;
         }
       }
 
       EfaConfigDialog dlg = (parentFrame != null ? new EfaConfigDialog(parentFrame, myEfaConfig)
-      : new EfaConfigDialog(parentDialog, myEfaConfig));
+          : new EfaConfigDialog(parentDialog, myEfaConfig));
       dlg.showDialog();
     }
 
@@ -931,22 +877,21 @@ public class EfaMenuButton {
             International.getString("Lokal"),
             International.getString("Remote"),
             true)) {
-              case 0:
-                break;
-              case 1:
-                myAdmins = new Admins(Daten.project.getProjectStorageType(),
-                    Daten.project.getProjectStorageLocation(),
-                    Daten.project.getProjectStorageUsername(),
-                    Daten.project.getProjectStoragePassword());
-                break;
-              default:
-                return false;
+          case 0:
+            break;
+          case 1:
+            myAdmins = new Admins(Daten.project.getProjectStorageType(),
+                Daten.project.getProjectStorageLocation(),
+                Daten.project.getProjectStorageUsername(),
+                Daten.project.getProjectStoragePassword());
+            break;
+          default:
+            return false;
         }
       }
 
-      AdminListDialog dlg = (parentFrame != null ?
-          new AdminListDialog(parentFrame, myAdmins, admin) :
-            new AdminListDialog(parentDialog, myAdmins, admin));
+      AdminListDialog dlg = (parentFrame != null ? new AdminListDialog(parentFrame, myAdmins, admin)
+          : new AdminListDialog(parentDialog, myAdmins, admin));
       dlg.showDialog();
     }
 
@@ -970,7 +915,7 @@ public class EfaMenuButton {
         return false;
       }
       StatisticsListDialog dlg = (parentFrame != null ? new StatisticsListDialog(parentFrame, admin)
-      : new StatisticsListDialog(parentDialog, admin));
+          : new StatisticsListDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -983,22 +928,14 @@ public class EfaMenuButton {
         Dialog.error(International.getString("Kein Fahrtenbuch geöffnet."));
         return false;
       }
-      if (admin == null || (!admin.isAllowedSyncKanuEfb())) {
-        insufficientRights(admin, action);
-        return false;
-      }
-      KanuEfbSyncTask syncTask = new KanuEfbSyncTask(logbook, admin);
-      ProgressDialog progressDialog = (parentFrame != null ?
-          new ProgressDialog(parentFrame, International.onlyFor("Mit Kanu-eFB synchronisieren",
-              "de"), syncTask, false) :
-                new ProgressDialog(parentDialog, International.onlyFor("Mit Kanu-eFB synchronisieren",
-                    "de"), syncTask, false));
-      syncTask.startSynchronization(progressDialog);
+      insufficientRights(admin, action);
+      return false;
     }
 
     if (action.equals(BUTTON_HELP)) {
-      Help.showHelp((parentFrame != null ? parentFrame.getHelpTopics() : parentDialog
-          .getHelpTopics()));
+      Help.showHelp((parentFrame != null ? parentFrame.getHelpTopics()
+          : parentDialog
+              .getHelpTopics()));
     }
 
     if (action.equals(BUTTON_MESSAGES)) {
@@ -1012,7 +949,7 @@ public class EfaMenuButton {
         return false;
       }
       MessageListDialog dlg = (parentFrame != null ? new MessageListDialog(parentFrame, admin)
-      : new MessageListDialog(parentDialog, admin));
+          : new MessageListDialog(parentDialog, admin));
       dlg.showDialog();
     }
 
@@ -1022,7 +959,7 @@ public class EfaMenuButton {
         return false;
       }
       LogViewDialog dlg = (parentFrame != null ? new LogViewDialog(parentFrame)
-      : new LogViewDialog(parentDialog));
+          : new LogViewDialog(parentDialog));
       dlg.showDialog();
     }
     if (action.equals(BUTTON_TRANSLATE)) {
@@ -1039,7 +976,7 @@ public class EfaMenuButton {
 
     if (action.equals(BUTTON_ABOUT)) {
       EfaAboutDialog dlg = (parentFrame != null ? new EfaAboutDialog(parentFrame)
-      : new EfaAboutDialog(parentDialog));
+          : new EfaAboutDialog(parentDialog));
       dlg.showDialog();
     }
 

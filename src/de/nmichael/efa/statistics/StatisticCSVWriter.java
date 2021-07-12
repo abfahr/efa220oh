@@ -72,7 +72,8 @@ public class StatisticCSVWriter extends StatisticWriter {
     }
     try {
       // Create File
-      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sr.sOutputFile), encoding));
+      f = new BufferedWriter(
+          new OutputStreamWriter(new FileOutputStream(sr.sOutputFile), encoding));
 
       // Write normal Output
       if (sr.pTableColumns != null && sr.pTableColumns.size() > 0) {
@@ -93,9 +94,6 @@ public class StatisticCSVWriter extends StatisticWriter {
             }
             if (sr.sIsFieldsName) {
               write(f, element.sName);
-            }
-            if (sr.sIsFieldsGender) {
-              write(f, element.sGender);
             }
             if (sr.sIsFieldsStatus) {
               write(f, element.sStatus);
@@ -159,8 +157,9 @@ public class StatisticCSVWriter extends StatisticWriter {
             }
             if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
               for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
-                StatisticsData sdm = (element.matrixData != null ?
-                    element.matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j))) : null);
+                StatisticsData sdm = (element.matrixData != null
+                    ? element.matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j)))
+                    : null);
                 write(f, getMatrixString(sdm));
               }
             }
@@ -187,7 +186,7 @@ public class StatisticCSVWriter extends StatisticWriter {
       Dialog.error(LogString.fileCreationFailed(sr.sOutputFile,
           International.getString("Ausgabedatei")));
       LogString
-      .logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
+          .logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
       resultMessage = LogString.fileCreationFailed(sr.sOutputFile,
           International.getString("Statistik"));
       return false;

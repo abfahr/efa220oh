@@ -34,7 +34,6 @@ import javax.swing.SwingConstants;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.HtmlFactory;
 import de.nmichael.efa.util.International;
 
 public class EfaAboutDialog extends BaseDialog {
@@ -325,14 +324,6 @@ public class EfaAboutDialog extends BaseDialog {
       return;
     }
     BrowserDialog.openExternalBrowser(this, Daten.EFASUPPORTURL);
-  }
-
-  void emailLabel_mouseClicked(MouseEvent e) {
-    if (Daten.applID == Daten.APPL_EFABH) {
-      return;
-    }
-    BrowserDialog.openInternalBrowser(this, "Browser",
-        "file:" + HtmlFactory.createMailto(Daten.EMAILINFO), 700, 600);
   }
 
   void gplLabel_mouseClicked(MouseEvent e) {

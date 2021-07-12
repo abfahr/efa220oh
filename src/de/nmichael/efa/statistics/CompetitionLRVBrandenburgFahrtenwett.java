@@ -60,7 +60,8 @@ public class CompetitionLRVBrandenburgFahrtenwett extends Competition {
           + " Kilometer"
           + (gruppen[g].zusatz > 0 && gruppen[g].zusatz2 > 0
               ? "; davon " + gruppen[g].zusatz2 + " Fahrten im Gigboot mit je mind. "
-              + gruppen[g].zusatz + " Km" : "");
+                  + gruppen[g].zusatz + " Km"
+              : "");
 
       // Alle Teilnehmer in einer gegebenen Gruppe durchlaufen
       for (int i = 0; i < sd.length; i++) {
@@ -74,7 +75,7 @@ public class CompetitionLRVBrandenburgFahrtenwett extends Competition {
             && Daten.wettDefs.inGruppe(WettDefs.LRVBRB_FAHRTENWETT,
                 sr.sCompYear,
                 g,
-                jahrgang, sd[i].gender,
+                jahrgang,
                 sd[i].disabled)) {
           // Teilnehmer ist in der Gruppe!
 
@@ -98,7 +99,6 @@ public class CompetitionLRVBrandenburgFahrtenwett extends Competition {
               sr.sCompYear,
               g,
               jahrgang,
-              sd[i].gender,
               sd[i].disabled,
               sd[i].distance,
               gruppen[g].zusatz,
@@ -108,7 +108,6 @@ public class CompetitionLRVBrandenburgFahrtenwett extends Competition {
           if (Daten.wettDefs.erfuellt(WettDefs.LRVBRB_WANDERRUDERWETT,
               sr.sCompYear,
               jahrgang,
-              sd[i].gender,
               sd[i].disabled,
               sd[i].distance,
               sd[i].compData.gigbootmeters / 1000,
@@ -123,9 +122,11 @@ public class CompetitionLRVBrandenburgFahrtenwett extends Competition {
           }
 
           if (erfuellt
-              || ((DataTypeDistance.getDistance(sd[i].distance).getTruncatedValueInKilometers() >=
-              gruppen[g].km * sr.sCompPercentFulfilled / 100) &&
-              sr.sCompPercentFulfilled < 100)) {
+              || ((DataTypeDistance.getDistance(sd[i].distance)
+                  .getTruncatedValueInKilometers() >= gruppen[g].km * sr.sCompPercentFulfilled
+                      / 100)
+                  &&
+                  sr.sCompPercentFulfilled < 100)) {
 
             if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
               // Ausgabe für efaWett
@@ -217,13 +218,14 @@ public class CompetitionLRVBrandenburgFahrtenwett extends Competition {
           // Teilnehmer ohne Jahrgang
           if (sd[i].sYearOfBirth.equals("")
               && Daten.wettDefs.erfuellt(WettDefs.LRVBRB_FAHRTENWETT, sr.sCompYear, 0,
-                  sd[i].gender, sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
-                  && nichtBeruecksichtigt.get(sd[i].sName) == null) {
+                  sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
+              && nichtBeruecksichtigt.get(sd[i].sName) == null) {
             nichtBeruecksichtigt.put(
                 sd[i].sName,
                 "Wegen fehlenden Jahrgangs ignoriert ("
                     + DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true,
-                        0, 0) + ")");
+                        0, 0)
+                    + ")");
             continue;
           }
         }

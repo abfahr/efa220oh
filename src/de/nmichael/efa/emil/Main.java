@@ -20,8 +20,8 @@ import de.nmichael.efa.util.Dialog;
 
 public class Main extends Program {
 
-  public final static String EMIL_VERSION = Daten.VERSION; // Version
-  public final static String EMIL_KENNUNG = "EMIL.198";
+  public static final String EMIL_VERSION = Daten.VERSION; // Version
+  public static final String EMIL_KENNUNG = "EMIL.198";
 
   public Main(String[] args) {
     super(Daten.APPL_EMIL, args);

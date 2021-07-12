@@ -13,7 +13,6 @@ package de.nmichael.efa.statistics;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.efawett.EfaWettMeldung;
 import de.nmichael.efa.data.efawett.WettDef;
@@ -242,7 +241,6 @@ public class CompetitionLRVBerlinSommer extends Competition {
                 sr.sCompYear,
                 g,
                 Integer.parseInt(sd[i].sYearOfBirth),
-                sd[i].gender,
                 sd[i].disabled)) {
           // Teilnehmer ist in der Gruppe!
           int countedZf = countZf(sd[i].bestDestinationAreas, sd[i].destinationAreas);
@@ -250,7 +248,6 @@ public class CompetitionLRVBerlinSommer extends Competition {
               sr.sCompYear,
               g,
               Integer.parseInt(sd[i].sYearOfBirth),
-              sd[i].gender,
               sd[i].disabled,
               sd[i].distance,
               countedZf, 0, 0, 0);
@@ -277,13 +274,7 @@ public class CompetitionLRVBerlinSommer extends Competition {
                 ewm.vorname = sd[i].personRecord.getFirstName();
                 ewm.jahrgang = sd[i].sYearOfBirth;
                 ewm.gruppe = gruppen[g].bezeichnung;
-                if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_MALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_M;
-                } else if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_W;
-                } else {
-                  ewm.geschlecht = "X";
-                }
+                ewm.geschlecht = "X";
                 ewm.kilometer = DataTypeDistance.getDistance(sd[i].distance)
                     .getStringValueInKilometers(false, 0, 0);
                 if (anzInGruppe <= 3) {
@@ -408,7 +399,6 @@ public class CompetitionLRVBerlinSommer extends Competition {
               && Daten.wettDefs.erfuellt(WettDefs.LRVBERLIN_SOMMER,
                   sr.sCompYear,
                   0,
-                  sd[i].gender,
                   sd[i].disabled,
                   sd[i].distance,
                   countZf(sd[i].bestDestinationAreas, sd[i].destinationAreas),

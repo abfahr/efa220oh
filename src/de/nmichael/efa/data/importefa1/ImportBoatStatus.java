@@ -69,8 +69,7 @@ public class ImportBoatStatus extends ImportBase {
       Boats boats = Daten.project.getBoats(false); // must be imported first!
       Persons persons = Daten.project.getPersons(false); // must be imported first!
       String[] IDXB = new String[] { BoatRecord.NAME, BoatRecord.OWNER };
-      String[] IDXP = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME,
-          PersonRecord.ASSOCIATION };
+      String[] IDXP = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME };
 
       DatenFelder d = bootStatus.getCompleteFirst();
       Hashtable<UUID, String> imported = new Hashtable<UUID, String>();
@@ -88,11 +87,11 @@ public class ImportBoatStatus extends ImportBase {
             newRecord = true;
           }
 
-          if ((d.get(BootStatus.STATUS) != null && d.get(BootStatus.STATUS).equals("" + 
+          if ((d.get(BootStatus.STATUS) != null && d.get(BootStatus.STATUS).equals("" +
               BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN))
               ||
               (d.get(BootStatus.UNBEKANNTESBOOT) != null && d.get(BootStatus.UNBEKANNTESBOOT)
-              .equals("+"))) {
+                  .equals("+"))) {
             logError("Bootsstatus für Boot '" + d.get(BootStatus.NAME)
                 + "' kann nicht importiert werden. Bitte beende die Fahrt in efa1 vor dem Import.");
           }

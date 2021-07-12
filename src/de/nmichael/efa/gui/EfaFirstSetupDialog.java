@@ -35,9 +35,6 @@ import de.nmichael.efa.util.Logger;
 
 public class EfaFirstSetupDialog extends StepwiseDialog {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   static final String ADMIN_NAME = "ADMIN_NAME";
   static final String ADMIN_PASSWORD = "ADMIN_PASSWORD";
@@ -116,30 +113,30 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     if (step == 0) {
       return International.getString("Willkommen bei efa, dem elektronischen Fahrtenbuch!")
           + "\n"
-          + International
-          .getString("Dieser Dialog führt Dich durch die ersten Schritte, um efa einzurichten.");
+          + International.getString(
+              "Dieser Dialog führt Dich durch die ersten Schritte, um efa einzurichten.");
     }
     if (step == getCreateSuperAdminStep()) {
       return International
           .getString("Alle Administrationsaufgaben in efa erfordern Administratorrechte.")
           + "\n"
-          + International
-          .getString("Bitte lege ein Paßwort (mindestens 6 Zeichen) für den Hauptadministrator 'admin' fest.");
+          + International.getString(
+              "Bitte lege ein Paßwort (mindestens 6 Zeichen) für den Hauptadministrator 'admin' fest.");
     }
     if (step == getEfaCustomizationStep()) {
       return International.getString("Welche Funktionen von efa möchtest Du verwenden?")
           + "\n"
-          + International
-          .getString("Du kannst diese Einstellungen jederzeit in der efa-Konfiguration ändern.");
+          + International.getString(
+              "Du kannst diese Einstellungen jederzeit in der efa-Konfiguration ändern.");
     }
     if (step == getEfaLiveAdminStep()) {
-      return International
-          .getString("Bestimmte Funktionen von efaLive (Erstellen oder Einspielen eines Backups) erfordern, daß efaLive Administrator-Zugriff auf efa hat.")
+      return International.getString(
+          "Bestimmte Funktionen von efaLive (Erstellen oder Einspielen eines Backups) erfordern, daß efaLive Administrator-Zugriff auf efa hat.")
           + "\n"
           + International.getString("Möchtest Du jetzt einen Administrator für efaLive anlegen?")
           + " "
-          + International
-          .getString("Du kannst diesen Administrator jederzeit in der Verwaltung der Administratoren wieder löschen.");
+          + International.getString(
+              "Du kannst diesen Administrator jederzeit in der Verwaltung der Administratoren wieder löschen.");
     }
     return "";
   }
@@ -154,7 +151,8 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     ((ItemTypeLabel) item).setImage(getIcon(Daten.getEfaImage(3)));
     ((ItemTypeLabel) item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
     ((ItemTypeLabel) item).setPadding(10, 10, 10, 10);
-    items.add(item = new ItemTypeLabel("EFA", IItemType.TYPE_PUBLIC, "0", Daten.EFA_LONGNAME));
+    items.add(
+        item = new ItemTypeLabel(Daten.EFA_GROSS, IItemType.TYPE_PUBLIC, "0", Daten.EFA_LONGNAME));
     ((ItemTypeLabel) item).setHorizontalAlignment(SwingConstants.CENTER);
     ((ItemTypeLabel) item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
     items.add(item = new ItemTypeLabel("VERSION", IItemType.TYPE_PUBLIC, "0", International
@@ -165,7 +163,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     // Items for Step 1 (CreateSuperAdmin)
     items.add(item = new ItemTypeLabel("ADMIN_LABEL", IItemType.TYPE_PUBLIC,
         Integer.toString(getCreateSuperAdminStep()), International
-        .getString("Neuer Hauptadministrator")));
+            .getString("Neuer Hauptadministrator")));
     items.add(item = new ItemTypeString(ADMIN_NAME, Admins.SUPERADMIN, IItemType.TYPE_PUBLIC,
         Integer.toString(getCreateSuperAdminStep()), International.getString("Name")));
     ((ItemTypeString) item).setEditable(false);
@@ -175,7 +173,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     ((ItemTypePassword) item).setMinCharacters(6);
     items.add(item = new ItemTypePassword(ADMIN_PASSWORD + "_REPEAT", "", IItemType.TYPE_PUBLIC,
         Integer.toString(getCreateSuperAdminStep()), International.getString("Paßwort") +
-        " (" + International.getString("Wiederholung") + ")"));
+            " (" + International.getString("Wiederholung") + ")"));
     ((ItemTypePassword) item).setNotNull(true);
     ((ItemTypePassword) item).setMinCharacters(6);
 
@@ -238,14 +236,14 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
       custSettings = new CustSettings();
       custSettings.activateRowingOptions = ((ItemTypeBoolean) getItemByName(CUST_ROWING))
           .getValue();
-      custSettings.activateGermanRowingOptions = ((ItemTypeBoolean) getItemByName(CUST_ROWINGGERMANY))
-          .getValue();
-      custSettings.activateBerlinRowingOptions = ((ItemTypeBoolean) getItemByName(CUST_ROWINGBERLIN))
-          .getValue();
+      custSettings.activateGermanRowingOptions = ((ItemTypeBoolean) getItemByName(
+          CUST_ROWINGGERMANY)).getValue();
+      custSettings.activateBerlinRowingOptions = ((ItemTypeBoolean) getItemByName(
+          CUST_ROWINGBERLIN)).getValue();
       custSettings.activateCanoeingOptions = ((ItemTypeBoolean) getItemByName(CUST_CANOEING))
           .getValue();
-      custSettings.activateGermanCanoeingOptions = ((ItemTypeBoolean) getItemByName(CUST_CANOEINGGERMANY))
-          .getValue();
+      custSettings.activateGermanCanoeingOptions = ((ItemTypeBoolean) getItemByName(
+          CUST_CANOEINGGERMANY)).getValue();
     }
     if (efaLiveAdmin) {
       if (((ItemTypeBoolean) getItemByName(EFALIVE_CREATEADMIN)).getValue()) {
@@ -282,10 +280,10 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         International.getString("Administratoren"));
     Logger.log(Logger.WARNING, Logger.MSG_CORE_ADMINSCREATEDNEW, msg);
     Dialog
-    .infoDialog(
-        International.getString("Neuer Hauptadministrator"),
-        International
-        .getString("Ein neuer Administrator mit Namen 'admin' wurde angelegt. Bitte notiere Dir Name und Paßwort an einem sicheren Ort."));
+        .infoDialog(
+            International.getString("Neuer Hauptadministrator"),
+            International.getString(
+                "Ein neuer Administrator mit Namen 'admin' wurde angelegt. Bitte notiere Dir Name und Paßwort an einem sicheren Ort."));
   }
 
   public CustSettings getCustSettings() {

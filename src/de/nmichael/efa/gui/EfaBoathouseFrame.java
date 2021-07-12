@@ -165,7 +165,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   JRadioButton toggleAvailableBoatsToDescriptionOrt = new JRadioButton(); // Tor 1
   JRadioButton toggleAvailableBoatsToBoatType = new JRadioButton(); // Wildwasser
   JRadioButton toggleAvailableBoatsToBoatNameAffix = new JRadioButton(); // (PE, Rot)
-  JRadioButton toggleAvailableBoatsToOwner = new JRadioButton(); // Eigentümer Overfreunde
+  JRadioButton toggleAvailableBoatsToOwner = new JRadioButton(); // Eigentümer OHverfreunde
   JRadioButton toggleAvailableBoatsToPaddelArt = new JRadioButton(); // Riggering
   JRadioButton toggleAvailableBoatsToSteuermann = new JRadioButton(); // Coxing
 
@@ -666,7 +666,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     Mnemonics.setButton(this, toggleAvailableBoatsToPersons,
         International.getStringWithMnemonic("Personen"));
     if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleSortByCategories()) {
-      Mnemonics.setButton(this, toggleAvailableBoatsToBoats, "EFA");
+      Mnemonics.setButton(this, toggleAvailableBoatsToBoats, Daten.EFA_GROSS);
     }
     Mnemonics.setButton(this, toggleAvailableBoatsToDescriptionOrt,
         International.getStringWithMnemonic("Ort"));
@@ -1093,8 +1093,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     boatReservationButton.addActionListener(new java.awt.event.ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        updateBoatLists(false); // select KEIN Boot
+        boatsAvailableList.setSelectedIndex(0); // Rollo: kein Boot auswählen
         actionBoatReservations();
+        updateBoatLists(true); // 2021-03-09 abf
       }
     });
 
@@ -1371,13 +1372,17 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   // i == 3 - boats not available
   public void boatListRequestFocus(int i) {
     if (i == 0) {
-      if (boatsAvailableList != null && boatsAvailableList.getSelectedIndex() >= 0) {
+      if (boatsAvailableList != null &&
+          boatsAvailableList.getSelectedIndex() >= 0) {
         boatsAvailableList.requestFocus();
-      } else if (personsAvailableList != null && personsAvailableList.getSelectedIndex() >= 0) {
+      } else if (personsAvailableList != null &&
+          personsAvailableList.getSelectedIndex() >= 0) {
         personsAvailableList.requestFocus();
-      } else if (boatsOnTheWaterList != null && boatsOnTheWaterList.getSelectedIndex() >= 0) {
+      } else if (boatsOnTheWaterList != null &&
+          boatsOnTheWaterList.getSelectedIndex() >= 0) {
         boatsOnTheWaterList.requestFocus();
-      } else if (boatsNotAvailableList != null && boatsNotAvailableList.getSelectedIndex() >= 0) {
+      } else if (boatsNotAvailableList != null &&
+          boatsNotAvailableList.getSelectedIndex() >= 0) {
         boatsNotAvailableList.requestFocus();
       } else if (boatsAvailableList != null) {
         boatsAvailableList.requestFocus();
@@ -1806,13 +1811,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
       }
 
-      if (clubworkName == null || clubworkName.length() == 0) {
-        if (admin != null && admin.isAllowedAdministerProjectClubwork()) {
-          OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this,
-              OpenProjectOrLogbookDialog.Type.clubwork, admin);
-          clubworkName = dlg.openDialog();
-        }
-      }
       if ((clubworkName == null || clubworkName.length() == 0)
           && clubworkNameBefore != null && clubworkNameBefore.length() > 0 && admin != null) {
         // Admin-Mode: There was a clubwork opened before, but admin aborted dialog and didn't
@@ -2115,14 +2113,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (actionEvent != null) {
       String actionCommand = actionEvent.getActionCommand();
       if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_1x)) {
-        // TODO 2020-05-24 abf Frage: Kann man diese Zeile ersatzlos streichen? Siehe EVENT_POPUP
-        // showBoatStatus(listID, aMainList, 1);
+        alive();
       }
       if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
+        alive();
         showBoatStatusAfterDoubleClick(listID, aMainList, 1);
         boatListDoubleClick(listID, aMainList);
       }
       if (actionCommand.equals(EfaMouseListener.EVENT_POPUP)) {
+        alive();
         showBoatStatusAfterDoubleClick(listID, aMainList, 1);
       }
       // Popup clicked?
@@ -2852,6 +2851,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   void actionStartSession(ItemTypeBoatstatusList.BoatListItem item) {
     alive();
     clearAllPopups();
+    actionStartSessionIntern(item);
+    updateBoatLists(true); // 2021-03-09 abf
+  }
+
+  private void actionStartSessionIntern(ItemTypeBoatstatusList.BoatListItem item) {
     if (Daten.project == null) {
       return;
     }
@@ -2862,16 +2866,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (item == null) {
       Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
       boatListRequestFocus(1);
-      efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt
-      // der Thread ihn richtig!
+      // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+      efaBoathouseBackgroundTask.interrupt();
       return;
     }
-
     if (!checkStartSessionForBoat(item, null, 1)) {
       return;
     }
 
-    showEfaBaseFrame(EfaBaseFrame.MODE_BOATHOUSE_START, item);
+    showEfaBaseFrame(EfaBaseFrame.MODE_BOATHOUSE_START, item); // show Dialog
   }
 
   void actionStartSessionCorrect() {
@@ -3003,6 +3006,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       dlg.showDialog();
       // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
       efaBoathouseBackgroundTask.interrupt();
+      updateBoatLists(true); // 2021-03-09 abf
       return;
     }
 
@@ -3013,6 +3017,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservierungenEditieren());
     dlg.showDialog();
     efaBoathouseBackgroundTask.interrupt();
+    updateBoatLists(true); // 2021-03-09 abf
   }
 
   void actionClubwork() {

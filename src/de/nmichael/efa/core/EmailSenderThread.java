@@ -49,9 +49,8 @@ public class EmailSenderThread extends Thread {
 
   // Constructor just for Plugin Check
   public EmailSenderThread() {
-    javax.mail.Session session = javax.mail.Session.getInstance(new Properties(), null); // just
-    // dummy
-    // statement
+    // just dummy statement
+    javax.mail.Session session = javax.mail.Session.getInstance(new Properties(), null);
   }
 
   public void enqueueMessage(javax.mail.Multipart message,
@@ -103,7 +102,7 @@ public class EmailSenderThread extends Thread {
         mailFromEmail = null;
       }
       if (mailFromName != null && mailFromName.trim().length() == 0) {
-        mailFromName = Daten.EFAEMAILNAME;
+        mailFromName = Daten.EFA_SHORTNAME;
       }
       if (mailSubjectPrefix != null && mailSubjectPrefix.trim().length() == 0) {
         mailSubjectPrefix = null;
@@ -126,7 +125,7 @@ public class EmailSenderThread extends Thread {
       emailAddressesAdmin = new Vector<String>();
       emailAddressesBoatMaintenance = new Vector<String>();
       DataKeyIterator it = Daten.admins.data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         AdminRecord admin = (AdminRecord) Daten.admins.data().get(k);
         if (admin != null && admin.getEmail() != null && admin.getEmail().length() > 0) {
@@ -171,6 +170,8 @@ public class EmailSenderThread extends Thread {
       if (auth) {
         props.put("mail." + protocol + ".auth", "true");
       }
+      // props.put("mail.smtp.ssl.trust", "*");
+      // props.put("mail." + protocol + ".ssl.trust", "*");
       if (Daten.efaConfig.getValueEmailSSL()) {
         props.put("mail." + protocol + ".ssl.enable", "true");
       } else {
@@ -324,7 +325,7 @@ public class EmailSenderThread extends Thread {
               continue; // EmailSenderThread must only run for local messages!
             }
             DataKeyIterator it = messages.data().getStaticIterator();
-            DataKey k = it.getFirst();
+            DataKey<?, ?, ?> k = it.getFirst();
             while (k != null) {
               MessageRecord msg = (MessageRecord) messages.data().get(k);
               if (msg != null && msg.getToBeMailed()) {
@@ -342,6 +343,7 @@ public class EmailSenderThread extends Thread {
                       if (isValidEmailAdress(msg.getReplyTo())) {
                         emailListe.add(msg.getReplyTo());
                       }
+                      emailListe.add("noreply" + Daten.DOMAIN_ID);
                       markDone = sendMail(msg, emailListe);
                       if (markDone) {
                         countSuccess++;
@@ -349,6 +351,7 @@ public class EmailSenderThread extends Thread {
                     }
                     if (MessageRecord.TO_BOATMAINTENANCE.equals(msg.getTo())
                         && emailAddressesBoatMaintenance != null) {
+                      emailAddressesBoatMaintenance.add("noreply" + Daten.DOMAIN_ID);
                       markDone = sendMail(msg, emailAddressesBoatMaintenance);
                       if (markDone) {
                         countSuccess++;
@@ -357,6 +360,7 @@ public class EmailSenderThread extends Thread {
                     if (isValidEmailAdress(msg.getTo())) {
                       Vector<String> emailListe = new Vector<String>();
                       emailListe.add(msg.getTo());
+                      emailListe.add("noreply" + Daten.DOMAIN_ID);
                       markDone = sendMail(msg, emailListe);
                       if (markDone) {
                         countSuccess++;
@@ -372,6 +376,7 @@ public class EmailSenderThread extends Thread {
                 }
                 if (markDone) {
                   msg.setToBeMailed(false);
+                  msg.setRead(true); // true = bereits gelesen
                   messages.data().update(msg);
                   errorCount = 0;
                 } else {

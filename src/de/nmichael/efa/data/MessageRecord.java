@@ -143,7 +143,7 @@ public class MessageRecord extends DataRecord {
     if (to != null && to.equals(TO_BOATMAINTENANCE)) {
       return International.getString("Bootswart");
     }
-    return null;
+    return to;
   }
 
   public void setFrom(String from) {
@@ -269,26 +269,32 @@ public class MessageRecord extends DataRecord {
 
   @Override
   public TableItemHeader[] getGuiTableHeader() {
-    TableItemHeader[] header = new TableItemHeader[4];
+    TableItemHeader[] header = new TableItemHeader[6];
     header[0] = new TableItemHeader(International.getString("Datum"));
     header[1] = new TableItemHeader(International.getString("Von"));
     header[2] = new TableItemHeader(International.getString("An"));
     header[3] = new TableItemHeader(International.getString("Betreff"));
+    header[4] = new TableItemHeader(International.getString("Read"));
+    header[5] = new TableItemHeader(International.getString("ToBeMailed"));
     return header;
   }
 
   @Override
   public TableItem[] getGuiTableItems() {
-    TableItem[] items = new TableItem[4];
+    TableItem[] items = new TableItem[6];
     items[0] = new TableItem(getDate().toString() + " " + getTime().toString());
     items[1] = new TableItem(getFrom());
     items[2] = new TableItem(getToAsName());
     items[3] = new TableItem(getSubject());
+    items[4] = new TableItem(getRead());
+    items[5] = new TableItem(getToBeMailed());
     if (!getRead()) {
       items[0].setMarked(true);
       items[1].setMarked(true);
       items[2].setMarked(true);
       items[3].setMarked(true);
+      items[4].setMarked(true);
+      items[5].setMarked(true);
     }
     return items;
   }

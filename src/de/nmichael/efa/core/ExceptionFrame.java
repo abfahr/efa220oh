@@ -126,11 +126,11 @@ public class ExceptionFrame extends JDialog implements ActionListener {
             "Damit dieser Fehler korrigiert werden kann, schicke bitte eine email " +
             "mit einer kurzen Beschreibung dessen, was diesen Fehler ausgelöst hat, " +
             "an {email}. Kopiere bitte zusätzlich folgende Informationen " +
-            "in die email: -- Danke!", Daten.efaLogfile, Daten.EMAILBUGS)));
+            "in die email: -- Danke!", Daten.efaLogfile, Daten.EMAILSUPPORT)));
     infotext.setForeground(Color.blue);
     errortext.append("#####################################################\n# " +
         International.getString("Unerwarteter Programmfehler") + "!\n# " +
-        International.getMessage("Bitte per email an {email} schicken!", Daten.EMAILBUGS) +
+        International.getMessage("Bitte per email an {email} schicken!", Daten.EMAILSUPPORT) +
         "\n#####################################################\n\n");
     errortext.append(International.getString("Fehler-Information")
         + ":\n============================================\n");

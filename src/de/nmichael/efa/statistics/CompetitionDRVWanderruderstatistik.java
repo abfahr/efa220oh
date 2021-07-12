@@ -15,7 +15,6 @@ import java.util.Hashtable;
 import java.util.UUID;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.DestinationRecord;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.PersonRecord;
@@ -124,17 +123,9 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
     // Anzahl der aktiven Ruderer ermitteln
     if (distanceInMeters >= 1000) { // mind. 1 Km gerudert
       if (alter > 18) { // über 18 Jahre
-        if (person.getGender().equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
-          alleAktive.put(personId, AKTIV_M_AB19);
-        } else { // weiblich
-          alleAktive.put(personId, AKTIV_W_AB19);
-        }
+        alleAktive.put(personId, AKTIV_M_AB19);
       } else { // bis 18 Jahre
-        if (person.getGender().equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
-          alleAktive.put(personId, AKTIV_M_BIS18);
-        } else { // weiblich
-          alleAktive.put(personId, AKTIV_W_BIS18);
-        }
+        alleAktive.put(personId, AKTIV_M_BIS18);
       }
     }
 
@@ -208,13 +199,13 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
             + "' kommt mit unterschiedlichen Entfernungen ("
             + DataTypeDistance.getDistanceFromMeters(oldvalue).getStringValueInKilometers(true, 0,
                 1)
-                + " und "
-                +
-                DataTypeDistance.getDistanceFromMeters(distanceInMeters).getStringValueInKilometers(
-                    true, 0, 1)
-                    + ") vor (Wert '" +
-                    DataTypeDistance.getDistanceFromMeters(meters).getStringValueInKilometers(true, 0, 1)
-                    + "' wird verwendet)!";
+            + " und "
+            +
+            DataTypeDistance.getDistanceFromMeters(distanceInMeters).getStringValueInKilometers(
+                true, 0, 1)
+            + ") vor (Wert '" +
+            DataTypeDistance.getDistanceFromMeters(meters).getStringValueInKilometers(true, 0, 1)
+            + "' wird verwendet)!";
         sr.cWarnings.put(newWarn, "foo"); // nur neue Warnungen hinzufügen
       }
     }
@@ -224,36 +215,18 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
 
     // Kilometer für einzelne Altersgruppen hinzufügen
     if (alter > 18) { // über 18 Jahre
-      if (person.getGender().equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
-        meters = sd.compData.teilnMueber18.get(personId);
-        if (meters == null) {
-          sd.compData.teilnMueber18.put(personId, new Long(distanceInMeters));
-        } else {
-          sd.compData.teilnMueber18.put(personId, new Long(meters + distanceInMeters));
-        }
-      } else { // weiblich
-        meters = sd.compData.teilnFueber18.get(personId);
-        if (meters == null) {
-          sd.compData.teilnFueber18.put(personId, new Long(distanceInMeters));
-        } else {
-          sd.compData.teilnFueber18.put(personId, new Long(meters + distanceInMeters));
-        }
+      meters = sd.compData.teilnMueber18.get(personId);
+      if (meters == null) {
+        sd.compData.teilnMueber18.put(personId, new Long(distanceInMeters));
+      } else {
+        sd.compData.teilnMueber18.put(personId, new Long(meters + distanceInMeters));
       }
     } else { // bis 18 Jahre
-      if (person.getGender().equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
-        meters = sd.compData.teilnMbis18.get(personId);
-        if (meters == null) {
-          sd.compData.teilnMbis18.put(personId, new Long(distanceInMeters));
-        } else {
-          sd.compData.teilnMbis18.put(personId, new Long(meters + distanceInMeters));
-        }
-      } else { // weiblich
-        meters = sd.compData.teilnFbis18.get(personId);
-        if (meters == null) {
-          sd.compData.teilnFbis18.put(personId, new Long(distanceInMeters));
-        } else {
-          sd.compData.teilnFbis18.put(personId, new Long(meters + distanceInMeters));
-        }
+      meters = sd.compData.teilnMbis18.get(personId);
+      if (meters == null) {
+        sd.compData.teilnMbis18.put(personId, new Long(distanceInMeters));
+      } else {
+        sd.compData.teilnMbis18.put(personId, new Long(meters + distanceInMeters));
       }
     }
 
@@ -321,7 +294,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
     sr.pOutputLinesBelow.addLine(Daten.project.getClubAddressStreet(), 1,
         StatOutputLines.FONT_NORMAL);
     sr.pOutputLinesBelow
-    .addLine(Daten.project.getClubAddressCity(), 1, StatOutputLines.FONT_NORMAL);
+        .addLine(Daten.project.getClubAddressCity(), 1, StatOutputLines.FONT_NORMAL);
     sr.pOutputLinesBelow.addLine("", 1, StatOutputLines.FONT_NORMAL);
     sr.pOutputLinesBelow.addLine("Unterschrift, Vereinsstempel: ", 1, StatOutputLines.FONT_BOLD);
 
@@ -361,15 +334,17 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
 
     final int SPALTENTITEL_UNTEN_AB_EINTRAEGEN = 15;
     sr.pAdditionalTable1 = new String[anzMtours + 1
-                                      + (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN ? 1 : 0)][16];
+        + (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN ? 1 : 0)][16];
     if (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN) { // Tabellentitel unten wiederholen
       sr.pAdditionalTable1[sr.pAdditionalTable1.length - 1] = sr.pAdditionalTable1Title;
       sr.pAdditionalTable1LastRowBold = true;
     }
 
     long _gesMeters = 0, _gesCrewMeters = 0;
-    int _gesTage = 0, _gesTeilnMueber18 = 0, _gesTeilnMbis18 = 0, _gesTeilnFueber18 = 0, _gesTeilnFbis18 = 0;
-    long _gesMeterTeilnMueber18 = 0, _gesMeterTeilnMbis18 = 0, _gesMeterTeilnFueber18 = 0, _gesMeterTeilnFbis18 = 0;
+    int _gesTage = 0, _gesTeilnMueber18 = 0, _gesTeilnMbis18 = 0, _gesTeilnFueber18 = 0,
+        _gesTeilnFbis18 = 0;
+    long _gesMeterTeilnMueber18 = 0, _gesMeterTeilnMbis18 = 0, _gesMeterTeilnFueber18 = 0,
+        _gesMeterTeilnFbis18 = 0;
     Hashtable<String, String> _gesWaters = new Hashtable<String, String>();
     int pos = 0; // Position in sr.pAdditionalTable1
     int nichtGewerteteEintraege = 0;
@@ -413,13 +388,13 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         // Plausi-Test
         if (tmpTotalMeters * tmpAnzTeiln < element.compData.totalDistanceInMeters) {
           sr.cWarnings
-          .put(
-              "Die berechneten Gesamt- und Mannschaftskilometer für die Mehrtagesfahrt '"
-                  + element.sName
-                  + "'\n"
-                  + "sind unstimmig. Bitte überprüfe, ob alle Einträge zu dieser Fahrt korrekt sind, insb. ob\n"
-                  + "alle Etappennamen unterschiedlich sind und kein Ruderer auf einer Etappe mehrfach vorkommt!\n",
-              "foo");
+              .put(
+                  "Die berechneten Gesamt- und Mannschaftskilometer für die Mehrtagesfahrt '"
+                      + element.sName
+                      + "'\n"
+                      + "sind unstimmig. Bitte überprüfe, ob alle Einträge zu dieser Fahrt korrekt sind, insb. ob\n"
+                      + "alle Etappennamen unterschiedlich sind und kein Ruderer auf einer Etappe mehrfach vorkommt!\n",
+                  "foo");
           sr.pAdditionalTable1[pos][1] += " (UNSTIMMIG - WIRD NICHT ANERKANNT)";
           wirdGewertet = false;
         }
@@ -499,7 +474,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
     String tmp = "";
     for (int i = 0; i < ga.length; i++) {
       tmp += (i > 0 ? ", " : "") + ga[i];
-    }// DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers()
+    } // DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers()
     sr.pAdditionalTable1[anzMtours][0] = "";
     sr.pAdditionalTable1[anzMtours][1] = "--- Zusammenfassung ---";
     sr.pAdditionalTable1[anzMtours][2] = "";

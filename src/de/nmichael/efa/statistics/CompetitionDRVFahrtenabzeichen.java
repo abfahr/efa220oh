@@ -15,7 +15,6 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.Fahrtenabzeichen;
 import de.nmichael.efa.data.FahrtenabzeichenRecord;
 import de.nmichael.efa.data.LogbookRecord;
@@ -47,7 +46,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
   }
 
   static boolean mayBeWafa(LogbookRecord r) {
-    String sessionType = r.getSessionType();
+    String sessionType = null;
     long distanceInMeters = (r.getDistance() == null ? 0 : r.getDistance().getValueInMeters());
     if (sessionType == null) {
       return false;
@@ -57,14 +56,6 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
     }
     if (distanceInMeters == 0) {
       return false;
-    }
-    if (sessionType.equals(EfaTypes.TYPE_SESSION_REGATTA) ||
-        sessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA) ||
-        sessionType.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP) ||
-        sessionType.equals(EfaTypes.TYPE_SESSION_LATEENTRY) ||
-        sessionType.equals(EfaTypes.TYPE_SESSION_MOTORBOAT) ||
-        sessionType.equals(EfaTypes.TYPE_SESSION_ERG)) {
-      return false; // diese Fahrten zählen nicht
     }
     if (getNumberOfDays(r.getDate(), r.getEndDate()) > 1 || r.getSessionGroupId() != null) {
       // potentielle Mehrtagesfahrt
@@ -86,16 +77,15 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
 
     for (int j = 0; sd.sessionHistory != null && j < sd.sessionHistory.size(); j++) {
       LogbookRecord r = sd.sessionHistory.get(j);
-      boolean jum = r.getSessionType().equals(EfaTypes.TYPE_SESSION_JUMREGATTA);
       SessionGroupRecord sessionGroup = r.getSessionGroup();
       String key = (sessionGroup == null
           ? "##SE##" + r.getEntryId().toString() + "##" + r.getDate().toString()
-              : "##SG##" + sessionGroup.getLogbook() + "##" + sessionGroup.getName());
+          : "##SG##" + sessionGroup.getLogbook() + "##" + sessionGroup.getName());
       DRVFahrt fahrt = wanderfahrten.get(key);
       if (fahrt == null) {
         fahrt = new DRVFahrt(r.getEntryId().toString(), r.getDate(), r.getEndDate(),
             r.getDestinationAndVariantName(), r.getComments(), r.getDistance().getValueInMeters());
-        fahrt.jum = jum;
+        fahrt.jum = false;
       } else {
         if (r.getDate().isBefore(fahrt.dateStart)) {
           fahrt.dateStart = r.getDate();
@@ -108,9 +98,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
           fahrt.dateEnd = r.getEndDate();
         }
         fahrt.distanceInMeters += r.getDistance().getValueInMeters();
-        if (!jum) {
-          fahrt.jum = false;
-        }
+        fahrt.jum = false;
       }
       if (sessionGroup != null) {
         if (sessionGroup.getName() != null) {
@@ -173,7 +161,8 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
           sr.pCompRulesItalics);
     }
 
-    if (!checkWettZeitraum(sr.sCompYear, sr.sStartDate, sr.sEndDate, WettDefs.DRV_FAHRTENABZEICHEN)) {
+    if (!checkWettZeitraum(sr.sCompYear, sr.sStartDate, sr.sEndDate,
+        WettDefs.DRV_FAHRTENABZEICHEN)) {
       sr.pCompWarning = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
     }
 
@@ -216,7 +205,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
 
         if (!sd[i].sYearOfBirth.equals("")
             && Daten.wettDefs.inGruppe(WettDefs.DRV_FAHRTENABZEICHEN, sr.sCompYear, g, jahrgang,
-                sd[i].gender, sd[i].disabled)) {
+                sd[i].disabled)) {
           // Teilnehmer ist in der Gruppe!
 
           // Wanderfahrten zusammenstellen
@@ -258,20 +247,20 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
               if (!ausg[k] && // Fahrt, die noch nicht ausgegeben wurde, ...
                   drvel != null && // und die wirklich vorhanden ist, außerdem:
                   ((gruppen[g].gruppe != 3 && drvel.ok && drvel.distanceInMeters > hoechst) || // Gruppe
-                      // 1/2:
-                      // Fahrt
-                      // "ok",
-                      // d.h.
-                      // >30
-                      // bzw.
-                      // >40
-                      // Km
+                  // 1/2:
+                  // Fahrt
+                  // "ok",
+                  // d.h.
+                  // >30
+                  // bzw.
+                  // >40
+                  // Km
                       (gruppen[g].gruppe == 3 && drvel.days > hoechst && // Gruppe 3:
-                      (drvel.days > 1 || drvel.jum && gruppen[g].untergruppe <= 2) // echte
+                          (drvel.days > 1 || drvel.jum && gruppen[g].untergruppe <= 2) // echte
                       // Mehrtagesfahrt
                       // oder JuM bei Gr. 3
                       // a/b
-                          ))) {
+                      ))) {
                 bestEl = drvel;
                 if (gruppen[g].gruppe != 3) {
                   hoechst = drvel.distanceInMeters;
@@ -293,8 +282,9 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
               ausg[hoechstEl] = true;
               wafa[nr][0] = bestEl.entryNo;
               wafa[nr][1] = bestEl.dateStart.toString();
-              wafa[nr][2] = (bestEl.dateEnd != null ? bestEl.dateEnd.toString() : bestEl.dateStart
-                  .toString());
+              wafa[nr][2] = (bestEl.dateEnd != null ? bestEl.dateEnd.toString()
+                  : bestEl.dateStart
+                      .toString());
               wafa[nr][3] = bestEl.destination;
               wafa[nr][4] = DataTypeDistance.getDistanceFromMeters(bestEl.distanceInMeters)
                   .getStringValueInKilometers(false, 0, 1);
@@ -330,7 +320,6 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
               sr.sCompYear,
               g,
               jahrgang,
-              sd[i].gender,
               sd[i].disabled,
               sd[i].distance,
               (int) (totalWafaMeters / 1000),
@@ -344,13 +333,15 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
           }
 
           if (erfuellt
-              || ((DataTypeDistance.getDistance(sd[i].distance).getTruncatedValueInKilometers() >=
-              gruppen[g].km * sr.sCompPercentFulfilled / 100) &&
-              sr.sCompPercentFulfilled < 100)) {
+              || ((DataTypeDistance.getDistance(sd[i].distance)
+                  .getTruncatedValueInKilometers() >= gruppen[g].km * sr.sCompPercentFulfilled
+                      / 100)
+                  &&
+                  sr.sCompPercentFulfilled < 100)) {
 
             int wafaLength;
             for (wafaLength = 0; wafaLength < 7 && wafa[wafaLength][0] != null; wafaLength++) {
-              //;
+              // ;
             }
 
             if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
@@ -362,13 +353,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                 ewm.vorname = sd[i].personRecord.getFirstName();
                 ewm.jahrgang = sd[i].sYearOfBirth;
                 ewm.gruppe = gruppen[g].bezeichnung;
-                if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_MALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_M;
-                } else if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-                  ewm.geschlecht = EfaWettMeldung.GESCHLECHT_W;
-                } else {
-                  ewm.geschlecht = "X";
-                }
+                ewm.geschlecht = "X";
                 // Kilometer auf- oder abrunden auf ganze Kilometer!
                 ewm.kilometer = Long.toString(DataTypeDistance.getDistance(sd[i].distance)
                     .getRoundedValueInKilometers());
@@ -525,13 +510,14 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
           // Teilnehmer ohne Jahrgang
           if (sd[i].sYearOfBirth.equals("")
               && Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN, sr.sCompYear, 0,
-                  sd[i].gender, sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
-                  && nichtBeruecksichtigt.get(sd[i].sName) == null) {
+                  sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
+              && nichtBeruecksichtigt.get(sd[i].sName) == null) {
             nichtBeruecksichtigt.put(
                 sd[i].sName,
                 "Wegen fehlenden Jahrgangs ignoriert ("
                     + DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true,
-                        0, 0) + ")");
+                        0, 0)
+                    + ")");
             continue;
           }
         }
@@ -602,8 +588,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                     + "Fahrtenabzeichen erworben. Eventuell in späteren Jahren gemeldete\n"
                     + "Fahrtenabzeichen liegen efa nicht vor und werden daher NICHT berücksichtigt.\n\n"
                     + "Ist es richtig, daß diese Teilnehmer keine neueren Fahrtenabzeichen haben?") != Dialog.YES) {
-          Dialog
-          .infoDialog(
+          Dialog.infoDialog(
               "Bestätigungsdatei abrufen",
               "Anscheinend hast Du nach Deiner letzten elektronischen Meldung vergessen,\n"
                   + "die Bestätigungsdatei abzurufen. Rufe daher bitte zunächst unter\n"
@@ -615,8 +600,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
           return;
         }
       } else {
-        Dialog
-        .infoDialog(
+        Dialog.infoDialog(
             "Bereits für dieses Jahr gemeldet",
             "Es liegen für einige Teilnehmer bereits vom DRV bestätigte Fahrtenhefte aus dem Jahr "
                 + sr.sCompYear

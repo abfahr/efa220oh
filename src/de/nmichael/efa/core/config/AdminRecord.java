@@ -17,7 +17,6 @@ import java.util.Vector;
 
 import javax.swing.JDialog;
 
-import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
@@ -52,18 +51,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
   public static final String CHANGEPASSWORD = "ChangePassword";
   public static final String CONFIGURATION = "Configuration";
   public static final String ADMINPROJECTLOGBOOK = "AdministerProjectLogbook";
-  public static final String ADMINPROJECTCLUBWORK = "AdministerProjectClubwork";
   public static final String EDITLOGBOOK = "EditLogbook";
   public static final String EDITBOATSTATUS = "EditBoatStatus";
   public static final String EDITBOATRESERVATION = "EditBoatReservation";
   public static final String EDITBOATDAMAGES = "EditBoatDamages";
   public static final String EDITBOATS = "EditBoats";
   public static final String EDITPERSONS = "EditPersons";
-  public static final String EDITCLUBWORK = "EditClubwork";
   public static final String EDITDESTINATIONS = "EditDestinations";
-  public static final String EDITGROUPS = "EditGroups";
-  public static final String EDITCREWS = "EditCrews";
-  public static final String EDITFAHRTENABZEICHEN = "EditFahrtenabzeichen";
   public static final String MSGREADADMIN = "MsgReadAdmin";
   public static final String MSGREADBOATMAINT = "MsgReadBoatMaintenance";
   public static final String MSGMARKREADADMIN = "MsgMarkReadAdmin";
@@ -73,7 +67,6 @@ public class AdminRecord extends DataRecord implements IItemListener {
   public static final String EDITSTATISTICS = "EditStatistics";
   public static final String ADVANCEDEDIT = "AdvancedEdit";
   public static final String REMOTEACCESS = "RemoteAccess";
-  public static final String SYNCKANUEFB = "SyncKanuEfb";
   public static final String SHOWLOGFILE = "ShowLogfile";
   public static final String EXITEFA = "ExitEfa";
   public static final String LOCKEFA = "LockEfa";
@@ -102,8 +95,6 @@ public class AdminRecord extends DataRecord implements IItemListener {
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(ADMINPROJECTLOGBOOK);
     t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(ADMINPROJECTCLUBWORK);
-    t.add(IDataAccess.DATA_BOOLEAN);
     f.add(EDITLOGBOOK);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(EDITBOATSTATUS);
@@ -116,15 +107,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(EDITPERSONS);
     t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(EDITCLUBWORK);
-    t.add(IDataAccess.DATA_BOOLEAN);
     f.add(EDITDESTINATIONS);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(EDITGROUPS);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(EDITCREWS);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(EDITFAHRTENABZEICHEN);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(MSGREADADMIN);
     t.add(IDataAccess.DATA_BOOLEAN);
@@ -143,8 +126,6 @@ public class AdminRecord extends DataRecord implements IItemListener {
     f.add(ADVANCEDEDIT);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(REMOTEACCESS);
-    t.add(IDataAccess.DATA_BOOLEAN);
-    f.add(SYNCKANUEFB);
     t.add(IDataAccess.DATA_BOOLEAN);
     f.add(SHOWLOGFILE);
     t.add(IDataAccess.DATA_BOOLEAN);
@@ -286,52 +267,12 @@ public class AdminRecord extends DataRecord implements IItemListener {
     return getBool(EDITPERSONS);
   }
 
-  public void setAllowedAdministerProjectClubwork(boolean allowed) {
-    setBool(ADMINPROJECTCLUBWORK, allowed);
-  }
-
-  public Boolean isAllowedAdministerProjectClubwork() {
-    return getBool(ADMINPROJECTCLUBWORK);
-  }
-
-  public void setAllowedEditClubwork(boolean allowed) {
-    setBool(EDITCLUBWORK, allowed);
-  }
-
-  public Boolean isAllowedEditClubwork() {
-    return getBool(EDITCLUBWORK);
-  }
-
   public void setAllowedEditDestinations(boolean allowed) {
     setBool(EDITDESTINATIONS, allowed);
   }
 
   public Boolean isAllowedEditDestinations() {
     return getBool(EDITDESTINATIONS);
-  }
-
-  public void setAllowedEditGroups(boolean allowed) {
-    setBool(EDITGROUPS, allowed);
-  }
-
-  public Boolean isAllowedEditGroups() {
-    return getBool(EDITGROUPS);
-  }
-
-  public void setAllowedEditCrews(boolean allowed) {
-    setBool(EDITCREWS, allowed);
-  }
-
-  public Boolean isAllowedEditCrews() {
-    return getBool(EDITCREWS);
-  }
-
-  public void setAllowedEditFahrtenabzeichen(boolean allowed) {
-    setBool(EDITFAHRTENABZEICHEN, allowed);
-  }
-
-  public Boolean isAllowedEditFahrtenabzeichen() {
-    return getBool(EDITFAHRTENABZEICHEN);
   }
 
   public void setAllowedMsgReadAdmin(boolean allowed) {
@@ -404,14 +345,6 @@ public class AdminRecord extends DataRecord implements IItemListener {
 
   public Boolean isAllowedRemoteAccess() {
     return getBool(REMOTEACCESS);
-  }
-
-  public void setAllowedSyncKanuEfb(boolean allowed) {
-    setBool(SYNCKANUEFB, allowed);
-  }
-
-  public Boolean isAllowedSyncKanuEfb() {
-    return getBool(SYNCKANUEFB);
   }
 
   public void setAllowedShowLogfile(boolean allowed) {
@@ -487,18 +420,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
           || !isAllowedChangePassword()
           || !isAllowedConfiguration()
           || !isAllowedAdministerProjectLogbook()
-          || !isAllowedAdministerProjectClubwork()
           || !isAllowedEditLogbook()
           || !isAllowedEditBoatStatus()
           || !isAllowedEditBoatReservation()
           || !isAllowedEditBoatDamages()
           || !isAllowedEditBoats()
           || !isAllowedEditPersons()
-          || !isAllowedEditClubwork()
           || !isAllowedEditDestinations()
-          || !isAllowedEditGroups()
-          || !isAllowedEditCrews()
-          || !isAllowedEditFahrtenabzeichen()
           || !isAllowedMsgReadAdmin()
           || !isAllowedMsgReadBoatMaintenance()
           || !isAllowedMsgMarkReadAdmin()
@@ -506,7 +434,6 @@ public class AdminRecord extends DataRecord implements IItemListener {
           || !isAllowedEditStatistics()
           || !isAllowedAdvancedEdit()
           || !isAllowedRemoteAccess()
-          || !isAllowedSyncKanuEfb()
           || !isAllowedShowLogfile()
           || !isAllowedExitEfa()
           || !isAllowedLockEfa()
@@ -518,18 +445,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
         setAllowedChangePassword(true);
         setAllowedConfiguration(true);
         setAllowedAdministerProjectLogbook(true);
-        setAllowedAdministerProjectClubwork(true);
         setAllowedEditLogbook(true);
         setAllowedEditBoatStatus(true);
         setAllowedEditBoatReservation(true);
         setAllowedEditBoatDamages(true);
         setAllowedEditBoats(true);
         setAllowedEditPersons(true);
-        setAllowedEditClubwork(true);
         setAllowedEditDestinations(true);
-        setAllowedEditGroups(true);
-        setAllowedEditCrews(true);
-        setAllowedEditFahrtenabzeichen(true);
         setAllowedMsgReadAdmin(true);
         setAllowedMsgReadBoatMaintenance(true);
         setAllowedMsgMarkReadAdmin(true);
@@ -537,7 +459,6 @@ public class AdminRecord extends DataRecord implements IItemListener {
         setAllowedEditStatistics(true);
         setAllowedAdvancedEdit(true);
         setAllowedRemoteAccess(true);
-        setAllowedSyncKanuEfb(true);
         setAllowedShowLogfile(true);
         setAllowedExitEfa(true);
         setAllowedLockEfa(true);
@@ -604,7 +525,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
       ((ItemTypePassword) item).setMinCharacters(MIN_PASSWORD_LENGTH);
       v.add(item = new ItemTypePassword(PASSWORD + "_REPEAT", "",
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort") +
-          " (" + International.getString("Wiederholung") + ")"));
+              " (" + International.getString("Wiederholung") + ")"));
       ((ItemTypePassword) item).setNotNull(true);
       ((ItemTypePassword) item).setMinCharacters(MIN_PASSWORD_LENGTH);
     }
@@ -620,11 +541,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(ADMINPROJECTLOGBOOK, isAllowedAdministerProjectLogbook(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Projekte und Fahrtenbücher administrieren")));
-    ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    v.add(item = new ItemTypeBoolean(ADMINPROJECTCLUBWORK, isAllowedAdministerProjectClubwork(),
-        IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Vereinsarbeitsbücher administrieren")));
+            .getString("Projekte und Fahrtenbücher administrieren")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(EDITLOGBOOK, isAllowedEditLogbook(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Fahrtenbuch bearbeiten")));
@@ -637,39 +554,25 @@ public class AdminRecord extends DataRecord implements IItemListener {
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(EDITBOATRESERVATION, isAllowedEditBoatReservation(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Bootsreservierungen bearbeiten")));
+            .getString("Bootsreservierungen bearbeiten")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(EDITBOATDAMAGES, isAllowedEditBoatDamages(),
-        IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Bootsschäden bearbeiten")));
+        IItemType.TYPE_PUBLIC, CAT_PERMISSIONS,
+        International.getString("Bootsschäden bearbeiten")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(EDITPERSONS, isAllowedEditPersons(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Personen und Status bearbeiten")));
+            .getString("Personen und Status bearbeiten")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    v.add(item = new ItemTypeBoolean(EDITCLUBWORK, isAllowedEditClubwork(),
-        IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vereinsarbeit bearbeiten")));
-    ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    v.add(item = new ItemTypeBoolean(EDITGROUPS, isAllowedEditGroups(),
-        IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Gruppen bearbeiten")));
-    ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    v.add(item = new ItemTypeBoolean(EDITCREWS, isAllowedEditCrews(),
-        IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Mannschaften bearbeiten")));
-    ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
-      v.add(item = new ItemTypeBoolean(EDITFAHRTENABZEICHEN, isAllowedEditFahrtenabzeichen(),
-          IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.onlyFor(
-              "Fahrtenabzeichen bearbeiten", "de")));
-      ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    }
     v.add(item = new ItemTypeBoolean(EDITDESTINATIONS, isAllowedEditDestinations(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Ziele und Gewässer bearbeiten")));
+            .getString("Ziele und Gewässer bearbeiten")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(ADVANCEDEDIT, isAllowedAdvancedEdit(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Erweiterte Bearbeitungsfunktionen") + ": " +
-        International.getString("Import") + " && " +
-        International.getString("Bearbeitungsassistent")));
+            .getString("Erweiterte Bearbeitungsfunktionen") + ": " +
+            International.getString("Import") + " && " +
+            International.getString("Bearbeitungsassistent")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(CONFIGURATION, isAllowedConfiguration(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa konfigurieren")));
@@ -679,14 +582,8 @@ public class AdminRecord extends DataRecord implements IItemListener {
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(REMOTEACCESS, isAllowedRemoteAccess(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Remote-Zugriff über efaRemote")));
+            .getString("Remote-Zugriff über efaRemote")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-      v.add(item = new ItemTypeBoolean(SYNCKANUEFB, isAllowedSyncKanuEfb(),
-          IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.onlyFor(
-              "mit KanuEfb synchonisieren", "de")));
-      ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
-    }
     v.add(item = new ItemTypeBoolean(SHOWLOGFILE, isAllowedShowLogfile(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Logdatei anzeigen")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
@@ -707,7 +604,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
     v.add(item = new ItemTypeBoolean(EXECCOMMAND, isAllowedExecCommand(),
         IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International
-        .getString("Betriebssystemkommando ausführen")));
+            .getString("Betriebssystemkommando ausführen")));
     ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
 
     v.add(item = new ItemTypeBoolean(MSGREADADMIN, isAllowedMsgReadAdmin(),

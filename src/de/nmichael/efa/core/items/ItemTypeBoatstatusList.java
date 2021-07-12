@@ -50,7 +50,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     DescriptionOrt, // Tor 1
     BoatType, // Wildwasser
     BoatNameAffix, // (PE, Rot)
-    Owner, // Eigentümer Overfreunde
+    Owner, // Eigentümer OHverfreunde
     PaddelArt, // Riggering
     Steuermann // Coxing
   }
@@ -425,7 +425,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             break;
           default:
             Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
-                "actionAbortSession(): unreachable switch: "
+                "getSortingItem(): unreachable switch: "
                     + "aBoatStatusRecord currentStatus = " + currentStatus);
             break;
         }
@@ -469,7 +469,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             aBoatRecord.getTypeCoxing(0));
         break;
       default:
-        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "actionAbortSession(): unreachable switch: "
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, "getSortingItem()2: unreachable switch: "
             + "getSortingItem sortString = " + sortString);
         break;
     }

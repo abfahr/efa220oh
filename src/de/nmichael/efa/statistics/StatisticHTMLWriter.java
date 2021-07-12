@@ -50,7 +50,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
       if (sr.sOutputHtmlUpdateTable && !new File(sr.sOutputFile).isFile()) {
         Logger.log(Logger.WARNING, Logger.MSG_STAT_OUTPUTREPLHTMLNOTFOUND,
             "Cannot replace table only in statistics file: File '" + sr.sOutputFile
-            + "' not found.");
+                + "' not found.");
         sr.sOutputHtmlUpdateTable = false;
       }
       if (sr.sOutputHtmlUpdateTable) {
@@ -116,7 +116,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
             + International.getMessage(
                 "{count} Personen oder Boote wurden von der Auswertung explizit ausgenommen.",
                 sr.pStatIgnored.size())
-                + "</td></tr>\n");
+            + "</td></tr>\n");
       }
       f.write("</table>\n<br><br>\n");
 
@@ -177,7 +177,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
         for (int i = 0; i < sr.pCompGroupNames.length; i++) {
           f.write("<tr><th class=\"comp_group\" colspan=\"3\">"
               + sr.pCompGroupNames[i][0] + " " + sr.pCompGroupNames[i][1]
-                  + " (<i>gefordert: " + sr.pCompGroupNames[i][2] + "</i>)</th></tr>\n");
+              + " (<i>gefordert: " + sr.pCompGroupNames[i][2] + "</i>)</th></tr>\n");
           if (sr.pCompParticipants != null && sr.pCompParticipants.length > i) {
             for (StatisticsData participant = sr.pCompParticipants[i]; participant != null; participant = participant.next) {
               f.write("<tr><td class=\"comp_space\">&nbsp;</td>\n");
@@ -187,34 +187,36 @@ public class StatisticHTMLWriter extends StatisticWriter {
                   f.write("<td "
                       + (participant.compFulfilled ? "class=\"comp_entry_ok_name\""
                           : "class=\"comp_entry_nok_name\"")
-                          + "><b>"
-                          + participant.sName
-                          + "</b></td>"
-                          + "<td "
-                          + (participant.compFulfilled ? "class=\"comp_entry_ok_details\""
-                              : "class=\"comp_entry_nok_details\"")
-                              + ">"
-                              + participant.sDistance
-                              + " Km"
-                              + (participant.sAdditional == null || participant.sAdditional.equals("") ? ""
-                                  : "; " + participant.sAdditional) + "</td>\n");
+                      + "><b>"
+                      + participant.sName
+                      + "</b></td>"
+                      + "<td "
+                      + (participant.compFulfilled ? "class=\"comp_entry_ok_details\""
+                          : "class=\"comp_entry_nok_details\"")
+                      + ">"
+                      + participant.sDistance
+                      + " Km"
+                      + (participant.sAdditional == null || participant.sAdditional.equals("") ? ""
+                          : "; " + participant.sAdditional)
+                      + "</td>\n");
                 } else {
                   String additional = (participant.sAdditional == null
                       || participant.sAdditional.equals("") ? "" : participant.sAdditional)
-                      + (participant.sCompWarning == null ? "" : "; <font color=\"red\">"
-                          + participant.sCompWarning + "</font>");
+                      + (participant.sCompWarning == null ? ""
+                          : "; <font color=\"red\">"
+                              + participant.sCompWarning + "</font>");
                   f.write("<td class=\"comp_entry_all\" colspan=\"2\">"
                       + (participant.compFulfilled
                           ? International.getString("erfüllt") + ": "
-                              : International.getString("noch nicht erfüllt") + ": ")
-                              + "<b>"
-                              + participant.sName
-                              + "</b>"
-                              + (participant.sYearOfBirth != null ? " (" + participant.sYearOfBirth + ")"
-                                  : "")
-                                  + ": " + participant.sDistance + " Km"
-                                  + (additional.length() > 0 ? " (" + additional + ")" : "")
-                                  + "</td>\n");
+                          : International.getString("noch nicht erfüllt") + ": ")
+                      + "<b>"
+                      + participant.sName
+                      + "</b>"
+                      + (participant.sYearOfBirth != null ? " (" + participant.sYearOfBirth + ")"
+                          : "")
+                      + ": " + participant.sDistance + " Km"
+                      + (additional.length() > 0 ? " (" + additional + ")" : "")
+                      + "</td>\n");
                 }
               } else {
                 // ausführliche Ausgabe
@@ -223,17 +225,18 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 if (participant.sDetailsArray.length > 0) {
                   colspan = participant.sDetailsArray[0].length;
                 }
-                f.write("<table class=\"comp_entry_details\">\n<tr><td class=\"comp_entry_details\" colspan=\""
-                    + colspan
-                    + "\"><b>"
-                    + participant.sName
-                    + " ("
-                    + participant.sYearOfBirth
-                    + "): "
-                    + participant.sDistance
-                    + " Km"
-                    + (participant.sAdditional != null ? "; " + participant.sAdditional : "")
-                    + "</b></td></tr>\n");
+                f.write(
+                    "<table class=\"comp_entry_details\">\n<tr><td class=\"comp_entry_details\" colspan=\""
+                        + colspan
+                        + "\"><b>"
+                        + participant.sName
+                        + " ("
+                        + participant.sYearOfBirth
+                        + "): "
+                        + participant.sDistance
+                        + " Km"
+                        + (participant.sAdditional != null ? "; " + participant.sAdditional : "")
+                        + "</b></td></tr>\n");
                 if (participant.sDetailsArray.length > 0) {
                   for (String[] element : participant.sDetailsArray) {
                     f.write("<tr>");
@@ -288,7 +291,6 @@ public class StatisticHTMLWriter extends StatisticWriter {
               sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
             outHTML(f, sd[i].sPosition, "entry_pos");
             outHTML(f, sd[i].sName, "entry_data");
-            outHTML(f, sd[i].sGender, "entry_data");
             outHTML(f, sd[i].sStatus, "entry_data");
             outHTML(f, sd[i].sYearOfBirth, "entry_data");
             outHTML(f, sd[i].sBoatType, "entry_data");
@@ -327,19 +329,22 @@ public class StatisticHTMLWriter extends StatisticWriter {
               outHTML(f, sd[i].sClubworkRelativeToTarget,
                   (!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary
                       && sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours
-                      ? "entry_nok" : "entry_ok"));
+                          ? "entry_nok"
+                          : "entry_ok"));
             }
             if (sd[i].sClubworkOverUnderCarryOver != null) {
               outHTML(f, sd[i].sClubworkOverUnderCarryOver,
                   (!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary
                       && sd[i].clubworkOverUnderCarryOver < 0
-                      ? "entry_nok" : "entry_ok"));
+                          ? "entry_nok"
+                          : "entry_ok"));
             }
             outHTML(f, sd[i].sClubworkCredit, "entry_data");
             if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
               for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
-                StatisticsData sdm = (sd[i].matrixData != null ?
-                    sd[i].matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j))) : null);
+                StatisticsData sdm = (sd[i].matrixData != null
+                    ? sd[i].matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j)))
+                    : null);
                 outHTML(f, EfaUtil.escapeHtml(getMatrixString(sdm)), "entry_data");
               }
             }
@@ -348,7 +353,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
             if (sd[i].logbookFields != null) {
               for (String logbookField : sd[i].logbookFields) {
                 outHTML(f, (logbookField != null
-                    ? logbookField : ""), "entry_data");
+                    ? logbookField
+                    : ""), "entry_data");
               }
             }
           }
@@ -356,7 +362,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
             if (sd[i].otherFields != null) {
               for (String otherField : sd[i].otherFields) {
                 outHTML(f, (otherField != null
-                    ? otherField : ""), "entry_data");
+                    ? otherField
+                    : ""), "entry_data");
               }
             }
           }
@@ -380,7 +387,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
       if (sr.sOutputHtmlUpdateTable) {
         String zz;
         while ((zz = fo.readLine()) != null && !zz.trim().equals("<!--EFA-ENDE-->")) {
-          //;
+          // ;
         }
         f.write("\n<!--EFA-ENDE-->\n");
         while ((zz = fo.readLine()) != null) {
@@ -507,8 +514,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
         f.write("<td class=\"additional\" " + (isBold ? " align=\"center\"" : "") + ">"
             + (isBold ? "<b>" : "")
             + data[i][j]
-                + (isBold ? "</b>" : "")
-                + "</td>");
+            + (isBold ? "</b>" : "")
+            + "</td>");
       }
       f.write("</tr>\n");
     }

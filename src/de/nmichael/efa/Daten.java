@@ -29,7 +29,6 @@ import javax.swing.plaf.ColorUIResource;
 
 import org.apache.commons.io.FileUtils;
 
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.CrontabThread;
 import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.core.EfaRunning;
@@ -63,16 +62,16 @@ public class Daten {
 
   // Version für die Ausgabe (z.B. 2.1.0, kann aber
   // auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSION = "2.2.0";
+  public static final String VERSION = "2.2.0";
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONID = "2.2.0_130";
-  public final static String VERSIONRELEASEDATE = "13.12.2020"; // Release Date: TT.MM.JJJJ
-  public final static String MAJORVERSION = "2";
-  public final static String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String COPYRIGHTYEAR = "14"; // aktuelles Jahr (Copyright (c)
+  public static final String VERSIONID = "2.2.0_153";
+  public static final String VERSIONRELEASEDATE = "06.06.2021"; // Release Date: TT.MM.JJJJ
+  public static final String MAJORVERSION = "2";
+  public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
+  public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
+  public static final String COPYRIGHTYEAR = "14"; // aktuelles Jahr (Copyright (c)
   // 2001-COPYRIGHTYEAR)
 
   private static final String EFA_LOG_FILE = "efa.log";
@@ -82,46 +81,43 @@ public class Daten {
   public static final String DEBUG_MODE_ALWAYS = "mit.Debug.immer.touch.txt";
   public static final String DEBUG_MODE_SPECIAL = "mit.Debug.heute.touch.txt";
 
-  public final static String EFA = "efa"; // efa program name/ID
+  public static final String EFA_GROSS = "EFA"; // efa program name/ID
   public static String EFA_SHORTNAME = "efa"; // dummy, will be set in International.ininitalize()
   public static String EFA_LONGNAME = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in
-  // International.ininitalize()
-  public static String EFA_ONLINE = "efaOnline"; // dummy, will be set in
-  // International.ininitalize()
+  // International.()
+  public static String EFA_ONLINE = "efaOnline"; // dummy, will be set in International.()
   public static String EFA_BASE = "efaBasis"; // dummy, will be set in International.ininitalize()
-  public static String EFA_BOATHOUSE = "efaBootshaus"; // dummy, will be set in
-  // International.ininitalize()
+  public static String EFA_BOATHOUSE = "efaBootshaus"; // dummy, will be set in International.()
   public static String EFA_CLI = "efaCLI"; // dummy, will be set in International.ininitalize()
   public static String EFA_LIVE = "efaLive"; // dummy, will be set in International.ininitalize()
   public static String EFA_WETT = "efaWett"; // dummy, will be set in International.ininitalize()
-  public static String EFA_REMOTE = "efaRemote"; // dummy, will be set in
-  // International.ininitalize()
-  public final static String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name
-  // containing all arguments
-  // passed to the "java"
-  // command
+  public static String EFA_REMOTE = "efaRemote"; // dummy, will be set in International.()
+  public static final String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name
+  // containing all arguments passed to the "java" command
   public static String efa_java_arguments = null; // Environment Variable Contents containing all
   // arguments passed to the "java" command
-  public final static String EFADIREKT_MAINCLASS = de.nmichael.efa.boathouse.Main.class
+  public static final String EFADIREKT_MAINCLASS = de.nmichael.efa.boathouse.Main.class
       .getCanonicalName();
-  public final static String EFAURL = "http://efa.nmichael.de";
-  public final static String EFASUPPORTURL = "http://efa.nmichael.de/help.html";
-  public final static String EFADEVURL = "http://kenai.com/projects/efa";
-  public final static String EFATRANSLATEWIKI = "http://kenai.com/projects/efa/pages/TranslatingEfa";
-  public final static String EFAWETTURL = "http://efa.rudern.de";
-  public final static String NICOLASURL = "http://www.nmichael.de";
-  public final static String EFAEMAILNAME = "efa";
-  public final static String EMAILINFO = "info.efa" + ICalendarExport.ABFX_DE;
-  public final static String EMAILBUGS = "bugs.efa" + ICalendarExport.ABFX_DE;
-  public final static String EMAILHELP = "help.efa" + ICalendarExport.ABFX_DE;
-  public final static String EMAILDEV = "dev.efa" + ICalendarExport.ABFX_DE;
+  public static final String EFAURL = "http://efa.nmichael.de";
+  public static final String EFASUPPORTURL = "http://efa.nmichael.de/help.html";
+  public static final String EFADEVURL = "http://kenai.com/projects/efa";
+  public static final String EFATRANSLATEWIKI = "http://kenai.com/projects/efa/pages/TranslatingEfa";
+  public static final String EFAWETTURL = "http://efa.rudern.de";
+  public static final String NICOLASURL = "http://www.nmichael.de";
+  public static final String DOMAIN_ID = "@overfreunde.de";
+  public static final String EMAILSUPPORT = "info@overfreunde.de";
+  public static final String EMAILBOOTSHAUSNUTZUNGSWART = "bootshausnutzung@overfreunde.de";
+  public static final String EMAILDEBUG_DOMAIN = "@abfx.de";
+  public static final String WEB_DOMAIN_EFA_BOOTSHAUS = "https://overfreunde.abfx.de/";
+  public static final String WEB_KALENDER_TERMINE = "https://www.overfreunde.de/termine/";
+  public static final String WEB_DOWNLOAD_VERTRAG = "https://www.overfreunde.de/downloads.html";
   public static final String EFA_USERDATA_DIR = "efa2"; // <efauser> = ~/efa2/ Directory for efauser
   // data (if not efa program directory)
   public static final String EFA_RUNNING = "efa.run"; // <efauser>/efa.run Indiz, daß efaDirekt
   // läuft (enthält Port#)
 
-  public final static String CONFIGFILE = "efa.cfg"; // <efauser>/cfg/efa.cfg Konfigurationsdatei
-  public final static String DRVCONFIGFILE = "drv.cfg"; // <efauser>/cfg/drv.cfg
+  public static final String CONFIGFILE = "efa.cfg"; // <efauser>/cfg/efa.cfg Konfigurationsdatei
+  public static final String DRVCONFIGFILE = "drv.cfg"; // <efauser>/cfg/drv.cfg
   // DRV-Konfigurationsdatei
   public static final String EFATYPESFILE = "types.cfg"; // <efauser>/cfg/types.cfg Konfiguration
   // für EfaTypes (Bezeichnungen)
@@ -210,28 +206,26 @@ public class Daten {
   public static String osVersion = "";
   public static String lookAndFeel = "";
 
-  public final static String PLUGIN_INFO_FILE = "plugins.xml";
+  public static final String PLUGIN_INFO_FILE = "plugins.xml";
   public static String pluginWebpage = "http://efa.nmichael.de/plugins.html"; // wird automatisch
   // auf das in der o.g. Datei stehende gesetzt
 
-  public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou/eou.xml";
-  public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eou/eoudrv.xml";
-  public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
-  public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
-  public final static String IMAGEPATH = "/de/nmichael/efa/img/";
-  public final static String FILEPATH = "/de/nmichael/efa/files/";
-  public final static String DATATEMPLATEPATH = "/de/nmichael/efa/data/templates/";
+  public static final String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou/eou.xml";
+  public static final String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eou/eoudrv.xml";
+  public static final String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
+  public static final String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
+  public static final String IMAGEPATH = "/de/nmichael/efa/img/";
+  public static final String FILEPATH = "/de/nmichael/efa/files/";
+  public static final String DATATEMPLATEPATH = "/de/nmichael/efa/data/templates/";
 
-  public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein
+  public static final int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein
   // muß, damit es zu einem automatischen Beenden/Restart kommt (60)
-  public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt
+  public static final int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt
   // wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als
   // AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
-  public final static int WINDOWCLOSINGTIMEOUT = 600; // Timeout in Sekunden, nach denen im
-  // Direkt-Modus manche Fenster automatisch geschlossen werden
-  public final static int MIN_FREEMEM_PERCENTAGE = 90;
-  public final static int WARN_FREEMEM_PERCENTAGE = 70;
-  public final static int MIN_FREEMEM_COLLECTION_THRESHOLD = 99;
+  public static final int MIN_FREEMEM_PERCENTAGE = 90;
+  public static final int WARN_FREEMEM_PERCENTAGE = 70;
+  public static final int MIN_FREEMEM_COLLECTION_THRESHOLD = 99;
   public static boolean DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
   public static boolean javaRestart = false;
 
@@ -1037,8 +1031,8 @@ public class Daten {
     wettDefs = new WettDefs(efaCfgDirectory + WETTDEFS);
     iniDataFile(wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
     keyStore = (applID != APPL_DRV
-        ? new EfaKeyStore(efaDataDirectory + PUBKEYSTORE, "efa".toCharArray())
-        : new EfaKeyStore(efaDataDirectory + DRVKEYSTORE, "efa".toCharArray()));
+        ? new EfaKeyStore(efaDataDirectory + PUBKEYSTORE, Daten.EFA_SHORTNAME.toCharArray())
+        : new EfaKeyStore(efaDataDirectory + DRVKEYSTORE, Daten.EFA_SHORTNAME.toCharArray()));
   }
 
   public static void iniRemoteEfaServer() {

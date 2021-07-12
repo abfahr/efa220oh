@@ -25,7 +25,6 @@ import java.util.Vector;
 import java.util.zip.Adler32;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.calendar.ICalendarExport;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemType;
@@ -53,7 +52,6 @@ import net.fortuna.ical4j.model.DateTime;
 public class BoatReservationRecord extends DataRecord {
 
   private static final long LONG_MILLI_SECONDS_PER_DAY = 24 * 60 * 60 * 1000;
-  private static final String EFA = "efa";
   public static final boolean REPLACE_HEUTE = true;
   public static final boolean KEEP_NUM_DATE = false;
   public static final boolean IS_FROM = true;
@@ -809,7 +807,8 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return EFA + getReservation() + "" + getPersonAsName().substring(0, 1).toUpperCase();
+    return Daten.EFA_SHORTNAME + getReservation() + ""
+        + getPersonAsName().substring(0, 1).toUpperCase();
   }
 
   @Override
@@ -840,16 +839,25 @@ public class BoatReservationRecord extends DataRecord {
       // ist die vorliegende Reservierung jetzt schon angefangen?
       if (System.currentTimeMillis() >= startTime) {
         fehlermeldung = "Deine Reservierung hat schon angefangen.\n";
-        fehlermeldung += "--> '" + getReason() + "' ab " + getDateTimeFromDescription(REPLACE_HEUTE)
+        fehlermeldung += "--> seit " + getDateTimeFromDescription(REPLACE_HEUTE) + " " + getReason()
             + "\n";
-        fehlermeldung += "'Angefangene' Reservierungen werden nicht sofort gestartet.\n";
-        fehlermeldung += "Nur zur Info: Es kann bis zu einer Minute dauern.\n";
-        fehlermeldung += "Falls nicht, muss evtl. alles neu eingegeben werden. Sorry!\n";
+        fehlermeldung += "Gib EFA eine Minute, damit das Boot auf Fahrt geht...\n";
       }
       // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp.
       // Lange-Ausleihe.
     }
     return fehlermeldung;
+  }
+
+  public long getValidAtTimestamp() {
+    return getValidAtTimestamp(getDateFrom(), getTimeFrom());
+  }
+
+  public static long getValidAtTimestamp(DataTypeDate d, DataTypeTime t) {
+    if (d != null && d.isSet()) {
+      return d.getTimestamp(t);
+    }
+    return System.currentTimeMillis();
   }
 
   private String getFormattedEmailtextBootshausnutzungswart() {
@@ -858,7 +866,7 @@ public class BoatReservationRecord extends DataRecord {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo Bootshausnutzungswart Wolfgang!");
     msg.add("");
-    msg.add("Hier die neueste Reservierung von EFa am Isekai");
+    msg.add("Hier die neueste Reservierung von EFA am Isekai");
     msg.add("Eingabe durch: " + getPersonAsName() + " "
         + (p != null ? p.getMembershipNo() + " " + p.getStatusName() : "(wer ist das?)"));
     msg.add(getStringEingabeAm(getLastModified()));
@@ -874,18 +882,14 @@ public class BoatReservationRecord extends DataRecord {
     }
     msg.add("");
     msg.add("mit freundlichen Grüßen");
-    msg.add("Efa");
+    msg.add(Daten.EFA_GROSS);
     msg.add("");
     if (p != null) {
       msg.add(
           "PS: Hi Wolle, der nachfolgende Text ist eine Vorlage für eine Antwort an das Mitglied "
               + p.getEmail());
       // msg.add("");
-      if (p.getGender().equals(EfaTypes.TYPE_GENDER_FEMALE)) {
-        msg.add("Liebe " + p.getFirstName() + ",");
-      } else {
-        msg.add("Lieber " + p.getFirstName() + ",");
-      }
+      msg.add("Hallo " + p.getFirstName() + ",");
       msg.add(
           "Dein Vertrag ist beim Nutzungswart eingegangen und wurde in die Datenbank eingegeben. Mit der nächsten Abbuchung wird das Nutzungsentgeld abgebucht. Bitte beachte, dass der Verein bis vier Wochen vor dem beantragten Veranstaltungstermin das Vortrittsrecht hat (siehe allgemeine Vertragsinhalte). In diesem Falle wird das Entgelt zurück überwiesen.");
       msg.add("Reservierung des " + getBoatName() + " für die Zeit: "
@@ -900,13 +904,14 @@ public class BoatReservationRecord extends DataRecord {
     List<String> msg = new ArrayList<String>();
     msg.add("Hallo " + anrede + "!");
     msg.add("");
+
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
     } else {
-      msg.add("Hier eine Erinnerung an Deine Reservierung in EFa am Isekai. "
-          + "(" + getStringEingabeAm(getLastModified()) + ")");
+      msg.add("Hier eine Erinnerung an Deine Reservierung in EFA am Isekai. ");
     }
     msg.add("");
+
     msg.add(" Reservierung des " + getBoatName());
     msg.add(" für die Zeit: " + getReservationTimeDescription(KEEP_NUM_DATE) + " für "
         + getPersonAsName());
@@ -918,54 +923,72 @@ public class BoatReservationRecord extends DataRecord {
     PersonRecord personRecord = getPersonRecord();
     if (aktion.contains("DELETE")) {
       msg.add("Die Reservierung des " + getBoatName() + " wurde heute gelöscht!");
+      msg.add("Dein Efa-PC im Bootshaus");
+      msg.add("");
     } else {
       if (isBootshausOH()) {
+        msg.add("Bootshausnutzung?");
+        msg.add(
+            "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen!");
         msg.add(
             "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
-                + "dann fülle das Formular umgehend aus (https://www.overfreunde.de/downloads.html) "
-                + "und gib es im Bootshaus rechtzeitig vor deiner Bootshausnutzung ab "
-                + "(ansonsten werden Dir automatisch 75 Euro berechnet).");
-      }
-      msg.add(
-          "Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
-              + "dann trage Dich bitte im Bootshaus wieder aus.");
-      if (Daten.efaConfig.isReservierungsEmailMitStornoLink()
-          && getHashId().length() > 0
-          && personRecord != null) {
-        msg.add("Alternativ kannst Du die Reservierung auch mit einem Klick stornieren: ");
-        msg.add(" " + getWebOnlineURL("storno/", personRecord.getMembershipNo()));
-      }
-      if (isBootshausOH()) {
-        msg.add(
-            "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen.");
-      }
-      msg.add("Ansonsten viel Spaß mit/im " + getBoatName());
-    }
-    if (aktion.contains("INSERT")
-        && personRecord != null
-        && personRecord.isErlaubtKuerzel() == false
-        && personRecord.getInputShortcut() == null) {
-      int anzahlFahrten = personRecord.getAnzahlFahrtenDiesJahrAnVerschiedenenTagen();
-      if (anzahlFahrten >= Daten.efaConfig.getAnzahlFahrtenFuerKuerzelTipp()) {
+                + "dann fülle das Formular umgehend aus (" + Daten.WEB_DOWNLOAD_VERTRAG + ") "
+                + "und gib es im Bootshaus rechtzeitig vor Deiner Bootshausnutzung ab. "
+                + "Ansonsten werden Dir automatisch 75EUR berechnet.");
         msg.add("");
-        msg.add("Tipp: Mühsame Eingaben am PC erleichtern? Mit Namenskürzel und Telefonnummer?");
-        msg.add(" " + getWebOnlineURL("efa/", personRecord.getMembershipNo()));
       }
-    }
-    msg.add("");
-    msg.add("mit freundlichen Grüßen");
-    msg.add("Efa-PC im Bootshaus");
-    msg.add("");
-    msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId}", getEfaId()));
+
+      msg.add("Liebe Grüße und viel Spaß mit/im " + getBoatName());
+      msg.add("Dein Efa-PC im Bootshaus");
+      msg.add("");
+
+      msg.add("Kalender?");
+      msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId} {url1} {url2}",
+          getEfaId(), Daten.WEB_KALENDER_TERMINE, Daten.WEB_DOMAIN_EFA_BOOTSHAUS + "efa/"));
+      msg.add("");
+
+      msg.add("Storno?");
+      msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
+          + "dann trage Dich bitte im Bootshaus wieder aus.");
+      if (personRecord != null && getHashId().length() > 0) {
+        msg.add("Alternativ kannst Du diese Reservierung hier mit ein paar Klicks stornieren: ");
+        msg.add(getWebOnlineURL("storno/", personRecord.getMembershipNo()));
+      }
+      msg.add("");
+
+      if (aktion.contains("INSERT")
+          && personRecord != null
+          && personRecord.isErlaubtKuerzel() == false
+          && personRecord.getInputShortcut() == null) {
+        int anzahlFahrten = personRecord.getAnzahlFahrtenDiesJahrAnVerschiedenenTagen();
+        if (anzahlFahrten >= Daten.efaConfig.getAnzahlFahrtenFuerKuerzelTipp()) {
+          msg.add("Tipp! ");
+          msg.add("Als Vielnutzer.in unbedingt Namenskürzel eintragen und Handynummer freigeben!");
+          msg.add(getWebOnlineURL("efa/", personRecord.getMembershipNo()));
+          // msg.add("");
+        }
+      }
+      if (personRecord != null) {
+        msg.add("Erleichterungen einstellen? Stimmt Deine Mailadresse noch?");
+        msg.add("Mit diesem Link kannst Du Dir Eingaben bei EFA sparen, "
+            + "zB. einen kurzen Spitznamen hinterlegen statt des vollständigen Namens.");
+        msg.add(getWebOnlineURL("efa/", personRecord.getMembershipNo()));
+        msg.add("");
+      }
+
+    } // else DELETE
+
     if (personRecord != null) {
+      msg.add("Spam von EFA?");
       msg.add(International.getMessage("Newsletter abmelden {url}",
           getWebOnlineURL("abmelden/", personRecord.getMembershipNo())));
+      msg.add("");
     }
     return join(msg);
   }
 
   private String getWebOnlineURL(String folder, String mitgliedNr) {
-    String url = "https://overfreunde.abfx.de/";
+    String url = Daten.WEB_DOMAIN_EFA_BOOTSHAUS;
     url += folder;
     url += "?mitgliedNr=" + mitgliedNr;
     url += "&hashId=" + getHashId();
@@ -1023,7 +1046,7 @@ public class BoatReservationRecord extends DataRecord {
         + " " + getDateFrom();
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getPersonAsName();
     }
     emailSubject += " " + getBoatName();
@@ -1052,7 +1075,7 @@ public class BoatReservationRecord extends DataRecord {
     }
 
     if (!isValidEmail(emailToAdresse)) {
-      emailToAdresse = "efa+no.invalidEmailMitglied" + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no.invalidEmailMitglied" + Daten.EMAILDEBUG_DOMAIN;
       emailSubject = "Error efa.invalidEmail " + getPersonAsName() + " ";
       kombinierteEmailErlaubnis = false;
     }
@@ -1066,7 +1089,7 @@ public class BoatReservationRecord extends DataRecord {
         + " " + getReason();
     if (!kombinierteEmailErlaubnis) {
       emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
-      emailToAdresse = "efa+no." + emailToAdresse + ICalendarExport.ABFX_DE;
+      emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getPersonAsName();
     }
     String emailMessage = getFormattedEmailtextMitglied(anrede, aktion);

@@ -37,7 +37,6 @@ public class StatisticsData implements Comparable {
   Object key;
   String sPosition;
   String sName;
-  String sGender;
   String sStatus;
   String sYearOfBirth;
   String sBoatType;
@@ -90,7 +89,6 @@ public class StatisticsData implements Comparable {
   public Hashtable<Object, StatisticsData> matrixData;
 
   PersonRecord personRecord; // filled by postprocessing if this is a person
-  String gender;
   boolean disabled;
   UUID boatId;
 
@@ -212,9 +210,6 @@ public class StatisticsData implements Comparable {
     if (sr.sIsFieldsName && sName.indexOf(KEY_MODIFIER) > 0) {
       int pos = sName.indexOf(KEY_MODIFIER);
       sName = sName.substring(0, pos);
-    }
-    if (sr.sIsFieldsGender && sGender == null) {
-      this.sGender = "";
     }
     if (sr.sIsFieldsStatus && sStatus == null) {
       this.sStatus = "";
@@ -355,8 +350,8 @@ public class StatisticsData implements Comparable {
       if (sr.sIgnoreNullValues && meters == 0) {
         sWanderfahrten = "";
       } else {
-        sWanderfahrten = DataTypeDistance.getDistance(meters).
-            getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
+        sWanderfahrten = DataTypeDistance.getDistance(meters)
+            .getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
       }
     }
 
@@ -364,11 +359,9 @@ public class StatisticsData implements Comparable {
     double t_hours = sr.sTransferableClubworkHours;
     if (this.clubworkOverUnderCarryOver < -t_hours) {
       this.clubworkOverUnderCarryOver += t_hours;
-    }
-    else if (this.clubworkOverUnderCarryOver > t_hours) {
+    } else if (this.clubworkOverUnderCarryOver > t_hours) {
       this.clubworkOverUnderCarryOver -= t_hours;
-    }
-    else {
+    } else {
       this.clubworkOverUnderCarryOver = 0;
     }
 
@@ -498,14 +491,6 @@ public class StatisticsData implements Comparable {
           }
         }
         break;
-      case gender:
-        if (this.sGender != null && osd.sGender != null) {
-          int res = this.sGender.compareTo(osd.sGender);
-          if (res != 0) {
-            return res * order;
-          }
-        }
-        break;
       case status:
         if (this.sStatus != null && osd.sStatus != null) {
           int res = this.sStatus.compareTo(osd.sStatus);
@@ -601,8 +586,6 @@ public class StatisticsData implements Comparable {
         return speed;
       case name:
         return sName;
-      case gender:
-        return sGender;
       case status:
         return sStatus;
       case yearOfBirth:

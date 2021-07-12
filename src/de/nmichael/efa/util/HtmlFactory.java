@@ -18,7 +18,6 @@ import java.io.OutputStreamWriter;
 import de.nmichael.efa.Daten;
 
 // @i18n complete
-
 public class HtmlFactory {
 
   public static BufferedWriter createFile(String filename) {
@@ -46,7 +45,8 @@ public class HtmlFactory {
     return s.toString();
   }
 
-  public static void writeHeader(BufferedWriter f, String title, boolean withH1) throws IOException {
+  public static void writeHeader(BufferedWriter f, String title, boolean withH1)
+      throws IOException {
     f.write(getHeader(title, withH1));
   }
 
@@ -83,10 +83,11 @@ public class HtmlFactory {
           " (" + International.getString("Verein")
           + "):</b></td><td><input type=\"text\" name=\"verein\" size=\"30\"></td></tr>\n");
       f.write("<tr><td><b>" + International.getString("An") +
-          ":</b></td><td><tt>" + Daten.EFAEMAILNAME + " &lt;" + email + "&gt;</tt></td></tr>\n");
+          ":</b></td><td><tt>" + Daten.EFA_SHORTNAME + " &lt;" + email + "&gt;</tt></td></tr>\n");
       f.write("<tr><td><b>" + International.getString("Betreff") +
           ":</b></td><td><input type=\"text\" name=\"betreff\" size=\"30\"></td></tr>\n");
-      f.write("<tr><td colspan=\"2\"><textarea name=\"nachricht\" cols=\"50\" rows=\"10\" wrap=\"physical\"></textarea></td></tr>\n");
+      f.write(
+          "<tr><td colspan=\"2\"><textarea name=\"nachricht\" cols=\"50\" rows=\"10\" wrap=\"physical\"></textarea></td></tr>\n");
       f.write("<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" +
           International.getString("Abschicken") + "\"><br>\n");
       f.write("<font color=\"red\"><b>" +
@@ -123,12 +124,10 @@ public class HtmlFactory {
           Daten.ENCODING_UTF));
       writeHeader(f, International.getString("Registrieren"), true);
       f.write("<p>"
-          +
-          International
-          .getString("Bitte unterstütze die Weiterentwicklung von efa, indem Du Dich kurz als Nutzer "
-              +
-              "von efa registrierst.") +
-          "</p>\n<br><br>");
+          + International.getString(
+              "Bitte unterstütze die Weiterentwicklung von efa, indem Du Dich kurz als Nutzer "
+                  + "von efa registrierst.")
+          + "</p>\n<br><br>");
       f.write("<form method=\"post\" action=\"" + Daten.INTERNET_EFAMAIL + "\">\n");
       f.write("<input type=\"hidden\" name=\"reply_thanks\" value=\""
           + International.getString("Danke") + "\">\n");
@@ -157,13 +156,17 @@ public class HtmlFactory {
       // the following names are not determined by efa, since this check is
       // currently being called at a time where no project is open. well...
       String clubName = (Daten.project != null && Daten.project.getClubName() != null
-          ? EfaUtil.replace(Daten.project.getClubName(), "\"", "'") : "");
+          ? EfaUtil.replace(Daten.project.getClubName(), "\"", "'")
+          : "");
       String adminName = (Daten.project != null && Daten.project.getAdminName() != null
-          ? EfaUtil.replace(Daten.project.getAdminName(), "\"", "'") : "");
+          ? EfaUtil.replace(Daten.project.getAdminName(), "\"", "'")
+          : "");
       String adminEmail = (Daten.project != null && Daten.project.getAdminEmail() != null
-          ? EfaUtil.replace(Daten.project.getAdminEmail(), "\"", "'") : "");
+          ? EfaUtil.replace(Daten.project.getAdminEmail(), "\"", "'")
+          : "");
       String checkedRowing = (Daten.efaConfig.getValueUseFunctionalityRowing() ? "checked" : "");
-      String checkedCanoeing = (Daten.efaConfig.getValueUseFunctionalityCanoeing() ? "checked" : "");
+      String checkedCanoeing = (Daten.efaConfig.getValueUseFunctionalityCanoeing() ? "checked"
+          : "");
 
       f.write("<tr><td><b>" + International.getString("Vereinsname") + ":</b></td>");
       f.write("<td colspan=\"3\"><input name=\"club\" type=\"text\" value=\"" + clubName
@@ -173,10 +176,12 @@ public class HtmlFactory {
       f.write("<td colspan=\"3\"><input name=\"homepage\" type=\"text\" size=\"40\"/></td></tr>\n");
 
       f.write("<tr><td><b>" + International.getString("Land") + ":</b></td>");
-      f.write("<td colspan=\"3\"><input name=\"country_new\" type=\"text\" size=\"40\"/></td></tr>\n");
+      f.write(
+          "<td colspan=\"3\"><input name=\"country_new\" type=\"text\" size=\"40\"/></td></tr>\n");
 
       f.write("<tr><td><b>" + International.getString("Region") + ":</b></td>");
-      f.write("<td colspan=\"3\"><input name=\"region_new\" type=\"text\" size=\"40\"/></td></tr>\n");
+      f.write(
+          "<td colspan=\"3\"><input name=\"region_new\" type=\"text\" size=\"40\"/></td></tr>\n");
 
       f.write("<tr><td><b>" + International.getString("Benutzung seit (Jahr)") + ":</b></td>");
       f.write("<td colspan=\"3\"><input name=\"useSince\" type=\"text\" size=\"40\"/></td></tr>\n");
@@ -194,8 +199,9 @@ public class HtmlFactory {
           + International.getString("Nutzungsart") + ":</b></td>");
       f.write("<td colspan=\"3\"><input name=\"useClubHome\" type=\"checkbox\" value=\"yes\"/> "
           + International.getString("Papier-Fahrtenbuch mit Übertrag nach efa") + "</td></tr>\n");
-      f.write("<tr><td colspan=\"3\"><input name=\"useClubDirect\" type=\"checkbox\" value=\"yes\"/> "
-          + International.getString("im Bootshaus") + "</td></tr>\n");
+      f.write(
+          "<tr><td colspan=\"3\"><input name=\"useClubDirect\" type=\"checkbox\" value=\"yes\"/> "
+              + International.getString("im Bootshaus") + "</td></tr>\n");
       f.write("<tr><td colspan=\"3\"><input name=\"useEvaluate\" type=\"checkbox\" value=\"yes\"/> "
           + International.getString("Evaluierung") + "</td></tr>\n");
 
@@ -208,12 +214,14 @@ public class HtmlFactory {
           + "\" size=\"40\"/></td></tr>\n");
 
       f.write("<tr><td><b>" + International.getString("Bemerkungen") + ":</b></td>");
-      f.write("<td colspan=\"3\"><textarea name=\"comments\" cols=\"40\" rows=\"3\"/></textarea></td></tr>\n");
+      f.write(
+          "<td colspan=\"3\"><textarea name=\"comments\" cols=\"40\" rows=\"3\"/></textarea></td></tr>\n");
 
       f.write("<tr><td><b>" + International.getString("Mailingliste") + ":</b></td>");
-      f.write("<td colspan=\"3\"><input name=\"addMailingList\" type=\"checkbox\" value=\"yes\" checked /> "
-          + International.getString("Ich möchte über Neuigkeiten per email informiert werden.")
-          + "</td></tr>\n");
+      f.write(
+          "<td colspan=\"3\"><input name=\"addMailingList\" type=\"checkbox\" value=\"yes\" checked /> "
+              + International.getString("Ich möchte über Neuigkeiten per email informiert werden.")
+              + "</td></tr>\n");
       f.write("<tr><td colspan=\"4\" align=\"center\"><br><input type=\"submit\" value=\""
           + International.getString("Abschicken") + "\"></td></tr>\n");
       f.write("<tr><td colspan=\"4\" align=\"center\"><font color=\"red\"><b>"

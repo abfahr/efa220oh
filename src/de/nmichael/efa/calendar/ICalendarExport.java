@@ -44,7 +44,6 @@ import net.fortuna.ical4j.model.property.XProperty;
 public class ICalendarExport {
 
   public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
-  public static final String ABFX_DE = "@abfx.de";
 
   public void saveAllReservationToCalendarFile() {
     try {
@@ -200,7 +199,7 @@ public class ICalendarExport {
       long lastModified = logbookRecord.getLastModified();
       String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
       String efaId = logbookRecord.getEfaId();
-      String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
+      String uid = dateTimeLastModifiedStr + "." + efaId + Daten.DOMAIN_ID;
       String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
 
       String description = reservationTimeDescription + CRLF;
@@ -274,6 +273,7 @@ public class ICalendarExport {
       DataTypeDate dateFrom = boatReservationRecord.getDateFrom();
       DataTypeTime timeFrom = boatReservationRecord.getTimeFrom();
       DataTypeDate dateTo = boatReservationRecord.getDateTo();
+      DataTypeDate dateSeriesTo = dateTo;
       DataTypeTime timeTo = boatReservationRecord.getTimeTo();
       String contactPhone = boatReservationRecord.getContact();
       String personAsName = boatReservationRecord.getPersonAsName();
@@ -283,7 +283,7 @@ public class ICalendarExport {
       long lastModified = boatReservationRecord.getLastModified();
       String dateTimeLastModifiedStr = new DateTime(lastModified).toString().replace('T', '.');
       String efaId = boatReservationRecord.getEfaId();
-      String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
+      String uid = dateTimeLastModifiedStr + "." + efaId + Daten.DOMAIN_ID;
       String modif = "(" + efaId + " aktualisiert am " + dateTimeLastModifiedStr + ")";
 
       String description = reservationTimeDescription + CRLF;
@@ -308,9 +308,7 @@ public class ICalendarExport {
         if (dateFrom.equals(DataTypeDate.today())) {
           dateFrom = new DataTypeDate(lastModified);
         }
-        if (dateTo == null) {
-          dateTo = dateFrom;
-        }
+        dateTo = dateFrom;
       }
       DateTime startDateTime = new DateTime(dateFrom.getTimestamp(timeFrom));
       DateTime endDateTime = new DateTime(dateTo.getTimestamp(timeTo));
@@ -337,8 +335,8 @@ public class ICalendarExport {
         }
         // String recur3 = "RRULE:FREQ=" + type + ";BYDAY=" + dayOfWeek.substring(0, 2);
         Recur recur = null;
-        if (boatReservationRecord.getDateTo() != null) {
-          recur = new Recur(Recur.WEEKLY, endDateTime);
+        if (dateSeriesTo != null) {
+          recur = new Recur(Recur.WEEKLY, new DateTime(dateSeriesTo.getTimestamp(timeTo)));
         } else {
           recur = new Recur(Recur.WEEKLY, 4 * 52);
         }
@@ -377,7 +375,7 @@ public class ICalendarExport {
       DateTime dateTimeLastModified = new DateTime(clubworkRecord.getLastModified());
       String dateTimeLastModifiedStr = dateTimeLastModified.toString().replace('T', '.');
       String efaId = clubworkRecord.getEfaId();
-      String uid = dateTimeLastModifiedStr + "." + efaId + ABFX_DE;
+      String uid = dateTimeLastModifiedStr + "." + efaId + Daten.DOMAIN_ID;
 
       String descriptionAlle = firstLastName + CRLF;
       descriptionAlle += description + CRLF;

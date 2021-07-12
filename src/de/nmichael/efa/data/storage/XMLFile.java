@@ -33,7 +33,6 @@ import de.nmichael.efa.util.SaxErrorHandler;
 import de.nmichael.efa.util.XmlHandler;
 
 // @i18n complete
-
 public class XMLFile extends DataFile {
 
   public static final String FIELD_GLOBAL = "efa";
@@ -82,8 +81,8 @@ public class XMLFile extends DataFile {
     }
     if (lock < 0) {
       throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.fileReadFailed(filename,
-          storageLocation, "Cannot get Global Lock for File Reading"), Thread.currentThread()
-          .getStackTrace());
+          storageLocation, "Cannot get Global Lock for File Reading"),
+          Thread.currentThread().getStackTrace());
     }
     try {
       clearAllData();
@@ -122,7 +121,7 @@ public class XMLFile extends DataFile {
       write(data, XmlHandler.XML_HEADER);
       write(data, xmltagStart(data, FIELD_GLOBAL));
       write(data, xmltagStart(data, FIELD_HEADER));
-      write(data, xmltag(data, FIELD_HEADER_PROGRAM, Daten.EFA));
+      write(data, xmltag(data, FIELD_HEADER_PROGRAM, Daten.EFA_SHORTNAME));
       write(data, xmltag(data, FIELD_HEADER_VERSION, Daten.VERSIONID));
       write(data, xmltag(data, FIELD_HEADER_NAME, dataAccess.getStorageObjectName()));
       write(data, xmltag(data, FIELD_HEADER_TYPE, dataAccess.getStorageObjectType()));
@@ -136,7 +135,8 @@ public class XMLFile extends DataFile {
         Logger.log(e);
         throw new EfaException(Logger.MSG_DATA_WRITEFAILED,
             LogString.fileWritingFailed(data.dataAccess.getUID(),
-                data.dataAccess.getStorageObjectDescription(), e.toString()), Thread
+                data.dataAccess.getStorageObjectDescription(), e.toString()),
+            Thread
                 .currentThread().getStackTrace());
       }
     }
@@ -175,7 +175,8 @@ public class XMLFile extends DataFile {
       Logger.log(e);
       throw new EfaException(Logger.MSG_DATA_WRITEFAILED,
           LogString.fileWritingFailed(data.dataAccess.getUID(),
-              data.dataAccess.getStorageObjectDescription(), e.toString()), Thread.currentThread()
+              data.dataAccess.getStorageObjectDescription(), e.toString()),
+          Thread.currentThread()
               .getStackTrace());
     }
   }

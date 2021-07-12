@@ -74,6 +74,8 @@ import de.nmichael.efa.gui.MultiInputDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationListDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
+import de.nmichael.efa.gui.dataedit.DataListDialog;
+import de.nmichael.efa.gui.dataedit.StatisticsListDialog;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.gui.util.TableCellRenderer;
@@ -227,7 +229,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               break;
             default:
               Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
-                  "actionAbortSession(): unreachable switch: "
+                  "setActions(): unreachable switch: "
                       + "setActions() actionTypes = " + actionTypes[i]);
               break;
           }
@@ -486,6 +488,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       + reservation.getBoatName() + " "
                       + reservation.getDateTimeFromDescription(
                           BoatReservationRecord.REPLACE_HEUTE));
+                  // TODO 2021-03-10 abf JETZT den Background-Job unterbrechen
+                  // efaBoathouseBackgroundTask.interrupt();
                 } else {
                   try {
                     // allowed for identified Persons with Id
@@ -530,7 +534,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                       return;
                     default:
                       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
-                          "actionAbortSession(): unreachable switch: "
+                          "itemListenerAction()1: unreachable switch: "
                               + "Datensatz wiederherstellen auswahlYesNoCancelDialog = "
                               + auswahlYesNoCancelDialog);
                       break;
@@ -657,9 +661,19 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               Dialog.error(ex.toString());
             }
             break;
+          case DataListDialog.ACTION_IMPORT:
+          case DataListDialog.ACTION_EXPORT:
+          case DataListDialog.ACTION_MERGE:
+          case DataListDialog.ACTION_PRINTLIST:
+          case DataListDialog.ACTION_EDITASSISTENT:
+          case StatisticsListDialog.ACTION_CREATESTATISTICS: // Lasse
+          case StatisticsListDialog.ACTION_ONETIMESTATISTIC: // Boris selber
+          case StatisticsListDialog.ACTION_MOVEUP: // Lasse
+          case StatisticsListDialog.ACTION_MOVEDOWN: // Lasse noch nicht
+            break;
           default:
             Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR,
-                "actionAbortSession(): unreachable switch: "
+                "itemListenerAction()2: unreachable switch: "
                     + "itemListenerAction actionId = " + actionId);
             break;
         }
@@ -1168,7 +1182,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             if (filterByAnyText == null
                 || (filterByAnyText != null && allFieldsAsLowerText.indexOf(filterByAnyText) >= 0)
                 || (wochentagFilter != null
-                    && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0)) {
+                    && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0
+                    && (r instanceof BoatReservationRecord)
+                    && ((BoatReservationRecord) r).getDateTo() == null)) {
               if (!(r instanceof ClubworkRecord) || Daten.isAdminMode()
                   || isToday(r.getLastModified())) {
                 data.add(r);

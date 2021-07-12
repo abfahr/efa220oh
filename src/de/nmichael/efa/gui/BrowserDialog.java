@@ -204,23 +204,10 @@ public class BrowserDialog extends BaseDialog {
           if (conn.getContentType().equals("text/html")
               || conn.getContentType().equals("text/plain")) {
 
-            // check for various email addresses
-            if (surl.toLowerCase().equals("mailto:" + Daten.EMAILINFO)) {
-              surl = HtmlFactory.createMailto(Daten.EMAILINFO);
-            }
-            if (surl.toLowerCase().equals("mailto:" + Daten.EMAILBUGS)) {
-              surl = HtmlFactory.createMailto(Daten.EMAILBUGS);
-            }
-            if (surl.toLowerCase().equals("mailto:" + Daten.EMAILHELP)) {
-              surl = HtmlFactory.createMailto(Daten.EMAILHELP);
-            }
-
             if (surl.toLowerCase().startsWith("mailto:")) {
-              Dialog
-              .error(International
-                  .getMessage(
-                      "Bitte benutze ein externes email-Programm, um eine email an {receiver} zu verschicken!",
-                      surl.substring(7, surl.length())));
+              Dialog.error(International.getMessage(
+                  "Bitte benutze ein externes email-Programm, um eine email an {receiver} zu verschicken!",
+                  surl.substring(7, surl.length())));
             } else {
               setNewPage(surl);
             }
@@ -232,12 +219,13 @@ public class BrowserDialog extends BaseDialog {
               + ": "
               + International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}", e.getURL()
                   .toString(), ee.toString())
-                  + "\n"
-                  + International.getString("Eventuell wird efa durch eine Firewall blockiert.")
-                  + " "
-                  + International
-                  .getString("Bitte prüfe Deine Firewall-Einstellungen und erlaube efa den Internet-Zugriff "
-                      + "oder benutze einen normalen Webbrowser."));
+              + "\n"
+              + International.getString("Eventuell wird efa durch eine Firewall blockiert.")
+              + " "
+              + International
+                  .getString(
+                      "Bitte prüfe Deine Firewall-Einstellungen und erlaube efa den Internet-Zugriff "
+                          + "oder benutze einen normalen Webbrowser."));
         }
       }
     }
@@ -803,8 +791,7 @@ public class BrowserDialog extends BaseDialog {
       int height,
       int closingTimeout,
       String closeButtonText,
-      String closeButtonIcon
-      ) {
+      String closeButtonIcon) {
     try {
       BrowserDialog dlg = null;
       if (parent != null && parent instanceof BaseDialog) {

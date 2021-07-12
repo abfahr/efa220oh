@@ -230,19 +230,14 @@ public class BoatStatusRecord extends DataRecord {
     return s;
   }
 
-  public static boolean isOnTheWaterShowNotAvailable(String sessionType, DataTypeDate sessionEndDate) {
+  public static boolean isOnTheWaterShowNotAvailable(DataTypeDate sessionEndDate) {
     return Daten.efaConfig.getValueEfaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar() &&
-        ((sessionEndDate != null && sessionEndDate.isSet()) ||
-            (sessionType != null && (sessionType.equals(EfaTypes.TYPE_SESSION_TOUR) ||
-                sessionType.equals(EfaTypes.TYPE_SESSION_REGATTA) ||
-                sessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA) ||
-                sessionType.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP)))
-            );
+        ((sessionEndDate != null && sessionEndDate.isSet()));
   }
 
   public boolean isOnTheWaterShowNotAvailable() {
     LogbookRecord r = getLogbookRecord();
-    return r != null && isOnTheWaterShowNotAvailable(r.getSessionType(), r.getEndDate());
+    return r != null && isOnTheWaterShowNotAvailable(r.getEndDate());
   }
 
   public void setOnlyInBoathouseId(int boathouseId) {
@@ -371,18 +366,18 @@ public class BoatStatusRecord extends DataRecord {
     v.add(item = new ItemTypeStringList(BoatStatusRecord.BASESTATUS, getBaseStatus(),
         makeStatusTypeArray(BASESTATUS, ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(BASESTATUS,
             ARRAY_STRINGLIST_DISPLAY),
-            IItemType.TYPE_PUBLIC, CAT_STATUS,
-            International.getString("Basis-Status")));
+        IItemType.TYPE_PUBLIC, CAT_STATUS,
+        International.getString("Basis-Status")));
     v.add(item = new ItemTypeStringList(BoatStatusRecord.CURRENTSTATUS, getCurrentStatus(),
         makeStatusTypeArray(CURRENTSTATUS, ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(
             CURRENTSTATUS, ARRAY_STRINGLIST_DISPLAY),
-            IItemType.TYPE_EXPERT, CAT_STATUS,
-            International.getString("aktueller Status")));
+        IItemType.TYPE_EXPERT, CAT_STATUS,
+        International.getString("aktueller Status")));
     v.add(item = new ItemTypeStringList(BoatStatusRecord.SHOWINLIST, getShowInList(),
         makeStatusTypeArray(SHOWINLIST, ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(SHOWINLIST,
             ARRAY_STRINGLIST_DISPLAY),
-            IItemType.TYPE_EXPERT, CAT_STATUS,
-            International.getString("anzeigen in Liste")));
+        IItemType.TYPE_EXPERT, CAT_STATUS,
+        International.getString("anzeigen in Liste")));
     if (getPersistence().getProject().getNumberOfBoathouses() > 1) {
       v.add(item = new ItemTypeStringList(BoatStatusRecord.ONLYINBOATHOUSEID,
           getOnlyInBoathouseId(),
@@ -474,42 +469,23 @@ public class BoatStatusRecord extends DataRecord {
         case 3:
           sname = STATUS_ONTHEWATER;
           break;
+        default:
+          Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR,
+              "makeStatusTypeArray(): unreachable switch: "
+                  + "status i+offset = " + i + offset);
+          break;
       }
-      status[i] = (type == ARRAY_STRINGLIST_VALUES ?
-          sname :
-            getStatusDescription(sname));
+      status[i] = (type == ARRAY_STRINGLIST_VALUES ? sname : getStatusDescription(sname));
     }
     return status;
   }
 
-  public static String createStatusString(String fahrttype, String ziel,
+  public static String createStatusString(String ziel,
       DataTypeDate startdate, DataTypeTime starttime, String person,
       DataTypeDate enddate, DataTypeTime endtime) {
     String datum = (startdate != null ? startdate.toString() : "");
     String zeit = (starttime != null ? starttime.toString() : "");
     String aufFahrtart = "";
-    if (Daten.efaTypes != null && fahrttype != null) {
-      if (fahrttype.equals(EfaTypes.TYPE_SESSION_REGATTA)) {
-        aufFahrtart = " "
-            + International.getMessage("auf {trip_type}",
-                Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_REGATTA));
-      }
-      if (fahrttype.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)) {
-        aufFahrtart = " "
-            + International.getMessage("auf {trip_type}", Daten.efaTypes.getValue(
-                EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA));
-      }
-      if (fahrttype.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP)) {
-        aufFahrtart = " "
-            + International.getMessage("auf {trip_type}", Daten.efaTypes.getValue(
-                EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TRAININGCAMP));
-      }
-      if (fahrttype.startsWith(EfaTypes.TYPE_SESSION_TOUR)) {
-        aufFahrtart = " "
-            + International.getMessage("auf {trip_type}",
-                Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TOUR));
-      }
-    }
     String nachZiel = "";
     if (aufFahrtart.length() == 0 && ziel.length() > 0) {
       if (ziel.equals("Alster")) {
@@ -520,7 +496,8 @@ public class BoatStatusRecord extends DataRecord {
     }
     String comment = ""
         + (endtime != null
-        ? International.getMessage("bis {timestamp}", endtime.toString()) + " " : "")
+            ? International.getMessage("bis {timestamp}", endtime.toString()) + " "
+            : "")
         + International.getString("unterwegs")
         + aufFahrtart
         + nachZiel
@@ -528,7 +505,8 @@ public class BoatStatusRecord extends DataRecord {
         + International.getMessage("seit {date}", datum)
         + (zeit.trim().length() > 0 ? " " + International.getMessage("um {time}", zeit) : "")
         + (enddate != null
-        ? " " + International.getMessage("bis {timestamp}", enddate.toString()) : "")
+            ? " " + International.getMessage("bis {timestamp}", enddate.toString())
+            : "")
         + " " + International.getMessage("mit {crew}", person);
     return comment;
   }

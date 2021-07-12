@@ -650,9 +650,6 @@ public class Dialog {
     if (y < 0) {
       y = 0;
     }
-
-    Logger.log(Logger.DEBUG, Logger.MSG_ABF_INFO,
-        "ABF: Dialog.getLocation " + windowName + " x=" + x + " y=" + y);
     return new Point(x, y);
   }
 

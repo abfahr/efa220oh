@@ -287,7 +287,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
 
         if (sortmode == SortingBy.BoatType &&
             Daten.efaConfig.isEfaBoathouseShowBoatUsageStatisticsInAllLists() &&
-            efaBoathouseFrame.isToggleF12LangtextF12()) {
+            !efaBoathouseFrame.isToggleF12LangtextF12()) {
           int frequency = logbook.countBoatUsage(myBoatStatusRecord.getBoatId());
           myBoatString.name = "(" + String.format("%1$3s", frequency) + "x) " + myBoatString.name;
         }

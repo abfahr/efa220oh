@@ -782,6 +782,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         telnumAusProfil = getFestnetz1();
       }
     }
+    if (!isErlaubtTelefon() && "040-040".equals(getHandy2())) {
+      return "noQuestion";
+    }
 
     // weder noch
     String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:\n";
@@ -803,7 +806,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         setErlaubnisTelefon(true);
         return "savedNew"; // muss noch gespeichert werden / persistiert
       case 1: // gar nix mehr vorschlagen
-        setHandy2(null);
+        setHandy2("040-040");
         setFestnetz1(null);
         setErlaubnisTelefon(false);
         return "savedEmpty"; // muss noch gespeichert werden / persistiert
@@ -814,7 +817,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           setErlaubnisTelefon(true);
           return "savedOld"; // muss noch gespeichert werden / persistiert
         } else {
-          setHandy2(null);
+          setHandy2("040-040");
           setFestnetz1(null);
           setErlaubnisTelefon(false);
           return "savedEmpty"; // muss noch gespeichert werden / persistiert

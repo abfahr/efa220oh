@@ -42,6 +42,7 @@ import net.fortuna.ical4j.model.DateTime;
 
 public class PersonRecord extends DataRecord implements IItemFactory {
 
+  private static final String NEIN_DANKE = "neinDanke";
   // =========================================================================
   // Field Names
   // =========================================================================
@@ -762,7 +763,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     return logbook.countPersonUsage(getId(), false /* allowSameDay */);
   }
 
-  public String checkUndAktualisiereHandyNr(String action, String newPhone, boolean alleFragen) {
+  public String checkUndAktualisiereHandyNr(String newPhone, boolean alleFragen) {
     // true = nur zugesagte Leute werden korrigiert.
     // false = alle Leute werden gefragt, Ausnahme zugesagte Nummer stimmt noch
     String telnumAusProfil = International.getString("keine Nummer bzw nix"); // keine bzw. nix
@@ -772,10 +773,16 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       }
       telnumAusProfil = getFestnetz1();
       if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
-        return "noQuestion";
+        if (showHinweisShortCutKürzel()) {
+          return "keinHinweisAufKürzelErwünscht";
+        }
+        return "noQuestion"; // Nummer unverändert
       }
       telnumAusProfil = getHandy2();
       if (telnumAusProfil != null && newPhone.contentEquals(telnumAusProfil)) {
+        if (showHinweisShortCutKürzel()) {
+          return "keinHinweisAufKürzelErwünscht";
+        }
         return "noQuestion"; // Nummer unverändert
       }
       if (telnumAusProfil == null) {
@@ -829,6 +836,30 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       default: // unbekannt
         return "abbrechen"; // = nix tun
     }
+  }
+
+  private boolean showHinweisShortCutKürzel() {
+    if (isErlaubtKuerzel()) {
+      return false;
+    }
+    if (getInputShortcut() != null &&
+        getInputShortcut().equalsIgnoreCase(NEIN_DANKE)) {
+      return false;
+    }
+    if (getAnzahlFahrtenDiesJahrAnVerschiedenenTagen() < 3) {
+      return false;
+    }
+    String hinweis = "Wenn Du es Leid bist, jedes Mal Deinen vollen Namen einzugeben, dann kannst Du \n";
+    hinweis += "Dir ein Kürzel ausdenken und praktischerweise mit Deinem Namen verknüpfen. " + "\n";
+    hinweis += "Bitte leg dazu eine Reservierung für ein Boot an und benutze " + "\n";
+    hinweis += "den Link zu Deinem Profil aus der Bestätigungs-Email...";
+    int antwort = Dialog.yesNoCancelDialog("Hinweis zu Namenskürzeln", hinweis);
+    if (antwort == Dialog.NO) {
+      setInputShortcut(NEIN_DANKE);
+      setErlaubnisKuerzel(false);
+      return true;
+    }
+    return false;
   }
 
 }

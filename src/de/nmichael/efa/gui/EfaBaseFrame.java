@@ -3675,10 +3675,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       return true;
     }
-    String antwort = person.checkUndAktualisiereHandyNr(action, phoneNr.getValue(),
+    String antwort = person.checkUndAktualisiereHandyNr(phoneNr.getValue(),
         booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern);
     if (antwort.contentEquals("noQuestion")) {
-      return true; // Frage nicht mögich, also weiter
+      return true; // Frage nicht möglich, also weiter
+    }
+    if (antwort.contentEquals("keinHinweisAufKürzelErwünscht")) {
+      try {
+        Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+            person.getFirstLastName() + ": kein Hinweis auf Kürzel erwünscht");
+        Persons persons = Daten.project.getPersons(false);
+        persons.data().update(person);
+        return true; // Frage nicht möglich, also weiter
+      } catch (EfaException e4) {
+        String error = action + ": e4 " + e4.getLocalizedMessage();
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+        return true; // Frage nicht möglich, also weiter
+      }
     }
     if (antwort.contentEquals("abbrechen")) {
       return false; // User wollte abbrechen, also STOP: stop saving loobook

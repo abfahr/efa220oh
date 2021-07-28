@@ -25,3 +25,8 @@ jobs:
     - name: Build with Maven
       working-directory: ./efa-parent
       run: mvn package
+    - run: mkdir staging && cp ./efa-main/target/*.jar staging
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Package
+        path: staging

@@ -373,8 +373,9 @@ public abstract class DataFile extends DataAccess {
         fout.close();
       }
     } catch (Exception e) {
-      throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed(filename,
-          storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+      String fileWriting = LogString.fileWritingFailed(filename, storageLocation, e.toString());
+      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+      throw new EfaException(Logger.MSG_DATA_SAVEFAILED, fileWriting, stackTrace);
     }
   }
 

@@ -22,11 +22,14 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
+    - name: Restore Maven cache
+      uses: skjolber/maven-cache-github-action@v1
+      with:
+        step: restore
     - name: Build with Maven
       working-directory: ./efa-parent
       run: mvn package
-    - run: mkdir staging && cp ./efa-main/target/*.jar staging
-    - uses: actions/upload-artifact@v2
+    - name: Save Maven cache
+      uses: skjolber/maven-cache-github-action@v1
       with:
-        name: Package
-        path: staging
+        step: save

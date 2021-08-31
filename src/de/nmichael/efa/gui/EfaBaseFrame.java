@@ -635,7 +635,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     date.setWeekdayGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
     date.setBackgroundColorWhenFocused(
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    date.displayOnGui(this, mainInputPanel, 0, 1);
+    date.displayOnGui(this, mainInputPanel, 0, 3);
     date.registerItemListener(this);
 
     // End Date
@@ -653,7 +653,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     enddate.setBackgroundColorWhenFocused(
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    enddate.displayOnGui(this, mainInputPanel, 4, 1);
+    enddate.displayOnGui(this, mainInputPanel, 4, 3);
     enddate.registerItemListener(this);
     if (isModeBoathouse() && !Daten.efaConfig.getValueAllowEnterEndDate()) {
       enddate.setVisible(false);
@@ -669,7 +669,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     boat.setChecks(true, true);
     boat.setBackgroundColorWhenFocused(
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    boat.displayOnGui(this, mainInputPanel, 0, 2);
+    boat.displayOnGui(this, mainInputPanel, 0, 1);
     boat.registerItemListener(this);
 
     // Boat Variant
@@ -680,8 +680,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     boatvariant.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
     boatvariant.setBackgroundColorWhenFocused(Daten.efaConfig
         .getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    boatvariant.displayOnGui(this, mainInputPanel, 0, 3);
-    // boatvariant.displayOnGui(this, mainInputPanel, 5, 2);
+    boatvariant.displayOnGui(this, mainInputPanel, 0, 2);
     boatvariant.registerItemListener(this);
 
     // Cox = Steuermann
@@ -694,7 +693,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     cox.setChecks(true, true);
     cox.setBackgroundColorWhenFocused(
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    cox.displayOnGui(this, mainInputPanel, 0, 4);
+    cox.displayOnGui(this, mainInputPanel, 0, 9);
     cox.registerItemListener(this);
 
     // Crew
@@ -730,7 +729,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     boatcaptain.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
     boatcaptain.setBackgroundColorWhenFocused(Daten.efaConfig
         .getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    boatcaptain.displayOnGui(this, mainInputPanel, 5, 4);
+    boatcaptain.displayOnGui(this, mainInputPanel, 5, 9);
     boatcaptain.registerItemListener(this);
     if (isModeBoathouse()) {
       boatcaptain.setVisible(Daten.efaConfig.getValueShowObmann());
@@ -747,7 +746,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     phoneNr.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
     phoneNr.setBackgroundColorWhenFocused(
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    phoneNr.displayOnGui(this, mainInputPanel, 0, 5);
+    phoneNr.displayOnGui(this, mainInputPanel, 0, 10);
     phoneNr.registerItemListener(this);
 
     // StartTime
@@ -759,7 +758,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     starttime.enableSeconds(false);
     starttime.setBackgroundColorWhenFocused(
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    starttime.displayOnGui(this, mainInputPanel, 0, 9);
+    starttime.displayOnGui(this, mainInputPanel, 0, 4);
     starttime.registerItemListener(this);
 
     // EndTime
@@ -771,19 +770,19 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     endtime.enableSeconds(false);
     endtime.setBackgroundColorWhenFocused(
         Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-    endtime.displayOnGui(this, mainInputPanel, 0, 10);
+    endtime.displayOnGui(this, mainInputPanel, 0, 5);
     endtime.registerItemListener(this);
 
     starttimeInfoLabel = new ItemTypeLabel("GUIITEM_STARTTIME_INFOLABEL",
         IItemType.TYPE_PUBLIC, null, "");
     starttimeInfoLabel.setFieldGrid(5, GridBagConstraints.WEST, GridBagConstraints.NONE);
     starttimeInfoLabel.setVisible(false);
-    starttimeInfoLabel.displayOnGui(this, mainInputPanel, 3, 9);
+    starttimeInfoLabel.displayOnGui(this, mainInputPanel, 3, 4);
     endtimeInfoLabel = new ItemTypeLabel("GUIITEM_ENDTIME_INFOLABEL",
         IItemType.TYPE_PUBLIC, null, "");
     endtimeInfoLabel.setFieldGrid(5, GridBagConstraints.WEST, GridBagConstraints.NONE);
     endtimeInfoLabel.setVisible(false);
-    endtimeInfoLabel.displayOnGui(this, mainInputPanel, 3, 10);
+    endtimeInfoLabel.displayOnGui(this, mainInputPanel, 3, 5);
 
     // Destination
     destination = new ItemTypeStringAutoComplete(LogbookRecord.DESTINATIONNAME, "",
@@ -3675,10 +3674,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       return true;
     }
-    String antwort = person.checkUndAktualisiereHandyNr(action, phoneNr.getValue(),
+    String antwort = person.checkUndAktualisiereHandyNr(phoneNr.getValue(),
         booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern);
     if (antwort.contentEquals("noQuestion")) {
-      return true; // Frage nicht mögich, also weiter
+      return true; // Frage nicht möglich, also weiter
+    }
+    if (antwort.contentEquals("keinHinweisAufKürzelErwünscht")) {
+      try {
+        Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+            person.getFirstLastName() + ": kein Hinweis auf Kürzel erwünscht");
+        Persons persons = Daten.project.getPersons(false);
+        persons.data().update(person);
+        return true; // Frage nicht möglich, also weiter
+      } catch (EfaException e4) {
+        String error = action + ": e4 " + e4.getLocalizedMessage();
+        Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, error);
+        return true; // Frage nicht möglich, also weiter
+      }
     }
     if (antwort.contentEquals("abbrechen")) {
       return false; // User wollte abbrechen, also STOP: stop saving loobook
@@ -3730,7 +3742,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     frage += "- sonst übliche TelefonNr lautete: " + telnumAusProfil + ".\n";
     frage += "Falls Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
     frage += "\n";
-    frage += "Darf sich EFA die neue Nummer merken? ";
+    frage += "Darf sich EFA die neue Nummer merken? - ";
     frage += "Soll EFA in Zukunft die neue Nummer vorschlagen?\n";
     frage += "alte Nummer                                   Drücke ESC für zurück                        neue Nummer\n";
     int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
@@ -4326,19 +4338,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     public void focusNextItem(IItemType item, Component cur) {
       // System.out.println("focusNextItem(" + item.getName() + ")");
 
-      // LFDNR
+      // LFDNR --> boat
       if (item == efaBaseFrame.entryno) {
-        focusItem(efaBaseFrame.date, cur, 1);
-        return;
-      }
-
-      // DATUM
-      if (item == efaBaseFrame.date) {
         focusItem(efaBaseFrame.boat, cur, 1);
         return;
       }
 
-      // BOOT
+      // BOOT --> date
       if (item == efaBaseFrame.boat) {
         efaBaseFrame.boat.getValueFromGui();
         efaBaseFrame.currentBoatUpdateGui();
@@ -4358,7 +4364,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return;
       }
 
-      // BOOTVARIANT
+      // BOOTVARIANT --> date
       if (item == efaBaseFrame.boatvariant) {
         efaBaseFrame.boatvariant.getValueFromGui();
         efaBaseFrame.currentBoatUpdateGui();
@@ -4371,7 +4377,25 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return;
       }
 
-      // STEUERMANN = COX
+      // DATUM --> cox
+      if (item == efaBaseFrame.date) {
+        focusItem(efaBaseFrame.starttime, cur, 1);
+        return;
+      }
+
+      // ABFAHRT --> endtime
+      if (item == efaBaseFrame.starttime) {
+        focusItem(efaBaseFrame.endtime, cur, 1);
+        return;
+      }
+
+      // ANKUNFT --> cox
+      if (item == efaBaseFrame.endtime) {
+        focusItem(efaBaseFrame.cox, cur, 1);
+        return;
+      }
+
+      // STEUERMANN = COX --> phone
       if (item == efaBaseFrame.cox) {
         efaBaseFrame.cox.getValueFromGui();
         if (!(cur instanceof JButton) && efaBaseFrame.cox.getValue().length() > 0
@@ -4383,13 +4407,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return;
       }
 
-      // CONTACT = phoneNr
+      // CONTACT = phoneNr --> save
       if (item == efaBaseFrame.phoneNr) {
         efaBaseFrame.phoneNr.getValueFromGui();
         if (efaBaseFrame.phoneNr.getValue().length() == 0) {
           efaBaseFrame.phoneNr.requestFocus();
         } else {
-          focusItem(efaBaseFrame.crew[efaBaseFrame.crewRangeSelection * 8], cur, 1);
+          focusItem(efaBaseFrame.saveButton, cur, 1);
         }
         return;
       }
@@ -4415,18 +4439,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
           }
           return;
         }
-      }
-
-      // ABFAHRT
-      if (item == efaBaseFrame.starttime) {
-        focusItem(efaBaseFrame.endtime, cur, 1);
-        return;
-      }
-
-      // ANKUNFT
-      if (item == efaBaseFrame.endtime) {
-        focusItem(efaBaseFrame.destination, cur, 1);
-        return;
       }
 
       // ZIEL
@@ -4478,8 +4490,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         focusItem(efaBaseFrame.saveButton, cur, -1);
         return;
       }
-      if (item == efaBaseFrame.cox) {
+      if (item == efaBaseFrame.date) {
         focusItem(efaBaseFrame.boat, cur, -1);
+        return;
+      }
+      if (item == efaBaseFrame.cox) {
+        focusItem(efaBaseFrame.crew[efaBaseFrame.crew.length - 1], cur, -1);
         return;
       }
       if (item == efaBaseFrame.phoneNr) {
@@ -4488,15 +4504,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       }
       for (int i = 0; i < efaBaseFrame.crew.length; i++) {
         if (item == efaBaseFrame.crew[i]) {
-          focusItem((i == 0 ? efaBaseFrame.phoneNr : efaBaseFrame.crew[i - 1]), cur, -1);
+          focusItem((i == 0 ? efaBaseFrame.endtime : efaBaseFrame.crew[i - 1]), cur, -1);
           return;
         }
       }
-      if (item == efaBaseFrame.starttime) {
+      if (item == efaBaseFrame.cox) {
         for (int i = 0; i < 8; i++) {
-          if (efaBaseFrame.crew[i + efaBaseFrame.crewRangeSelection * 8].getValueFromField().trim()
-              .length() == 0
-              || i == 7) {
+          if (efaBaseFrame.crew[i + efaBaseFrame.crewRangeSelection * 8]
+              .getValueFromField().trim().length() == 0 || i == 7) {
             focusItem(efaBaseFrame.crew[i + efaBaseFrame.crewRangeSelection * 8], cur, -1);
             return;
           }
@@ -4515,7 +4530,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return;
       }
       if (item == efaBaseFrame.saveButton) {
-        focusItem(efaBaseFrame.comments, cur, -1);
+        focusItem(efaBaseFrame.phoneNr, cur, -1);
         return;
       }
 
@@ -4544,6 +4559,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         fm.focusPreviousComponent(cur);
       }
     }
+
   }
 
   // =========================================================================

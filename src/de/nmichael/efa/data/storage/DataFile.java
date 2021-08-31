@@ -163,12 +163,9 @@ public abstract class DataFile extends DataAccess {
       long latestScn = Journal.getLatestScnFromJournals(getStorageObjectName() + "."
           + getStorageObjectType(), this.filename);
       if (latestScn < 0) {
-        Logger
-        .log(
-            Logger.ERROR,
+        Logger.log(Logger.ERROR,
             Logger.MSG_DATA_REPLAYNOJOURNAL,
-            International
-            .getMessage(
+            International.getMessage(
                 "Kein Journal für Wiederherstellung von {description} gefunden. Wiederhergestellte Daten sind möglicherweise unvollständig (Datenverlust)!",
                 descr, filename));
       } else {
@@ -188,7 +185,8 @@ public abstract class DataFile extends DataAccess {
       Logger.log(Logger.INFO, Logger.MSG_DATA_RECOVERYFINISHED,
           LogString.operationFinished(
               International.getMessage("Wiederherstellung von {description} aus {filename}",
-                  descr, filename)) + " SCN=" + scn);
+                  descr, filename))
+              + " SCN=" + scn);
       return true;
     }
     return false;
@@ -371,10 +369,13 @@ public abstract class DataFile extends DataAccess {
       createBackupFile(filename);
       FileOutputStream fout = new FileOutputStream(filename, false);
       writeFile(fout);
-      fout.close();
+      if (fout != null) {
+        fout.close();
+      }
     } catch (Exception e) {
-      throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed(filename,
-          storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+      String fileWriting = LogString.fileWritingFailed(filename, storageLocation, e.toString());
+      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+      throw new EfaException(Logger.MSG_DATA_SAVEFAILED, fileWriting, stackTrace);
     }
   }
 
@@ -425,8 +426,8 @@ public abstract class DataFile extends DataAccess {
         }
       } catch (Exception e) {
         throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.fileDeletionFailed(
-            backupFIle, International.getString("Backup"), e.toString()), Thread.currentThread()
-            .getStackTrace());
+            backupFIle, International.getString("Backup"), e.toString()),
+            Thread.currentThread().getStackTrace());
       }
     }
   }
@@ -448,12 +449,11 @@ public abstract class DataFile extends DataAccess {
       throw new EfaException(Logger.MSG_DATA_GETLOCKFAILED, getUID()
           + ": Storage Object is not open", Thread.currentThread().getStackTrace());
     }
-    long lockID = (object == null ? dataLocks.getGlobalLock() :
-      dataLocks.getLocalLock(object));
+    long lockID = (object == null ? dataLocks.getGlobalLock() : dataLocks.getLocalLock(object));
     if (lockID < 0) {
       throw new EfaException(Logger.MSG_DATA_GETLOCKFAILED, getUID() + ": Could not acquire " +
-          (object == null ? "global lock" :
-            "local lock on " + object), Thread.currentThread().getStackTrace());
+          (object == null ? "global lock" : "local lock on " + object),
+          Thread.currentThread().getStackTrace());
     }
     return lockID;
   }
@@ -514,7 +514,7 @@ public abstract class DataFile extends DataAccess {
           getUID() + ": Data Record " + record.toString() + " has wrong Type: "
               + record.getClass().getCanonicalName() + ", expected: "
               + referenceRecord.getClass().getCanonicalName(),
-              Thread.currentThread().getStackTrace());
+          Thread.currentThread().getStackTrace());
     }
 
     if (!inOpeningStorageObject() && isPreModifyRecordCallbackEnabled()) {
@@ -581,8 +581,8 @@ public abstract class DataFile extends DataAccess {
               }
             } else {
               throw new EfaException(Logger.MSG_DATA_JOURNALLOGFAILED, getUID()
-                  + ": Operation failed for Data Record '" + record.toString() + "'", Thread
-                  .currentThread().getStackTrace());
+                  + ": Operation failed for Data Record '" + record.toString() + "'",
+                  Thread.currentThread().getStackTrace());
             }
             if (meta.versionized) {
               modifyVersionizedKeys(key, add, update, delete);
@@ -595,15 +595,16 @@ public abstract class DataFile extends DataAccess {
             }
           } else {
             if (delete) {
-              if (inOpeningStorageObject || journal.log(scn + 1, Journal.Operation.delete, record)) {
+              if (inOpeningStorageObject
+                  || journal.log(scn + 1, Journal.Operation.delete, record)) {
                 data.remove(key);
                 if (!inOpeningStorageObject) {
                   scn++;
                 }
               } else {
                 throw new EfaException(Logger.MSG_DATA_JOURNALLOGFAILED, getUID()
-                    + ": Operation failed for Data Record '" + record.toString() + "'", Thread
-                    .currentThread().getStackTrace());
+                    + ": Operation failed for Data Record '" + record.toString() + "'",
+                    Thread.currentThread().getStackTrace());
               }
               if (meta.versionized) {
                 modifyVersionizedKeys(key, add, update, delete);
@@ -624,8 +625,8 @@ public abstract class DataFile extends DataAccess {
       }
     } else {
       throw new EfaException(Logger.MSG_DATA_MODIFICATIONFAILED, getUID()
-          + ": Data Record Operation failed: No Write Access", Thread.currentThread()
-          .getStackTrace());
+          + ": Data Record Operation failed: No Write Access",
+          Thread.currentThread().getStackTrace());
     }
   }
 
@@ -686,8 +687,8 @@ public abstract class DataFile extends DataAccess {
   public DataKey addValidAt(DataRecord record, long t, long lockID) throws EfaException {
     if (!meta.versionized) {
       throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID()
-          + ": Attempt to add versionized data to an unversionized storage object", Thread
-          .currentThread().getStackTrace());
+          + ": Attempt to add versionized data to an unversionized storage object",
+          Thread.currentThread().getStackTrace());
     }
     long myLock = -1;
     if (lockID <= 0) {
@@ -841,8 +842,8 @@ public abstract class DataFile extends DataAccess {
   public void deleteVersionized(DataKey key, int merge, long lockID) throws EfaException {
     if (!meta.versionized) {
       throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID()
-          + ": Attempt to delete versionized data from an unversionized storage object", Thread
-          .currentThread().getStackTrace());
+          + ": Attempt to delete versionized data from an unversionized storage object",
+          Thread.currentThread().getStackTrace());
     }
     long myLock = -1;
     if (lockID <= 0) {
@@ -887,8 +888,8 @@ public abstract class DataFile extends DataAccess {
       }
     } else {
       throw new EfaException(Logger.MSG_DATA_NOLOCKHELD, getUID()
-          + ": Attempt to delete versionized data without holding a lock", Thread.currentThread()
-          .getStackTrace());
+          + ": Attempt to delete versionized data without holding a lock",
+          Thread.currentThread().getStackTrace());
     }
   }
 
@@ -901,8 +902,8 @@ public abstract class DataFile extends DataAccess {
   public void deleteVersionizedAll(DataKey key, long deleteAt, long lockID) throws EfaException {
     if (!meta.versionized) {
       throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID()
-          + ": Attempt to delete versionized data from an unversionized storage object", Thread
-          .currentThread().getStackTrace());
+          + ": Attempt to delete versionized data from an unversionized storage object",
+          Thread.currentThread().getStackTrace());
     }
     long myLock = -1;
     if (lockID <= 0) {
@@ -952,8 +953,8 @@ public abstract class DataFile extends DataAccess {
       }
     } else {
       throw new EfaException(Logger.MSG_DATA_NOLOCKHELD, getUID()
-          + ": Attempt to delete all versionized data without holding a lock", Thread
-          .currentThread().getStackTrace());
+          + ": Attempt to delete all versionized data without holding a lock",
+          Thread.currentThread().getStackTrace());
     }
   }
 
@@ -968,13 +969,13 @@ public abstract class DataFile extends DataAccess {
       throws EfaException {
     if (!meta.versionized) {
       throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID()
-          + ": Attempt to change versionized data in an unversionized storage object", Thread
-          .currentThread().getStackTrace());
+          + ": Attempt to change versionized data in an unversionized storage object",
+          Thread.currentThread().getStackTrace());
     }
     if (validFrom < 0 || invalidFrom <= validFrom) {
       throw new EfaException(Logger.MSG_DATA_VERSIONIZEDDATACONFLICT, getUID()
-          + ": Attempt to change versionized data with incorrect validity", Thread.currentThread()
-          .getStackTrace());
+          + ": Attempt to change versionized data with incorrect validity",
+          Thread.currentThread().getStackTrace());
     }
     long myLock = -1;
     if (lockID <= 0) {
@@ -1017,8 +1018,8 @@ public abstract class DataFile extends DataAccess {
       }
     } else {
       throw new EfaException(Logger.MSG_DATA_NOLOCKHELD, getUID()
-          + ": Attempt to change validity without holding a lock", Thread.currentThread()
-          .getStackTrace());
+          + ": Attempt to change validity without holding a lock",
+          Thread.currentThread().getStackTrace());
     }
   }
 
@@ -1068,11 +1069,11 @@ public abstract class DataFile extends DataAccess {
         if (t >= validFrom) {
           DataRecord rec = get(k);
           if (rec != null && (rec.isValidAt(t) ||
-              // if we change both validFrom and InvalidFrom at the same time,
-              // then for a short time during this operation, we might have a record
-              // with invalidFrom < validFrom. Since the validity range must always be
-              // >= 1, we accept a record as valid either if t is in it's validy range,
-              // or if t is exactly the validity begin
+          // if we change both validFrom and InvalidFrom at the same time,
+          // then for a short time during this operation, we might have a record
+          // with invalidFrom < validFrom. Since the validity range must always be
+          // >= 1, we accept a record as valid either if t is in it's validy range,
+          // or if t is exactly the validity begin
               t == validFrom)) {
             return rec;
           }

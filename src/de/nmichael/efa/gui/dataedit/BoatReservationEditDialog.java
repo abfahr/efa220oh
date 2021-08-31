@@ -167,7 +167,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       }
       return true;
     }
-    String antwort = person.checkUndAktualisiereHandyNr(action, phoneNr.getValue(),
+    String antwort = person.checkUndAktualisiereHandyNr(phoneNr.getValue(),
         booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern);
     if (antwort.contentEquals("noQuestion")) {
       return true; // Frage nicht mögich, also weiter

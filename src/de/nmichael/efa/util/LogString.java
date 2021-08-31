@@ -216,7 +216,8 @@ public class LogString {
   }
 
   public static String operationStarted(String operationName) {
-    return International.getMessage("Starte {operationname} --------------------------------------", operationName);
+    return International.getMessage("Starte {operationname} --------------------------------------",
+        operationName);
   }
 
   public static String operationSuccessfullyCompleted(String operationName) {
@@ -246,11 +247,6 @@ public class LogString {
   public static String operationAborted(String operationName) {
     return International.getMessage("{operationname} abgebrochen",
         operationName) + ".";
-  }
-
-  public static String installationSuccessfullyCompleted(String item) {
-    return operationSuccessfullyCompleted(International.getMessage("Installation von {name}",
-        item));
   }
 
   public static String installationFailed(String item) {
@@ -283,23 +279,8 @@ public class LogString {
         subject) + ": " + error;
   }
 
-  public static void logInfo_fileOpened(String filename, String description) {
-    Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,
-        fileOpened(filename, description));
-  }
-
   public static void logInfo_fileNewCreated(String filename, String description) {
     Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,
-        fileNewCreated(filename, description));
-  }
-
-  public static void logInfo_fileSuccessfullyCreated(String filename, String description) {
-    Logger.log(Logger.INFO, Logger.MSG_FILE_FILESUCCESSFULLYCREATED,
-        fileSuccessfullyCreated(filename, description));
-  }
-
-  public static void logWarning_fileNewCreated(String filename, String description) {
-    Logger.log(Logger.WARNING, Logger.MSG_FILE_FILENEWCREATED,
         fileNewCreated(filename, description));
   }
 
@@ -308,39 +289,9 @@ public class LogString {
         fileCreationFailed(filename, description));
   }
 
-  public static void logError_fileDeletionFailed(String filename, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECREATEFAILED,
-        fileDeletionFailed(filename, description));
-  }
-
   public static void logError_fileOpenFailed(String filename, String description) {
     Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEOPENFAILED,
         fileOpenFailed(filename, description));
-  }
-
-  public static void logError_fileReadFailed(String filename, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEREADFAILED,
-        fileReadFailed(filename, description));
-  }
-
-  public static void logError_fileNotFound(String filename, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_FILENOTFOUND,
-        fileNotFound(filename, description));
-  }
-
-  public static void logError_fileAlreadyExists(String filename, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEALREADYEXISTS,
-        fileAlreadyExists(filename, description));
-  }
-
-  public static void logError_fileWritingFailed(String filename, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEWRITEFAILED,
-        fileWritingFailed(filename, description));
-  }
-
-  public static void logError_fileCloseFailed(String filename, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECLOSEFAILED,
-        fileCloseFailed(filename, description));
   }
 
   public static void logError_fileArchivingFailed(String filename, String description) {
@@ -348,19 +299,10 @@ public class LogString {
         fileArchivingFailed(filename, description));
   }
 
-  public static void logError_fileArchivingFailed(String filename, String description, String error) {
+  public static void logError_fileArchivingFailed(String filename, String description,
+      String error) {
     Logger.log(Logger.ERROR, Logger.MSG_FILE_ARCHIVINGFAILED,
         fileArchivingFailed(filename, description, error));
-  }
-
-  public static void logError_directoryDoesNotExist(String dirname, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_DIRECTORYNOTFOUND,
-        directoryDoesNotExist(dirname, description));
-  }
-
-  public static void logError_directoryNoWritePermission(String dirname, String description) {
-    Logger.log(Logger.ERROR, Logger.MSG_FILE_DIRECTORYNOTFOUND,
-        directoryNoWritePermission(dirname, description));
   }
 
   public static void logWarning_cantExecCommand(String command, String description, String error) {

@@ -5,7 +5,7 @@
 
   <groupId>de.overfreunde</groupId>
   <artifactId>efa-parent</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <modules>
     <module>../efa-dependencies</module>
     <module>../efa-main</module>

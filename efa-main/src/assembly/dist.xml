@@ -18,15 +18,18 @@
       <directory>${project.basedir}/src/main/scripts</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
+<!--
     <fileSet>
       <directory>${project.basedir}/src/main/misc</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
+-->
     <fileSet>
       <directory>${project.build.directory}</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>/program</outputDirectory>
       <includes>
-        <include>*-jar-with-dependencies.jar</include>
+        <include>*-${project.version}.jar</include>
+        <include>plugins/**</include>
       </includes>
     </fileSet>
   </fileSets>

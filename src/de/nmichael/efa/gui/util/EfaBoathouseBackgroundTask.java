@@ -607,7 +607,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     + ", new Status: " + boatStatusRecord.toString());
           }
         } catch (Exception ee) {
-          Logger.logwarn(ee);
+          Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, ee);
         }
       }
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
@@ -777,9 +777,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     reason = reason.isEmpty() ? "anhand Reservierung" : reason;
     Destinations destinations = Daten.project.getDestinations(false);
     DestinationRecord dr = destinations.getDestination(reason, System.currentTimeMillis());
-    UUID destinationId = dr.getId();
-    if (destinationId != null) {
-      newLogbookRecord.setDestinationId(destinationId);
+    if (dr != null && dr.getId() != null) {
+      newLogbookRecord.setDestinationId(dr.getId());
     } else {
       newLogbookRecord.setDestinationName(reason);
     }

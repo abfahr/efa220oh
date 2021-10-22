@@ -291,13 +291,12 @@ public class BoatDamageRecord extends DataRecord {
 
   public String getReportedByPersonAsName() {
     PersonRecord person = getReportedByPersonRecord();
-    if (person != null) {
-      String qualifiedName = person.getQualifiedName();
-      qualifiedName += " " + person.getEmail();
-      return qualifiedName;
-    } else {
+    if (person == null) {
       return getReportedByPersonName();
     }
+    String qualifiedName = person.getQualifiedName();
+    qualifiedName += " " + person.getEmail();
+    return qualifiedName;
   }
 
   private PersonRecord getReportedByPersonRecord() {
@@ -354,20 +353,25 @@ public class BoatDamageRecord extends DataRecord {
 
   public String getFixedByPersonAsName() {
     UUID id = getFixedByPersonId();
-    if (id != null) {
-      try {
-        Persons persons = getPersistence().getProject().getPersons(false);
-        long fixTimestamp = getFixDate().getTimestamp(getFixTime());
-        PersonRecord person = persons.getPerson(id, fixTimestamp);
-        String qualifiedName = person.getQualifiedName();
-        qualifiedName += " " + person.getEmail();
-        return qualifiedName;
-      } catch (Exception e) {
-        Logger.logwarn(e);
-        return null;
-      }
-    } else {
+    if (id == null) {
       return getFixedByPersonName();
+    }
+    try {
+      Persons persons = getPersistence().getProject().getPersons(false);
+      long fixTimestamp = getFixDate().getTimestamp(getFixTime());
+      PersonRecord person = persons.getPerson(id, fixTimestamp);
+      if (person == null) {
+        person = persons.getPerson(id, System.currentTimeMillis());
+      }
+      if (person == null) {
+        return "abf sucht " + getFixDate() + "+" + id;
+      }
+      String qualifiedName = person.getQualifiedName();
+      qualifiedName += " " + person.getEmail();
+      return qualifiedName;
+    } catch (Exception e) {
+      Logger.logwarn(e);
+      return null;
     }
   }
 

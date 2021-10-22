@@ -760,9 +760,9 @@ public class Logger {
   }
 
   public static void logwarn(Exception e) {
-    if (isTraceOn(TT_EXCEPTIONS) && logExceptions) {
-      log(WARNING, MSG_WARN_EFAUNSECURE, e);
-    }
+    // if (isTraceOn(TT_EXCEPTIONS) && logExceptions) {
+    log(WARNING, MSG_WARN_EFAUNSECURE, e);
+    // }
   }
 
   public static void log(Exception e) {

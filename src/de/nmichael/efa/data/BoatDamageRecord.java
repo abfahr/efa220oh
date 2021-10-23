@@ -398,9 +398,9 @@ public class BoatDamageRecord extends DataRecord {
     s.append(International.getString("Beschreibung") + ": " + getDescription() + "\n");
     s.append(International.getString("Schwere des Schadens") + ": " + getSeverityDescription()
         + "\n");
+    s.append(International.getString("gemeldet von") + ": " + getReportedByPersonAsName() + "\n");
     s.append(International.getString("gemeldet am") + ": "
         + DataTypeDate.getDateTimeString(getReportDate(), getReportTime()) + "\n");
-    s.append(International.getString("gemeldet von") + ": " + getReportedByPersonAsName() + "\n");
     return s.toString();
   }
 
@@ -489,11 +489,6 @@ public class BoatDamageRecord extends DataRecord {
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Schwere des Schadens")));
     item.setNotNull(true);
-    v.add(item = new ItemTypeDateTime(GUIITEM_REPORTDATETIME, getReportDate(), getReportTime(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("gemeldet am")));
-    if (showOnlyAddDamageFields) {
-      item.setEnabled(false);
-    }
     v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.REPORTEDBYPERSONID, null,
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         getPersistence().getProject().getPersons(false), System.currentTimeMillis(),
@@ -507,9 +502,14 @@ public class BoatDamageRecord extends DataRecord {
     ((ItemTypeStringAutoComplete) item).setNotNull(true);
     ((ItemTypeStringAutoComplete) item)
         .setAlternateFieldNameForPlainText(BoatDamageRecord.REPORTEDBYPERSONNAME);
+    v.add(item = new ItemTypeDateTime(GUIITEM_REPORTDATETIME, getReportDate(), getReportTime(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("gemeldet am")));
+    if (showOnlyAddDamageFields) {
+      item.setEnabled(false);
+    }
     if (!showOnlyAddDamageFields) {
-      v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
+      v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Schaden wurde behoben")));
       v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.FIXEDBYPERSONID, null,
           IItemType.TYPE_PUBLIC, CAT_BASEDATA,
           getPersistence().getProject().getPersons(false), System.currentTimeMillis(),
@@ -522,16 +522,16 @@ public class BoatDamageRecord extends DataRecord {
       }
       ((ItemTypeStringAutoComplete) item)
           .setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
+      v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
+      v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
+      v.add(item = new ItemTypeString(BoatDamageRecord.LOGBOOKTEXT, getLogbookText(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrt")));
       v.add(item = new ItemTypeDecimal(BoatDamageRecord.REPAIRCOSTS, getRepairCosts(), 2, true,
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Reparaturkosten")));
       v.add(item = new ItemTypeBoolean(BoatDamageRecord.CLAIM, getClaim(),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Versicherungsfall")));
-      v.add(item = new ItemTypeString(BoatDamageRecord.LOGBOOKTEXT, getLogbookText(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrt")));
-      v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
-      v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Schaden wurde behoben")));
     }
     return v;
   }
@@ -549,6 +549,11 @@ public class BoatDamageRecord extends DataRecord {
       }
     }
     super.saveGuiItems(items);
+    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+        International.getMessage("Bootsschaden für {boat}", getBoatAsName())
+            + (!getFixed()
+                ? " gemeldet: " + getDescription()
+                : " behoben: " + getNotes()));
   }
 
   @Override

@@ -39,10 +39,6 @@ import de.nmichael.efa.util.International;
 
 // @i18n complete
 public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements IItemListener {
-
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   private boolean boatWasDamaged = false;
   private boolean fixedWasChanged = false;

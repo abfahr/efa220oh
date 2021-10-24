@@ -730,7 +730,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      BoatDamageListDialog dlg = (parentFrame != null ? new BoatDamageListDialog(parentFrame, admin)
+      BoatDamageListDialog dlg = (parentFrame != null
+          ? new BoatDamageListDialog(parentFrame, admin)
           : new BoatDamageListDialog(parentDialog, admin));
       dlg.showDialog();
     }

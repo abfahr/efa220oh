@@ -559,12 +559,12 @@ public class BoatDamageRecord extends DataRecord {
   @Override
   public TableItemHeader[] getGuiTableHeader() {
     TableItemHeader[] header = new TableItemHeader[6];
-    header[0] = new TableItemHeader(International.getString("Boot"));
-    header[1] = new TableItemHeader(International.getString("oft"));
-    header[2] = new TableItemHeader(International.getString("Schaden"));
-    header[3] = new TableItemHeader(International.getString("gemeldet am"));
-    header[4] = new TableItemHeader(International.getString("behoben am"));
-    header[5] = new TableItemHeader(International.getString("Priorität"));
+    header[0] = new TableItemHeader(International.getString("Priorität"));
+    header[1] = new TableItemHeader(International.getString("Boot"));
+    header[2] = new TableItemHeader(International.getString("oft"));
+    header[3] = new TableItemHeader(International.getString("Schaden"));
+    header[4] = new TableItemHeader(International.getString("gemeldet am"));
+    header[5] = new TableItemHeader(International.getString("behoben am"));
     return header;
   }
 
@@ -574,12 +574,12 @@ public class BoatDamageRecord extends DataRecord {
     int frequency = logbook.countBoatUsage(getBoatId());
 
     TableItem[] items = new TableItem[6];
-    items[0] = new TableItem(getBoatAsName());
-    items[1] = new TableItem(Integer.toString(frequency));
-    items[2] = new TableItem(getDescription());
-    items[3] = new TableItem(DataTypeDate.getDateTimeString(getReportDate(), getReportTime()));
-    items[4] = new TableItem(DataTypeDate.getDateTimeString(getFixDate(), getFixTime()));
-    items[5] = new TableItem(Integer.toString(getPriority()));
+    items[0] = new TableItem(Integer.toString(getPriority()));
+    items[1] = new TableItem(getBoatAsName());
+    items[2] = new TableItem(Integer.toString(frequency));
+    items[3] = new TableItem(getDescription());
+    items[4] = new TableItem(DataTypeDate.getDateTimeString(getReportDate(), getReportTime()));
+    items[5] = new TableItem(DataTypeDate.getDateTimeString(getFixDate(), getFixTime()));
     if (!getFixed()) {
       items[0].setMarked(true);
       items[1].setMarked(true);

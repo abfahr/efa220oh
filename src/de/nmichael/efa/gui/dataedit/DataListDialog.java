@@ -56,9 +56,6 @@ import de.nmichael.efa.util.ProgressTask;
 public abstract class DataListDialog extends BaseDialog implements IItemListener,
     IItemListenerDataRecordTable {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   public static final int ACTION_HIDE = 100;
   public static final int ACTION_MERGE = 200;
@@ -256,9 +253,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     table.setButtonPanelPosition(BorderLayout.SOUTH);
     table.setFieldSize(900, 500);
     table.setPadding(0, 0, 10, 0); // yBefore = 10
-    //table.setFieldGrid(-1, -1, GridBagConstraints.BOTH);
-    //table.setHorizontalAlignment(SwingConstants.HORIZONTAL);
-    table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER); // HIER??
+    table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);
 
     boolean hasEditAction = false;
     for (int i = 0; actionType != null && i < actionType.length; i++) {
@@ -412,8 +407,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
             keys[0],
             IItemType.TYPE_PUBLIC,
             "",
-            International
-                .getString("Bitte wähle den Hauptdatensatz aus, zu dem alle Datensätze zusammengefügt werden sollen!")
+            International.getString(
+                "Bitte wähle den Hauptdatensatz aus, zu dem alle Datensätze zusammengefügt werden sollen!")
                 + "\n");
         if (!SimpleInputDialog.showInputDialog(this,
             International.getString("Zusammenfügen"),
@@ -486,8 +481,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
   public void itemListenerAction(IItemType itemType, AWTEvent event) {
     if (itemType == validAtDateTime) {
       if (event.getID() == FocusEvent.FOCUS_LOST
-          ||
-          (event.getID() == KeyEvent.KEY_PRESSED && ((KeyEvent) event).getKeyCode() == KeyEvent.VK_ENTER)) {
+          || (event.getID() == KeyEvent.KEY_PRESSED
+              && ((KeyEvent) event).getKeyCode() == KeyEvent.VK_ENTER)) {
         validAtDateTime.getValueFromGui();
         validAtDateTime.parseAndShowValue(validAtDateTime.getValueFromField());
         long _validAt = (validAtDateTime.isSet() ? validAtDateTime.getTimeStamp() : -1);

@@ -2157,7 +2157,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         boatListDoubleClick(listID, aMainList);
         return;
       }
-      int direction = keyCode == 38 ? -1 : 1;
+      int direction = (keyCode == 38) ? -1 : 1;
       showBoatStatusAfterDoubleClick(listID, aMainList, direction);
       return;
     }
@@ -2274,10 +2274,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       while (item == null) {
         try {
           item = getSelectedListItem(list);
-          if (list != personsAvailableList) {
-            name = item.text;
-          } else {
-            name = item.person.getQualifiedName();
+          if (item != null) {
+            if (list != personsAvailableList) {
+              name = item.text;
+            } else {
+              name = item.person.getQualifiedName();
+            }
           }
         } catch (Exception e) {
           // just to be sure

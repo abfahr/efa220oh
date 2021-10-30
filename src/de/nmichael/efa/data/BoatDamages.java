@@ -84,23 +84,21 @@ public class BoatDamages extends StorageObject {
   public BoatDamageRecord[] getBoatDamages(UUID boatId, boolean onlyOpenDamages,
       boolean mostSevereFirst) {
     try {
-      DataKey[] keys = data().getByFields(BoatDamageRecord.IDX_BOATID, new Object[] { boatId });
+      DataKey<?, ?, ?>[] keys = data().getByFields(BoatDamageRecord.IDX_BOATID,
+          new Object[] { boatId });
       if (keys == null || keys.length == 0) {
         return null;
       }
 
       Vector<BoatDamageRecord> damages = new Vector<BoatDamageRecord>();
       for (int severe = 2; severe >= 0; severe--) {
-        for (DataKey key : keys) {
+        for (DataKey<?, ?, ?> key : keys) {
           BoatDamageRecord r = (BoatDamageRecord) data().get(key);
           if (!mostSevereFirst
-              ||
-              (severe == 2 && BoatDamageRecord.SEVERITY_NOTUSEABLE.equals(r.getSeverity()))
-              ||
-              (severe == 1 && BoatDamageRecord.SEVERITY_LIMITEDUSEABLE.equals(r.getSeverity()))
-              ||
-              (severe == 0 && !BoatDamageRecord.SEVERITY_NOTUSEABLE.equals(r.getSeverity()) && !BoatDamageRecord.SEVERITY_LIMITEDUSEABLE
-              .equals(r.getSeverity()))) {
+              || (severe == 2 && BoatDamageRecord.SEVERITY_NOTUSEABLE.equals(r.getSeverity()))
+              || (severe == 1 && BoatDamageRecord.SEVERITY_LIMITEDUSEABLE.equals(r.getSeverity()))
+              || (severe == 0 && !BoatDamageRecord.SEVERITY_NOTUSEABLE.equals(r.getSeverity())
+                  && !BoatDamageRecord.SEVERITY_LIMITEDUSEABLE.equals(r.getSeverity()))) {
             if (onlyOpenDamages == false || !r.getFixed()) {
               damages.add(r);
             }
@@ -123,7 +121,8 @@ public class BoatDamages extends StorageObject {
   }
 
   @Override
-  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete)
+  public void preModifyRecordCallback(DataRecord record, boolean add, boolean update,
+      boolean delete)
       throws EfaModifyException {
     if (add || update) {
       assertFieldNotEmpty(record, BoatDamageRecord.BOATID);

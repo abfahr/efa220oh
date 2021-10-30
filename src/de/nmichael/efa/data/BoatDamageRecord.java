@@ -472,9 +472,27 @@ public class BoatDamageRecord extends DataRecord {
     String CAT_BASEDATA = "%01%" + International.getString("Bootsschaden");
     IItemType item;
     Vector<IItemType> v = new Vector<IItemType>();
-    v.add(item = new ItemTypeLabel("GUI_BOAT_NAME",
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getMessage("Bootsschaden für {boat}",
-            getBoatAsName())));
+    v.add(item = new ItemTypeLabel("GUI_BOAT_NAME", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getMessage("Bootsschaden für {boat}", getBoatAsName())));
+    if (showOnlyAddDamageFields) {
+
+      BoatDamages boatDamages = Daten.project.getBoatDamages(false);
+      BoatDamageRecord[] damages = boatDamages.getBoatDamages(getBoatId(), true, true);
+      int countDamages = (damages == null) ? 0 : damages.length;
+      switch (countDamages) {
+        case 0:
+          break;
+        case 1:
+          v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+              "Schaden bereits erfasst? Prüfe erst den schon gemeldeten Bootsschaden."));
+          break;
+        default:
+          v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+              "Prüfe erst die vorigen Bootsschäden: "
+                  + "Es sind bereits " + countDamages + " Schäden erfasst."));
+          break;
+      }
+    }
     item.setPadding(0, 0, 0, 10);
     v.add(item = new ItemTypeString(BoatDamageRecord.DESCRIPTION, getDescription(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));

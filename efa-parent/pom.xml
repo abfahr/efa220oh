@@ -8,8 +8,8 @@
   <version>1.0.0-SNAPSHOT</version>
   <modules>
     <module>../efa-dependencies</module>
-    <module>../efa-main</module>
     <module>../efa-help</module>
+    <module>../efa-main</module>
   </modules>
   <packaging>pom</packaging>
 

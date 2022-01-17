@@ -291,13 +291,12 @@ public class BoatDamageRecord extends DataRecord {
 
   public String getReportedByPersonAsName() {
     PersonRecord person = getReportedByPersonRecord();
-    if (person != null) {
-      String qualifiedName = person.getQualifiedName();
-      qualifiedName += " " + person.getEmail();
-      return qualifiedName;
-    } else {
+    if (person == null) {
       return getReportedByPersonName();
     }
+    String qualifiedName = person.getQualifiedName();
+    qualifiedName += " " + person.getEmail();
+    return qualifiedName;
   }
 
   private PersonRecord getReportedByPersonRecord() {
@@ -354,20 +353,25 @@ public class BoatDamageRecord extends DataRecord {
 
   public String getFixedByPersonAsName() {
     UUID id = getFixedByPersonId();
-    if (id != null) {
-      try {
-        Persons persons = getPersistence().getProject().getPersons(false);
-        long fixTimestamp = getFixDate().getTimestamp(getFixTime());
-        PersonRecord person = persons.getPerson(id, fixTimestamp);
-        String qualifiedName = person.getQualifiedName();
-        qualifiedName += " " + person.getEmail();
-        return qualifiedName;
-      } catch (Exception e) {
-        Logger.logwarn(e);
-        return null;
-      }
-    } else {
+    if (id == null) {
       return getFixedByPersonName();
+    }
+    try {
+      Persons persons = getPersistence().getProject().getPersons(false);
+      long fixTimestamp = getFixDate().getTimestamp(getFixTime());
+      PersonRecord person = persons.getPerson(id, fixTimestamp);
+      if (person == null) {
+        person = persons.getPerson(id, System.currentTimeMillis());
+      }
+      if (person == null) {
+        return "abf sucht " + getFixDate() + "+" + id;
+      }
+      String qualifiedName = person.getQualifiedName();
+      qualifiedName += " " + person.getEmail();
+      return qualifiedName;
+    } catch (Exception e) {
+      Logger.logwarn(e);
+      return null;
     }
   }
 
@@ -394,9 +398,9 @@ public class BoatDamageRecord extends DataRecord {
     s.append(International.getString("Beschreibung") + ": " + getDescription() + "\n");
     s.append(International.getString("Schwere des Schadens") + ": " + getSeverityDescription()
         + "\n");
+    s.append(International.getString("gemeldet von") + ": " + getReportedByPersonAsName() + "\n");
     s.append(International.getString("gemeldet am") + ": "
         + DataTypeDate.getDateTimeString(getReportDate(), getReportTime()) + "\n");
-    s.append(International.getString("gemeldet von") + ": " + getReportedByPersonAsName() + "\n");
     return s.toString();
   }
 
@@ -468,9 +472,27 @@ public class BoatDamageRecord extends DataRecord {
     String CAT_BASEDATA = "%01%" + International.getString("Bootsschaden");
     IItemType item;
     Vector<IItemType> v = new Vector<IItemType>();
-    v.add(item = new ItemTypeLabel("GUI_BOAT_NAME",
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getMessage("Bootsschaden für {boat}",
-            getBoatAsName())));
+    v.add(item = new ItemTypeLabel("GUI_BOAT_NAME", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getMessage("Bootsschaden für {boat}", getBoatAsName())));
+    if (showOnlyAddDamageFields) {
+
+      BoatDamages boatDamages = Daten.project.getBoatDamages(false);
+      BoatDamageRecord[] damages = boatDamages.getBoatDamages(getBoatId(), true, true);
+      int countDamages = (damages == null) ? 0 : damages.length;
+      switch (countDamages) {
+        case 0:
+          break;
+        case 1:
+          v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+              "Schaden bereits erfasst? Prüfe erst den schon gemeldeten Bootsschaden."));
+          break;
+        default:
+          v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+              "Prüfe erst die vorigen Bootsschäden: "
+                  + "Es sind bereits " + countDamages + " Schäden erfasst."));
+          break;
+      }
+    }
     item.setPadding(0, 0, 0, 10);
     v.add(item = new ItemTypeString(BoatDamageRecord.DESCRIPTION, getDescription(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));
@@ -485,11 +507,6 @@ public class BoatDamageRecord extends DataRecord {
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Schwere des Schadens")));
     item.setNotNull(true);
-    v.add(item = new ItemTypeDateTime(GUIITEM_REPORTDATETIME, getReportDate(), getReportTime(),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("gemeldet am")));
-    if (showOnlyAddDamageFields) {
-      item.setEnabled(false);
-    }
     v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.REPORTEDBYPERSONID, null,
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         getPersistence().getProject().getPersons(false), System.currentTimeMillis(),
@@ -503,9 +520,14 @@ public class BoatDamageRecord extends DataRecord {
     ((ItemTypeStringAutoComplete) item).setNotNull(true);
     ((ItemTypeStringAutoComplete) item)
         .setAlternateFieldNameForPlainText(BoatDamageRecord.REPORTEDBYPERSONNAME);
+    v.add(item = new ItemTypeDateTime(GUIITEM_REPORTDATETIME, getReportDate(), getReportTime(),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("gemeldet am")));
+    if (showOnlyAddDamageFields) {
+      item.setEnabled(false);
+    }
     if (!showOnlyAddDamageFields) {
-      v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
+      v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Schaden wurde behoben")));
       v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.FIXEDBYPERSONID, null,
           IItemType.TYPE_PUBLIC, CAT_BASEDATA,
           getPersistence().getProject().getPersons(false), System.currentTimeMillis(),
@@ -518,16 +540,16 @@ public class BoatDamageRecord extends DataRecord {
       }
       ((ItemTypeStringAutoComplete) item)
           .setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
+      v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
+      v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
+      v.add(item = new ItemTypeString(BoatDamageRecord.LOGBOOKTEXT, getLogbookText(),
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrt")));
       v.add(item = new ItemTypeDecimal(BoatDamageRecord.REPAIRCOSTS, getRepairCosts(), 2, true,
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Reparaturkosten")));
       v.add(item = new ItemTypeBoolean(BoatDamageRecord.CLAIM, getClaim(),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Versicherungsfall")));
-      v.add(item = new ItemTypeString(BoatDamageRecord.LOGBOOKTEXT, getLogbookText(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrt")));
-      v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
-      v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Schaden wurde behoben")));
     }
     return v;
   }
@@ -545,17 +567,22 @@ public class BoatDamageRecord extends DataRecord {
       }
     }
     super.saveGuiItems(items);
+    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+        International.getMessage("Bootsschaden für {boat}", getBoatAsName())
+            + (!getFixed()
+            ? " gemeldet: " + getDescription()
+            : " behoben: " + getNotes()));
   }
 
   @Override
   public TableItemHeader[] getGuiTableHeader() {
     TableItemHeader[] header = new TableItemHeader[6];
-    header[0] = new TableItemHeader(International.getString("Boot"));
-    header[1] = new TableItemHeader(International.getString("oft"));
-    header[2] = new TableItemHeader(International.getString("Schaden"));
-    header[3] = new TableItemHeader(International.getString("gemeldet am"));
-    header[4] = new TableItemHeader(International.getString("behoben am"));
-    header[5] = new TableItemHeader(International.getString("Priorität"));
+    header[0] = new TableItemHeader(International.getString("Priorität"));
+    header[1] = new TableItemHeader(International.getString("Boot"));
+    header[2] = new TableItemHeader(International.getString("oft"));
+    header[3] = new TableItemHeader(International.getString("Schaden"));
+    header[4] = new TableItemHeader(International.getString("gemeldet am"));
+    header[5] = new TableItemHeader(International.getString("behoben am"));
     return header;
   }
 
@@ -565,12 +592,12 @@ public class BoatDamageRecord extends DataRecord {
     int frequency = logbook.countBoatUsage(getBoatId());
 
     TableItem[] items = new TableItem[6];
-    items[0] = new TableItem(getBoatAsName());
-    items[1] = new TableItem(Integer.toString(frequency));
-    items[2] = new TableItem(getDescription());
-    items[3] = new TableItem(DataTypeDate.getDateTimeString(getReportDate(), getReportTime()));
-    items[4] = new TableItem(DataTypeDate.getDateTimeString(getFixDate(), getFixTime()));
-    items[5] = new TableItem(Integer.toString(getPriority()));
+    items[0] = new TableItem(Integer.toString(getPriority()));
+    items[1] = new TableItem(getBoatAsName());
+    items[2] = new TableItem(Integer.toString(frequency));
+    items[3] = new TableItem(getDescription());
+    items[4] = new TableItem(DataTypeDate.getDateTimeString(getReportDate(), getReportTime()));
+    items[5] = new TableItem(DataTypeDate.getDateTimeString(getFixDate(), getFixTime()));
     if (!getFixed()) {
       items[0].setMarked(true);
       items[1].setMarked(true);

@@ -148,7 +148,7 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
     if (!fourdigit && year < 1900) {
       year += 1900;
     }
-    if (!fourdigit && year < 1920) {
+    if (!fourdigit && year < 1930) {
       year += 100;
     }
     if (month < 0 || month > 12) { // treat month==0 as "unset month" and don't correct it

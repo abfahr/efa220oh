@@ -2157,7 +2157,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         boatListDoubleClick(listID, aMainList);
         return;
       }
-      int direction = keyCode == 38 ? -1 : 1;
+      int direction = (keyCode == 38) ? -1 : 1;
       showBoatStatusAfterDoubleClick(listID, aMainList, direction);
       return;
     }
@@ -2274,10 +2274,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       while (item == null) {
         try {
           item = getSelectedListItem(list);
-          if (list != personsAvailableList) {
-            name = item.text;
-          } else {
-            name = item.person.getQualifiedName();
+          if (item != null) {
+            if (list != personsAvailableList) {
+              name = item.text;
+            } else {
+              name = item.person.getQualifiedName();
+            }
           }
         } catch (Exception e) {
           // just to be sure
@@ -2601,7 +2603,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
               boatStatus.getBoatText())
               + NEWLINE
               + (boatStatus.getComment() != null ? International.getString("Bemerkung") + ": "
-                  + boatStatus.getComment() + NEWLINE : "")
+              + boatStatus.getComment() + NEWLINE : "")
               + NEWLINE
               + International.getString("Möchtest Du trotzdem das Boot benutzen?")) != Dialog.YES) {
         return false;
@@ -2657,7 +2659,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           + getTelefonMeldung(reservations[0].getContact())
           + NEWLINE
           + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",
-              reservations[0].getReservationTimeDescription(BoatReservationRecord.REPLACE_HEUTE))
+          reservations[0].getReservationTimeDescription(BoatReservationRecord.REPLACE_HEUTE))
           + NEWLINE
           + International.getString("Möchtest Du jetzt trotzdem mit diesem Boot starten?");
       int ergebnisYesNoCancelDialog = Dialog.yesNoCancelDialog(
@@ -2994,7 +2996,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     if (item.boat != null
         && !checkBoatDamage(item,
-            International.getString("Möchtest Du das Boot trotzdem reservieren?"))) {
+        International.getString("Möchtest Du das Boot trotzdem reservieren?"))) {
       return;
     }
     if (item.boat == null || item.boatStatus == null || item.boatStatus.getUnknownBoat()
@@ -3414,11 +3416,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           }
           String endeDerSperrung = (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().isSet()
               ? " "
-                  + International.getString("Ende der Sperrung")
-                  + ": "
-                  + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().toString()
-                  + (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().isSet() ? " "
-                      + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().toString() : "")
+              + International.getString("Ende der Sperrung")
+              + ": "
+              + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().toString()
+              + (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().isSet() ? " "
+              + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().toString() : "")
               : "");
 
           String html = Daten.efaConfig.getValueEfaDirekt_lockEfaShowHtml();
@@ -3435,7 +3437,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                   + "\" align=\"center\" width=\"256\" height=\"256\"></p>" + NEWLINE);
               f.write("<p align=\"center\">"
                   + International.getString(
-                      "efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")
+                  "efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")
                   + "</p>" + NEWLINE);
               if (endeDerSperrung.length() > 0) {
                 f.write("<p align=\"center\">" + endeDerSperrung + "</p>" + NEWLINE);

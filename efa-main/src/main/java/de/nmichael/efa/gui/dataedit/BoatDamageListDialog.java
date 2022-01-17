@@ -37,10 +37,6 @@ import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 public class BoatDamageListDialog extends DataListDialog {
-
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
 
   public BoatDamageListDialog(Frame parent, AdminRecord admin) {
@@ -68,11 +64,13 @@ public class BoatDamageListDialog extends DataListDialog {
   }
 
   private void iniValues(UUID boatId) {
+    // Lieblingsbreite der Datumsspalten
+    minColumnWidths = new int[] { 20, 250, 20, 20, 170, 170 }; // abf
+
     if (boatId != null) {
       this.filterFieldName = BoatReservationRecord.BOATID;
       this.filterFieldValue = boatId.toString();
     }
-    super.sortByColumn = 4;
   }
 
   @Override
@@ -85,27 +83,28 @@ public class BoatDamageListDialog extends DataListDialog {
       DataRecord record) {
     boolean newRecord = (record == null);
     if (record == null && persistence != null && filterFieldValue != null) {
-      record = ((BoatDamages) persistence)
-          .createBoatDamageRecord(UUID.fromString(filterFieldValue));
+      record = ((BoatDamages) persistence).createBoatDamageRecord(
+          UUID.fromString(filterFieldValue));
     }
     if (record == null) {
       long now = System.currentTimeMillis();
       ItemTypeStringAutoComplete boat = new ItemTypeStringAutoComplete("BOAT", "",
-          IItemType.TYPE_PUBLIC,
-          "", International.getString("Boot"), false);
-      boat.setAutoCompleteData(new AutoCompleteList(Daten.project.getBoats(false).data(), now, now));
-      if (SimpleInputDialog.showInputDialog(this, International.getString("Boot auswählen"), boat)) {
+          IItemType.TYPE_PUBLIC, "", International.getString("Boot"), false);
+      boat.setAutoCompleteData(new AutoCompleteList(
+          Daten.project.getBoats(false).data(), now, now));
+      if (SimpleInputDialog.showInputDialog(this,
+          International.getString("Boot auswählen"), boat)) {
         String s = boat.toString();
         try {
           if (s != null && s.length() > 0) {
             Boats boats = Daten.project.getBoats(false);
-            record = ((BoatDamages) persistence).createBoatDamageRecord(boats.getBoat(s, now)
-                .getId());
+            record = ((BoatDamages) persistence).createBoatDamageRecord(
+                boats.getBoat(s, now).getId());
             ((BoatDamageRecord) record).setReportDate(DataTypeDate.today());
             ((BoatDamageRecord) record).setReportTime(DataTypeTime.now());
           }
         } catch (Exception e) {
-          Logger.logdebug(e);
+          Logger.logwarn(e);
         }
       }
     }
@@ -132,29 +131,29 @@ public class BoatDamageListDialog extends DataListDialog {
     int antwortAuswahlDialog = Dialog.auswahlDialog(International.getString("Bootsschaden löschen"),
         International.getString("Möchtest du den Bootsschaden als behoben markieren, oder " +
             "einen irrtümlich gemeldeten Schaden komplett löschen?"),
-            International.getString("als behoben markieren"),
-            International.getString("irrtümlich gemeldeten Schaden löschen"));
+        International.getString("als behoben markieren"),
+        International.getString("irrtümlich gemeldeten Schaden löschen"));
     switch (antwortAuswahlDialog) {
-              case 0:
-                BoatDamageEditDialog dlg = (BoatDamageEditDialog) createNewDataEditDialog(this,
-                    persistence, unfixedDamage);
-                ItemTypeBoolean fixed = (ItemTypeBoolean) dlg.getItem(BoatDamageRecord.FIXED);
-                if (fixed != null) {
-                  fixed.setValue(true);
-                  fixed.setChanged();
-                  dlg.itemListenerAction(fixed, null);
-                  dlg.setFixedWasChanged();
-                }
-                IItemType focus = dlg.getItem(BoatDamageRecord.FIXEDBYPERSONID);
-                if (focus != null) {
-                  dlg.setRequestFocus(focus);
-                }
-                dlg.showDialog();
-                return false;
-              case 1:
-                return true;
-              default:
-                return false;
+      case 0:
+        BoatDamageEditDialog dlg = (BoatDamageEditDialog) createNewDataEditDialog(this,
+            persistence, unfixedDamage);
+        ItemTypeBoolean fixed = (ItemTypeBoolean) dlg.getItem(BoatDamageRecord.FIXED);
+        if (fixed != null) {
+          fixed.setValue(true);
+          fixed.setChanged();
+          dlg.itemListenerAction(fixed, null);
+          dlg.setFixedWasChanged();
+        }
+        IItemType focus = dlg.getItem(BoatDamageRecord.FIXEDBYPERSONID);
+        if (focus != null) {
+          dlg.setRequestFocus(focus);
+        }
+        dlg.showDialog();
+        return false;
+      case 1:
+        return true;
+      default:
+        return false;
     }
   }
 

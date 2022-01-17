@@ -463,7 +463,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
           (getStatusId() != null ? getStatusId().toString()
               : status.getStatusOther().getId().toString()),
           status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status
-              .makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
+          .makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
 
       v.add(item = new ItemTypeString(PersonRecord.EMAIL, getEmail(),
@@ -493,7 +493,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC,
           getExcludeFromPublicStatistics(),
           IItemType.TYPE_PUBLIC, CAT_MOREDATA, International
-              .getString("von allgemein verfügbaren Statistiken ausnehmen")));
+          .getString("von allgemein verfügbaren Statistiken ausnehmen")));
 
     } // admin visible
 
@@ -794,16 +794,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
 
     // weder noch
-    String frage = "Bevor es losgeht... eine Frage zu Deinen Benutzereinstellungen:\n";
-    frage += "- Heutige Telefonnummer ist: " + newPhone + ",\n";
-    frage += "- sonst übliche TelefonNr lautete: " + telnumAusProfil + ".\n";
-    frage += "Falls Du Dich nur vertippt hast, drücke bitte die Taste ESC auf der Tastatur oben links.\n";
-    frage += "\n";
-    frage += "Darf sich EFA die neue Nummer merken? ";
-    frage += "Soll EFA in Zukunft die neue Nummer vorschlagen?\n";
-    frage += "alte Nummer                                   Drücke ESC für zurück                        neue Nummer\n";
-    int antwort = Dialog.auswahlDialog("Zukünftige Vorbelegung der Telefonnummer", frage,
-        newPhone + " vorschlagen", // 0 ja neue Nummer übernehmen
+    String frage = International.getMessage(
+        "Vorbelegung neu {newPhone} anstelle von {telnumAusProfil}", newPhone, telnumAusProfil);
+    int antwort = Dialog.auswahlDialog(International.getString("Vorbelegung der Telefonnummer"),
+        frage, newPhone + " vorschlagen", // 0 ja neue Nummer übernehmen
         "nix mehr vorschlagen", // 1 Erlaubnis entziehen
         telnumAusProfil + " vorschlagen"); // 2 = alte bisherige Nummer
     switch (antwort) {

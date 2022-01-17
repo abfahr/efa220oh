@@ -66,8 +66,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_156";
-  public static final String VERSIONRELEASEDATE = "02.08.2021"; // Release Date: TT.MM.JJJJ
+  public static final String VERSIONID = "2.2.0_162";
+  public static final String VERSIONRELEASEDATE = "26.12.2021"; // Release Date: TT.MM.JJJJ
   public static final String MAJORVERSION = "2";
   public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -511,7 +511,7 @@ public class Daten {
         String msg = International.getString("efa can't start")
             + ": "
             + LogString.fileCreationFailed(International.getString("Basic Configuration File"),
-                efaBaseConfig.getFileName());
+            efaBaseConfig.getFileName());
         Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDCREATE, msg);
         if (isGuiAppl()) {
           Dialog.error(msg);
@@ -532,7 +532,7 @@ public class Daten {
       String msg = International.getString("efa can't start")
           + ": "
           + LogString.fileOpenFailed(International.getString("Basic Configuration File"),
-              efaBaseConfig.getFileName());
+          efaBaseConfig.getFileName());
       Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDOPEN, msg);
       if (isGuiAppl()) {
         Dialog.error(msg);
@@ -877,7 +877,7 @@ public class Daten {
         // no sec file there: exit and don't create new admin
         String msg = International.getString("Kein Admin gefunden.") + "\n"
             + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
-                + "Hilfe zum Reaktivieren von efa erhälst Du im Support-Forum.");
+            + "Hilfe zum Reaktivieren von efa erhälst Du im Support-Forum.");
         Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDNOSEC, msg);
         if (isGuiAppl()) {
           Dialog.error(msg);
@@ -897,7 +897,7 @@ public class Daten {
       // no sec file there: exit and don't create new admin
       String msg = International.getString("Kein Admin gefunden.") + "\n"
           + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
-              + "Hilfe zum Reaktivieren von efa erhälst Du im Support-Forum.");
+          + "Hilfe zum Reaktivieren von efa erhälst Du im Support-Forum.");
       Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDNOSEC, msg);
       if (isGuiAppl()) {
         Dialog.error(msg);
@@ -1061,8 +1061,8 @@ public class Daten {
             + ": " + Plugins.PLUGIN_MAIL
             + " - " + International.getString("Kein email-Versand möglich!")
             + " " + International.getMessage(
-                "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
-                pluginWebpage);
+            "Bitte lade das fehlende Plugin unter der Adresse {url} herunter.",
+            pluginWebpage);
         Logger.log(
             Logger.WARNING,
             Logger.MSG_CORE_MISSINGPLUGIN,
@@ -1395,7 +1395,7 @@ public class Daten {
           infos.add("host.ip=" + InetAddress.getLocalHost().getHostAddress());
           infos.add("host.interface="
               + EfaUtil.getInterfaceInfo(NetworkInterface.getByInetAddress(InetAddress
-                  .getLocalHost())));
+              .getLocalHost())));
         } catch (Exception eingore) {}
       }
     }
@@ -1426,8 +1426,8 @@ public class Daten {
               while (_enum.hasMoreElements() && (o = _enum.nextElement()) != null) {
                 infos.add("java.jar.content=" + o + ":"
                     + (jar.getEntry(o.toString()) == null
-                        ? "null"
-                        : Long.toString(jar.getEntry(o.toString()).getSize())));
+                    ? "null"
+                    : Long.toString(jar.getEntry(o.toString()).getSize())));
               }
               jar.close();
             } catch (Exception e) {

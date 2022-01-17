@@ -39,15 +39,12 @@ import de.nmichael.efa.util.International;
 
 // @i18n complete
 public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements IItemListener {
-
-  /**
-   *
-   */
   private static final long serialVersionUID = 1L;
   private boolean boatWasDamaged = false;
   private boolean fixedWasChanged = false;
 
-  public BoatDamageEditDialog(Frame parent, BoatDamageRecord r, boolean newRecord, AdminRecord admin) {
+  public BoatDamageEditDialog(Frame parent, BoatDamageRecord r, boolean newRecord,
+      AdminRecord admin) {
     super(parent, International.getString("Bootsschaden"), r, newRecord, admin);
     if (!newRecord && r != null && !r.getFixed()) {
       boatWasDamaged = true;
@@ -88,7 +85,8 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
       getItem(BoatDamageRecord.GUIITEM_FIXDATETIME).setNotNull(fixed);
       getItem(BoatDamageRecord.FIXEDBYPERSONID).setNotNull(fixed);
       if (fixed) {
-        ItemTypeDateTime fixedDate = (ItemTypeDateTime) getItem(BoatDamageRecord.GUIITEM_FIXDATETIME);
+        ItemTypeDateTime fixedDate = (ItemTypeDateTime) getItem(
+            BoatDamageRecord.GUIITEM_FIXDATETIME);
         fixedDate.getValueFromGui();
         if (!fixedDate.isSet()) {
           fixedDate.parseAndShowValue(DataTypeDate.today().toString());
@@ -106,10 +104,9 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
         r.getReportedByPersonId(),
         International.getString("Neuer Bootsschaden") + " - " + r.getBoatAsName(),
         r.getCompleteDamageInfo() +
-        (r.getLogbookText() != null && r.getLogbookText().length() > 0 ?
-            "\n" + International.getString("Fahrt") + ": " + r.getLogbookText() :
-            "")
-        );
+            (r.getLogbookText() != null && r.getLogbookText().length() > 0
+                ? "\n" + International.getString("Fahrt") + ": " + r.getLogbookText()
+                : ""));
   }
 
   @Override
@@ -124,20 +121,18 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
           MessageRecord.TO_BOATMAINTENANCE,
           r.getReportedByPersonId(),
           International.getString("Bootsschaden behoben") + " - " + r.getBoatAsName(),
-          r.getCompleteDamageInfo() +
-          "\n" +
-          International.getString("behoben von") + ": " + r.getFixedByPersonAsName() + "\n" +
-          International.getString("behoben am") + ": " +
-          (r.getFixDate() != null && r.getFixDate().isSet() ?
-              r.getFixDate().toString() : DataTypeDate.today().toString()) + "\n" +
-              International.getString("Reparaturkosten") + ": "
-              + (r.getRepairCosts() != null ? r.getRepairCosts() : "") + "\n" +
-              International.getString("Versicherungsfall") + ": " + (r.getClaim() ?
-                  International.getString("ja") :
-                    International.getString("nein")) + "\n" +
-                    International.getString("Bemerkungen") + ": "
-                    + (r.getNotes() != null ? r.getNotes() : "")
-          );
+          r.getCompleteDamageInfo()
+              + "\n" + International.getString("behoben von") + ": " + r.getFixedByPersonAsName()
+              + "\n" + International.getString("behoben am") + ": " +
+              (r.getFixDate() != null && r.getFixDate().isSet()
+                  ? r.getFixDate().toString()
+                  : DataTypeDate.today().toString())
+              + "\n" + International.getString("Reparaturkosten") + ": "
+              + (r.getRepairCosts() != null ? r.getRepairCosts() : "")
+              + "\n" + International.getString("Versicherungsfall") + ": "
+              + (r.getClaim() ? International.getString("ja") : International.getString("nein"))
+              + "\n" + International.getString("Bemerkungen") + ": "
+              + (r.getNotes() != null ? r.getNotes() : ""));
     }
     return success;
   }
@@ -161,9 +156,9 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
     if (logbookRecordText != null) {
       r.setLogbookText(logbookRecordText);
     }
-    BoatDamageEditDialog dlg = (parent instanceof JDialog ?
-        new BoatDamageEditDialog((JDialog) parent, r, true, null) :
-          new BoatDamageEditDialog((JFrame) parent, r, true, null));
+    BoatDamageEditDialog dlg = (parent instanceof JDialog
+        ? new BoatDamageEditDialog((JDialog) parent, r, true, null)
+        : new BoatDamageEditDialog((JFrame) parent, r, true, null));
     dlg.showDialog();
     if (dlg.getDialogResult()) {
       dlg.sendNotification();

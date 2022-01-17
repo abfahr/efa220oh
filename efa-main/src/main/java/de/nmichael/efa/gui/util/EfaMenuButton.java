@@ -577,7 +577,7 @@ public class EfaMenuButton {
 
     if (action.equals(BUTTON_EXIT)) {
       if (Daten.applID == Daten.APPL_EFABH && // check permissions only for efaBths; other programs
-      // may be exited by anyone
+          // may be exited by anyone
           (admin == null || (!admin.isAllowedExitEfa()))) {
         insufficientRights(admin, action);
         return false;
@@ -730,7 +730,8 @@ public class EfaMenuButton {
         insufficientRights(admin, action);
         return false;
       }
-      BoatDamageListDialog dlg = (parentFrame != null ? new BoatDamageListDialog(parentFrame, admin)
+      BoatDamageListDialog dlg = (parentFrame != null
+          ? new BoatDamageListDialog(parentFrame, admin)
           : new BoatDamageListDialog(parentDialog, admin));
       dlg.showDialog();
     }

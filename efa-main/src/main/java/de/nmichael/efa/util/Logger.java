@@ -550,7 +550,7 @@ public class Logger {
             International.getString("Fehler")
                 + ": "
                 + LogString.fileCreationFailed(Daten.efaLogfile,
-                    International.getString("Logdatei")));
+                International.getString("Logdatei")));
       }
     }
 
@@ -658,7 +658,7 @@ public class Logger {
         lastLog = now;
         if (logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD
             || (type.equals(ERROR)
-                && logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD_ERR)) {
+            && logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD_ERR)) {
           if (doNotLog) {
             // nothing
           } else {
@@ -722,8 +722,8 @@ public class Logger {
         Messages messages = (Daten.project != null &&
             !Daten.project.isInOpeningProject() &&
             Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE
-                ? Daten.project.getMessages(false)
-                : null);
+            ? Daten.project.getMessages(false)
+            : null);
         if (messages == null || !messages.isOpen()) {
           inLogging = false;
           return t;
@@ -760,9 +760,9 @@ public class Logger {
   }
 
   public static void logwarn(Exception e) {
-    if (isTraceOn(TT_EXCEPTIONS) && logExceptions) {
-      log(WARNING, MSG_WARN_EFAUNSECURE, e);
-    }
+    // if (isTraceOn(TT_EXCEPTIONS) && logExceptions) {
+    log(WARNING, MSG_WARN_EFAUNSECURE, e);
+    // }
   }
 
   public static void log(Exception e) {

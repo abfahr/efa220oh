@@ -23,6 +23,7 @@
         <version>2.5.2</version>
         <executions>
           <execution>
+            <id>install-jsuntimes</id>
             <phase>initialize</phase>
             <goals>
               <goal>install-file</goal>
@@ -34,6 +35,21 @@
               <packaging>jar</packaging>
               <generatePom>true</generatePom>
               <file>libs/jsuntimes.jar</file>
+            </configuration>
+          </execution>
+          <execution>
+            <id>install-batikall</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <groupId>org.apache</groupId>
+              <artifactId>batik-all</artifactId>
+              <version>1.7.0</version>
+              <packaging>jar</packaging>
+              <generatePom>true</generatePom>
+              <file>libs/batik-all-1.7.0.jar</file>
             </configuration>
           </execution>
         </executions>

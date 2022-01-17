@@ -23,10 +23,6 @@
       <id>central</id>
       <url>https://repo.maven.apache.org/maven2/</url>
     </repository>
-    <repository>
-      <id>talan</id>
-      <url>https://nexus.talanlabs.com/content/repositories/releases/</url>
-    </repository>
   </repositories>
   <build>
     <plugins>

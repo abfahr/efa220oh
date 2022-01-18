@@ -3,3 +3,6 @@
 **/*.iml
 
 /efa-main/
+/.settings/
+/efa-dependencies/
+/efa-help/

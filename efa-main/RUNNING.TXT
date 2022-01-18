@@ -1,0 +1,4 @@
+In order to run EFA in this flavor, please execute
+`java -Xmx128m -XX:NewSize=32m -XX:MaxNewSize=32m -Duser.country=DE -Duser.language=de -jar efa-main-1.0-SNAPSHOT-jar-with-dependencies.jar`
+
+This should take care of all necessary settings.

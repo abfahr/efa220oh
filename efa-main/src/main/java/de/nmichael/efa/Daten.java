@@ -14,12 +14,14 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -56,21 +58,55 @@ import de.nmichael.efa.util.HtmlFactory;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.PropertiesReader;
 
 // @i18n complete
 public class Daten {
 
+  public final static String PROPERTY_FILE = "properties-from-pom.properties";
+
+  private static Properties properties;
+
+  protected static Properties getProperties()
+  {
+    if(properties == null)
+    {
+      properties = new Properties();
+      try {
+        properties.load(new FileInputStream(new File(PROPERTY_FILE)));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return properties;
+  }
+
+
   // Version für die Ausgabe (z.B. 2.1.0, kann aber
   // auch Zusätze wie "alpha" o.ä. enthalten)
-  public static final String VERSION = "2.2.0";
-
+  public static String getVersion() {
+    return getProperties().getProperty("efa.version");
+  }
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_162";
-  public static final String VERSIONRELEASEDATE = "26.12.2021"; // Release Date: TT.MM.JJJJ
-  public static final String MAJORVERSION = "2";
-  public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
+  public static String getVersionId() {
+    return getProperties().getProperty("efa.versionId");
+  }
+  // Release Date: TT.MM.JJJJ
+  public static String getVersionReleaseDate() {
+    return getProperties().getProperty("efa.versionReleaseDate");
+  }
+  public static String getMajorVersion() {
+    return getProperties().getProperty("efa.majorVersion");
+  }
+  // Versions-ID für Wettbewerbsmeldungen
+  public static String getProgrammId() {
+    return getProperties().getProperty("efa.programmId");
+  }
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
+  public static String getProgrammIdDrv() {
+    return getProperties().getProperty("efa.programmIdDrv");
+  }
   public static final String COPYRIGHTYEAR = "14"; // aktuelles Jahr (Copyright (c)
   // 2001-COPYRIGHTYEAR)
 
@@ -385,20 +421,20 @@ public class Daten {
     if (exitCode != 0) {
       if (exitCode == HALT_SHELLRESTART || exitCode == HALT_JAVARESTART) {
         Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
-            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Exit Code "
+            International.getString("PROGRAMMENDE") + "  (Ver:" + getVersionId() + ")" + " (Exit Code "
                 + exitCode + ")");
       } else {
         if (applID != APPL_CLI) {
           Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
         }
         Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
-            International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + ")" + " (Error Code "
+            International.getString("PROGRAMMENDE") + "  (Ver:" + getVersionId() + ")" + " (Error Code "
                 + exitCode + ")");
       }
     } else {
       Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
-          International.getString("PROGRAMMENDE") + "  (Ver:" + VERSIONID + " vom "
-              + VERSIONRELEASEDATE + ")");
+          International.getString("PROGRAMMENDE") + "  (Ver:" + getVersionId() + " vom "
+              + getVersionReleaseDate() + ")");
     }
     if (program != null) {
       program.exit(exitCode);
@@ -642,8 +678,8 @@ public class Daten {
     }
 
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
-        International.getString("PROGRAMMSTART") + " (Ver:" + VERSIONID + " vom "
-            + VERSIONRELEASEDATE + ")");
+        International.getString("PROGRAMMSTART") + " (Ver:" + getVersionId() + " vom "
+            + getVersionReleaseDate() + ")");
     Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
         "Java " + javaVersion + " (JVM " + jvmVersion + ")"
             + " -- OS: " + osName + " " + osVersion);
@@ -1302,8 +1338,8 @@ public class Daten {
 
     // efa-Infos
     if (efaInfos) {
-      infos.add("efa.version=" + VERSIONID);
-      infos.add("efa.release.date=" + VERSIONRELEASEDATE);
+      infos.add("efa.version=" + getVersionId());
+      infos.add("efa.release.date=" + getVersionReleaseDate());
       if (EFALIVE_VERSION != null && EFALIVE_VERSION.length() > 0) {
         infos.add("efalive.version=" + EFALIVE_VERSION);
       }
@@ -1476,7 +1512,7 @@ public class Daten {
   }
 
   public static void checkRegister() {
-    if (PROGRAMMID.equals(efaConfig.getValueRegisteredProgramID())) {
+    if (getProgrammId().equals(efaConfig.getValueRegisteredProgramID())) {
       return; // already registered
     }
     efaConfig.setValueRegistrationChecks(efaConfig.getValueRegistrationChecks() + 1);
@@ -1501,7 +1537,7 @@ public class Daten {
           "file:" + HtmlFactory.createRegister(),
           850, 750).endsWith(".pl")) {
         // registration complete
-        efaConfig.setValueRegisteredProgramID(PROGRAMMID);
+        efaConfig.setValueRegisteredProgramID(getProgrammId());
         efaConfig.setValueRegistrationChecks(0);
       }
 

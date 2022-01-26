@@ -198,7 +198,7 @@ public class EfaBaseConfig {
       if (language != null) {
         f.write(FIELD_LANGUAGE + "=" + language + "\n");
       }
-      f.write(FIELD_VERSION + "=" + Daten.MAJORVERSION + "\n");
+      f.write(FIELD_VERSION + "=" + Daten.getMajorVersion() + "\n");
       f.close();
     } catch (Exception e) {
       Logger.log(e);

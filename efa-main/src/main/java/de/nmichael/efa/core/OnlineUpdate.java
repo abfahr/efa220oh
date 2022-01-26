@@ -84,13 +84,13 @@ public class OnlineUpdate {
 
     // ist die installierte Version aktuell?
     OnlineUpdateInfo newestVersion = versions.get(0); // first version is always newest one!
-    if (Daten.VERSIONID.equals(newestVersion.versionId) ||
-        Daten.VERSIONID.compareTo(newestVersion.versionId) > 0) {
+    if (Daten.getVersionId().equals(newestVersion.versionId) ||
+        Daten.getVersionId().compareTo(newestVersion.versionId) > 0) {
       if (parent != null) {
         Dialog.infoDialog(International
             .getString("Es liegt derzeit keine neuere Version von efa vor.") + "\n"
             + International.getMessage("Die von Dir benutzte Version {version} ist noch aktuell.",
-                Daten.VERSIONID));
+                Daten.getVersionId()));
       } else {
         lastError = International.getString("Es liegt derzeit keine neuere Version von efa vor.");
       }
@@ -102,7 +102,7 @@ public class OnlineUpdate {
     Vector<String> changes = new Vector<String>();
     for (int i = 0; i < versions.size(); i++) {
       OnlineUpdateInfo version = versions.get(i);
-      if (Daten.VERSIONID.compareTo(version.versionId) >= 0) {
+      if (Daten.getVersionId().compareTo(version.versionId) >= 0) {
         break;
       }
       Vector<String> moreChanges = version.getChanges();

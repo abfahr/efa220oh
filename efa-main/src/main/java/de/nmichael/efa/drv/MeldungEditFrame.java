@@ -336,7 +336,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       calcOverallValues();
       setMFields(0, false);
 
-      if (ew.allg_programm != null && ew.allg_programm.equals(Daten.PROGRAMMID_DRV)
+      if (ew.allg_programm != null && ew.allg_programm.equals(Daten.getProgrammIdDrv())
           && (ew.verein_name == null || ew.verein_name.length() == 0)) {
         vBlock(false);
         mBlock(true);

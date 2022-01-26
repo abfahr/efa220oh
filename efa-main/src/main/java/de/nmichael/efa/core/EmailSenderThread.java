@@ -191,7 +191,7 @@ public class EmailSenderThread extends Thread {
       }
       com.sun.mail.smtp.SMTPMessage mail = new com.sun.mail.smtp.SMTPMessage(session);
       mail.setAllow8bitMIME(true);
-      mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.VERSIONID);
+      mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.getVersionId());
       mail.setHeader("Content-Type", "text/plain; charset=" + charset);
       mail.setFrom(new javax.mail.internet.InternetAddress(mailFromName + " <" + mailFromEmail
           + ">"));
@@ -268,7 +268,7 @@ public class EmailSenderThread extends Thread {
       }
       com.sun.mail.smtp.SMTPMessage mail = new com.sun.mail.smtp.SMTPMessage(session);
       mail.setAllow8bitMIME(true);
-      mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.VERSIONID);
+      mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.getVersionId());
       mail.setHeader("Content-Type", "text/plain; charset=" + charset);
       mail.setFrom(new javax.mail.internet.InternetAddress(mailFromName + " <" + mailFromEmail
           + ">"));

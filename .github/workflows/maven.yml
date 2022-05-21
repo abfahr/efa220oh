@@ -33,3 +33,10 @@ jobs:
       uses: skjolber/maven-cache-github-action@v1
       with:
         step: save
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: store-build-artifacts
+        path: |
+          efa-main/target/*.zip
+          efa-main/target/*.jar

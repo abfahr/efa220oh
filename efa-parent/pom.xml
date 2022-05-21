@@ -5,7 +5,7 @@
 
   <groupId>de.overfreunde</groupId>
   <artifactId>efa-parent</artifactId>
-  <version>2.2.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <modules>
     <module>../efa-dependencies</module>
     <module>../efa-help</module>
@@ -16,12 +16,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>11</java.version>
-    <efa.version>${project.version}</efa.version>
-    <efa.versionId>${efa.version}_162</efa.versionId>
-    <efa.versionReleaseDate>26.12.2021</efa.versionReleaseDate>
-    <efa.majorVersion>2</efa.majorVersion>
-    <efa.programmId>EFA.220</efa.programmId>
-    <efa.programmIdDrv>EFADRV.220</efa.programmIdDrv>
   </properties>
   <repositories>
     <repository>
@@ -39,22 +33,6 @@
           <source>11</source>
           <target>11</target>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>properties-maven-plugin</artifactId>
-        <version>1.0.0</version>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>write-project-properties</goal>
-            </goals>
-            <configuration>
-              <outputFile>${project.build.outputDirectory}/properties-from-pom.properties</outputFile>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

@@ -79,7 +79,7 @@ public class OnlineUpdateDialog extends BaseDialog {
     JLabel currentVersionLabel = new JLabel();
     currentVersionLabel.setText(International.getString("installierte Version") + ": ");
     JLabel currentVersionValue = new JLabel();
-    currentVersionValue.setText(Daten.getVersionId() + " (" + Daten.getVersionReleaseDate() + ")");
+    currentVersionValue.setText(Daten.VERSIONID + " (" + Daten.VERSIONRELEASEDATE + ")");
     JLabel newVersionLabel = new JLabel();
     newVersionLabel.setText(International.getString("verfügbare Version") + ": ");
     JLabel newVersionValue = new JLabel();

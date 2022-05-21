@@ -1862,7 +1862,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           return;
         }
       }
-      efw.allg_programm = Daten.getProgrammIdDrv();
+      efw.allg_programm = Daten.PROGRAMMID_DRV;
       efw.allg_wett = WETTID;
       efw.allg_wettjahr = Integer.toString(Main.drvConfig.aktJahr);
       efw.kennung = EfaWett.EFAWETT;

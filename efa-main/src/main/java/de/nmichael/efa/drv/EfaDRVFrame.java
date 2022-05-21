@@ -201,7 +201,7 @@ public class EfaDRVFrame extends JFrame {
         beendenButton_actionPerformed(e);
       }
     });
-    versionLabel.setText("Version " + Daten.getVersion() + " (" + Daten.getVersionId() + ")");
+    versionLabel.setText("Version " + Daten.VERSION + " (" + Daten.VERSIONID + ")");
     meldungenWSButton.setEnabled(false);
     meldungenWSButton.setNextFocusableComponent(administrationButton);
     meldungenWSButton.setMnemonic('W');

@@ -45,7 +45,7 @@ public class Program {
       wrongArgument = null;
       showHelpDev = true;
     }
-    System.out.println(Daten.EFA_LONGNAME + " " + Daten.getVersion() + " (" + Daten.getVersionId() + ")\n");
+    System.out.println(Daten.EFA_LONGNAME + " " + Daten.VERSION + " (" + Daten.VERSIONID + ")\n");
     if (wrongArgument != null) {
       System.out.println("ERROR: Unknown Argument" + ": " + wrongArgument + "\n");
     }

@@ -104,7 +104,7 @@ public abstract class Competition {
     WettDef wett = Daten.wettDefs.getWettDef(wettId, sr.sCompYear);
     efaWett = new EfaWett();
     efaWett.wettId = wettId;
-    efaWett.allg_programm = Daten.getProgrammId();
+    efaWett.allg_programm = Daten.PROGRAMMID;
     if (wett.von.jahr == wett.bis.jahr) {
       efaWett.allg_wettjahr = Integer.toString(sr.sCompYear + wett.von.jahr);
     } else {

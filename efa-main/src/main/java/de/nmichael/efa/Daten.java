@@ -103,6 +103,7 @@ public class Daten {
   public static String getProgrammId() {
     return getProperties().getProperty("efa.programmId");
   }
+  public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
   public static String getProgrammIdDrv() {
     return getProperties().getProperty("efa.programmIdDrv");
   }

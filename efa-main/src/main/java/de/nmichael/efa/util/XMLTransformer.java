@@ -22,7 +22,7 @@ import de.nmichael.efa.Daten;
 public class XMLTransformer {
 
   static void printHelp() {
-    System.out.println("XMLTransformer " + Daten.getVersion() + ", (c) 2002-" + Daten.COPYRIGHTYEAR
+    System.out.println("XMLTransformer " + Daten.VERSION + ", (c) 2002-" + Daten.COPYRIGHTYEAR
         + " by Nicolas Michael (" + Daten.EFAURL + ")");
     System.out
     .println("XMLTransformer is based on the Xerces XML parser and the Xalan XSLT processor.");

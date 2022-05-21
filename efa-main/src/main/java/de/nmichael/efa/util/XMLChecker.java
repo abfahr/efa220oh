@@ -87,7 +87,7 @@ public class XMLChecker extends DefaultHandler {
   }
 
   static void printHelp() {
-    System.out.println("XMLChecker " + Daten.getVersion() + ", (c) 2002-" + Daten.COPYRIGHTYEAR
+    System.out.println("XMLChecker " + Daten.VERSION + ", (c) 2002-" + Daten.COPYRIGHTYEAR
         + " by Nicolas Michael (" + Daten.EFAURL + ")");
     System.out.println("XMLChecker is based on the Xerces XML parser.");
     System.out

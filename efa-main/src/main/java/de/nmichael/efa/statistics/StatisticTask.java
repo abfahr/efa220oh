@@ -1918,7 +1918,7 @@ public class StatisticTask extends ProgressTask {
     }
     sr.pStatCreationDate = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
     sr.pStatCreatedByUrl = Daten.EFAURL;
-    sr.pStatCreatedByName = Daten.EFA_LONGNAME + " " + Daten.getVersion();
+    sr.pStatCreatedByName = Daten.EFA_LONGNAME + " " + Daten.VERSION;
     sr.pStatDescription = statDescrLong;
     sr.pStatDateRange = sr.sStartDate.toString() + " - " + sr.sEndDate.toString();
     sr.pStatFilter = sr.getFilterCriteriaAsStringDescription();

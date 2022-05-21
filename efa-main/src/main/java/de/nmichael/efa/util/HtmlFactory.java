@@ -134,18 +134,18 @@ public class HtmlFactory {
       f.write("<input type=\"hidden\" name=\"reply_clubdata\" value=\""
           + International.getString("Deine Daten werden überprüft und demnächst aktualisiert.")
           + "\">\n");
-      f.write("<input type=\"hidden\" name=\"subject\" value=\"User efa - " + Daten.getVersionId()
+      f.write("<input type=\"hidden\" name=\"subject\" value=\"User efa - " + Daten.VERSIONID
           + "\">\n");
       f.write("<input type=\"hidden\" name=\"addUserList\" value=\"yes\">\n");
-      f.write("<input type=\"hidden\" name=\"efa.version\" value=\"" + Daten.getVersionId() + "\">\n");
+      f.write("<input type=\"hidden\" name=\"efa.version\" value=\"" + Daten.VERSIONID + "\">\n");
       if (Daten.EFALIVE_VERSION != null) {
         f.write("<input type=\"hidden\" name=\"efalive.version\" value=\"" + Daten.EFALIVE_VERSION
             + "\">\n");
       }
-      if (Daten.getVersionId().compareTo("1.9.9") < 0) {
+      if (Daten.VERSIONID.compareTo("1.9.9") < 0) {
         f.write("<input name=\"useEfa1\" type=\"hidden\" value=\"yes\"/>\n");
       }
-      if (Daten.getVersionId().compareTo("1.9.9") >= 0) {
+      if (Daten.VERSIONID.compareTo("1.9.9") >= 0) {
         f.write("<input name=\"useEfa2\" type=\"hidden\" value=\"yes\"/>\n");
       }
       if (Daten.EFALIVE_VERSION != null) {

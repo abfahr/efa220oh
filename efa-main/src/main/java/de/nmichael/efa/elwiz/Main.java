@@ -19,7 +19,7 @@ import de.nmichael.efa.util.Dialog;
 // @i18n complete
 public class Main extends Program {
 
-  public static final String ELWIZ_VERSION = Daten.getVersion(); // Version
+  public static final String ELWIZ_VERSION = Daten.VERSION; // Version
 
   public Main(String[] args) {
     super(Daten.APPL_ELWIZ, args);

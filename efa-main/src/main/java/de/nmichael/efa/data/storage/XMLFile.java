@@ -122,7 +122,7 @@ public class XMLFile extends DataFile {
       write(data, xmltagStart(data, FIELD_GLOBAL));
       write(data, xmltagStart(data, FIELD_HEADER));
       write(data, xmltag(data, FIELD_HEADER_PROGRAM, Daten.EFA_SHORTNAME));
-      write(data, xmltag(data, FIELD_HEADER_VERSION, Daten.getVersionId()));
+      write(data, xmltag(data, FIELD_HEADER_VERSION, Daten.VERSIONID));
       write(data, xmltag(data, FIELD_HEADER_NAME, dataAccess.getStorageObjectName()));
       write(data, xmltag(data, FIELD_HEADER_TYPE, dataAccess.getStorageObjectType()));
       write(data, xmltag(data, FIELD_HEADER_SCN, Long.toString(dataAccess.getSCN())));

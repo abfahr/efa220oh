@@ -10,9 +10,7 @@
 
 package de.nmichael.efa.core;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -36,6 +34,7 @@ import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.ProgressTask;
+import org.apache.commons.lang.StringUtils;
 
 public class Backup {
 
@@ -352,6 +351,8 @@ public class Backup {
       }
 
       backupMetaData.write(zipOut);
+      cnt = addDirToZip(zipOut, new File(Daten.efaImagesDirectory));
+      successful += cnt;
       zipOut.close();
 
       logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDINFO,
@@ -503,6 +504,48 @@ public class Backup {
     }
     return errors;
   }
+
+  private int addDirToZip(ZipOutputStream abfZipOut, File sourceDirectory)  {
+    int countFiles = 0;
+    byte[] buffer = new byte[1024];
+    try {
+      String subFolder = sourceDirectory.getPath();
+      String baseFolder = Daten.userHomeDir + "efa2/";
+      subFolder = StringUtils.difference(baseFolder, subFolder);
+
+      //check to see if this directory exists
+      if (!sourceDirectory.isDirectory()) {
+        logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,
+                subFolder + " is not a directory");
+        return countFiles;
+      }
+      File[] files = sourceDirectory.listFiles();
+
+      for (int i=0; i < files.length ; i++) {
+        if (files[i].isDirectory()) {
+          countFiles += addDirToZip(abfZipOut, files[i]);
+          continue;
+        }
+        countFiles++;
+        FileInputStream fin = new FileInputStream(files[i]);
+        abfZipOut.putNextEntry(new ZipEntry(subFolder + "/" + files[i].getName()));
+
+        int length;
+        while((length = fin.read(buffer)) > 0) {
+          abfZipOut.write(buffer, 0, length);
+        }
+
+        abfZipOut.closeEntry();
+        fin.close();
+      }
+    }
+    catch(IOException ioe) {
+      logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,"IOException :" + ioe);
+    }
+    return countFiles;
+  }
+
+
 
   private void openOrCreateProject(String newProjectName) {
     try {

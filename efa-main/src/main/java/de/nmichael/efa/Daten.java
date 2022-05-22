@@ -12,10 +12,7 @@ package de.nmichael.efa;
 
 import java.awt.Color;
 import java.awt.Frame;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -56,6 +53,7 @@ import de.nmichael.efa.util.HtmlFactory;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
+import org.apache.commons.io.IOUtils;
 
 // @i18n complete
 public class Daten {
@@ -66,8 +64,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_162";
-  public static final String VERSIONRELEASEDATE = "26.12.2021"; // Release Date: TT.MM.JJJJ
+  public static final String VERSIONID = "2.2.0_163";
+  public static final String VERSIONRELEASEDATE = "22.05.2022"; // Release Date: TT.MM.JJJJ
   public static final String MAJORVERSION = "2";
   public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -190,6 +188,8 @@ public class Daten {
   // ("./images/")
   public static String efaNamesDirectory = null; // Efa-Namen-Verzeichnis, immer mit "/" am Ende
   // ("./names/")
+  public static String efaTodoDirectory = null; // Efa-Todo-Verzeichnis, immer mit "/" am Ende
+  // ("./todo/")
   public static String efaFormattingDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am
   // Ende ("./fmt/")
   public static String efaBakDirectory = null; // Efa-Backupverzeichnis, immer mit "/" am Ende
@@ -767,6 +767,12 @@ public class Daten {
       haltProgram(HALT_DIRECTORIES);
     }
 
+    // ./todo
+    efaTodoDirectory = efaBaseConfig.efaUserDirectory + "todo" + fileSep;
+    if (!checkAndCreateDirectory(efaTodoDirectory)) {
+      haltProgram(HALT_DIRECTORIES);
+    }
+
     // ./backup
     if (!trySetEfaBackupDirectory(null)) {
       haltProgram(HALT_DIRECTORIES);
@@ -1204,13 +1210,10 @@ public class Daten {
   }
 
   private static boolean istSchluesselGedrehtIntern() {
-    String gpio = efaBaseConfig.efaUserDirectory;
-    File fileGpio = new File(gpio + "value");
-    File fileGut = new File(gpio + "value.gut.txt");
     try {
-      String contentsGpio = FileUtils.readFileToString(fileGpio);
-      String contentsGut = FileUtils.readFileToString(fileGut);
-      return contentsGut.equals(contentsGpio);
+      InputStream contentsGpio = new FileInputStream(efaBaseConfig.efaUserDirectory + "value");
+      InputStream contentsGut  = new FileInputStream(efaBaseConfig.efaUserDirectory + "value.gut.txt");
+      return IOUtils.contentEquals(contentsGut, contentsGpio);
     } catch (IOException e) {
       Logger.log(e);
       Dialog.exceptionError(e.getMessage(), e.fillInStackTrace().toString());
@@ -1325,6 +1328,9 @@ public class Daten {
         }
         if (efaNamesDirectory != null) {
           infos.add("efa.dir.names=" + efaNamesDirectory);
+        }
+        if (efaTodoDirectory != null) {
+          infos.add("efa.dir.todo=" + efaTodoDirectory);
         }
         if (efaDataDirectory != null) {
           infos.add("efa.dir.data=" + efaDataDirectory);

@@ -4598,6 +4598,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
   }
 
   private void efaBoathouseSetPersonAndBoat(ItemTypeBoatstatusList.BoatListItem item) {
+    if (item.person != null) {
+      crew[0].parseAndShowValue(item.person.getQualifiedName());
+    }
+    if (item.boat != null && item.boat.getTypeSeats(0).equals(
+            International.getString("Profi Boote Kontrollnummer"))) {
+      int yesNoDialog = Dialog.yesNoDialog(
+              International.getString("Titel Einweisung Profi Boote"),
+              "  " + item.boat.getQualifiedName() + "\n\r"
+                      + International.getString("Frage Einweisung Profi Boote") + "\n\r  "
+                      + Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                      item.boat.getTypeSeats(0)));
+      if (yesNoDialog != Dialog.YES) {
+        item.boat = null;
+      }
+    }
     if (item.boat != null) {
       boat.parseAndShowValue(item.boat.getQualifiedName());
       if (item.boatVariant >= 0) {
@@ -4609,12 +4624,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
       } else {
         setRequestFocus(crew[0]);
       }
-    } else {
+    }
+    if (item.boat == null) {
       currentBoatUpdateGui();
       setRequestFocus(boat);
-    }
-    if (item.person != null) {
-      crew[0].parseAndShowValue(item.person.getQualifiedName());
     }
   }
 

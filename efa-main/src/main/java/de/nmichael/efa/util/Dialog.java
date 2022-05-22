@@ -702,7 +702,7 @@ public class Dialog {
     Enumeration<Object> keys = uid.keys();
     while (keys.hasMoreElements()) {
       Object key = keys.nextElement();
-      Object value = uid.get(key);
+      // Object value = uid.get(key);
       String font = (key == null ? null : key.toString());
       if (font != null
           && (font.endsWith(".font")

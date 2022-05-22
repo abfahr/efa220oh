@@ -69,7 +69,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private static final int REMOTE_SCN_CHECK_INTERVAL = 5;
   private static final int ONCE_AN_HOUR = 3600 / CHECK_INTERVAL;
   private static final long BOAT_DAMAGE_REMINDER_INTERVAL = 7 * 24 * 60 * 60 * 1000;
-  private static final long RESERVATION_REMINDER_DAY = 1 * 24 * 60 * 60 * 1000;
+  private static final long RESERVATION_REMINDER_DAY = 24 * 60 * 60 * 1000;
   private EfaBoathouseFrame efaBoathouseFrame;
   private boolean isProjectOpen = false;
   private boolean isLocalProject = true;
@@ -360,6 +360,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private void checkBoatEndtime() {
     long now = System.currentTimeMillis();
 
+    if (Daten.project == null) return;
     // get List of Boats "on the water" = boatsOnTheWaterList;
     BoatStatus boatStatus = Daten.project.getBoatStatus(false);
     Vector<BoatStatusRecord> boats = new Vector<BoatStatusRecord>();
@@ -678,7 +679,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   /**
    * Eine Woche vor der Reservierung wird eine Email verschickt
    *
-   * @param boatReservations
+   * @param reservations
    */
   private void sendeEmailAlsErinnerungWennZeitpunktErreicht(BoatReservationRecord[] reservations,
       long remindertime) {
@@ -714,7 +715,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   /**
    * Eine Reservierung startet automatisch eine Fahrt
    *
-   * @param boatId
+   * @param boatReservations
    * @return
    */
   private LogbookRecord starteFahrtMitEndtimeLautReservation(
@@ -797,6 +798,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private void updateBoatstatusRecord(BoatStatusRecord boatStatusRecord,
       LogbookRecord newLogbookRecord) {
     boatStatusRecord.setCurrentStatus(BoatStatusRecord.STATUS_ONTHEWATER);
+    if (efaBoathouseFrame.getLogbook() == null) return;
     boatStatusRecord.setLogbook(efaBoathouseFrame.getLogbook().getName());
     boatStatusRecord.setEntryNo(newLogbookRecord.getEntryId());
   }

@@ -18,6 +18,7 @@ import javax.swing.JDialog;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
@@ -176,6 +177,11 @@ public class BoatReservationListDialog extends DataListDialog {
       }
     }
 
+    if (newRecord) {
+      if (!checkEinweisung(((BoatReservationRecord) record).getBoat())) {
+        return null;
+      }
+    }
     try {
       return new BoatReservationEditDialog(parent, (BoatReservationRecord) record,
           newRecord, allowNewReservationsWeekly, admin);
@@ -183,6 +189,25 @@ public class BoatReservationListDialog extends DataListDialog {
       Dialog.error(e.getMessage());
       return null;
     }
+  }
+
+  private boolean checkEinweisung(BoatRecord boatRecord) {
+    if (boatRecord != null && boatRecord.getTypeSeats(0).equals(
+            International.getString("Profi Boote Kontrollnummer"))) {
+      int yesNoDialog = Dialog.yesNoDialog(
+              International.getString("Titel Einweisung Profi Boote"),
+              "  " + boatRecord.getQualifiedName() + "\n\r"
+                      + International.getString("Frage Einweisung Profi Boote") + "\n\r  "
+                      + Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                      boatRecord.getTypeSeats(0)));
+      if (yesNoDialog != Dialog.YES) {
+        Dialog.infoDialog(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                        boatRecord.getTypeSeats(0)),
+                International.getString("Termin Einweisung Profi Boote"));
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

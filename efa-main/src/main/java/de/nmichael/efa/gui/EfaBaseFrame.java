@@ -4610,6 +4610,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                       + Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
                       item.boat.getTypeSeats(0)));
       if (yesNoDialog != Dialog.YES) {
+        Dialog.infoDialog(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                item.boat.getTypeSeats(0)),
+                International.getString("Termin Einweisung Profi Boote"));
         item.boat = null;
       }
     }

@@ -932,7 +932,7 @@ public class BoatReservationRecord extends DataRecord {
             "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen!");
         msg.add(
             "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
-                + "dann fülle das Formular umgehend aus (" + Daten.WEB_DOWNLOAD_VERTRAG + ") "
+                + "dann fülle das Formular umgehend aus (" + International.getString("Web Download Vertrag") + ") "
                 + "und gib es im Bootshaus rechtzeitig vor Deiner Bootshausnutzung ab. "
                 + "Ansonsten werden Dir automatisch 75EUR berechnet.");
         msg.add("");
@@ -944,7 +944,8 @@ public class BoatReservationRecord extends DataRecord {
 
       msg.add("Kalender?");
       msg.add(International.getMessage("Hinweis auf Kalender im Web mit {efaId} {url1} {url2}",
-          getEfaId(), Daten.WEB_KALENDER_TERMINE, Daten.WEB_DOMAIN_EFA_BOOTSHAUS + "efa/"));
+          getEfaId(), International.getString("Web Kalender Termine"),
+              International.getString("Web Domain EFA Bootshaus") + "efa/"));
       msg.add("");
 
       msg.add("Storno?");
@@ -988,7 +989,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   private String getWebOnlineURL(String folder, String mitgliedNr) {
-    String url = Daten.WEB_DOMAIN_EFA_BOOTSHAUS;
+    String url = International.getString("Web Domain EFA Bootshaus");
     url += folder;
     url += "?mitgliedNr=" + mitgliedNr;
     url += "&hashId=" + getHashId();

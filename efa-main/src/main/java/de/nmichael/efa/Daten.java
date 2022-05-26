@@ -64,8 +64,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_164";
-  public static final String VERSIONRELEASEDATE = "22.05.2022"; // Release Date: TT.MM.JJJJ
+  public static final String VERSIONID = "2.2.0_165";
+  public static final String VERSIONRELEASEDATE = "25.05.2022"; // Release Date: TT.MM.JJJJ
   public static final String MAJORVERSION = "2";
   public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -100,15 +100,10 @@ public class Daten {
   public static final String EFASUPPORTURL = "http://efa.nmichael.de/help.html";
   public static final String EFADEVURL = "http://kenai.com/projects/efa";
   public static final String EFATRANSLATEWIKI = "http://kenai.com/projects/efa/pages/TranslatingEfa";
-  public static final String EFAWETTURL = "http://efa.rudern.de";
-  public static final String NICOLASURL = "http://www.nmichael.de";
   public static final String DOMAIN_ID = "@overfreunde.de";
   public static final String EMAILSUPPORT = "info@overfreunde.de";
   public static final String EMAILBOOTSHAUSNUTZUNGSWART = "bootshausnutzung@overfreunde.de";
   public static final String EMAILDEBUG_DOMAIN = "@abfx.de";
-  public static final String WEB_DOMAIN_EFA_BOOTSHAUS = "https://overfreunde.abfx.de/";
-  public static final String WEB_KALENDER_TERMINE = "https://www.overfreunde.de/termine/";
-  public static final String WEB_DOWNLOAD_VERTRAG = "https://www.overfreunde.de/downloads.html";
   public static final String EFA_USERDATA_DIR = "efa2"; // <efauser> = ~/efa2/ Directory for efauser
   // data (if not efa program directory)
   public static final String EFA_RUNNING = "efa.run"; // <efauser>/efa.run Indiz, daß efaDirekt
@@ -188,7 +183,7 @@ public class Daten {
   // ("./images/")
   public static String efaNamesDirectory = null; // Efa-Namen-Verzeichnis, immer mit "/" am Ende
   // ("./names/")
-  public static String efaTodoDirectory = null; // Efa-Todo-Verzeichnis, immer mit "/" am Ende
+  public static String efaTodoDirectory = null; // Efa-To-do-Verzeichnis, immer mit "/" am Ende
   // ("./todo/")
   public static String efaFormattingDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am
   // Ende ("./fmt/")

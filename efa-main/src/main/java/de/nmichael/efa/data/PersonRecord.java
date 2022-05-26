@@ -739,7 +739,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   private String getEfaURL(String folder) {
-    String url = Daten.WEB_DOMAIN_EFA_BOOTSHAUS;
+    String url = International.getString("Web Domain EFA Bootshaus");
     url += folder;
     url += "?mitgliedNr=" + getMembershipNo();
     return url;

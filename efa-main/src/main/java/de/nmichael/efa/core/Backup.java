@@ -11,8 +11,7 @@
 package de.nmichael.efa.core;
 
 import java.io.*;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -37,9 +36,6 @@ import de.nmichael.efa.util.ProgressTask;
 import org.apache.commons.lang.StringUtils;
 
 public class Backup {
-
-  public static final String BACKUP_META = "backup.meta";
-
   enum Mode {
     create, restore
   }
@@ -56,11 +52,11 @@ public class Backup {
   private BackupTask backupTask;
   private BackupMetaData backupMetaData;
   private String[] restoreObjects;
-  private Mode mode;
+  private final Mode mode;
   private boolean openOrCreateProjectForRestore;
   private int totalWork = 0;
   private int totalWorkDone = 0;
-  private StringBuilder msgOut = new StringBuilder();
+  private final StringBuilder msgOut = new StringBuilder();
 
   public Backup(String backupDir, String backupFile,
       boolean backupProject,
@@ -191,20 +187,19 @@ public class Backup {
     try {
       ZipEntry entry = zip.getEntry(meta.getFileName());
       if (entry == null) {
-        entry = zip.getEntry(meta.getFileNameWithSlash()); // should never happen (only if
-        // backup.meta has been manipulated
-        // manually)
+        entry = zip.getEntry(meta.getFileNameWithSlash());
+        // should never happen (only if backup.meta has been manipulated manually)
       }
       if (entry == null) {
-        entry = zip.getEntry(meta.getFileNameWithBackslash()); // should never happen (only if
-        // backup.meta has been manipulated
-        // manually)
+        entry = zip.getEntry(meta.getFileNameWithBackslash());
+        // should never happen (only if backup.meta has been manipulated manually)
       }
       if (entry == null) {
         logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
             LogString.fileRestoreFailed(meta.getFileName(),
                 meta.getNameAndType(),
                 "File not found in ZIP Archive"));
+        return false;
       }
       InputStream in = zip.getInputStream(entry);
 
@@ -320,7 +315,6 @@ public class Backup {
       ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(outFile));
 
       int cnt;
-
       if (backupProject) {
         cnt = backupStorageObjects(new IDataAccess[] { currentProjectDataAccess }, zipOut,
             Daten.efaSubdirDATA);
@@ -362,7 +356,7 @@ public class Backup {
         if (backupEmail != null) {
           String subject = International.getMessage("Backup vom {date}",
               EfaUtil.getCurrentTimeStampDD_MM_YYYY());
-          String text = subject + "\n\n" + msgOut.toString();
+          String text = subject + "\n\n" + msgOut;
           if (Daten.applID == Daten.APPL_CLI) {
             Email.sendMessage(backupEmail,
                 subject, text, new String[] { zipFile }, true);
@@ -379,8 +373,7 @@ public class Backup {
       }
     } catch (Exception e) {
       lastErrorMsg = LogString.operationFailed(International.getString("Backup"), e.toString());
-      logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,
-          lastErrorMsg);
+      logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED, lastErrorMsg);
       Logger.logdebug(e);
       return -1;
     }
@@ -438,7 +431,7 @@ public class Backup {
         }
       } else {
         totalWork = restoreObjects.length;
-        Hashtable<String, String> restoreObjectsHash = new Hashtable<String, String>();
+        Hashtable<String, String> restoreObjectsHash = new Hashtable<>();
         for (String s : restoreObjects) {
           restoreObjectsHash.put(s, "foo");
         }
@@ -449,8 +442,7 @@ public class Backup {
             continue; // this object was not selected to be restored
           }
           restoreObjectsHash.remove(meta.getNameAndType());
-          if (restoreStorageObject(meta,
-              isRemoteProject, zip)) {
+          if (restoreStorageObject(meta, isRemoteProject, zip)) {
             successful++;
           } else {
             errors++;
@@ -468,6 +460,8 @@ public class Backup {
           }
         }
       }
+
+      successful += extractFolderFromZip(Daten.efaImagesDirectory, zip);
 
       logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHEDINFO,
           International.getMessage("{n} Objekte wiederhergestellt.",
@@ -505,6 +499,78 @@ public class Backup {
     return errors;
   }
 
+  private int extractFolderFromZip(String subFolderName, ZipFile zipFile) {
+    int countExtracted = 0;
+    byte[] bytes = new byte[1024];
+    Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+
+    try {
+      while (zipEntries.hasMoreElements()) {
+        ZipEntry zipEntry = zipEntries.nextElement();
+        String fileName = zipEntry.getName();
+
+        String overlap = overlappingParts(subFolderName, fileName);
+        if (overlap.isEmpty()) {
+          continue; // only "images"
+        }
+        if (!fileName.startsWith(overlap)) {
+          continue; // only "images"
+        }
+        File newFile = new File(Daten.efaImagesDirectory
+                + fileName.substring(overlap.length()+1));
+
+        //create directories for sub directories in zip
+        new File(newFile.getParent()).mkdirs();
+
+        // Extract the file
+        InputStream inputStream = zipFile.getInputStream(zipEntry);
+        FileOutputStream fos = new FileOutputStream(newFile);
+        int length;
+        while ((length = inputStream.read(bytes)) >= 0) {
+          fos.write(bytes, 0, length);
+        }
+
+        fos.close();
+        inputStream.close();
+        countExtracted++;
+      }
+    } catch (IOException ioe) {
+      logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,"IOException is " + ioe);
+    }
+    return countExtracted;
+  }
+
+  private String overlappingParts(String firstSentence, String secondSentence) throws IOException{
+    String[] firstSentenceWords = firstSentence.split("/");
+    Set<String> overlappingPhrases = new HashSet<>();
+    String lastPhrase = "";
+    for(String word : firstSentenceWords){
+      if(lastPhrase.isEmpty()){
+        lastPhrase = word;
+      }else{
+        lastPhrase = lastPhrase + " " + word;
+      }
+      if(secondSentence.contains(word)){
+        overlappingPhrases.add(word);
+        if(secondSentence.contains(lastPhrase)){
+          overlappingPhrases.add(lastPhrase);
+        }
+      }else{
+        lastPhrase = "";
+      }
+    }
+
+    if (overlappingPhrases.isEmpty()) {
+      return "";
+    }
+    for (String str : overlappingPhrases) {
+      if (!str.isEmpty()) {
+        return str;
+      }
+    }
+    return "";
+  }
+
   private int addDirToZip(ZipOutputStream abfZipOut, File sourceDirectory)  {
     int countFiles = 0;
     byte[] buffer = new byte[1024];
@@ -519,19 +585,18 @@ public class Backup {
                 subFolder + " is not a directory");
         return countFiles;
       }
-      File[] files = sourceDirectory.listFiles();
 
-      for (int i=0; i < files.length ; i++) {
-        if (files[i].isDirectory()) {
-          countFiles += addDirToZip(abfZipOut, files[i]);
+      for (File file : sourceDirectory.listFiles()) {
+        if (file.isDirectory()) {
+          countFiles += addDirToZip(abfZipOut, file);
           continue;
         }
         countFiles++;
-        FileInputStream fin = new FileInputStream(files[i]);
-        abfZipOut.putNextEntry(new ZipEntry(subFolder + "/" + files[i].getName()));
+        FileInputStream fin = new FileInputStream(file);
+        abfZipOut.putNextEntry(new ZipEntry(subFolder + "/" + file.getName()));
 
         int length;
-        while((length = fin.read(buffer)) > 0) {
+        while ((length = fin.read(buffer)) > 0) {
           abfZipOut.write(buffer, 0, length);
         }
 
@@ -578,10 +643,10 @@ public class Backup {
           Project.openProject(newProjectName, false);
           logMsg(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED,
               LogString.fileNewCreated(newProjectName, International.getString("Projekt")));
-        } catch (Exception ecreate) {
+        } catch (Exception eOnCreate) {
           logMsg(Logger.ERROR, Logger.MSG_BACKUP_REOPENINGFILES,
               LogString.fileCreationFailed(newProjectName, International.getString("Projekt"),
-                  ecreate.toString()));
+                  eOnCreate.toString()));
           openOrCreateProjectForRestore = false;
         }
       }
@@ -605,9 +670,9 @@ public class Backup {
   private void logMsg(String type, String key, String msg) {
     Logger.log(type, key, msg);
     if (backupTask != null && !type.equals(Logger.DEBUG)) {
-      backupTask.logInfo(msg + "\n");
+      //backupTask.logInfo(msg + "\n");
     }
-    msgOut.append(msg + "\n");
+    msgOut.append(msg).append("\n");
   }
 
   public int getTotalWork() {
@@ -642,7 +707,7 @@ public class Backup {
 
 class BackupTask extends ProgressTask {
 
-  private Backup backup;
+  private final Backup backup;
   boolean success = false;
 
   // Constructor for Creating a Backup
@@ -651,14 +716,6 @@ class BackupTask extends ProgressTask {
       boolean backupConfig) {
     super();
     backup = new Backup(backupDir, backupFile, backupProject, backupConfig);
-  }
-
-  // Constructor for Creating an email Backup
-  public BackupTask(String email,
-      boolean backupProject,
-      boolean backupConfig) {
-    super();
-    backup = new Backup(Daten.efaTmpDirectory, null, email, backupProject, backupConfig);
   }
 
   // Constructor for Restoring a Backup

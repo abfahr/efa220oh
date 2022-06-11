@@ -78,8 +78,8 @@ public class EfaBaseConfig {
       EfaUtil.deleteFile(path + testfile);
     } catch (Exception e) {
       if (Logger.isTraceOn(Logger.TT_CORE)) {
-        Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efaCanWrite(" + path + ") = false: "
-            + e.toString());
+        Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG,
+                "efaCanWrite(" + path + ") = false: " + e);
       }
       return false;
     }
@@ -177,7 +177,9 @@ public class EfaBaseConfig {
     } catch (IOException e) {
       Logger.log(e);
       try {
-        f.close();
+        if (f != null) {
+          f.close();
+        }
       } catch (Exception ee) {
         return false;
       }
@@ -197,13 +199,17 @@ public class EfaBaseConfig {
       }
       if (language != null) {
         f.write(FIELD_LANGUAGE + "=" + language + "\n");
+      } else {
+        f.write(FIELD_LANGUAGE + "=" + "\n");
       }
       f.write(FIELD_VERSION + "=" + Daten.MAJORVERSION + "\n");
       f.close();
     } catch (Exception e) {
       Logger.log(e);
       try {
-        f.close();
+        if (f != null) {
+          f.close();
+        }
       } catch (Exception ee) {
         return false;
       }

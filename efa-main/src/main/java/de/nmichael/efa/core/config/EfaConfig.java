@@ -1241,7 +1241,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
               CATEGORY_PERMISSIONS),
           International.getString("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen")));
       addParameter(efaDirekt_mitgliederDuerfenEfaBeenden = new ItemTypeBoolean(
-          "AllowMembersExitEfa", false,
+          "AllowMembersExitEfa", true,
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
               CATEGORY_PERMISSIONS),
           International.getString("Mitglieder dürfen efa beenden")));
@@ -1399,14 +1399,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
           International.getString("Standardeinheit für Entfernungen")));
       addParameter(useFunctionalityRowing = new ItemTypeBoolean("CustUsageRowing",
-          (custSettings != null ? custSettings.activateRowingOptions : true),
+          (custSettings != null ? custSettings.activateRowingOptions : false),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
           International.getMessage("Funktionalitäten aktivieren für {sport}",
               International.getString("Rudern"))));
       addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("CustUsageRowingGermany",
           (custSettings != null ? custSettings.activateGermanRowingOptions
-              : International
-                  .getLanguageID().startsWith("de")),
+              : false && International.getLanguageID().startsWith("de")),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
           International.getMessage("Funktionalitäten aktivieren für {sport}",
               International.getString("Rudern")) + " "
@@ -1420,7 +1419,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
               + International.getMessage("in {region}",
                   International.getString("Berlin"))));
       addParameter(useFunctionalityCanoeing = new ItemTypeBoolean("CustUsageCanoeing",
-          (custSettings != null ? custSettings.activateCanoeingOptions : false),
+          (custSettings != null ? custSettings.activateCanoeingOptions : true),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
           International.getMessage("Funktionalitäten aktivieren für {sport}",
               International.getString("Kanufahren"))));

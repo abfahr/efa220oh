@@ -74,7 +74,7 @@ public class Audit extends Thread {
 
   public Audit(Project project) {
     this.project = project;
-    this.correctErrors = Daten.efaConfig.getValueDataAuditCorrectErrors();
+    this.correctErrors = Daten.efaConfig == null ? false : Daten.efaConfig.getValueDataAuditCorrectErrors();
     if (!correctErrors) {
       auditWarning(Logger.MSG_DATA_AUDIT_NOTCORRECTERRORSSET,
           "Option DataAuditCorrectErrors is NOT set. Audit will only report errors, but not fix them.");

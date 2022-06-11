@@ -147,7 +147,7 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
     restoreInfoDate = (ItemTypeString) item;
     restoreInfoDate.setEditable(false);
 
-    guiItems.add(item = new ItemTypeBoolean(RESTORE_SELECT_CONFIG, false,
+    guiItems.add(item = new ItemTypeBoolean(RESTORE_SELECT_CONFIG, true,
         IItemType.TYPE_PUBLIC, cat, International.getMessage("{typeOfData} wiederherstellen",
             International.getString("Konfigurationsdaten"))));
     restoreSelectConfig = (ItemTypeBoolean) item;
@@ -174,8 +174,7 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
     restoreArchiveContents.setSortingEnabled(false);
     restoreArchiveContents.setFieldGrid(3, GridBagConstraints.CENTER, GridBagConstraints.NONE);
 
-    guiItems
-    .add(item = new ItemTypeButton(RESTORE_BUTTON,
+    guiItems.add(item = new ItemTypeButton(RESTORE_BUTTON,
         IItemType.TYPE_PUBLIC, cat, International
         .getString("Ausgewählte Objekte wiederherstellen")));
     ((ItemTypeButton) item).setIcon(getIcon(IMAGE_RUNIMPORT));

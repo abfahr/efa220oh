@@ -909,13 +909,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   private void updateGuiZentralesLogo(String strZentralesBild) {
     if (strZentralesBild == null || strZentralesBild.length() == 0) {
-      // logoLabel.setIcon(null);
-      // logoLabel.setName(null);
-      if (isToggleF12LangtextF12()) {
-        strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
-      } else {
-        strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
-      }
+      strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
     }
     if (strZentralesBild.equals(logoLabel.getName())) {
       return;
@@ -927,11 +921,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       int yHeight = 654; // 704;
       ImageIcon imageIcon = new ImageIcon(strZentralesBild);
       if (imageIcon.getIconHeight() < 0) {
-        if (isToggleF12LangtextF12()) {
-          strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
-        } else {
-          strZentralesBild = Daten.efaConfig.getValueEfaDirekt_vereinsLogo(); // alternatives Bild
-        }
+        strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
         imageIcon = new ImageIcon(strZentralesBild);
       }
       Image newImage;
@@ -2251,8 +2241,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         bootstyp = " (" + boat.getDetailedBoatType(boat.getVariantIndex(item.boatVariant)) + ")";
         String groups = boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
         if (groups.length() > 0) {
-          rudererlaubnis = (rudererlaubnis.length() > 0 ? rudererlaubnis + ", "
-              : "; " + International.getMessage("nur für {something}", groups));
+          rudererlaubnis = "; " + International.getMessage("nur für {something}", groups);
         }
       }
     }

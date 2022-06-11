@@ -283,7 +283,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.colors = colors;
         myBoatString.record = myBoatListItem;
 
-        if (sortmode == SortingBy.BoatType &&
+        if ((sortmode == SortingBy.BoatType) &&
                 Daten.efaConfig.isEfaBoathouseShowBoatUsageStatisticsInAllLists() &&
                 !efaBoathouseFrame.isToggleF12LangtextF12()) {
           int frequency = logbook.countBoatUsage(myBoatStatusRecord.getBoatId());

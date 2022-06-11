@@ -288,7 +288,7 @@ public class Dialog {
     if (iLen > 5) {
       // JList<JButton> blist = new JList<JButton>();
       String strFromInputDialog = JOptionPane.showInputDialog(frame,
-          new JList<String>(options),
+              new JList<>(options),
           chopDialogString(messagebody),
           JOptionPane.QUESTION_MESSAGE);
       if (strFromInputDialog != null) {
@@ -378,14 +378,13 @@ public class Dialog {
     if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
       Window frame = frameCurrent();
       prepareWindow(frame);
-      ImageIcon icon = null;
+      ImageIcon icon;
       try {
         String fileName = Daten.efaImagesDirectory + title + ".jpg"; // Bild vom Boot
         icon = new ImageIcon(fileName);
         if (icon.getIconHeight() < 0) {
           Logger.log(Logger.WARNING,
-              Logger.MSG_FILE_FILENOTFOUND,
-              "icon nicht gefunden: " + fileName);
+              Logger.MSG_FILE_FILENOTFOUND,"icon nicht gefunden: " + fileName);
           fileName = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
           icon = new ImageIcon(fileName);
         }
@@ -545,7 +544,7 @@ public class Dialog {
         if ((wo = extension.indexOf("|")) >= 0) {
           String ext1, ext2;
           ext1 = extension.substring(0, wo);
-          ext2 = extension.substring(wo + 1, extension.length());
+          ext2 = extension.substring(wo + 1);
           dlg.setFileFilter(new EfaFileFilter(typen, ext1,
               ext2));
         } else {
@@ -732,7 +731,7 @@ public class Dialog {
   }
 
   public static void setPreferredSize(JComponent comp, int width, int height, float corr) {
-    float factor = 1.0f;
+    float factor;
 
     // calculate sizing factor depending on font size
     if (FONT_SIZE > 0) {

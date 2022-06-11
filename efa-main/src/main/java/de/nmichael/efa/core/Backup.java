@@ -238,7 +238,11 @@ public class Backup {
         return false;
       }
       if (!dataAccess.isStorageObjectOpen()) {
-        dataAccess.openStorageObject();
+        if (!dataAccess.existsStorageObject()) {
+          dataAccess.createStorageObject(); // while restoring
+        } else {
+          dataAccess.openStorageObject();
+        }
       }
 
       XMLFile zipDataAccess = new XMLFile(zipFile + "@@",
@@ -688,7 +692,7 @@ public class Backup {
     BackupTask backupTask = new BackupTask(backupDir, backupFile,
         backupProject, backupConfig);
     ProgressDialog progressDialog = new ProgressDialog(parentDialog,
-        International.getString("Backup erstellen"), backupTask, false);
+        International.getString("Backup erstellen"), backupTask, true);
     backupTask.startBackup(progressDialog);
   }
 
@@ -699,7 +703,7 @@ public class Backup {
     BackupTask backupTask = new BackupTask(backupZipFile, restoreObjects,
         openOrCreateProjectForRestore);
     ProgressDialog progressDialog = new ProgressDialog(parentDialog,
-        International.getString("Backup einspielen"), backupTask, false);
+        International.getString("Backup einspielen"), backupTask, true);
     backupTask.startBackup(progressDialog);
   }
 
@@ -771,7 +775,11 @@ class BackupTask extends ProgressTask {
           return LogString.operationSuccessfullyCompleted(International.getString("Operation"));
       }
     } else {
-      return null;
+      if (backup.getMode() == Backup.Mode.restore) {
+        return LogString.operationFailed(International.getString("Wiederherstellung"));
+      } else {
+        return null;
+      }
     }
   }
 

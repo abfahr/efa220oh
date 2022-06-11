@@ -925,7 +925,7 @@ public class Daten {
         haltProgram(HALT_BASICCONFIG);
       }
       iniSplashScreen(false);
-      EfaFirstSetupDialog dlg = new EfaFirstSetupDialog(createNewAdmin, firstEfaStart);
+      EfaFirstSetupDialog dlg = new EfaFirstSetupDialog(true, createNewAdmin, firstEfaStart);
       dlg.showDialog();
       if (!dlg.getDialogResult()) {
         haltProgram(HALT_FIRSTSETUP);

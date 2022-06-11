@@ -10,23 +10,25 @@
 
 package de.nmichael.efa.gui;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.SwingConstants;
 
+import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.storage.MetaData;
+import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.gui.util.EfaMenuButton;
 import org.apache.batik.ext.swing.GridBagConstants;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.config.Admins;
-import de.nmichael.efa.core.config.CustSettings;
-import de.nmichael.efa.core.items.IItemType;
-import de.nmichael.efa.core.items.ItemTypeBoolean;
-import de.nmichael.efa.core.items.ItemTypeLabel;
-import de.nmichael.efa.core.items.ItemTypePassword;
-import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.data.storage.DataFile;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
@@ -47,14 +49,16 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
 
   static final String EFALIVE_CREATEADMIN = "EFALIVE_CREATEADMIN";
 
+  private boolean restoreFromBackup;
   private boolean createSuperAdmin;
   private boolean efaCustomization;
   private boolean efaLiveAdmin;
   private CustSettings custSettings = null;
   private AdminRecord newSuperAdmin = null;
 
-  public EfaFirstSetupDialog(boolean createSuperAdmin, boolean efaCustomization) {
+  public EfaFirstSetupDialog(boolean restoreFromBackup, boolean createSuperAdmin, boolean efaCustomization) {
     super((JFrame) null, Daten.EFA_LONGNAME);
+    this.restoreFromBackup = restoreFromBackup;
     this.createSuperAdmin = createSuperAdmin;
     this.efaCustomization = efaCustomization;
     this.efaLiveAdmin = Daten.EFALIVE_VERSION != null && !Daten.admins.isEfaLiveAdminOk();
@@ -67,6 +71,9 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
 
   private int getNumberOfSteps() {
     int stepCnt = 1;
+    if (restoreFromBackup) {
+      stepCnt++;
+    }
     if (createSuperAdmin) {
       stepCnt++;
     }
@@ -79,16 +86,17 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     return stepCnt;
   }
 
+  private int getRestoreFromBackupStep() {
+    return (restoreFromBackup ? 1 : 99);
+  }
   private int getCreateSuperAdminStep() {
-    return (createSuperAdmin ? 1 : 99);
+    return (createSuperAdmin ? (restoreFromBackup ? 2 : 1) : 99);
   }
-
   private int getEfaCustomizationStep() {
-    return (efaCustomization ? (createSuperAdmin ? 2 : 1) : 99);
+    return (efaCustomization ? (createSuperAdmin ? (restoreFromBackup ? 3 : 2) : 1) : 99);
   }
-
   private int getEfaLiveAdminStep() {
-    return (efaLiveAdmin ? (efaCustomization ? (createSuperAdmin ? 3 : 2) : 1) : 99);
+    return (efaLiveAdmin ? (efaCustomization ? (createSuperAdmin ? (restoreFromBackup ? 4 : 3) : 2) : 1) : 99);
   }
 
   @Override
@@ -96,6 +104,9 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     int i = 0;
     String[] steps = new String[getNumberOfSteps()];
     steps[i++] = International.getString("Willkommen!");
+    if (restoreFromBackup) {
+      steps[i++] = International.getString("Backup einspielen?");
+    }
     if (createSuperAdmin) {
       steps[i++] = International.getString("Hauptadministrator anlegen");
     }
@@ -115,6 +126,11 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
           + "\n"
           + International.getString(
               "Dieser Dialog führt Dich durch die ersten Schritte, um efa einzurichten.");
+    }
+    if (step == getRestoreFromBackupStep()) {
+      return International.getString("Alte oder aktuelle Backup-Datei aus efa importieren.")
+              + "\n"
+              + International.getString("Bitte passende Datei im Filesystem aussuchen.");
     }
     if (step == getCreateSuperAdminStep()) {
       return International
@@ -143,47 +159,61 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
 
   @Override
   void initializeItems() {
-    items = new ArrayList<IItemType>();
+    items = new ArrayList<>();
     IItemType item;
 
     // Items for Step 0
     items.add(item = new ItemTypeLabel("LOGO", IItemType.TYPE_PUBLIC, "0", ""));
     ((ItemTypeLabel) item).setImage(getIcon(Daten.getEfaImage(3)));
-    ((ItemTypeLabel) item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
-    ((ItemTypeLabel) item).setPadding(10, 10, 10, 10);
+    item.setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
+    item.setPadding(10, 10, 10, 10);
     items.add(
         item = new ItemTypeLabel(Daten.EFA_GROSS, IItemType.TYPE_PUBLIC, "0", Daten.EFA_LONGNAME));
     ((ItemTypeLabel) item).setHorizontalAlignment(SwingConstants.CENTER);
-    ((ItemTypeLabel) item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
+    item.setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
     items.add(item = new ItemTypeLabel("VERSION", IItemType.TYPE_PUBLIC, "0", International
         .getString("Version") + " " + Daten.VERSION));
     ((ItemTypeLabel) item).setHorizontalAlignment(SwingConstants.CENTER);
-    ((ItemTypeLabel) item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
+    item.setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
 
-    // Items for Step 1 (CreateSuperAdmin)
+    // Items for Step 1 (RestoreBackup)
+    items.add(item = new ItemTypeButton("ADMIN_LABEL", IItemType.TYPE_PUBLIC,
+            Integer.toString(getRestoreFromBackupStep()), International
+            .getString("1. Aktuelles Backup herunterladen")));
+    item.registerItemListener((itemType, event) -> showBrowser(event));
+    items.add(item = new ItemTypeButton("ADMIN_LABEL", IItemType.TYPE_PUBLIC,
+            Integer.toString(getRestoreFromBackupStep()), International
+            .getString("2. jetzt Backup-Datei einspielen")));
+    item.registerItemListener((itemType, event) -> performBackupRestoreDialog(event));
+    items.add(item = new ItemTypeButton("ADMIN_LABEL", IItemType.TYPE_PUBLIC,
+            Integer.toString(getRestoreFromBackupStep()), International
+            .getString("3. schließlich EFA neustarten")));
+    item.registerItemListener((itemType, event) -> restartEFA(event));
+
+    // Items for Step 2 (CreateSuperAdmin)
     items.add(item = new ItemTypeLabel("ADMIN_LABEL", IItemType.TYPE_PUBLIC,
-        Integer.toString(getCreateSuperAdminStep()), International
+            Integer.toString(getCreateSuperAdminStep()), International
             .getString("Neuer Hauptadministrator")));
     items.add(item = new ItemTypeString(ADMIN_NAME, Admins.SUPERADMIN, IItemType.TYPE_PUBLIC,
         Integer.toString(getCreateSuperAdminStep()), International.getString("Name")));
-    ((ItemTypeString) item).setEditable(false);
+    item.setEditable(false);
     items.add(item = new ItemTypePassword(ADMIN_PASSWORD, "", IItemType.TYPE_PUBLIC,
         Integer.toString(getCreateSuperAdminStep()), International.getString("Paßwort")));
-    ((ItemTypePassword) item).setNotNull(true);
+    item.setNotNull(true);
     ((ItemTypePassword) item).setMinCharacters(6);
     items.add(item = new ItemTypePassword(ADMIN_PASSWORD + "_REPEAT", "", IItemType.TYPE_PUBLIC,
         Integer.toString(getCreateSuperAdminStep()), International.getString("Paßwort") +
             " (" + International.getString("Wiederholung") + ")"));
-    ((ItemTypePassword) item).setNotNull(true);
+    item.setNotNull(true);
     ((ItemTypePassword) item).setMinCharacters(6);
 
-    // Items for Step 2 (EfaCustomization)
+    // Items for Step 3 (EfaCustomization)
     items.add(item = new ItemTypeLabel("CUST_LABEL", IItemType.TYPE_PUBLIC,
         Integer.toString(getEfaCustomizationStep()),
         International.getString("Welche Funktionen von efa möchtest Du verwenden?")));
-    items.add(item = new ItemTypeBoolean(CUST_ROWING, true, IItemType.TYPE_PUBLIC,
+    items.add(item = new ItemTypeBoolean(CUST_ROWING, false, IItemType.TYPE_PUBLIC,
         Integer.toString(getEfaCustomizationStep()), International.getString("Rudern")));
-    items.add(item = new ItemTypeBoolean(CUST_ROWINGGERMANY, International.getLanguageID()
+    items.add(item = new ItemTypeBoolean(CUST_ROWINGGERMANY, false && International.getLanguageID()
         .startsWith("de"), IItemType.TYPE_PUBLIC,
         Integer.toString(getEfaCustomizationStep()),
         International.getString("Rudern") + " " +
@@ -194,7 +224,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         International.getString("Rudern") + " " +
             International.getMessage("in {region}",
                 International.getString("Berlin"))));
-    items.add(item = new ItemTypeBoolean(CUST_CANOEING, false, IItemType.TYPE_PUBLIC,
+    items.add(item = new ItemTypeBoolean(CUST_CANOEING, true, IItemType.TYPE_PUBLIC,
         Integer.toString(getEfaCustomizationStep()),
         International.getString("Kanufahren")));
     items.add(item = new ItemTypeBoolean(CUST_CANOEINGGERMANY, false, IItemType.TYPE_PUBLIC,
@@ -203,7 +233,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
             International.getMessage("in {region}",
                 International.getString("Deutschland"))));
 
-    // Items for Step 3 (EfaLiveAdmin)
+    // Items for Step 4 (EfaLiveAdmin)
     items.add(item = new ItemTypeBoolean(EFALIVE_CREATEADMIN, true, IItemType.TYPE_PUBLIC,
         Integer.toString(getEfaLiveAdminStep()),
         International.getMessage("Admin '{name}' erstellen", Admins.EFALIVEADMIN)));
@@ -229,21 +259,19 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     if (!checkInput(0)) {
       return false;
     }
+    //if (restoreFromBackup && backupMode != BackupMode.ignore) {
+      //restoreFromBackup();
+    //}
     if (createSuperAdmin) {
       createNewSuperAdmin(((ItemTypePassword) getItemByName(ADMIN_PASSWORD)).getValue());
     }
     if (efaCustomization) {
       custSettings = new CustSettings();
-      custSettings.activateRowingOptions = ((ItemTypeBoolean) getItemByName(CUST_ROWING))
-          .getValue();
-      custSettings.activateGermanRowingOptions = ((ItemTypeBoolean) getItemByName(
-          CUST_ROWINGGERMANY)).getValue();
-      custSettings.activateBerlinRowingOptions = ((ItemTypeBoolean) getItemByName(
-          CUST_ROWINGBERLIN)).getValue();
-      custSettings.activateCanoeingOptions = ((ItemTypeBoolean) getItemByName(CUST_CANOEING))
-          .getValue();
-      custSettings.activateGermanCanoeingOptions = ((ItemTypeBoolean) getItemByName(
-          CUST_CANOEINGGERMANY)).getValue();
+      custSettings.activateRowingOptions = ((ItemTypeBoolean) getItemByName(CUST_ROWING)).getValue();
+      custSettings.activateGermanRowingOptions = ((ItemTypeBoolean) getItemByName(CUST_ROWINGGERMANY)).getValue();
+      custSettings.activateBerlinRowingOptions = ((ItemTypeBoolean) getItemByName(CUST_ROWINGBERLIN)).getValue();
+      custSettings.activateCanoeingOptions = ((ItemTypeBoolean) getItemByName(CUST_CANOEING)).getValue();
+      custSettings.activateGermanCanoeingOptions = ((ItemTypeBoolean) getItemByName(CUST_CANOEINGGERMANY)).getValue();
     }
     if (efaLiveAdmin) {
       if (((ItemTypeBoolean) getItemByName(EFALIVE_CREATEADMIN)).getValue()) {
@@ -253,6 +281,64 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     setDialogResult(true);
     cancel();
     return true;
+  }
+
+  private void showBrowser(AWTEvent event) {
+    if (event.getID() == FocusEvent.FOCUS_GAINED) return;
+    if (event.getID() == FocusEvent.FOCUS_LOST) return;
+
+    // showBrowser with URL https://overfreunde.abfx.de/efa2/backup/
+    Desktop desktop = Desktop.getDesktop();
+    if (Desktop.isDesktopSupported() && desktop.isSupported(Desktop.Action.BROWSE)) {
+      try {
+        URI uri = new URI("https://overfreunde.abfx.de/efa2/backup/");
+        desktop.browse(uri);
+      } catch (URISyntaxException eURI) {
+        System.out.println("URISyntaxException = " + eURI + "");
+      } catch (IOException eIO) {
+        System.out.println("IOException = " + eIO + "");
+      }
+    }
+  }
+
+  private void performBackupRestoreDialog(AWTEvent event) {
+    if (event.getID() == FocusEvent.FOCUS_GAINED) return;
+    if (event.getID() == FocusEvent.FOCUS_LOST) return;
+
+    // now check permissions and perform the menu action
+
+    try {
+      if (Daten.efaConfig == null) {
+        Daten.efaConfig = new EfaConfig();
+        Daten.efaConfig.open(true);
+      }
+      if (Daten.efaTypes == null) {
+        Daten.efaTypes = new EfaTypes(null);
+        Daten.efaTypes.open(true);
+      }
+      if (Daten.admins == null) {
+        Daten.admins = new Admins();
+        Daten.admins.open(true);
+      }
+    } catch (EfaException e) {
+      Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, e);
+    }
+
+    // now check permissions and perform the menu action
+    Admins admins = Daten.admins;
+    AdminRecord adminRecord = new AdminRecord(admins, MetaData.getMetaData(Admins.DATATYPE));
+    adminRecord.setAllowedRestoreBackup(true);
+
+    boolean permission = EfaMenuButton.menuAction(this, EfaMenuButton.BUTTON_BACKUP, adminRecord, null);
+  }
+
+  private void restartEFA(AWTEvent event) {
+    if (event.getID() == FocusEvent.FOCUS_GAINED) return;
+    if (event.getID() == FocusEvent.FOCUS_LOST) return;
+
+    Dialog.infoDialog("Bitte EFA neustarten");
+    //setDialogResult(true);
+    cancel();
   }
 
   void createNewSuperAdmin(String password) {

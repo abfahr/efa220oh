@@ -49,10 +49,10 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
 
   static final String EFALIVE_CREATEADMIN = "EFALIVE_CREATEADMIN";
 
-  private boolean restoreFromBackup;
-  private boolean createSuperAdmin;
-  private boolean efaCustomization;
-  private boolean efaLiveAdmin;
+  private final boolean restoreFromBackup;
+  private final boolean createSuperAdmin;
+  private final boolean efaCustomization;
+  private final boolean efaLiveAdmin;
   private CustSettings custSettings = null;
   private AdminRecord newSuperAdmin = null;
 
@@ -213,8 +213,8 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         International.getString("Welche Funktionen von efa möchtest Du verwenden?")));
     items.add(item = new ItemTypeBoolean(CUST_ROWING, false, IItemType.TYPE_PUBLIC,
         Integer.toString(getEfaCustomizationStep()), International.getString("Rudern")));
-    items.add(item = new ItemTypeBoolean(CUST_ROWINGGERMANY, false && International.getLanguageID()
-        .startsWith("de"), IItemType.TYPE_PUBLIC,
+    items.add(item = new ItemTypeBoolean(CUST_ROWINGGERMANY, false
+            && International.getLanguageID().startsWith("de"), IItemType.TYPE_PUBLIC,
         Integer.toString(getEfaCustomizationStep()),
         International.getString("Rudern") + " " +
             International.getMessage("in {region}",
@@ -329,7 +329,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     AdminRecord adminRecord = new AdminRecord(admins, MetaData.getMetaData(Admins.DATATYPE));
     adminRecord.setAllowedRestoreBackup(true);
 
-    boolean permission = EfaMenuButton.menuAction(this, EfaMenuButton.BUTTON_BACKUP, adminRecord, null);
+    EfaMenuButton.menuAction(this, EfaMenuButton.BUTTON_BACKUP, adminRecord, null);
   }
 
   private void restartEFA(AWTEvent event) {

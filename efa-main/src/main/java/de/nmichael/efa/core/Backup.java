@@ -590,7 +590,12 @@ public class Backup {
         return countFiles;
       }
 
-      for (File file : sourceDirectory.listFiles()) {
+      File[] files = sourceDirectory.listFiles();
+      if (files == null) {
+        return countFiles;
+      }
+
+      for (File file : files) {
         if (file.isDirectory()) {
           countFiles += addDirToZip(abfZipOut, file);
           continue;

@@ -114,12 +114,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected String filterFieldValue;
   protected String buttonPanelPosition = BorderLayout.EAST;
   protected Vector<DataRecord> data;
-  protected Hashtable<String, DataRecord> mappingKeyToRecord = new Hashtable<String, DataRecord>();
-  protected Hashtable<DataTypeDate, Integer> mappingDateToReservations = new Hashtable<DataTypeDate, Integer>();
-  protected Hashtable<DataTypeDate, String> mappingBootshausDateToReservations = new Hashtable<DataTypeDate, String>();
-  protected Hashtable<Integer, String> mappingWeekdayToReservations = new Hashtable<Integer, String>();
-  protected Hashtable<Integer, DataTypeDate> mappingMinWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
-  protected Hashtable<Integer, DataTypeDate> mappingMaxWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
+  protected Hashtable<String, DataRecord> mappingKeyToRecord = new Hashtable<>();
+  protected Hashtable<DataTypeDate, Integer> mappingDateToReservations = new Hashtable<>();
+  protected Hashtable<DataTypeDate, String> mappingBootshausDateToReservations = new Hashtable<>();
+  protected Hashtable<Integer, String> mappingWeekdayToReservations = new Hashtable<>();
+  protected Hashtable<Integer, DataTypeDate> mappingMinWeekdayToReservations = new Hashtable<>();
+  protected Hashtable<Integer, DataTypeDate> mappingMaxWeekdayToReservations = new Hashtable<>();
   protected IItemListenerDataRecordTable itemListenerActionTable;
   protected ItemTypeString searchField;
   protected String wochentagFilter;
@@ -306,7 +306,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     myPanel.add(centerTableListPanel, BorderLayout.CENTER);
     myPanel.add(rightSouthSideButtonPanel, buttonPanelPosition);
 
-    actionButtons = new Hashtable<ItemTypeButton, String>();
+    actionButtons = new Hashtable<>();
     JPanel smallButtonPanel = null;
     boolean isMainButtonsWestGroup = true;
     for (int i = 0; actionText != null && i < actionText.length; i++) {
@@ -348,7 +348,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         } else {
           button.setHorizontalAlignment(SwingConstants.LEFT);
         }
-        if (iconName != null && iconName.length() > 0) {
+        if (iconName.length() > 0) {
           button.setIcon(BaseDialog.getIcon(iconName));
         }
       }
@@ -398,12 +398,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   @Override
   public void showValue() {
-    items = new Hashtable<String, TableItem[]>();
-    mappingKeyToRecord = new Hashtable<String, DataRecord>();
+    items = new Hashtable<>();
+    mappingKeyToRecord = new Hashtable<>();
     if (data == null && persistence != null) {
       updateData();
     }
-    boolean isVersionized = persistence.data().getMetaData().isVersionized();
+    boolean isVersionized = false;
+    if (persistence != null) {
+      isVersionized = persistence.data().getMetaData().isVersionized();
+    }
     for (int i = 0; data != null && i < data.size(); i++) {
       DataRecord r = data.get(i);
       TableItem[] content = r.getGuiTableItems();
@@ -432,9 +435,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   @Override
   public void itemListenerAction(IItemType itemType, AWTEvent event) {
-    if (event != null && event instanceof ActionEvent
-        && event.getID() == ActionEvent.ACTION_PERFORMED
-        && !(itemType instanceof ItemTypeBoolean)) {
+    if (event instanceof ActionEvent
+            && event.getID() == ActionEvent.ACTION_PERFORMED
+            && !(itemType instanceof ItemTypeBoolean)) {
       ActionEvent e = (ActionEvent) event;
       String cmd = e.getActionCommand();
       int actionId = -1;
@@ -446,7 +449,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (cmd != null && cmd.startsWith(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
         actionId = defaultActionForDoubleclick;
       }
-      if (itemType != null && itemType instanceof ItemTypeButton) {
+      if (itemType instanceof ItemTypeButton) {
         actionId = EfaUtil.stringFindInt(actionButtons.get(itemType), -1);
       }
       if (actionId == -1) {
@@ -460,7 +463,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           records[i] = mappingKeyToRecord.get(keys[rows[i]]);
         }
       }
-      if (!Daten.isWriteModeMitSchluessel()) {
+      if (Daten.isNotWriteModeMitSchluessel()) {
         Dialog.meldung("Nur für Vereinsmitglieder",
             "Bitte erst Bootshausschlüssel nach rechts drehen!");
       } else if (persistence != null && itemListenerActionTable != null) {
@@ -565,18 +568,16 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
             break;
           case ACTION_DELETE:
-            if (records == null || records.length == 0) {
+            if (records == null) {
               return;
             }
             // löschen alter Termine verhindern
-            if (itemListenerActionTable != null) {
-              if (!itemListenerActionTable.deleteCallback(records)) {
-                updateData();
-                showValue();
-                return;
-              }
+            if (!itemListenerActionTable.deleteCallback(records)) {
+              updateData();
+              showValue();
+              return;
             }
-            int res = -1;
+            int res;
             if (records.length == 1) {
               res = Dialog.yesNoDialog(International.getString("Wirklich löschen?"),
                   International.getMessage(
@@ -603,7 +604,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               }
             }
             try {
-              for (int i = 0; records != null && i < records.length; i++) {
+              for (int i = 0; i < records.length; i++) {
                 if (records[i] != null) {
                   if (persistence.data().getMetaData().isVersionized()) {
                     if (records[i] instanceof BoatReservationRecord) {
@@ -639,7 +640,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                           BoatReservationRecord.REPLACE_HEUTE);
                       name += " für " + reservation.getPersonAsName();
                     }
-                    String whoUser = "";
+                    String whoUser;
                     if (admin != null) {
                       whoUser = International.getString("Admin") + " '" + admin.getName() + "'";
                     } else {
@@ -684,8 +685,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       updateData();
       showValue();
     }
-    if (event != null && event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED
-        && itemType == searchField) {
+    if (event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED
+            && itemType == searchField) {
       String s = searchField.getValueFromField();
       if (s != null && s.length() > 0 && keys != null && items != null) {
         s = s.toLowerCase();
@@ -716,14 +717,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             }
 
             // match entire search string against column
-            if (t.indexOf(s) >= 0) {
+            if (t.contains(s)) {
               rowFound = i;
             }
 
             if (sv != null && rowFound < 0) {
               // match column against substrings
               for (int k = 0; k < sv.size(); k++) {
-                if (t.indexOf(sv.get(k)) >= 0) {
+                if (t.contains(sv.get(k))) {
                   sb[k] = true;
                 }
               }
@@ -731,9 +732,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           }
           if (sb != null && rowFound < 0) {
             rowFound = i;
-            for (int j = 0; j < sb.length; j++) {
-              if (!sb[j]) {
+            for (boolean b : sb) {
+              if (!b) {
                 rowFound = -1;
+                break;
               }
             }
           }
@@ -758,8 +760,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   /**
    * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppen
    *
-   * @param dataRecord
-   * @throws EfaException
    */
   private void uebertragenAufAndereBoote(BoatReservationRecord dataRecord) throws EfaException {
     String[] boatSeatsValuesArray = EfaTypes
@@ -792,7 +792,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (success) {
 
       // join items
-      Map<Integer, String> mapBootsTypen = new HashMap<Integer, String>();
+      Map<Integer, String> mapBootsTypen = new HashMap<>();
       for (int i = 0; i < boatSeatsValuesArray.length; i++) {
         boolean selectedGui = ((ItemTypeBoolean) items[header + i]).getValue();
         if (selectedGui) {
@@ -847,8 +847,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   /**
    * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppe
    *
-   * @param reservationRecord
-   * @throws EfaException
    */
   private void uebertragenAufAndereBooteDieserGruppe(BoatReservationRecord reservationRecord)
       throws EfaException {
@@ -875,7 +873,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       return;
     }
 
-    ArrayList<String> fehlerListe = new ArrayList<String>();
+    ArrayList<String> fehlerListe = new ArrayList<>();
     String lastException = "";
 
     BoatReservations reservations = Daten.project.getBoatReservations(true);
@@ -948,7 +946,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   private ArrayList<IItemType> createListOfSelectableItemsSimilarTo(BoatRecord originalBoat)
       throws EfaException {
-    ArrayList<IItemType> liste = new ArrayList<IItemType>();
+    ArrayList<IItemType> liste = new ArrayList<>();
     IDataAccess boats = Daten.project.getBoats(false).data();
     long now = System.currentTimeMillis();
     for (DataKey<?, ?, ?> dataKey : boats.getAllKeys()) {
@@ -978,12 +976,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private IItemType[] createArraySortedByName(ArrayList<IItemType> liste) {
-    Collections.sort(liste, new Comparator<IItemType>() {
-      @Override
-      public int compare(IItemType item1, IItemType item2) {
-        return item1.getName().compareTo(item2.getName());
-      }
-    });
+    liste.sort(Comparator.comparing(IItemType::getName));
     IItemType[] items = new IItemType[liste.size()];
     return liste.toArray(items);
   }
@@ -1013,19 +1006,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       Logger.logdebug(e);
     }
     if (conflict != null) {
-      if (allowConflicts) {
-        String warn = (identical
-            ? International.getString("Es existiert bereits ein gleichnamiger Datensatz!")
-            : International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
-        if (Dialog.yesNoDialog(International.getString("Warnung"),
-            warn + "\n"
-                + conflict + "\n"
-                + International
-                    .getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
-          return true;
-        }
-      } else {
-        Dialog.error(International.getString("Es existiert bereits ein gleichnamiger Datensatz!"));
+      String warn = International.getString("Es existiert bereits ein gleichnamiger Datensatz!");
+      if (Dialog.yesNoDialog(International.getString("Warnung"),
+          warn + "\n"
+              + conflict + "\n"
+              + International
+                  .getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
         return true;
       }
     }
@@ -1075,7 +1061,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           aggregationStrings[i] = "";
         }
 
-        HashMap<String, Object> overallInfo = new HashMap<String, Object>();
+        HashMap<String, Object> overallInfo = new HashMap<>();
         for (int i = 0; i < size && aggregationStrings != null; i++) {
           DataRecord r = data.get(i);
           aggregationStrings = r.getGuiTableAggregations(aggregationStrings, i, size, overallInfo);
@@ -1133,18 +1119,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
       }
       myValidAt = (validAt >= 0 ? validAt : System.currentTimeMillis());
-      data = new Vector<DataRecord>();
+      data = new Vector<>();
       IDataAccess dataAccess = persistence.data();
       boolean isVersionized = dataAccess.getMetaData().isVersionized();
       DataKeyIterator it = dataAccess.getStaticIterator();
       DataKey<?, ?, ?> key = it.getFirst();
-      Hashtable<DataKey<?, ?, ?>, String> uniqueHash = new Hashtable<DataKey<?, ?, ?>, String>();
+      Hashtable<DataKey<?, ?, ?>, String> uniqueHash = new Hashtable<>();
       if (updateDataRightSideCalendar) {
-        mappingDateToReservations = new Hashtable<DataTypeDate, Integer>();
-        mappingWeekdayToReservations = new Hashtable<Integer, String>();
-        mappingMinWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
-        mappingMaxWeekdayToReservations = new Hashtable<Integer, DataTypeDate>();
-        mappingBootshausDateToReservations = new Hashtable<DataTypeDate, String>();
+        mappingDateToReservations = new Hashtable<>();
+        mappingWeekdayToReservations = new Hashtable<>();
+        mappingMinWeekdayToReservations = new Hashtable<>();
+        mappingMaxWeekdayToReservations = new Hashtable<>();
+        mappingBootshausDateToReservations = new Hashtable<>();
       }
       while (key != null) {
         // avoid duplicate versionized keys for the same record
@@ -1180,11 +1166,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               || filterFieldValue.equals(r.getAsString(filterFieldName))) {
             String allFieldsAsLowerText = r.getAllFieldsAsSeparatedText().toLowerCase();
             if (filterByAnyText == null
-                || (filterByAnyText != null && allFieldsAsLowerText.indexOf(filterByAnyText) >= 0)
-                || (wochentagFilter != null
-                    && allFieldsAsLowerText.indexOf(wochentagFilter) >= 0
-                    && (r instanceof BoatReservationRecord)
-                    && ((BoatReservationRecord) r).getDateTo() == null)) {
+                || allFieldsAsLowerText.contains(filterByAnyText)
+                || wochentagFilter != null && allFieldsAsLowerText.contains(wochentagFilter)
+                    && r instanceof BoatReservationRecord
+                    && ((BoatReservationRecord) r).getDateTo() == null) {
               if (!(r instanceof ClubworkRecord) || Daten.isAdminMode()
                   || isToday(r.getLastModified())) {
                 data.add(r);
@@ -1234,7 +1219,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   public Vector<DataRecord> getDisplayedData() {
-    Vector<DataRecord> sortedData = new Vector<DataRecord>();
+    Vector<DataRecord> sortedData = new Vector<>();
     for (int i = 0; i < data.size(); i++) {
       sortedData.add(mappingKeyToRecord.get(keys[table.getOriginalIndex(i)]));
     }
@@ -1243,7 +1228,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   public Vector<DataRecord> getSelectedData() {
     String[] keys = getSelectedKeys();
-    Vector<DataRecord> selectedData = new Vector<DataRecord>();
+    Vector<DataRecord> selectedData = new Vector<>();
     for (int i = 0; keys != null && i < keys.length; i++) {
       selectedData.add(mappingKeyToRecord.get(keys[i]));
     }
@@ -1504,13 +1489,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     String bootshausKuerzel = "BH";
     List<DataTypeDate> dates = getListOfDates(brr.getDateFrom(), brr.getDateTo());
     for (DataTypeDate dataTypeDate : dates) {
-      if (wochentag != null) {
-        // es handelt sich um einen wöchentlichen Regeltermin
-        int dayOfWeek = dataTypeDate.toCalendar().get(Calendar.DAY_OF_WEEK);
-        if (dayOfWeek != wochentag.intValue()) {
-          continue;
-        }
-      }
       if (isBootshausReservierung) {
         mappingBootshausDateToReservations.put(dataTypeDate, bootshausKuerzel);
       } else {
@@ -1522,7 +1500,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo) {
-    List<DataTypeDate> datumListe = new ArrayList<DataTypeDate>();
+    List<DataTypeDate> datumListe = new ArrayList<>();
     if (dateFrom != null && dateTo != null) {
       DataTypeDate myDate = new DataTypeDate(dateFrom);
       for (; myDate.isBeforeOrEqual(dateTo); myDate.addDays(1)) {
@@ -1541,8 +1519,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     try {
       Date date = dayFormat.parse(dayName);
       calendar.setTime(date);
-      int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-      return dayOfWeek;
+      return calendar.get(Calendar.DAY_OF_WEEK);
     } catch (ParseException e) {
       e.printStackTrace();
       return null;

@@ -89,14 +89,14 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     if (vectorBoatStatusRecord == null
         || vectorBoatStatusRecord.size() == 0
         || logbook == null) {
-      return new Vector<ItemTypeListData>();
+      return new Vector<>();
     }
 
     long now = System.currentTimeMillis();
     Boats allBoats = Daten.project.getBoats(false);
 
     Groups groups = Daten.project.getGroups(false);
-    Hashtable<UUID, Color> groupColors = new Hashtable<UUID, Color>();
+    Hashtable<UUID, Color> groupColors = new Hashtable<>();
     try {
       DataKeyIterator it = groups.data().getStaticIterator();
       for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
@@ -119,23 +119,21 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     }
 
     BoatDamages boatDamages = Daten.project.getBoatDamages(false);
-    Vector<BoatString> vectorBoatString = new Vector<BoatString>();
-    for (int i = 0; i < vectorBoatStatusRecord.size(); i++) {
-      BoatStatusRecord myBoatStatusRecord = vectorBoatStatusRecord.get(i);
-
+    Vector<BoatString> vectorBoatString = new Vector<>();
+    for (BoatStatusRecord myBoatStatusRecord : vectorBoatStatusRecord) {
       BoatRecord myBoatRecord = allBoats.getBoat(myBoatStatusRecord.getBoatId(), now);
-      Hashtable<Integer, Integer> allSeats = new Hashtable<Integer, Integer>(); // seats -> variant
+      Hashtable<Integer, Integer> allSeats = new Hashtable<>(); // seats -> variant
       // find all seat variants to be shown...
       if (myBoatRecord != null) {
         if (myBoatRecord.getNumberOfVariants() == 1) {
           allSeats.put(myBoatRecord.getNumberOfSeats(0, SEATS_OTHER),
-              myBoatRecord.getTypeVariant(0));
+                  myBoatRecord.getTypeVariant(0));
         } else {
           if (myBoatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_AVAILABLE)) {
             for (int j = 0; j < myBoatRecord.getNumberOfVariants(); j++) {
               // if the boat is available, show the boat in all seat variants
               allSeats.put(myBoatRecord.getNumberOfSeats(j, SEATS_OTHER),
-                  myBoatRecord.getTypeVariant(j));
+                      myBoatRecord.getTypeVariant(j));
             }
           } else {
             if (myBoatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
@@ -145,11 +143,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
               if (entry != null && entry.length() > 0) {
                 LogbookRecord lr = logbook.getLogbookRecord(myBoatStatusRecord.getEntryNo());
                 if (lr != null && lr.getBoatVariant() > 0
-                    && lr.getBoatVariant() <= myBoatRecord.getNumberOfVariants()) {
+                        && lr.getBoatVariant() <= myBoatRecord.getNumberOfVariants()) {
                   allSeats.put(
-                      myBoatRecord.getNumberOfSeats(
-                          myBoatRecord.getVariantIndex(lr.getBoatVariant()), SEATS_OTHER),
-                      lr.getBoatVariant());
+                          myBoatRecord.getNumberOfSeats(
+                                  myBoatRecord.getVariantIndex(lr.getBoatVariant()), SEATS_OTHER),
+                          lr.getBoatVariant());
                 }
               }
             }
@@ -176,14 +174,14 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         }
       }
       BoatDamageRecord[] damages = boatDamages.getBoatDamages(myBoatStatusRecord.getBoatId(), true,
-          true);
+              true);
 
       Integer[] seats = allSeats.keySet().toArray(new Integer[0]);
       for (Integer seat2 : seats) {
         int variant = allSeats.get(seat2);
 
         if (myBoatRecord != null
-            && seats.length < myBoatRecord.getNumberOfVariants()) {
+                && seats.length < myBoatRecord.getNumberOfVariants()) {
           // we have multiple variants, but all with the same number of seats
           if (myBoatRecord.getDefaultVariant() > 0) {
             variant = myBoatRecord.getDefaultVariant();
@@ -213,8 +211,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             if (sortmode == SortingBy.EfaSorting || sortmode == SortingBy.BoatType) {
               String suffix = myBoatRecord.getTypeDescription(0);
               if (suffix != null &&
-                  !suffix.isBlank() &&
-                  !suffix.equals("null")) {
+                      !suffix.isBlank() &&
+                      !suffix.equals("null")) {
                 myBoatString.name += " \"" + suffix + "\"";
               }
             }
@@ -230,7 +228,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.sortKategorie = getSortingItem(myBoatRecord, myBoatStatusRecord);
 
         // Colors for Groups
-        ArrayList<Color> aColors = new ArrayList<Color>();
+        ArrayList<Color> aColors = new ArrayList<>();
         if (damages != null) {
           int farbe = 236;
           int count = 0;
@@ -286,25 +284,25 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.record = myBoatListItem;
 
         if (sortmode == SortingBy.BoatType &&
-            Daten.efaConfig.isEfaBoathouseShowBoatUsageStatisticsInAllLists() &&
-            !efaBoathouseFrame.isToggleF12LangtextF12()) {
+                Daten.efaConfig.isEfaBoathouseShowBoatUsageStatisticsInAllLists() &&
+                !efaBoathouseFrame.isToggleF12LangtextF12()) {
           int frequency = logbook.countBoatUsage(myBoatStatusRecord.getBoatId());
           myBoatString.name = "(" + String.format("%1$3s", frequency) + "x) " + myBoatString.name;
         }
 
         if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs() &&
-            BoatStatusRecord.STATUS_ONTHEWATER.equals(myBoatStatusRecord.getCurrentStatus()) &&
-            myBoatStatusRecord.getEntryNo() != null
-            && myBoatStatusRecord.getEntryNo().length() > 0) {
+                BoatStatusRecord.STATUS_ONTHEWATER.equals(myBoatStatusRecord.getCurrentStatus()) &&
+                myBoatStatusRecord.getEntryNo() != null
+                && myBoatStatusRecord.getEntryNo().length() > 0) {
           LogbookRecord lr = logbook.getLogbookRecord(myBoatStatusRecord.getEntryNo());
           if (lr != null) {
             String suffix = lr.getDestinationAndVariantName();
             if (suffix != null &&
-                suffix.length() > 0 &&
-                !suffix.isBlank() &&
-                !suffix.contains(International.getString("Fehlermeldung PrivatMitVertrag")) &&
-                !suffix.contains(International.getString("Fehlermeldung bei langerAusleihe")) &&
-                !suffix.equals("null")) {
+                    suffix.length() > 0 &&
+                    !suffix.isBlank() &&
+                    !suffix.contains(International.getString("Fehlermeldung PrivatMitVertrag")) &&
+                    !suffix.contains(International.getString("Fehlermeldung bei langerAusleihe")) &&
+                    !suffix.equals("null")) {
               myBoatString.name += "     -> \"" + suffix + "\"";
             }
           }
@@ -323,7 +321,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     }
     Arrays.sort(arrayBoatStrings);
 
-    Vector<ItemTypeListData> retValList = new Vector<ItemTypeListData>();
+    Vector<ItemTypeListData> retValList = new Vector<>();
     int anz = -1;
     String lastSep = null;
     for (BoatString myBoatStringElement : arrayBoatStrings) {
@@ -332,13 +330,13 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         if (s == null) {
           s = "ausgeliehen";
         }
-        String newSep = "--------- " + s + " -------------";
+        String newSep = "-------- " + s + " ------------";
         if (!newSep.equals(lastSep)) {
           retValList.add(new ItemTypeListData(newSep, null, true, anz));
         }
         lastSep = newSep;
       } else if (myBoatStringElement.seats != anz) {
-        String s = null;
+        String s;
         switch (myBoatStringElement.seats) {
           case 1:
             s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1);
@@ -380,7 +378,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           s = s.trim();
         }
         anz = myBoatStringElement.seats;
-        String newSep = "--------- " + s + " -------------";
+        String newSep = "-------- " + s + " ------------";
         if (!newSep.equals(lastSep)) {
           retValList.add(new ItemTypeListData(newSep, null, true, anz));
         }
@@ -509,14 +507,14 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     }
     Arrays.sort(arrayBoatStrings);
 
-    Vector<ItemTypeListData> vv = new Vector<ItemTypeListData>();
+    Vector<ItemTypeListData> vv = new Vector<>();
     char lastChar = ' ';
     for (BoatString element : arrayBoatStrings) {
       String name = element.name;
       if (name.length() > 0) {
         if (name.toUpperCase().charAt(0) != lastChar) {
           lastChar = name.toUpperCase().charAt(0);
-          vv.add(new ItemTypeListData("---------- " + lastChar + " ----------", null, true,
+          vv.add(new ItemTypeListData("-------- " + lastChar + " ----------", null, true,
               SEATS_OTHER));
         }
         vv.add(new ItemTypeListData(name, element.record, false, SEATS_OTHER));
@@ -553,7 +551,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     public PersonRecord person;
   }
 
-  class BoatString implements Comparable<BoatString> {
+  static class BoatString implements Comparable<BoatString> {
 
     public String name;
     public String sortKategorie;
@@ -568,94 +566,94 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         return "";
       }
       s = s.toLowerCase();
-      if (s.indexOf("ä") >= 0) {
+      if (s.contains("ä")) {
         s = EfaUtil.replace(s, "ä", "a", true);
       }
-      if (s.indexOf("Ä") >= 0) {
+      if (s.contains("Ä")) {
         s = EfaUtil.replace(s, "Ä", "a", true);
       }
-      if (s.indexOf("à") >= 0) {
+      if (s.contains("à")) {
         s = EfaUtil.replace(s, "à", "a", true);
       }
-      if (s.indexOf("á") >= 0) {
+      if (s.contains("á")) {
         s = EfaUtil.replace(s, "á", "a", true);
       }
-      if (s.indexOf("â") >= 0) {
+      if (s.contains("â")) {
         s = EfaUtil.replace(s, "â", "a", true);
       }
-      if (s.indexOf("ã") >= 0) {
+      if (s.contains("ã")) {
         s = EfaUtil.replace(s, "ã", "a", true);
       }
-      if (s.indexOf("æ") >= 0) {
+      if (s.contains("æ")) {
         s = EfaUtil.replace(s, "æ", "ae", true);
       }
-      if (s.indexOf("ç") >= 0) {
+      if (s.contains("ç")) {
         s = EfaUtil.replace(s, "ç", "c", true);
       }
-      if (s.indexOf("è") >= 0) {
+      if (s.contains("è")) {
         s = EfaUtil.replace(s, "è", "e", true);
       }
-      if (s.indexOf("é") >= 0) {
+      if (s.contains("é")) {
         s = EfaUtil.replace(s, "é", "e", true);
       }
-      if (s.indexOf("è") >= 0) {
+      if (s.contains("è")) {
         s = EfaUtil.replace(s, "è", "e", true);
       }
-      if (s.indexOf("é") >= 0) {
+      if (s.contains("é")) {
         s = EfaUtil.replace(s, "é", "e", true);
       }
-      if (s.indexOf("ê") >= 0) {
+      if (s.contains("ê")) {
         s = EfaUtil.replace(s, "ê", "e", true);
       }
-      if (s.indexOf("ì") >= 0) {
+      if (s.contains("ì")) {
         s = EfaUtil.replace(s, "ì", "i", true);
       }
-      if (s.indexOf("í") >= 0) {
+      if (s.contains("í")) {
         s = EfaUtil.replace(s, "í", "i", true);
       }
-      if (s.indexOf("î") >= 0) {
+      if (s.contains("î")) {
         s = EfaUtil.replace(s, "î", "i", true);
       }
-      if (s.indexOf("ñ") >= 0) {
+      if (s.contains("ñ")) {
         s = EfaUtil.replace(s, "ñ", "n", true);
       }
-      if (s.indexOf("ö") >= 0) {
+      if (s.contains("ö")) {
         s = EfaUtil.replace(s, "ö", "o", true);
       }
-      if (s.indexOf("Ö") >= 0) {
+      if (s.contains("Ö")) {
         s = EfaUtil.replace(s, "Ö", "o", true);
       }
-      if (s.indexOf("ò") >= 0) {
+      if (s.contains("ò")) {
         s = EfaUtil.replace(s, "ò", "o", true);
       }
-      if (s.indexOf("ó") >= 0) {
+      if (s.contains("ó")) {
         s = EfaUtil.replace(s, "ó", "o", true);
       }
-      if (s.indexOf("ô") >= 0) {
+      if (s.contains("ô")) {
         s = EfaUtil.replace(s, "ô", "o", true);
       }
-      if (s.indexOf("õ") >= 0) {
+      if (s.contains("õ")) {
         s = EfaUtil.replace(s, "õ", "o", true);
       }
-      if (s.indexOf("ø") >= 0) {
+      if (s.contains("ø")) {
         s = EfaUtil.replace(s, "ø", "o", true);
       }
-      if (s.indexOf("ü") >= 0) {
+      if (s.contains("ü")) {
         s = EfaUtil.replace(s, "ü", "u", true);
       }
-      if (s.indexOf("Ü") >= 0) {
+      if (s.contains("Ü")) {
         s = EfaUtil.replace(s, "Ü", "u", true);
       }
-      if (s.indexOf("ù") >= 0) {
+      if (s.contains("ù")) {
         s = EfaUtil.replace(s, "ù", "u", true);
       }
-      if (s.indexOf("ú") >= 0) {
+      if (s.contains("ú")) {
         s = EfaUtil.replace(s, "ú", "u", true);
       }
-      if (s.indexOf("û") >= 0) {
+      if (s.contains("û")) {
         s = EfaUtil.replace(s, "û", "u", true);
       }
-      if (s.indexOf("ß") >= 0) {
+      if (s.contains("ß")) {
         s = EfaUtil.replace(s, "ß", "ss", true);
       }
       return s;

@@ -16,6 +16,8 @@ import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.jar.JarEntry;
@@ -23,8 +25,6 @@ import java.util.jar.JarFile;
 
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
-
-import org.apache.commons.io.FileUtils;
 
 import de.nmichael.efa.core.CrontabThread;
 import de.nmichael.efa.core.EfaKeyStore;
@@ -64,8 +64,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_166";
-  public static final String VERSIONRELEASEDATE = "26.05.2022"; // Release Date: TT.MM.JJJJ
+  public static final String VERSIONID = "2.2.0_167";
+  public static final String VERSIONRELEASEDATE = "11.06.2022"; // Release Date: TT.MM.JJJJ
   public static final String MAJORVERSION = "2";
   public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -621,7 +621,7 @@ public class Daten {
     if (applID == APPL_EFABH) {
       lastLogEntry = Logger.getLastLogEntry(EFA_LOG_FILE);
     }
-    String baklog = null; // backup'ed logfile
+    String baklog; // backup'ed logfile
     switch (applID) {
       case APPL_EFABASE:
       case APPL_EFABH:
@@ -689,7 +689,7 @@ public class Daten {
       }
     } catch (Error e) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTGETEFAJAVAARGS,
-          "Cannot get Environment Variable " + EFA_JAVA_ARGUMENTS + ": " + e.toString());
+          "Cannot get Environment Variable " + EFA_JAVA_ARGUMENTS + ": " + e);
     }
 
     try {
@@ -814,7 +814,10 @@ public class Daten {
       }
       try {
         Thread.sleep(1000); // Damit nach automatischem Restart genügend Zeit vergeht
-      } catch (InterruptedException e) {}
+      } catch (InterruptedException e) {
+        // throw new RuntimeException(e);
+
+      }
     } else {
       if (splashScreen != null) {
         splashScreen.remove();
@@ -1103,7 +1106,7 @@ public class Daten {
         }
       } catch (Exception e) {
         Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
-            International.getString("Konnte Look&Feel nicht setzen") + ": " + e.toString());
+            International.getString("Konnte Look&Feel nicht setzen") + ": " + e);
       }
     }
 
@@ -1129,7 +1132,7 @@ public class Daten {
           }));
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
-          "Failed to apply LookAndFeel Workarounds: " + e.toString());
+          "Failed to apply LookAndFeel Workarounds: " + e);
     }
 
     // Font Size
@@ -1141,8 +1144,7 @@ public class Daten {
         Logger.log(
             Logger.WARNING,
             Logger.MSG_WARN_CANTSETFONTSIZE,
-            International.getString("Schriftgröße konnte nicht geändert werden") + ": "
-                + e.toString());
+            International.getString("Schriftgröße konnte nicht geändert werden") + ": " + e);
       }
     }
   }
@@ -1200,8 +1202,8 @@ public class Daten {
     return applID != APPL_EFABH || applMode == APPL_MODE_ADMIN;
   }
 
-  public static boolean isWriteModeMitSchluessel() {
-    return applID != APPL_EFABH || istSchluesselGedrehtIntern();
+  public static boolean isNotWriteModeMitSchluessel() {
+    return applID == APPL_EFABH && !istSchluesselGedrehtIntern();
   }
 
   private static boolean istSchluesselGedrehtIntern() {
@@ -1228,7 +1230,7 @@ public class Daten {
     File f = new File(dir);
     if (!f.isDirectory()) {
       boolean result = f.mkdirs();
-      if (result == true) {
+      if (result) {
         Logger.log(Logger.WARNING, Logger.MSG_CORE_SETUPDIRS,
             International.getMessage(
                 "Verzeichnis '{directory}' konnte nicht gefunden werden und wurde neu erstellt.",
@@ -1296,7 +1298,7 @@ public class Daten {
       boolean javaInfos,
       boolean hostInfos,
       boolean jarInfos) {
-    Vector<String> infos = new Vector<String>();
+    Vector<String> infos = new Vector<>();
 
     // efa-Infos
     if (efaInfos) {
@@ -1348,15 +1350,21 @@ public class Daten {
         File dir = new File(efaPluginDirectory);
         if ((applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) && Logger.isDebugLogging()) {
           File[] files = dir.listFiles();
-          for (File file : files) {
-            if (file.isFile()) {
-              infos.add("efa.plugin.file=" + file.getName() + ":" + file.length());
+          if (files != null) {
+            for (File file : files) {
+              BasicFileAttributes basicFileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+              if (basicFileAttributes.isRegularFile()) {
+                infos.add("efa.plugin.file=" + file.getName() + ":" + basicFileAttributes.size());
+              }
             }
           }
         }
 
         Plugins plugins = Plugins.getPluginInfoFromLocalFile();
-        String[] names = plugins.getAllPluginNames();
+        String[] names = new String[0];
+        if (plugins != null) {
+          names = plugins.getAllPluginNames();
+        }
         for (String name : names) {
           infos.add("efa.plugin." + name + "=" +
               (Plugins.isPluginInstalled(name) ? "installed" : "not installed"));
@@ -1364,7 +1372,7 @@ public class Daten {
       } catch (Exception e) {
         Logger.log(Logger.ERROR, Logger.MSG_CORE_INFOFAILED,
             International.getString("Programminformationen konnten nicht ermittelt werden") + ": "
-                + e.toString());
+                + e);
         return null;
       }
     }
@@ -1418,7 +1426,7 @@ public class Daten {
             jarfile = cp;
             cp = null;
           }
-          if (jarfile != null && jarfile.length() > 0 && new File(jarfile).isFile()) {
+          if (jarfile.length() > 0 && new File(jarfile).isFile()) {
             try {
               infos.add("java.jar.filename=" + jarfile);
               JarFile jar = new JarFile(jarfile);
@@ -1440,7 +1448,7 @@ public class Daten {
       } catch (Exception e) {
         Logger.log(Logger.ERROR, Logger.MSG_CORE_INFOFAILED,
             International.getString("Programminformationen konnten nicht ermittelt werden") + ": "
-                + e.toString());
+                + e);
         return null;
       }
     }
@@ -1451,7 +1459,7 @@ public class Daten {
       boolean hostInfos, boolean jarInfos) {
     Vector<String> infos = getEfaInfos(efaInfos, pluginInfos, javaInfos, hostInfos, jarInfos);
     for (int i = 0; infos != null && i < infos.size(); i++) {
-      Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION, (String) infos.get(i));
+      Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION, infos.get(i));
     }
   }
 

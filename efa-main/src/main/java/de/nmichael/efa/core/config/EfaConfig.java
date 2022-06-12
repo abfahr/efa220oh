@@ -2693,6 +2693,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
     // Language & efa User Data
     String newLang = language.toString();
+    if (newLang.isEmpty()) {
+      newLang="de";
+    }
     String newUserData = efaUserDirectory.toString();
     if (!newUserData.endsWith(Daten.fileSep)) {
       newUserData += Daten.fileSep;
@@ -2727,8 +2730,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         myEfaTypes.setToLanguage(newLang);
         Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
             LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen"))
-                +
-                "\n" + International.getString("Sprache"));
+                + "\n" + International.getString("Sprache"));
       }
       if (changedUserDir) {
         Dialog.infoDialog(International.getString("Verzeichnis für Nutzerdaten"),

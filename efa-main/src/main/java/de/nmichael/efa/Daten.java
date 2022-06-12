@@ -64,8 +64,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_167";
-  public static final String VERSIONRELEASEDATE = "11.06.2022"; // Release Date: TT.MM.JJJJ
+  public static final String VERSIONID = "2.2.0_168";
+  public static final String VERSIONRELEASEDATE = "12.06.2022"; // Release Date: TT.MM.JJJJ
   public static final String MAJORVERSION = "2";
   public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen
@@ -320,7 +320,7 @@ public class Daten {
       StackTraceElement[] stack = Thread.currentThread().getStackTrace();
       String trace = "";
       for (int i = stack.length - 1; i >= 0; i--) {
-        trace = trace + " -> " + stack[i].toString();
+        trace = trace + " -> " + stack[i].toString() + "\n";
         if (stack[i].toString().startsWith(International.class.getCanonicalName())) {
           break;
         }
@@ -1203,7 +1203,7 @@ public class Daten {
   }
 
   public static boolean isNotWriteModeMitSchluessel() {
-    return applID == APPL_EFABH && !istSchluesselGedrehtIntern();
+    return (applID == APPL_EFABH) && !istSchluesselGedrehtIntern();
   }
 
   private static boolean istSchluesselGedrehtIntern() {
@@ -1212,8 +1212,8 @@ public class Daten {
       InputStream contentsGut  = new FileInputStream(efaBaseConfig.efaUserDirectory + "value.gut.txt");
       return IOUtils.contentEquals(contentsGut, contentsGpio);
     } catch (IOException e) {
-      Logger.log(e);
-      Dialog.exceptionError(e.getMessage(), e.fillInStackTrace().toString());
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+              efaBaseConfig.efaUserDirectory + "value" + " oder "+ "value.gut.txt fehlen.");
       return false;
     }
   }

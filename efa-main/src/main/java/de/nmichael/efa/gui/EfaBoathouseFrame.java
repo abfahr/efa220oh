@@ -3161,7 +3161,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         s.append("Ort am Isekai: ").append(showString).append(NEWLINE);
       }
       String fileName = item.boat.getName() + ".jpg";
-      s.append("Foto: " + "so sieht das Boot aus (").append(fileName).append(")").append(NEWLINE);
+      s.append("Foto-Datei: ").append(fileName).append(NEWLINE);
     }
     if (showStatus) {
       String currentStatus = item.boatStatus.getCurrentStatus();

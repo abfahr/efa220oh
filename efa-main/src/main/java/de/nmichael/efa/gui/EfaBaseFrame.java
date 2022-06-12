@@ -3775,7 +3775,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (telnum == null || telnum.length() == 0) {
       return;
     }
-    Logger.log(Logger.INFO, Logger.MSG_DEBUG_AUTOCOMPLETE,
+    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE,
         "Formular: TelNum für " + nameItemString + " automatisch eingetragen. "
             + person.isErlaubtTelefon());
     phoneNr.setValue(telnum);

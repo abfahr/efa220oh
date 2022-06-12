@@ -303,7 +303,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                     !suffix.contains(International.getString("Fehlermeldung PrivatMitVertrag")) &&
                     !suffix.contains(International.getString("Fehlermeldung bei langerAusleihe")) &&
                     !suffix.equals("null")) {
-              myBoatString.name += "     -> \"" + suffix + "\"";
+              //myBoatString.name += "     -> \"" + suffix + "\"";
             }
           }
         }
@@ -330,7 +330,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         if (s == null) {
           s = "ausgeliehen";
         }
-        String newSep = "-------- " + s + " ------------";
+        String newSep = "------ " + s + " ----------";
         if (!newSep.equals(lastSep)) {
           retValList.add(new ItemTypeListData(newSep, null, true, anz));
         }
@@ -378,7 +378,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
           s = s.trim();
         }
         anz = myBoatStringElement.seats;
-        String newSep = "-------- " + s + " ------------";
+        String newSep = "------ " + s + " ----------";
         if (!newSep.equals(lastSep)) {
           retValList.add(new ItemTypeListData(newSep, null, true, anz));
         }
@@ -514,7 +514,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
       if (name.length() > 0) {
         if (name.toUpperCase().charAt(0) != lastChar) {
           lastChar = name.toUpperCase().charAt(0);
-          vv.add(new ItemTypeListData("-------- " + lastChar + " ----------", null, true,
+          vv.add(new ItemTypeListData("------ " + lastChar + " --------", null, true,
               SEATS_OTHER));
         }
         vv.add(new ItemTypeListData(name, element.record, false, SEATS_OTHER));

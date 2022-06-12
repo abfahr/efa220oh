@@ -99,6 +99,14 @@ public class BoatStatus extends StorageObject {
               || r.getOnlyInBoathouseIdAsInt() == getProject().getMyBoathouseId()) {
             String s = (getBoatsForLists ? r.getShowInList() : r.getCurrentStatus());
             if (s != null && s.equals(status)) {
+              if (status.equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+                r.setBoatText(r.getBoatText().split(" \\(")[0]);
+                if (r.getComment().contains("mit ")) {
+                  r.setBoatText(r.getBoatText() + " (" + r.getComment().split("mit ")[1].split(" ")[0] + ")");
+                } else if (r.getComment().contains("für ")) {
+                  r.setBoatText(r.getBoatText() + " (" + r.getComment().split("für ")[1].split(" ")[0] + ")");
+                }
+              }
               v.add(r);
             }
           }

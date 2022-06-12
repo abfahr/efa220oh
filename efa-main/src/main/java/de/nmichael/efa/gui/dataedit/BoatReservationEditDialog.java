@@ -426,7 +426,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     if (bestTelnum == null || bestTelnum.length() == 0) {
       bestTelnum = "";
     } else {
-      Logger.log(Logger.INFO, Logger.MSG_DEBUG_AUTOCOMPLETE,
+      Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE,
           "Formular: TelNum für " + item.getValueFromField() + " automatisch eingetragen. "
               + person.isErlaubtTelefon());
     }

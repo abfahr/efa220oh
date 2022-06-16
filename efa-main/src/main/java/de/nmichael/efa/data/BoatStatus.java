@@ -13,6 +13,7 @@ package de.nmichael.efa.data;
 import java.util.UUID;
 import java.util.Vector;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.DataRecord;
@@ -88,8 +89,8 @@ public class BoatStatus extends StorageObject {
    * status=NOTAVAILABLE instead.
    */
   public Vector<BoatStatusRecord> getBoats(String status, boolean getBoatsForLists) {
+    Vector<BoatStatusRecord> v = new Vector<>();
     try {
-      Vector<BoatStatusRecord> v = new Vector<BoatStatusRecord>();
       DataKeyIterator it = data().getStaticIterator();
       DataKey k = it.getFirst();
       while (k != null) {
@@ -99,12 +100,34 @@ public class BoatStatus extends StorageObject {
               || r.getOnlyInBoathouseIdAsInt() == getProject().getMyBoathouseId()) {
             String s = (getBoatsForLists ? r.getShowInList() : r.getCurrentStatus());
             if (s != null && s.equals(status)) {
-              if (status.equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
-                r.setBoatText(r.getBoatText().split(" \\(")[0]);
-                if (r.getComment().contains("mit ")) {
-                  r.setBoatText(r.getBoatText() + " (" + r.getComment().split("mit ")[1].split(" ")[0] + ")");
-                } else if (r.getComment().contains("für ")) {
-                  r.setBoatText(r.getBoatText() + " (" + r.getComment().split("für ")[1].split(" ")[0] + ")");
+              if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs()) {
+                if (status.equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+                  try {
+                    r.setBoatText(r.getBoatText().split(" \\(")[0]);
+                    if (r.getComment() != null) {
+                      if (r.getComment().contains("mit ")) {
+                        r.setBoatText(r.getBoatText() + " (" + r.getComment().split("mit ")[1].split(" ")[0] + ")");
+                      } else if (r.getComment().contains("für ")) {
+                        r.setBoatText(r.getBoatText() + " (" + r.getComment().split("für ")[1].split(" ")[0] + ")");
+                      }
+                    }
+                  } catch (Exception e) {
+                    Logger.logwarn(e);
+                  }
+                }
+                if (status.equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
+                  try {
+                    r.setBoatText(r.getBoatText().split(" \\(")[0]);
+                    if (r.getComment() != null) {
+                      if (r.getComment().contains("Bootsschaden: ")) {
+                        r.setBoatText(r.getBoatText() + " (" + r.getComment().split("Bootsschaden: ")[1] + ")");
+                      } else {
+                        r.setBoatText(r.getBoatText() + " (" + r.getComment() + ")");
+                      }
+                    }
+                  } catch (Exception e) {
+                    Logger.logwarn(e);
+                  }
                 }
               }
               v.add(r);
@@ -113,11 +136,10 @@ public class BoatStatus extends StorageObject {
         }
         k = it.getNext();
       }
-      return v;
     } catch (Exception e) {
-      Logger.logdebug(e);
-      return null;
+      Logger.logwarn(e);
     }
+    return v;
   }
 
   public boolean areBoatsOutOnTheWater() {

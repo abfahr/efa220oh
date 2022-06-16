@@ -363,7 +363,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (Daten.project == null) return;
     // get List of Boats "on the water" = boatsOnTheWaterList;
     BoatStatus boatStatus = Daten.project.getBoatStatus(false);
-    Vector<BoatStatusRecord> boats = new Vector<BoatStatusRecord>();
+    Vector<BoatStatusRecord> boats = new Vector<>();
     if (Daten.efaConfig.isAutomaticEndLogbookOnTheWater()) {
       boats = boatStatus.getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
     }
@@ -373,37 +373,38 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     Logbook currentLogbook = Daten.project.getCurrentLogbook();
 
-    if (boats != null) {
-      for (BoatStatusRecord boatStatusRecord : boats) {
-        DataTypeIntString entryNo = boatStatusRecord.getEntryNo();
-        if (entryNo == null) {
-          continue;
-        }
-        LogbookRecord logbookRecord = currentLogbook.getLogbookRecord(entryNo);
-        if (logbookRecord == null) {
-          continue;
-        }
-        // check Endtime is set,valid
-        // check Endtime is past
-        if (logbookRecord.isEndtimeSetAndAlreadyPast(now)) {
-          // do "Fahrt Beenden" with this boats
-          logbookRecord.addComments("(efa: Fahrt nach Ablauf automatisch ausgetragen)");
-          logbookRecord.setSessionIsOpen(false);
-          // updateBoatStatus(true, EfaBaseFrame.MODE_BOATHOUSE_FINISH);
-          EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
-                  International.getString("Fahrtende") + " (autom)", logbookRecord);
-          boatStatusRecord.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
-          boatStatusRecord.setShowInList(null);
-          boatStatusRecord.setComment("");
-          boatStatusRecord.setEntryNo(null);
-          boatStatusRecord.setLogbook(null);
-          boatStatusRecord.setBoatText(logbookRecord.getBoatAsName());
-          try {
-            currentLogbook.data().update(logbookRecord); // saveEntry();
-            boatStatus.data().update(boatStatusRecord);
-          } catch (EfaException e) {
-            Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, e);
-          }
+    if (boats == null) {
+      return;
+    }
+    for (BoatStatusRecord boatStatusRecord : boats) {
+      DataTypeIntString entryNo = boatStatusRecord.getEntryNo();
+      if (entryNo == null) {
+        continue;
+      }
+      LogbookRecord logbookRecord = currentLogbook.getLogbookRecord(entryNo);
+      if (logbookRecord == null) {
+        continue;
+      }
+      // check Endtime is set,valid
+      // check Endtime is past
+      if (logbookRecord.isEndtimeSetAndAlreadyPast(now)) {
+        // do "Fahrt Beenden" with this boats
+        logbookRecord.addComments("(efa: Fahrt nach Ablauf automatisch ausgetragen)");
+        logbookRecord.setSessionIsOpen(false);
+        // updateBoatStatus(true, EfaBaseFrame.MODE_BOATHOUSE_FINISH);
+        EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPEND,
+                International.getString("Fahrtende") + " (autom)", logbookRecord);
+        boatStatusRecord.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
+        boatStatusRecord.setShowInList(null);
+        boatStatusRecord.setComment("");
+        boatStatusRecord.setEntryNo(null);
+        boatStatusRecord.setLogbook(null);
+        boatStatusRecord.setBoatText(logbookRecord.getBoatAsName());
+        try {
+          currentLogbook.data().update(logbookRecord); // saveEntry();
+          boatStatus.data().update(boatStatusRecord);
+        } catch (EfaException e) {
+          Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, e);
         }
       }
     }
@@ -751,7 +752,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       boatReservationRecord.getPersistence().data().update(boatReservationRecord);
     } catch (EfaException e) {
-      Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
+      // "Das Startdatum muss in der Zukunft liegen"
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR, e.toString());
     }
   }
 

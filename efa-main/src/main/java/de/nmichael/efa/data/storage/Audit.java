@@ -1014,7 +1014,7 @@ public class Audit extends Thread {
             messages.data().delete(k, lock);
             cntMoved++;
           } catch (Exception e1) {
-            Logger.log(e1);
+            Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR, e1);
           }
         } else {
           cntUnread++;

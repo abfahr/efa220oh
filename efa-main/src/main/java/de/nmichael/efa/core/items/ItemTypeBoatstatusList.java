@@ -204,8 +204,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         myBoatString.seats = seat;
         myBoatString.variant = variant;
 
-        myBoatString.name = "";
-        if (myBoatRecord != null) {
+        myBoatString.name = myBoatStatusRecord.getBoatText();
+        if (false && myBoatRecord != null) {
           myBoatString.name = myBoatRecord.getQualifiedName();
           if (Daten.efaConfig.isEfaBoathouseShowOrtDescriptionInAvailableList()) {
             if (sortmode == SortingBy.EfaSorting || sortmode == SortingBy.BoatType) {

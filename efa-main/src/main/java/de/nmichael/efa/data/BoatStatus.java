@@ -66,7 +66,7 @@ public class BoatStatus extends StorageObject {
 
   public BoatStatusRecord getBoatStatus(String logbookName, DataTypeIntString entryNo) {
     try {
-      DataKey[] keys = dataAccess.getByFields(
+      DataKey<?, ?, ?>[] keys = dataAccess.getByFields(
           new String[] { BoatStatusRecord.LOGBOOK, BoatStatusRecord.ENTRYNO },
           new Object[] { logbookName, entryNo });
       if (keys != null && keys.length > 0) {
@@ -92,7 +92,7 @@ public class BoatStatus extends StorageObject {
     Vector<BoatStatusRecord> v = new Vector<>();
     try {
       DataKeyIterator it = data().getStaticIterator();
-      DataKey k = it.getFirst();
+      DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         BoatStatusRecord r = (BoatStatusRecord) data().get(k);
         if (r != null && !r.getDeletedOrInvisible()) {
@@ -101,8 +101,15 @@ public class BoatStatus extends StorageObject {
             String s = (getBoatsForLists ? r.getShowInList() : r.getCurrentStatus());
             if (s != null && s.equals(status)) {
               if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs()) {
-                if (status.equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
-                  try {
+                try {
+                  switch (status) {
+                  case BoatStatusRecord.STATUS_AVAILABLE:
+                    BoatRecord br = r.getBoatRecord(System.currentTimeMillis());
+                    if (br != null) {
+                      r.setBoatText(r.getBoatText() + " \"" + br.getTypeDescription(0) + "\"");
+                    }
+                    break;
+                  case BoatStatusRecord.STATUS_ONTHEWATER:
                     r.setBoatText(r.getBoatText().split(" \\(")[0]);
                     if (r.getComment() != null) {
                       if (r.getComment().contains("mit ")) {
@@ -111,12 +118,8 @@ public class BoatStatus extends StorageObject {
                         r.setBoatText(r.getBoatText() + " (" + r.getComment().split("für ")[1].split(" ")[0] + ")");
                       }
                     }
-                  } catch (Exception e) {
-                    Logger.logwarn(e);
-                  }
-                }
-                if (status.equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
-                  try {
+                    break;
+                  case BoatStatusRecord.STATUS_NOTAVAILABLE:
                     r.setBoatText(r.getBoatText().split(" \\(")[0]);
                     if (r.getComment() != null) {
                       if (r.getComment().contains("Bootsschaden: ")) {
@@ -125,9 +128,12 @@ public class BoatStatus extends StorageObject {
                         r.setBoatText(r.getBoatText() + " (" + r.getComment() + ")");
                       }
                     }
-                  } catch (Exception e) {
-                    Logger.logwarn(e);
-                  }
+                    break;
+                  default:
+                    break;
+                  } // switch
+                } catch (Exception e) {
+                  Logger.logwarn(e);
                 }
               }
               v.add(r);
@@ -143,7 +149,7 @@ public class BoatStatus extends StorageObject {
   }
 
   public boolean areBoatsOutOnTheWater() {
-    Vector v = getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
+    Vector<BoatStatusRecord> v = getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
     return (v != null && v.size() > 0);
   }
 

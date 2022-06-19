@@ -151,12 +151,9 @@ public class BoatStatusRecord extends DataRecord {
   }
 
   public String getBoatNameAsString(long validAt) {
-    Boats b = getPersistence().getProject().getBoats(false);
-    if (b != null) {
-      BoatRecord r = b.getBoat(getBoatId(), validAt);
-      if (r != null) {
-        return r.getQualifiedName();
-      }
+    BoatRecord r = getBoatRecord(validAt);
+    if (r != null) {
+      return r.getQualifiedName();
     }
     return null;
   }
@@ -287,13 +284,10 @@ public class BoatStatusRecord extends DataRecord {
   }
 
   private String getBoatName() {
-    Boats boats = getPersistence().getProject().getBoats(false);
     String boatName = "?";
-    if (boats != null && getBoatId() != null) {
-      BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
-      if (r != null) {
-        boatName = r.getQualifiedName();
-      }
+    BoatRecord r = getBoatRecord(System.currentTimeMillis());
+    if (r != null) {
+      boatName = r.getQualifiedName();
     }
     if (boatName != null && boatName.equals("?") &&
         getBoatText() != null && getBoatText().length() > 0) {
@@ -487,7 +481,7 @@ public class BoatStatusRecord extends DataRecord {
     String zeit = (starttime != null ? starttime.toString() : "");
     String aufFahrtart = "";
     String nachZiel = "";
-    if (aufFahrtart.length() == 0 && ziel.length() > 0) {
+    if (ziel.length() > 0) {
       if (ziel.equals("Alster")) {
         nachZiel = " " + International.getMessage("auf {trip_type}", ziel);
       } else {

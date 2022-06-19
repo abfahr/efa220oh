@@ -203,28 +203,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         }
         myBoatString.seats = seat;
         myBoatString.variant = variant;
-
         myBoatString.name = myBoatStatusRecord.getBoatText();
-        if (false && myBoatRecord != null) {
-          myBoatString.name = myBoatRecord.getQualifiedName();
-          if (Daten.efaConfig.isEfaBoathouseShowOrtDescriptionInAvailableList()) {
-            if (sortmode == SortingBy.EfaSorting || sortmode == SortingBy.BoatType) {
-              String suffix = myBoatRecord.getTypeDescription(0);
-              if (suffix != null &&
-                      !suffix.isBlank() &&
-                      !suffix.equals("null")) {
-                myBoatString.name += " \"" + suffix + "\"";
-              }
-            }
-          }
-        }
-        // for BoatsOnTheWater, don't use the "real" boat name,
-        // but rather what's stored in the boat status as "BoatText"
-        if (myBoatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
-          myBoatString.name = myBoatStatusRecord.getBoatText();
-        }
-        // myBoatString.name = "" + myBoatString.name + ""; // Prefix + Postfix
-        myBoatString.sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
+        myBoatString.sortBySeats = Daten.efaConfig.getValueEfaDirekt_sortByAnzahl();
         myBoatString.sortKategorie = getSortingItem(myBoatRecord, myBoatStatusRecord);
 
         // Colors for Groups
@@ -440,11 +420,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             sortString = aBoatRecord.getTypeDescription(0);
             break;
           case BoatStatusRecord.STATUS_NOTAVAILABLE:
-            sortString = aBoatStatusRecord.getComment();
+            // sortString = aBoatStatusRecord.getComment();
             sortString = aBoatRecord.getTypeDescription(0);
             break;
           default:
-            sortString = aBoatStatusRecord.getComment();
+            // sortString = aBoatStatusRecord.getComment();
             sortString = aBoatRecord.getTypeDescription(0);
             break;
         }

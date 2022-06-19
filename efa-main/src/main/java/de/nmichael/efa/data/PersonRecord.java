@@ -62,14 +62,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public static final String FESTNETZ1 = "FreeUse1";
   public static final String HANDY2 = "FreeUse2";
   public static final String[] IDX_NAME_NAME = new String[] { FIRSTLASTNAME };
-  private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
-  private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
-  private static String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-  private static String CAT_GROUPS = "%03%" + International.getString("Gruppen");
+  private static final String GUIITEM_GROUPS = "GUIITEM_GROUPS";
+  private static final String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
+  private static final String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
+  private static final String CAT_GROUPS = "%03%" + International.getString("Gruppen");
 
   public static void initialize() {
-    Vector<String> f = new Vector<String>();
-    Vector<Integer> t = new Vector<Integer>();
+    Vector<String> f = new Vector<>();
+    Vector<Integer> t = new Vector<>();
 
     f.add(ID);
     t.add(IDataAccess.DATA_UUID);
@@ -450,7 +450,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     Status status = getPersistence().getProject().getStatus(false);
     IItemType item;
-    Vector<IItemType> v = new Vector<IItemType>();
+    Vector<IItemType> v = new Vector<>();
     v.add(item = new ItemTypeString(PersonRecord.FIRSTNAME, getFirstName(),
         IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Vorname")));
     ((ItemTypeString) item).setNotAllowedCharacters(",");
@@ -513,7 +513,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
       if (name.equals(GUIITEM_GROUPS) && item.isChanged()) {
         ItemTypeItemList list = (ItemTypeItemList) item;
         Groups groups = getPersistence().getProject().getGroups(false);
-        Hashtable<UUID, String> groupIds = new Hashtable<UUID, String>();
+        Hashtable<UUID, String> groupIds = new Hashtable<>();
         for (int i = 0; i < list.size(); i++) {
           ItemTypeStringAutoComplete l = (ItemTypeStringAutoComplete) list.getItems(i)[0];
           UUID id = (UUID) l.getId(l.getValue());
@@ -643,11 +643,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
   public void sendEmailConfirmation(String emailToAdresse, String aktion, String errorText) {
     String emailSubject = "";
-    boolean kombinierteEmailErlaubnis = false;
+    boolean kombinierteEmailErlaubnis;
     kombinierteEmailErlaubnis = isErlaubtEmail();
     if (!isValidEmail(emailToAdresse)) {
       emailToAdresse = "efa+no.invalidEmailMitglied" + Daten.EMAILDEBUG_DOMAIN;
-      emailSubject = "Error efa.invalidEmail " + getFirstLastName() + " ";
+      emailSubject = "invalidEmail " + getFirstLastName() + " ";
       kombinierteEmailErlaubnis = false;
     }
     if (getLastModified() == IDataAccess.UNDEFINED_LONG) {
@@ -675,7 +675,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
   }
 
   private String getFormattedEmailtextMitglied(String anrede, String aktion, String errorText) {
-    List<String> msg = new ArrayList<String>();
+    List<String> msg = new ArrayList<>();
     msg.add("Hallo " + anrede + "!");
     msg.add("");
     if (errorText != null && !errorText.isBlank()) {

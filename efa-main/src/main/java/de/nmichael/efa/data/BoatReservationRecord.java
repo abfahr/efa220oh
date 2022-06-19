@@ -912,10 +912,9 @@ public class BoatReservationRecord extends DataRecord {
     } else {
       if (isBootshausOH()) {
         msg.add("Bootshausnutzung?");
-        msg.add(
-            "Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen!");
-        msg.add(
-            "Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
+        msg.add("Aufgrund wiederkehrender Beschwerden der Nachbarn hier vorab der wichtige Hinweis auf die zu unterbleibende Lärmbelästigung ab 22 Uhr.");
+        msg.add("Bitte denke daran, das Bootshaus nach der Nutzung aufgeräumt und gereinigt zu hinterlassen!");
+        msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
                 + "dann fülle das Formular umgehend aus (" + International.getString("Web Download Vertrag") + ") "
                 + "und gib es im Bootshaus rechtzeitig vor Deiner Bootshausnutzung ab. "
                 + "Ansonsten werden Dir automatisch 75EUR berechnet.");
@@ -1061,7 +1060,7 @@ public class BoatReservationRecord extends DataRecord {
 
     if (isNotValidEmail(emailToAdresse)) {
       emailToAdresse = "efa+no.invalidEmailMitglied" + Daten.EMAILDEBUG_DOMAIN;
-      emailSubject = "Error efa.invalidEmail " + getPersonAsName() + " ";
+      emailSubject = "invalidEmail " + getPersonAsName() + " ";
       kombinierteEmailErlaubnis = false;
     }
     if (getLastModified() == IDataAccess.UNDEFINED_LONG) {

@@ -106,7 +106,10 @@ public class BoatStatus extends StorageObject {
                   case BoatStatusRecord.STATUS_AVAILABLE:
                     BoatRecord br = r.getBoatRecord(System.currentTimeMillis());
                     if (br != null) {
-                      r.setBoatText(r.getBoatText() + " \"" + br.getTypeDescription(0) + "\"");
+                      String tor3 = br.getTypeDescription(0);
+                      if (tor3 != null && !tor3.isBlank() && !tor3.equals("null")) {
+                        r.setBoatText(r.getBoatText() + " \"" + tor3 + "\"");
+                      }
                     }
                     break;
                   case BoatStatusRecord.STATUS_ONTHEWATER:

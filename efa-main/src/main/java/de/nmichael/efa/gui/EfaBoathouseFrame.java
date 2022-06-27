@@ -29,11 +29,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -952,6 +948,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       if (t2 >= 300) {
         Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "Zeitmessung: zentrales Bild geladen"
             + " t=" + t2 + "ms für " + fileName);
+        Writer output = new BufferedWriter(new FileWriter(strZentralesBild + ".txt", true));
+        output.append(t2 + "ms" + NEWLINE);
+        output.close();
       }
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);

@@ -64,8 +64,8 @@ public class Daten {
 
   // VersionsID: Format: "X.Y.Z_MM";
   // final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public static final String VERSIONID = "2.2.0_172";
-  public static final String VERSIONRELEASEDATE = "19.06.2022"; // Release Date: TT.MM.JJJJ
+  public static final String VERSIONID = "2.2.0_173";
+  public static final String VERSIONRELEASEDATE = "27.06.2022"; // Release Date: TT.MM.JJJJ
   public static final String MAJORVERSION = "2";
   public static final String PROGRAMMID = "EFA.220"; // Versions-ID für Wettbewerbsmeldungen
   public static final String PROGRAMMID_DRV = "EFADRV.220"; // Versions-ID für Wettbewerbsmeldungen

@@ -202,7 +202,7 @@ public class EfaBaseConfig {
       } else {
         f.write(FIELD_LANGUAGE + "=" + "\n");
       }
-      f.write(FIELD_VERSION + "=" + Daten.MAJORVERSION + "\n");
+      f.write(FIELD_VERSION + "=" + Daten.getMajorVersion() + "\n");
       f.close();
     } catch (Exception e) {
       Logger.log(e);

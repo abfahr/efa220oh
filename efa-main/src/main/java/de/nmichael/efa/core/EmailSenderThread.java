@@ -204,8 +204,9 @@ public class EmailSenderThread extends Thread {
           Logger.logdebug(e);
         }
       }
-      mail.setSubject(
-          (mailSubjectPrefix != null ? "[" + mailSubjectPrefix + "] " : "") + msg.getSubject(),
+      mail.setSubject((mailSubjectPrefix != null
+                  ? "[" + mailSubjectPrefix + "] "
+                  : "") + msg.getSubject(),
           charset);
       mail.setSentDate(new Date());
       mail.setText("## " + International.getString("Absender") + ": " + msg.getFrom() + "\n"
@@ -225,7 +226,8 @@ public class EmailSenderThread extends Thread {
       return true;
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ERR_SENDMAILFAILED_ERROR,
-          International.getString("email-Versand fehlgeschlagen") + ": " + e.getMessage());
+          International.getString("email-Versand fehlgeschlagen") + ": "
+                  + e.getMessage() + " " + addresses);
       Logger.logdebug(e);
       return false;
     }

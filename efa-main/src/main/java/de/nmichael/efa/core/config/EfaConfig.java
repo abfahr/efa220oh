@@ -2845,7 +2845,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
         International.getString("Bootsart")));
     addParameter(typesNumSeats = new ItemTypeHashtable<String>("_TYPES_NUMSEATS", "", true,
-        IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_SEAT),
+        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_SEAT),
         International.getString("Anzahl Bootsplätze")));
     addParameter(typesRigging = new ItemTypeHashtable<String>("_TYPES_RIGGING", "", true,
         IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_RIGG),

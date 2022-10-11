@@ -64,28 +64,28 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   // Field Names
   // =========================================================================
 
-  public static final String ID = "Id";
-  public static final String NAME = "Name";
-  public static final String NAMEAFFIX = "NameAffix";
-  public static final String OWNER = "Owner";
-  public static final String LASTVARIANT = "LastVariant";
-  public static final String DEFAULTVARIANT = "DefaultVariant";
-  public static final String TYPEVARIANT = "TypeVariant";
-  public static final String TYPEDESCRIPTION = "TypeDescription";
-  public static final String TYPETYPE = "TypeType";
-  public static final String TYPESEATS = "TypeSeats";
-  public static final String TYPERIGGING = "TypeRigging";
-  public static final String TYPECOXING = "TypeCoxing";
+  public static final String ID = "Id"; // wird im OH genutzt
+  public static final String NAME = "Name"; // wird im OH genutzt
+  public static final String NAMEAFFIX = "NameAffix"; // wird im OH genutzt
+  public static final String OWNER = "Owner"; // wird im OH genutzt
+  public static final String LASTVARIANT = "LastVariant"; // wird im OH genutzt
+  public static final String DEFAULTVARIANT = "DefaultVariant"; // wird im OH genutzt
+  public static final String TYPEVARIANT = "TypeVariant"; // wird im OH genutzt
+  public static final String TYPEDESCRIPTION = "TypeDescription"; // wird im OH genutzt
+  public static final String TYPETYPE = "TypeType"; // wird im OH genutzt
+  public static final String TYPESEATS = "TypeSeats"; // wird im OH genutzt
+  public static final String TYPERIGGING = "TypeRigging"; // wird im OH genutzt
+  public static final String TYPECOXING = "TypeCoxing"; // wird im OH genutzt
   // RESERVATIONS stored in BoatReservations
   // DAMAGES stored in BoatDamages
   public static final String ALLOWEDGROUPIDLIST = "AllowedGroupIdList";
-  public static final String ONLYWITHBOATCAPTAIN = "OnlyWithBoatCaptain";
-  public static final String MANUFACTURER = "Manufacturer";
-  public static final String MODEL = "Model";
-  public static final String MAXCREWWEIGHT = "MaxCrewWeight";
-  public static final String PURCHASEDATE = "PurchaseDate";
-  public static final String PURCHASEPRICE = "PurchasePrice";
-  public static final String SELLINGDATE = "SellingDate";
+  public static final String ONLYWITHBOATCAPTAIN = "OnlyWithBoatCaptain"; // wird im OH genutzt
+  public static final String MANUFACTURER = "Manufacturer"; // wird im OH genutzt
+  public static final String MODEL = "Model"; // wird im OH genutzt
+  public static final String MAXCREWWEIGHT = "MaxCrewWeight"; // wird im OH genutzt
+  public static final String PURCHASEDATE = "PurchaseDate"; // wird im OH genutzt
+  public static final String PURCHASEPRICE = "PurchasePrice"; // wird im OH genutzt
+  public static final String SELLINGDATE = "SellingDate"; // wird im OH genutzt
   public static final String SELLINGPRICE = "SellingPrice";
 
   public static final String[] IDX_NAME_NAMEAFFIX = new String[] { NAME, NAMEAFFIX };

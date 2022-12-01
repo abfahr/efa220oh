@@ -27,6 +27,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultListCellRenderer;
@@ -47,7 +49,7 @@ import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.Mnemonics;
 
-public class ItemTypeList extends ItemType implements ActionListener {
+public class ItemTypeList<T> extends ItemType implements ActionListener {
 
   JPanel mypanel;
   JLabel label;
@@ -116,24 +118,24 @@ public class ItemTypeList extends ItemType implements ActionListener {
     }
   }
 
-  class ItemTypeListData {
+  public class ItemTypeListData {
     String text;
-    Object object;
+    T object;
     boolean separator;
     int section;
     String image;
     Color[] colors;
 
-    public ItemTypeListData(String text, Object object, boolean separator, int section) {
+    public ItemTypeListData(String text, T object, boolean separator, int section) {
       ini(text, object, separator, section, null, null);
     }
 
-    public ItemTypeListData(String text, Object object, boolean separator, int section,
+    public ItemTypeListData(String text, T object, boolean separator, int section,
         String image, Color[] colors) {
       ini(text, object, separator, section, image, colors);
     }
 
-    private void ini(String text, Object object, boolean separator, int section,
+    private void ini(String text, T object, boolean separator, int section,
         String image, Color[] colors) {
       this.text = text;
       this.object = object;
@@ -163,23 +165,27 @@ public class ItemTypeList extends ItemType implements ActionListener {
     return new ItemTypeList(name, type, category, description);
   }
 
-  public void addItem(String text, Object object, boolean separator, char separatorHotkey) {
+  public synchronized void addItem(String text, T object, boolean separator, char separatorHotkey) {
     data.add(new ItemTypeListData(text, object, separator, separatorHotkey));
+    list.updateUI();
   }
 
-  public void addItem(String text, Object object, boolean separator, char separatorHotkey,
+  public synchronized void addItem(String text, T object, boolean separator, char separatorHotkey,
       String image, Color[] colors) {
     data.add(new ItemTypeListData(text, object, separator, separatorHotkey, image, colors));
+    list.updateUI();
   }
 
-  public void removeItem(int idx) {
+  public synchronized void removeItem(int idx) {
     if (idx >= 0 && idx < data.size()) {
       data.remove(idx);
+      list.updateUI();
     }
   }
 
-  public void removeAllItems() {
-    data = new Vector<ItemTypeListData>();
+  public synchronized void removeAllItems() {
+    data.clear();
+    list.updateUI();
   }
 
   public void setItems(Vector<ItemTypeListData> items) {
@@ -207,12 +213,22 @@ public class ItemTypeList extends ItemType implements ActionListener {
     return null;
   }
 
-  public Object getItemObject(int idx) {
+  public T getItemObject(int idx) {
     if (idx >= 0 && idx < data.size()) {
       return data.get(idx).object;
     }
     return null;
   }
+
+
+  public List<T> getItemObjects(){
+    List<T> result = new ArrayList<>();
+    for (ItemTypeListData dataElement : data) {
+      result.add(dataElement.object);
+    }
+    return result;
+  }
+
 
   void clearIncrementalSearch() {
     incrementalSearch = "";
@@ -467,7 +483,7 @@ public class ItemTypeList extends ItemType implements ActionListener {
     } catch (Exception ee) { /* just to be sure */}
   }
 
-  public Object getSelectedValue() {
+  public T getSelectedValue() {
     try {
       if (list == null || list.isSelectionEmpty()) {
         return null;

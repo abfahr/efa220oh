@@ -115,24 +115,17 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
   protected IItemType focusItem;
   protected boolean resultSuccess = false;
 
-  public BaseDialog(Frame parent, String title, String closeButtonText) {
+  public BaseDialog(Window parent, String title, String closeButtonText) {
     super(parent);
     this._parent = parent;
     this._title = ucTitle(title);
     this._closeButtonText = closeButtonText;
   }
 
-  public BaseDialog(Frame parent, String title) {
+  public BaseDialog(Window parent, String title) {
     super(parent, title, ModalityType.APPLICATION_MODAL);
     this._parent = parent;
     this._title = ucTitle(title);
-  }
-
-  public BaseDialog(JDialog parent, String title, String closeButtonText) {
-    super(parent);
-    this._parent = parent;
-    this._title = ucTitle(title);
-    this._closeButtonText = closeButtonText;
   }
 
   private String ucTitle(String s) {

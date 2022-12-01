@@ -18,11 +18,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,15 +36,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.xml.transform.stream.StreamSource;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.calendar.CalendarString;
@@ -56,11 +48,7 @@ import de.nmichael.efa.calendar.CalendarTableModel;
 import de.nmichael.efa.calendar.TblCalendarRenderer;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.data.BoatRecord;
-import de.nmichael.efa.data.BoatReservationRecord;
-import de.nmichael.efa.data.BoatReservations;
-import de.nmichael.efa.data.Boats;
-import de.nmichael.efa.data.ClubworkRecord;
+import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.DataRecord;
@@ -71,6 +59,7 @@ import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.MultiInputDialog;
+import de.nmichael.efa.gui.ReserveAdditionalsDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
 import de.nmichael.efa.gui.dataedit.BoatReservationListDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
@@ -103,6 +92,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       ACTIONTEXT_EDIT,
       ACTIONTEXT_DELETE
   };
+  public static final String BOAT_SELECT_BTN = "boat_select_btn";
+  public static final String BOAT_ALL_SELECT_BTN = "boat_select_all_btn";
+
+  public static final String BOAT_REMOVE_BTN = "boat_remove_btn";
   protected StorageObject persistence;
   protected long validAt = -1; // configured validAt
   protected long myValidAt = -1; // actually used validAt in updateData(); if validAt == -1, then
@@ -498,7 +491,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     // allowed for identified Persons with Id
                     // if (reservation.getPersonId() != null) { // validRecord?
                     if (admin != null) {
-                      uebertragenAufAndereBoote(reservation);
+                      weitereBooteResevieren(reservation);
+                      
+                      //uebertragenAufAndereBoote(reservation);
                     } else {
                       uebertragenAufAndereBooteDieserGruppe(reservation);
                     }
@@ -757,6 +752,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
   }
 
+  private void weitereBooteResevieren(BoatReservationRecord reservation) throws EfaException {
+    BoatRecord originalBoat = reservation.getBoat();
+
+
+    boolean success = ReserveAdditionalsDialog.showInputDialog(getParentDialog());
+  }
+
   /**
    * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppen
    *
@@ -943,6 +945,32 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       Dialog.infoDialog("Fehlerprotokoll", s);
     }
   }
+
+
+  private ArrayList<IItemType> createListOfItemsByTypeSeats(String typeSeats)
+          throws  EfaException{
+    IDataAccess allBoats = Daten.project.getBoats(false).data();
+    ArrayList<IItemType> liste = new ArrayList<>();
+    long now = System.currentTimeMillis();
+    for (DataKey<?, ?, ?> dataKey : allBoats.getAllKeys()) {
+      BoatRecord boatRecord = (BoatRecord) allBoats.get(dataKey);
+      if (!boatRecord.isValidAt(now)) {
+        // Boot nicht mehr gültig, abgelaufen
+        continue;
+      }
+      if (!typeSeats.equals(boatRecord.getTypeSeats(0))) {
+        // aber nicht fremde Bootstypen - hier als Sitzplätze
+        // für andere Bootstypen, bitte neue Reservierung dort aufmachen.
+        continue;
+      }
+      ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
+              IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
+      item.setDataKey(boatRecord.getKey());
+      liste.add(item);
+    }
+    return liste;
+  }
+
 
   private ArrayList<IItemType> createListOfSelectableItemsSimilarTo(BoatRecord originalBoat)
       throws EfaException {

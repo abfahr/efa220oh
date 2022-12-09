@@ -3,11 +3,12 @@ package de.nmichael.efa.gui;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.BoatRecord;
+import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.util.EfaMouseListener;
+import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.util.International;
 
 import javax.swing.*;
@@ -21,8 +22,8 @@ import java.util.stream.Collectors;
 public class ReserveAdditionalsDialog extends BaseDialog{
 //Todo: Rückgabe der selektierten Boote an die Reservierungslogik
 //Todo: Sortierung der Liste
-//Todo: Fehlermeldung wenn bereits Boote reserviert sind
-//Todo: Boot von welchem die ursprüngliche Reservierung ausgeht, sollte möglichst in rechter Liste sein - darf zumindest aber nicht in linker Liste auftauchen
+//Done: Bereits reservierte Boote werden nicht zur Auswahl angezeigt
+//Done: Boot von welchem die ursprüngliche Reservierung ausgeht, sollte möglichst in rechter Liste sein - darf zumindest aber nicht in linker Liste auftauchen
 //Todo: Internationalisierung
 //Todo: Feature Toggle um zwischen alter und neuer Logik umzuschalten
 //Todo: für normale Nutzer soll die Gruppe der eigentlichen Reservierung vorselektiert und der Wechsel der GroupDropDown nicht möglich sein
@@ -32,6 +33,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
     public static final String BOAT_SELECT_BTN = "boat_select_btn";
     public static final String BOAT_ALL_SELECT_BTN = "boat_select_all_btn";
     public static final String BOAT_REMOVE_BTN = "boat_remove_btn";
+    private final Hashtable<String, TableItem[]> items;
 
     private String KEYACTION_ENTER;
 
@@ -58,8 +60,14 @@ public class ReserveAdditionalsDialog extends BaseDialog{
 
     private HashMap<String, FilteringModel> groupsData;
 
-    public ReserveAdditionalsDialog(Window parent, String title) {
+    private BoatRecord originalReservation;
+
+
+    public ReserveAdditionalsDialog(Window parent, String title, BoatRecord originalReservation, Hashtable<String, TableItem[]> items) {
         super(parent, title, International.getStringWithMnemonic("OK"));
+        this.items = items;
+        this.originalReservation = originalReservation;
+
     }
 
     @Override
@@ -84,13 +92,13 @@ public class ReserveAdditionalsDialog extends BaseDialog{
        groupDropDown.displayOnGui(this, mainPanel, 1, 0);
 
         //linke Liste: Zeigt Boote/Items der per dropDown ausgewählten Gruppe
-       itemsOfGroupList = new ItemTypeList("Stuff",IItemType.TYPE_PUBLIC, "", "Boote/Material der Gruppe");
+       itemsOfGroupList = new ItemTypeList("Stuff",IItemType.TYPE_PUBLIC, "", "Verfügbare Boote/Material der Gruppe");
        itemsOfGroupList.setPadding(0, 10, 0, 10);
        itemsOfGroupList.setFieldSize(300, 200);
        itemsOfGroupList.displayOnGui(this, mainPanel, 0, 1);
 
        //rechte Liste: zeigt die Boote/Items, welche zur Reservierung ausgewählt wurden.
-       selectedItemsList = new ItemTypeList("SelectedStuff",IItemType.TYPE_PUBLIC, "", "Ausgewählte(s) Boote/Material");
+       selectedItemsList = new ItemTypeList("SelectedStuff",IItemType.TYPE_PUBLIC, "", "Vorschau ausgewählte(s) Boote/Material");
        selectedItemsList.setPadding(0, 0, 0, 10);
        selectedItemsList.setFieldSize(300, 200);
        selectedItemsList.displayOnGui(this, mainPanel, 1, 1);
@@ -100,7 +108,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
        selectButton.setPadding(0, 10, 0, 0);
        selectButton.displayOnGui(this, mainPanel, 0, 2);
 
-       selectAllButton = new ItemTypeButton(BOAT_ALL_SELECT_BTN,0, "","Gesamte Gruppe auswählen");
+       selectAllButton = new ItemTypeButton(BOAT_ALL_SELECT_BTN,0, "","Alle auswählen");
        //selectAllButton.setFieldSize(20, 30);
        selectAllButton.setPadding(0, 10, 5, 0);
        selectAllButton.displayOnGui(this, mainPanel,0,3);
@@ -187,8 +195,8 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                 if (event instanceof ItemEvent
                         && event.getID() == ItemEvent.ITEM_STATE_CHANGED && ((ItemEvent) event).getStateChange() == ItemEvent.SELECTED) {
 
-                //    new Thread(new Runnable() {
-                     //   public void run() {
+                    new Thread(new Runnable() {
+                        public void run() {
                             FilteringModel currentModel = null;
                             try {
                                 String selectedCategory = null;
@@ -200,7 +208,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                                 //Aufrufe an die Datenbank reduzieren
 
                                 if (currentModel == null) {
-                                    ArrayList<IItemType> itemsByTypeSeats = ReserveAdditionalsDialog.this.createListOfItemsByTypeSeats(selectedCategory);
+                                    ArrayList<IItemType> itemsByTypeSeats = ReserveAdditionalsDialog.this.createListOfItemsByTypeSeats(selectedCategory, true);
                                     currentModel = new FilteringModel(itemsByTypeSeats);
                                     ReserveAdditionalsDialog.this.groupsData.put(selectedCategory, currentModel);
                                 }
@@ -223,8 +231,8 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                                     itemsOfGroupList.requestFocus();
                                 }
                             });
-                     //   }
-                   // }).start();
+                        }
+                    }).start();
                 }
             }
         };
@@ -233,34 +241,58 @@ public class ReserveAdditionalsDialog extends BaseDialog{
 
     }
 
-    private ArrayList<IItemType> createListOfItemsByTypeSeats(String typeSeats)
+    //TODO: schön machen...
+    private ArrayList<IItemType> createListOfItemsByTypeSeats(String typeSeats, boolean avoidCollisions)
             throws  EfaException{
         IDataAccess allBoats = Daten.project.getBoats(false).data();
         ArrayList<IItemType> liste = new ArrayList<>();
         long now = System.currentTimeMillis();
-        for (DataKey<?, ?, ?> dataKey : allBoats.getAllKeys()) {
+
+        BoatReservations reservations = Daten.project.getBoatReservations(false); //bisherige vorherige Reservierungen
+
+        List<String> keys = Collections.list(items.keys());
+
+        // bereits reservierte Boote / Material werden excludiert - Filterliste
+        List<UUID> uuids = new ArrayList<>();
+        for (String key : keys){
+            String[] element = key.split(",");
+            UUID uuid = UUID.fromString(element[0]);
+            uuids.add(uuid);
+        }
+
+        for (DataKey<UUID, Long, String> dataKey : allBoats.getAllKeys()) {
             BoatRecord boatRecord = (BoatRecord) allBoats.get(dataKey);
-            if (!boatRecord.isValidAt(now)) {
-                // Boot nicht mehr gültig, abgelaufen
-                continue;
+
+            if(!originalReservation.getId().equals(boatRecord.getId()) ) {
+                //zuvor gewähltes Boot soll nicht in boatList (weitere Boote reservieren) auftauchen
+
+                if (!boatRecord.isValidAt(now)) {
+                    // Boot nicht mehr gültig, abgelaufen
+                    continue;
+                }
+
+                if (!typeSeats.equals(boatRecord.getTypeSeats(0))) {
+                    // aber nicht fremde Bootstypen - hier als Sitzplätze
+                    // für andere Bootstypen, bitte neue Reservierung dort aufmachen.
+                    continue;
+                }
+
+               UUID part1 = dataKey.getKeyPart1();
+                if (!uuids.contains(part1) && avoidCollisions){
+                    ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
+                            IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
+                    item.setDataKey(boatRecord.getKey());
+                    liste.add(item);
+                }
             }
-            if (!typeSeats.equals(boatRecord.getTypeSeats(0))) {
-                // aber nicht fremde Bootstypen - hier als Sitzplätze
-                // für andere Bootstypen, bitte neue Reservierung dort aufmachen.
-                continue;
-            }
-            ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
-                    IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
-            item.setDataKey(boatRecord.getKey());
-            liste.add(item);
         }
         return liste;
     }
 
-    public static boolean showInputDialog(Window parent) {
-        ReserveAdditionalsDialog dlg = new ReserveAdditionalsDialog(parent, "Übertragen auf weitere Gruppen");
+    public static List<IItemType> showInputDialog(Window parent, BoatRecord originalReservation, Hashtable<String, TableItem[]> items) {
+        ReserveAdditionalsDialog dlg = new ReserveAdditionalsDialog(parent, "Übertragen auf weitere Gruppen", originalReservation, items);
         dlg.showDialog();
-        return dlg.resultSuccess;
+        return dlg.selectedItemsList.getItemObjects();
     }
 
     private abstract class AddRemoveListener implements IItemListener{
@@ -304,6 +336,13 @@ public class ReserveAdditionalsDialog extends BaseDialog{
         protected abstract List<IItemType> getSelectedItems(IItemType itemType, AWTEvent event);
     }
 
+
+    private static <T> ArrayList<T> list(Enumeration<T> e) {
+        ArrayList<T> l = new ArrayList<>();
+        while (e.hasMoreElements())
+            l.add(e.nextElement());
+        return l;
+    }
     /**
      * Data model for group specific items. Items may be filtered.
      */

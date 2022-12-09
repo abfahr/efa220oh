@@ -27,7 +27,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import javax.xml.transform.stream.StreamSource;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.calendar.CalendarString;
@@ -478,11 +477,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     // allowed for identified Persons with Id
                     // if (reservation.getPersonId() != null) { // validRecord?
                     if (admin != null) {
-                      weitereBooteResevieren(reservation);
+                      uebertragenDerReservierung(reservation, true);
                       
                       //uebertragenAufAndereBoote(reservation);
                     } else {
-                      uebertragenAufAndereBooteDieserGruppe(reservation);
+                      uebertragenDerReservierung(reservation, false);
+
+                      //uebertragenAufAndereBooteDieserGruppe(reservation);
                     }
                   } catch (EfaException e1) {
                     Logger.log(Logger.ERROR, Logger.MSG_ERR_PANIC, e1);
@@ -739,10 +740,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
   }
 
-  private void weitereBooteResevieren(BoatReservationRecord reservation) throws EfaException {
+  private void uebertragenDerReservierung(BoatReservationRecord reservation, boolean adminMode) throws EfaException {
     BoatRecord originalBoat = reservation.getBoat();
 
-    List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), originalBoat, items);
+    List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), originalBoat, items, adminMode);
 
     ArrayList<String> fehlerListe = new ArrayList<>();
     String lastException = "";

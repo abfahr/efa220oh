@@ -21,20 +21,7 @@ import java.awt.Window;
 import java.awt.event.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -755,9 +742,81 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   private void weitereBooteResevieren(BoatReservationRecord reservation) throws EfaException {
     BoatRecord originalBoat = reservation.getBoat();
 
+    List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), originalBoat, items);
 
-    boolean success = ReserveAdditionalsDialog.showInputDialog(getParentDialog());
+    ArrayList<String> fehlerListe = new ArrayList<>();
+    String lastException = "";
+
+    BoatReservations reservations = Daten.project.getBoatReservations(true);
+    for (IItemType iItemType : selectedItems) {
+      if (!(iItemType instanceof ItemTypeBoolean)) {
+        // erste Zeilen überspringen
+        continue;
+      }
+      boolean selectedInGui = ((ItemTypeBoolean) iItemType).getValue();
+      if (!selectedInGui) {
+        // diese Boote wurden nicht ausgewählt
+        continue;
+      }
+      @SuppressWarnings("unchecked")
+      DataKey<UUID, Long, String> dataKey = iItemType.getDataKey();
+      UUID selectedBoatId = dataKey.getKeyPart1();
+      if (originalBoat.getId().equals(selectedBoatId)) {
+        // das eigene Boot haben wir schon reserviert
+        continue;
+      }
+
+      // neue Reservierung: alle Parameter einzeln eintragen
+      BoatReservationRecord newReservationsRecord = reservations
+              .createBoatReservationsRecordFromClone(selectedBoatId, reservation);
+
+      if (versionizedRecordOfThatNameAlreadyExists(newReservationsRecord)) {
+        // seems to have conflicts TODO
+        // keep track of failures in a List
+        fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
+        fehlerListe.add("--versionizedRecordOfThatNameAlreadyExists");
+        continue;
+      }
+
+      // check Conflicts with same time
+      try {
+        reservations.preModifyRecordCallback(newReservationsRecord, true, false, false);
+      } catch (EfaModifyException e) {
+        // Logger.log(Logger.INFO, Logger.MSG_DATA_UPDATECONFLICT, e); // MSG_DATA_CREATEFAILED
+        fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
+        lastException = e.getLocalizedMessage();
+        continue;
+      }
+
+      reservations.data().add(newReservationsRecord);
+      String aktion = "INSERT";
+      newReservationsRecord.sendEmailBeiReservierung(aktion);
+      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
+              newReservationsRecord.getPersistence().getDescription() + ": " +
+                      International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                              (admin != null
+                                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                                      : newReservationsRecord.getPersonAsName()),
+                              newReservationsRecord.getQualifiedName() + " "
+                                      + newReservationsRecord.getReservationTimeDescription(
+                                      BoatReservationRecord.REPLACE_HEUTE)));
+    } // for loop
+    if (!fehlerListe.isEmpty()) {
+      // display the failures at end
+      String s = "";
+      s += "Für die Zeit " + reservation.getReservationTimeDescription(
+              BoatReservationRecord.REPLACE_HEUTE) + "\n";
+      s += "konnten nicht alle Boote automatisch mitreserviert werden.\n";
+      for (String string : fehlerListe) {
+        s += string + "\n";
+      }
+      s += lastException;
+      Dialog.infoDialog("Fehlerprotokoll", s);
+    }
+
+
   }
+
 
   /**
    * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppen

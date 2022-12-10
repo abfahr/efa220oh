@@ -477,11 +477,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     // allowed for identified Persons with Id
                     // if (reservation.getPersonId() != null) { // validRecord?
                     if (admin != null) {
-                      uebertragenDerReservierung(reservation, true);
+                      reserveAdditionalItems(reservation, true);
                       
                       //uebertragenAufAndereBoote(reservation);
                     } else {
-                      uebertragenDerReservierung(reservation, false);
+                      reserveAdditionalItems(reservation, false);
 
                       //uebertragenAufAndereBooteDieserGruppe(reservation);
                     }
@@ -740,13 +740,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
   }
 
-  private void uebertragenDerReservierung(BoatReservationRecord reservation, boolean adminMode) throws EfaException {
-    BoatRecord originalBoat = reservation.getBoat();
-
-    List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), originalBoat, items, adminMode);
-
+  private void reserveSelectedItems(List<IItemType> selectedItems, BoatReservationRecord reservation) throws EfaException {
     ArrayList<String> fehlerListe = new ArrayList<>();
     String lastException = "";
+
+    BoatRecord originalBoat = reservation.getBoat();
 
     BoatReservations reservations = Daten.project.getBoatReservations(true);
     for (IItemType iItemType : selectedItems) {
@@ -814,8 +812,16 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       s += lastException;
       Dialog.infoDialog("Fehlerprotokoll", s);
     }
+  }
 
+  private void reserveAdditionalItems(BoatReservationRecord reservation, boolean adminMode) throws EfaException {
+    BoatRecord originalBoat = reservation.getBoat();
 
+    List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), originalBoat, items, adminMode);
+
+    if (!selectedItems.isEmpty()){
+      reserveSelectedItems(selectedItems, reservation);
+    }
   }
 
 
@@ -926,6 +932,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         "Sollen andere Boote genauso reserviert werden?"));
     liste.add(new ItemTypeLabel("*A-L4", IItemType.TYPE_INTERNAL, "",
         "-> Bitte auswählen: (bitte nicht alle, evtl. Mailflut)"));
+
     IItemType[] items = createArraySortedByName(liste);
 
     boolean pressedOKAY = MultiInputDialog.showInputDialog(getParentDialog(),
@@ -935,75 +942,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       return;
     }
 
-    ArrayList<String> fehlerListe = new ArrayList<>();
-    String lastException = "";
-
-    BoatReservations reservations = Daten.project.getBoatReservations(true);
-    for (IItemType iItemType : items) {
-      if (!(iItemType instanceof ItemTypeBoolean)) {
-        // erste Zeilen überspringen
-        continue;
-      }
-      boolean selectedInGui = ((ItemTypeBoolean) iItemType).getValue();
-      if (!selectedInGui) {
-        // diese Boote wurden nicht ausgewählt
-        continue;
-      }
-      @SuppressWarnings("unchecked")
-      DataKey<UUID, Long, String> dataKey = iItemType.getDataKey();
-      UUID selectedBoatId = dataKey.getKeyPart1();
-      if (originalBoat.getId().equals(selectedBoatId)) {
-        // das eigene Boot haben wir schon reserviert
-        continue;
-      }
-
-      // neue Reservierung: alle Parameter einzeln eintragen
-      BoatReservationRecord newReservationsRecord = reservations
-          .createBoatReservationsRecordFromClone(selectedBoatId, reservationRecord);
-
-      if (versionizedRecordOfThatNameAlreadyExists(newReservationsRecord)) {
-        // seems to have conflicts TODO
-        // keep track of failures in a List
-        fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
-        fehlerListe.add("--versionizedRecordOfThatNameAlreadyExists");
-        continue;
-      }
-
-      // check Conflicts with same time
-      try {
-        reservations.preModifyRecordCallback(newReservationsRecord, true, false, false);
-      } catch (EfaModifyException e) {
-        // Logger.log(Logger.INFO, Logger.MSG_DATA_UPDATECONFLICT, e); // MSG_DATA_CREATEFAILED
-        fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
-        lastException = e.getLocalizedMessage();
-        continue;
-      }
-
-      reservations.data().add(newReservationsRecord);
-      String aktion = "INSERT";
-      newReservationsRecord.sendEmailBeiReservierung(aktion);
-      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
-          newReservationsRecord.getPersistence().getDescription() + ": " +
-              International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                  (admin != null
-                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                      : newReservationsRecord.getPersonAsName()),
-                  newReservationsRecord.getQualifiedName() + " "
-                      + newReservationsRecord.getReservationTimeDescription(
-                          BoatReservationRecord.REPLACE_HEUTE)));
-    } // for loop
-    if (!fehlerListe.isEmpty()) {
-      // display the failures at end
-      String s = "";
-      s += "Für die Zeit " + reservationRecord.getReservationTimeDescription(
-          BoatReservationRecord.REPLACE_HEUTE) + "\n";
-      s += "konnten nicht alle Boote automatisch mitreserviert werden.\n";
-      for (String string : fehlerListe) {
-        s += string + "\n";
-      }
-      s += lastException;
-      Dialog.infoDialog("Fehlerprotokoll", s);
-    }
+    reserveSelectedItems(liste, reservationRecord);
   }
 
 

@@ -19,17 +19,19 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Special dialog to add additional items while being in process of reserving items (boat or other items).
+ */
 public class ReserveAdditionalsDialog extends BaseDialog{
 //Done: Rückgabe der selektierten Boote an die Reservierungslogik
-//Todo: Sortierung der Liste
+//Todo: Sortierung der Listen
 //Done: Bereits reservierte Boote werden nicht zur Auswahl angezeigt
 //Done: Boot von welchem die ursprüngliche Reservierung ausgeht, sollte möglichst in rechter Liste sein - darf zumindest aber nicht in linker Liste auftauchen
-//Todo: Internationalisierung
+//Done: Internationalisierung
 //Todo: Feature Toggle um zwischen alter und neuer Logik umzuschalten
 //Done: für normale Nutzer soll die Gruppe der eigentlichen Reservierung vorselektiert und der Wechsel der GroupDropDown nicht möglich sein
 //Done: Initial die Gruppe der Hauptselektion auswählen
 //Todo: Tests
-//Klasse um bei Bootsreservierung durch Admin direkt weitere Boote oder ganze Bootsgruppen auszuwählen
 
     public static final String BOAT_SELECT_BTN = "boat_select_btn";
     public static final String BOAT_ALL_SELECT_BTN = "boat_select_all_btn";
@@ -64,7 +66,14 @@ public class ReserveAdditionalsDialog extends BaseDialog{
 
     private BoatRecord originalReservation;
 
-
+    /**
+     * The sole constructor
+     * @param parent
+     * @param title
+     * @param originalReservation
+     * @param items
+     * @param isAdminMode
+     */
     public ReserveAdditionalsDialog(Window parent, String title, BoatRecord originalReservation, Hashtable<String, TableItem[]> items, boolean isAdminMode) {
         super(parent, title, International.getStringWithMnemonic("OK"));
         this.items = items;
@@ -213,7 +222,11 @@ public class ReserveAdditionalsDialog extends BaseDialog{
 
     }
 
-
+    /**
+     * Fills and updates the list of selectable items by typeSeats
+     *
+     * @param typeSeats
+     */
     private void updateSelectableItemList(String typeSeats){
         new Thread(new Runnable() {
             public void run() {
@@ -223,7 +236,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                     //Aufrufe an die Datenbank reduzieren
 
                     if (currentModel == null) {
-                        ArrayList<IItemType> itemsByTypeSeats = ReserveAdditionalsDialog.this.createListOfItemsByTypeSeats(typeSeats, true);
+                        ArrayList<IItemType> itemsByTypeSeats = ReserveAdditionalsDialog.this.createListOfItemsByTypeSeats(typeSeats);
                         currentModel = new FilteringModel(itemsByTypeSeats);
                         ReserveAdditionalsDialog.this.groupsData.put(typeSeats, currentModel);
                     }
@@ -251,7 +264,14 @@ public class ReserveAdditionalsDialog extends BaseDialog{
     }
 
     //TODO: schön machen...
-    private ArrayList<IItemType> createListOfItemsByTypeSeats(String typeSeats, boolean avoidCollisions)
+
+    /**
+     * Retrieves items by given typeSeats identifier
+     * @param typeSeats
+     * @return
+     * @throws EfaException
+     */
+    private ArrayList<IItemType> createListOfItemsByTypeSeats(String typeSeats)
             throws  EfaException{
         IDataAccess allBoats = Daten.project.getBoats(false).data();
         ArrayList<IItemType> liste = new ArrayList<>();
@@ -287,7 +307,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                 }
 
                UUID part1 = dataKey.getKeyPart1();
-                if (!uuids.contains(part1) && avoidCollisions){
+                if (!uuids.contains(part1)){
                     ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
                             IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
                     item.setDataKey(boatRecord.getKey());
@@ -304,6 +324,9 @@ public class ReserveAdditionalsDialog extends BaseDialog{
         return dlg.selectedItemsList.getItemObjects();
     }
 
+    /**
+     * Abstract listener to add or remove items from {@link ItemTypeList}s
+     */
     private abstract class AddRemoveListener implements IItemListener{
 
         private ItemTypeList source;
@@ -348,13 +371,6 @@ public class ReserveAdditionalsDialog extends BaseDialog{
         protected abstract List<IItemType> getSelectedItems(IItemType itemType, AWTEvent event);
     }
 
-
-    private static <T> ArrayList<T> list(Enumeration<T> e) {
-        ArrayList<T> l = new ArrayList<>();
-        while (e.hasMoreElements())
-            l.add(e.nextElement());
-        return l;
-    }
     /**
      * Data model for group specific items. Items may be filtered.
      */

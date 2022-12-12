@@ -476,14 +476,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   try {
                     // allowed for identified Persons with Id
                     // if (reservation.getPersonId() != null) { // validRecord?
-                    if (admin != null) {
-                      reserveAdditionalItems(reservation, true);
-                      
-                      //uebertragenAufAndereBoote(reservation);
-                    } else {
-                      reserveAdditionalItems(reservation, false);
 
-                      //uebertragenAufAndereBooteDieserGruppe(reservation);
+                    if (Daten.efaConfig.getValueEfaDirekt_showAdvancedReserveAdditionalsDialog()){
+                        reserveAdditionalItems(reservation, admin != null);
+                    }else{
+                        if (admin != null) {
+                          uebertragenAufAndereBoote(reservation);
+                        } else {
+                          uebertragenAufAndereBooteDieserGruppe(reservation);
+                        }
                     }
                   } catch (EfaException e1) {
                     Logger.log(Logger.ERROR, Logger.MSG_ERR_PANIC, e1);

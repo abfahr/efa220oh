@@ -61,7 +61,7 @@ import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 
-public class EfaConfig extends StorageObject implements IItemFactory {
+public class  EfaConfig extends StorageObject implements IItemFactory {
 
   public static final String DATATYPE = "efa2config";
 
@@ -240,6 +240,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_showEingabeInfos;
   private ItemTypeInteger efaDirekt_anzahlFahrtenFuerKuerzelTipp;
   private ItemTypeBoolean efaDirekt_showBootsschadenButton;
+
+  private ItemTypeBoolean efaDirekt_showAdvancedReserveAdditionalsDialog;
   private ItemTypeBoolean boatNotCleanedButton;
   private ItemTypeString uuidBootshaus;
   private ItemTypeString maximaleEndUhrzeitFolgetagBeiBootshausReservierung;
@@ -757,6 +759,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("Melden von Bootsschäden erlauben")));
+      addParameter(efaDirekt_showAdvancedReserveAdditionalsDialog = new ItemTypeBoolean("AdvancedReservationDialog",
+          false, IItemType.TYPE_EXPERT,  BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+          International.getString("efaDirekt_showAdvancedReserveAdditionalsDialog")));
       addParameter(boatNotCleanedButton = new ItemTypeBoolean("ShowBoatNotCleanedButton", false,
           IItemType.TYPE_EXPERT,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
@@ -2406,6 +2411,12 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     setValue(efaDirekt_locked, Boolean.toString(locked));
   }
 
+  public void setValueEfaDirekt_showAdvancedReserveAdditionalsDialog(boolean showDialog) {
+    setValue(efaDirekt_showAdvancedReserveAdditionalsDialog, Boolean.toString(showDialog));}
+
+  public boolean getValueEfaDirekt_showAdvancedReserveAdditionalsDialog() {
+    return efaDirekt_showAdvancedReserveAdditionalsDialog.getValue();};
+
   public boolean getValueUseFunctionalityRowing() {
     return useFunctionalityRowing.getValue();
   }
@@ -2616,6 +2627,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
               item == efaDirekt_listAllowToggleSortByCategories ||
               item == efaDirekt_groupToggleSortByCategoriesNorth ||
               item == efaDirekt_autoPopupOnBoatLists ||
+              item == efaDirekt_showAdvancedReserveAdditionalsDialog ||
               item == useFunctionalityRowing ||
               item == useFunctionalityRowingGermany ||
               item == useFunctionalityRowingBerlin ||

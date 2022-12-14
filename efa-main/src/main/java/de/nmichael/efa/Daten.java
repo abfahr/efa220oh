@@ -101,7 +101,8 @@ public class Daten {
     return getProperties().getProperty("efa.programmIdDrv");
   }
 
-  public static final String COPYRIGHTYEAR = "14"; // aktuelles Jahr (Copyright (c)
+  public static final String COPYRIGHTYEAR = "14";
+  // aktuelles Jahr (Copyright (c)
   // 2001-COPYRIGHTYEAR)
 
   private static final String EFA_LOG_FILE = "efa.log";

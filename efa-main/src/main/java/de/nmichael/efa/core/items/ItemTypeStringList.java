@@ -22,8 +22,8 @@ import javax.swing.JComponent;
 public class ItemTypeStringList extends ItemTypeLabelValue {
 
   private String value;
-  private String[] valueList;
-  private String[] displayList;
+  private String[] valueList; //indices 1,2,...
+  private String[] displayList; //Kinderboote, SUP,...
   private volatile boolean ignoreItemStateChanges = false;
 
   public ItemTypeStringList(String name, String value,
@@ -47,9 +47,10 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
 
   @Override
   protected JComponent initializeField() {
-    JComboBox f = new JComboBox();
+    JComboBox<ItemLabelValue> f = new JComboBox();
     for (int i = 0; displayList != null && i < displayList.length; i++) {
-      f.addItem(displayList[i]);
+      ItemLabelValue item = new ItemLabelValue(valueList[i], displayList[i]);
+      f.addItem(item);
     }
     f.addItemListener(new java.awt.event.ItemListener() {
       @Override
@@ -158,4 +159,28 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
     return displayList;
   }
 
+  public class ItemLabelValue
+  {
+    private String value;
+
+    private String label;
+
+    public ItemLabelValue(String value, String label) {
+      this.value = value;
+      this.label = label;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return label;
+    }
+  }
 }

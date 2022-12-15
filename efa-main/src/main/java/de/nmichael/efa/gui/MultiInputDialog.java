@@ -10,13 +10,8 @@
 
 package de.nmichael.efa.gui;
 
-import java.awt.Frame;
-import java.awt.GridBagLayout;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.util.Dialog;
@@ -32,12 +27,7 @@ public class MultiInputDialog extends BaseDialog {
   private String KEYACTION_ENTER;
   protected IItemType[] items;
 
-  public MultiInputDialog(Frame parent, String title, IItemType[] items) {
-    super(parent, title, International.getStringWithMnemonic("OK"));
-    this.items = items;
-  }
-
-  public MultiInputDialog(JDialog parent, String title, IItemType[] items) {
+  public MultiInputDialog(Window parent, String title, IItemType[] items) {
     super(parent, title, International.getStringWithMnemonic("OK"));
     this.items = items;
   }
@@ -89,24 +79,10 @@ public class MultiInputDialog extends BaseDialog {
     super.closeButton_actionPerformed(e);
   }
 
-  public static boolean showInputDialog(JDialog parent, String title, IItemType[] items) {
-    MultiInputDialog dlg = new MultiInputDialog(parent, title, items);
-    dlg.showDialog();
-    return dlg.resultSuccess;
-  }
-
-  public static boolean showInputDialog(JFrame parent, String title, IItemType[] items) {
-    MultiInputDialog dlg = new MultiInputDialog(parent, title, items);
-    dlg.showDialog();
-    return dlg.resultSuccess;
-  }
-
   public static boolean showInputDialog(Window parent, String title, IItemType[] items) {
-    if (parent instanceof JDialog) {
-      return showInputDialog((JDialog) parent, title, items);
-    } else {
-      return showInputDialog((JFrame) parent, title, items);
-    }
+    MultiInputDialog dlg = new MultiInputDialog(parent, title, items);
+    dlg.showDialog();
+    return dlg.resultSuccess;
   }
 
 }

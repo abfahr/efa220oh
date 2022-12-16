@@ -98,14 +98,18 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                International.getString("de.nmichael.efa.gui.ReserveAdditionalsDialog.questionMoreReservations"));
        label_caution.displayOnGui(this, mainPanel, 0,0);
 
-        String typeSeatsOfOriginalReservation = originalReservation.getTypeSeats(0);
+       String typeSeatsOfOriginalReservation = originalReservation.getTypeSeats(0);
 
        groupDropDown = new ItemTypeStringList("Groups",typeSeatsOfOriginalReservation,  boatSeatsValuesArray, boatSeatsDisplayArray,0,"",null);
        groupDropDown.setFieldSize(300, 30);
        groupDropDown.displayOnGui(this, mainPanel, 1, 0);
-       groupDropDown.setEnabled(isAdminMode);
+       if (Daten.efaConfig.getValueEfaDirekt_allowAdvancedReserveBoatCategories()) {
+           groupDropDown.setEnabled(true);
+       } else {
+           groupDropDown.setEnabled(isAdminMode);
+       }
 
-        //linke Liste: Zeigt Boote/Items der per dropDown ausgewählten Gruppe
+       //linke Liste: Zeigt Boote/Items der per dropDown ausgewählten Gruppe
        itemsOfGroupList = new ItemTypeList("Stuff",IItemType.TYPE_PUBLIC, "", International.getString("de.nmichael.efa.gui.ReserveAdditionalsDialog.availabeItems"));
        itemsOfGroupList.setPadding(0, 10, 0, 10);
        itemsOfGroupList.setFieldSize(300, 200);
@@ -126,6 +130,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
        //selectAllButton.setFieldSize(20, 30);
        selectAllButton.setPadding(0, 10, 5, 0);
        selectAllButton.displayOnGui(this, mainPanel,0,3);
+       selectAllButton.setEnabled(isAdminMode);
 
        removeButton = new ItemTypeButton(BOAT_REMOVE_BTN,0, "",International.getString("de.nmichael.efa.gui.ReserveAdditionalsDialog.removeItems"));
        //removeButton.setFieldSize(20, 30);

@@ -242,6 +242,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeBoolean efaDirekt_showBootsschadenButton;
 
   private ItemTypeBoolean efaDirekt_showAdvancedReserveAdditionalsDialog;
+  private ItemTypeBoolean efaDirekt_allowAdvancedReserveBoatCategories;
   private ItemTypeBoolean boatNotCleanedButton;
   private ItemTypeString uuidBootshaus;
   private ItemTypeString maximaleEndUhrzeitFolgetagBeiBootshausReservierung;
@@ -762,6 +763,11 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
       addParameter(efaDirekt_showAdvancedReserveAdditionalsDialog = new ItemTypeBoolean("AdvancedReservationDialog",
           false, IItemType.TYPE_EXPERT,  BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
           International.getString("efaDirekt_showAdvancedReserveAdditionalsDialog")));
+      addParameter(efaDirekt_allowAdvancedReserveBoatCategories = new ItemTypeBoolean(
+              "efaDirekt_allowAdvancedReserveBoatCategories",
+              true, IItemType.TYPE_EXPERT,
+              BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+              International.getString("nicht nur fuer Admins mehr Bootskategorien")));
       addParameter(boatNotCleanedButton = new ItemTypeBoolean("ShowBoatNotCleanedButton", false,
           IItemType.TYPE_EXPERT,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
@@ -2417,6 +2423,10 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
   public boolean getValueEfaDirekt_showAdvancedReserveAdditionalsDialog() {
     return efaDirekt_showAdvancedReserveAdditionalsDialog.getValue();};
 
+  public boolean getValueEfaDirekt_allowAdvancedReserveBoatCategories() {
+    return efaDirekt_allowAdvancedReserveBoatCategories.getValue();
+  }
+
   public boolean getValueUseFunctionalityRowing() {
     return useFunctionalityRowing.getValue();
   }
@@ -2627,7 +2637,6 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
               item == efaDirekt_listAllowToggleSortByCategories ||
               item == efaDirekt_groupToggleSortByCategoriesNorth ||
               item == efaDirekt_autoPopupOnBoatLists ||
-              item == efaDirekt_showAdvancedReserveAdditionalsDialog ||
               item == useFunctionalityRowing ||
               item == useFunctionalityRowingGermany ||
               item == useFunctionalityRowingBerlin ||

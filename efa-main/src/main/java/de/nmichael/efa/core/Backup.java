@@ -33,7 +33,7 @@ import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.ProgressTask;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class Backup {
   enum Mode {

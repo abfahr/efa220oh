@@ -1501,6 +1501,13 @@ public class Audit extends Thread {
       }
 
       return logbookErr;
+    } catch (NullPointerException e) {
+      // TODO abf 2022-12-26 first try to find Audit-Bug in Overfreunde-Mails
+      Logger.logdebug(e);
+      auditError(Logger.MSG_DATA_AUDIT,
+              "runAuditLogbook(" + logbookName + ") Caught Exception: " + e.toString());
+      Logger.logwarn(e);
+      return ++logbookErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,

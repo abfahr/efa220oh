@@ -7,6 +7,7 @@ import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.util.International;
@@ -64,7 +65,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
 
     private HashMap<String, FilteringModel> groupsData;
 
-    private BoatRecord originalReservation;
+    private BoatReservationRecord originalReservation;
 
     /**
      * The sole constructor
@@ -74,7 +75,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
      * @param items
      * @param isAdminMode
      */
-    public ReserveAdditionalsDialog(Window parent, String title, BoatRecord originalReservation, Hashtable<String, TableItem[]> items, boolean isAdminMode) {
+    public ReserveAdditionalsDialog(Window parent, String title, BoatReservationRecord originalReservation, Hashtable<String, TableItem[]> items, boolean isAdminMode) {
         super(parent, title, International.getStringWithMnemonic("OK"));
         this.items = items;
         this.originalReservation = originalReservation;
@@ -98,7 +99,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                International.getString("de.nmichael.efa.gui.ReserveAdditionalsDialog.questionMoreReservations"));
        label_caution.displayOnGui(this, mainPanel, 0,0);
 
-       String typeSeatsOfOriginalReservation = originalReservation.getTypeSeats(0);
+       String typeSeatsOfOriginalReservation = originalReservation.getBoat().getTypeSeats(0);
 
        groupDropDown = new ItemTypeStringList("Groups",typeSeatsOfOriginalReservation,  boatSeatsValuesArray, boatSeatsDisplayArray,0,"",null);
        groupDropDown.setFieldSize(300, 30);
@@ -286,18 +287,10 @@ public class ReserveAdditionalsDialog extends BaseDialog{
 
         List<String> keys = Collections.list(items.keys());
 
-        // bereits reservierte Boote / Material werden excludiert - Filterliste
-        List<UUID> uuids = new ArrayList<>();
-        for (String key : keys){
-            String[] element = key.split(",");
-            UUID uuid = UUID.fromString(element[0]);
-            uuids.add(uuid);
-        }
-
         for (DataKey<UUID, Long, String> dataKey : allBoats.getAllKeys()) {
             BoatRecord boatRecord = (BoatRecord) allBoats.get(dataKey);
 
-            if(!originalReservation.getId().equals(boatRecord.getId()) ) {
+            if(!originalReservation.getBoat().getId().equals(boatRecord.getId()) ) {
                 //zuvor gewähltes Boot soll nicht in boatList (weitere Boote reservieren) auftauchen
 
                 if (!boatRecord.isValidAt(now)) {
@@ -311,19 +304,24 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                     continue;
                 }
 
-               UUID part1 = dataKey.getKeyPart1();
-                if (!uuids.contains(part1)){
+                try{
+                    BoatReservationRecord testReservationsRecord = reservations
+                            .createBoatReservationsRecordFromClone(boatRecord.getId(), originalReservation);
+
+                    reservations.preModifyRecordCallback(testReservationsRecord, true, false, false);
                     ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
                             IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
                     item.setDataKey(boatRecord.getKey());
                     liste.add(item);
+                }catch (EfaModifyException exception){
+                    //Intentionally left blank
                 }
             }
         }
         return liste;
     }
 
-    public static List<IItemType> showInputDialog(Window parent, BoatRecord originalReservation, Hashtable<String, TableItem[]> items, boolean adminMode) {
+    public static List<IItemType> showInputDialog(Window parent, BoatReservationRecord originalReservation, Hashtable<String, TableItem[]> items, boolean adminMode) {
         ReserveAdditionalsDialog dlg = new ReserveAdditionalsDialog(parent, "Übertragen auf weitere Gruppen", originalReservation, items, adminMode);
         dlg.showDialog();
         return dlg.selectedItemsList.getItemObjects();

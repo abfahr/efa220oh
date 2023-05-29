@@ -816,9 +816,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void reserveAdditionalItems(BoatReservationRecord reservation, boolean adminMode) throws EfaException {
-    BoatRecord originalBoat = reservation.getBoat();
 
-    List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), originalBoat, items, adminMode);
+    List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), reservation, items, adminMode);
 
     if (!selectedItems.isEmpty()){
       reserveSelectedItems(selectedItems, reservation);

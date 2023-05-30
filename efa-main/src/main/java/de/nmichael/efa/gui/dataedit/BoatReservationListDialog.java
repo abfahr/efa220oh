@@ -192,10 +192,26 @@ public class BoatReservationListDialog extends DataListDialog {
   }
 
   private boolean checkEinweisung(BoatRecord boatRecord) {
+    if (boatRecord != null && boatRecord.getPopupfrage() != null) {
+      //Titel_Einweisung_Profi_Boote
+      int yesNoDialog = Dialog.yesNoDialog(
+              International.getString("Titel Einweisung Boote"),
+              "  " + boatRecord.getQualifiedName() + "\n\r"
+                      + boatRecord.getPopupfrage() + "\n\r  "
+                      + Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                      boatRecord.getTypeSeats(0)));
+      if (yesNoDialog != Dialog.YES) {
+        Dialog.infoDialog(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                        boatRecord.getTypeSeats(0)),
+                International.getMessage("Ansprache der {ansprechperson}",
+                        boatRecord.getAnsprechperson()));
+        return false;
+      }
+    }
     if (boatRecord != null && boatRecord.getTypeSeats(0).equals(
             International.getString("Profi Boote Kontrollnummer"))) {
       int yesNoDialog = Dialog.yesNoDialog(
-              International.getString("Titel Einweisung Profi Boote"),
+              International.getString("Titel Einweisung Boote"),
               "  " + boatRecord.getQualifiedName() + "\n\r"
                       + International.getString("Frage Einweisung Profi Boote") + "\n\r  "
                       + Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,

@@ -4601,6 +4601,22 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (item.person != null) {
       crew[0].parseAndShowValue(item.person.getQualifiedName());
     }
+    if (item.boat != null && item.boat.getPopupfrage() != null) {
+      //Titel_Einweisung_Profi_Boote
+      int yesNoDialog = Dialog.yesNoDialog(
+              International.getString("Titel Einweisung Boote"),
+              "  " + item.boat.getQualifiedName() + "\n\r"
+                      + item.boat.getPopupfrage() + "\n\r  "
+                      + Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                      item.boat.getTypeSeats(0)));
+      if (yesNoDialog != Dialog.YES) {
+        Dialog.infoDialog(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
+                        item.boat.getTypeSeats(0)),
+                International.getMessage("Ansprache der {ansprechperson}",
+                        item.boat.getAnsprechperson()));
+        item.boat = null;
+      }
+    }
     if (item.boat != null && item.boat.getTypeSeats(0).equals(
             International.getString("Profi Boote Kontrollnummer"))) {
       int yesNoDialog = Dialog.yesNoDialog(

@@ -87,6 +87,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
   public static final String PURCHASEPRICE = "PurchasePrice"; // wird im OH genutzt
   public static final String SELLINGDATE = "SellingDate"; // wird im OH genutzt
   public static final String SELLINGPRICE = "SellingPrice";
+  public static final String POPUPFRAGE = "PopUp-Frage";
+  public static final String ANSPRECHPERSON = "Anprechperson";
 
   public static final String[] IDX_NAME_NAMEAFFIX = new String[] { NAME, NAMEAFFIX };
 
@@ -145,6 +147,10 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     t.add(IDataAccess.DATA_DATE);
     f.add(SELLINGPRICE);
     t.add(IDataAccess.DATA_DECIMAL);
+    f.add(POPUPFRAGE);
+    t.add(IDataAccess.DATA_STRING);
+    f.add(ANSPRECHPERSON);
+    t.add(IDataAccess.DATA_STRING);
     MetaData metaData = constructMetaData(Boats.DATATYPE, f, t, true);
     metaData.setKey(new String[] { ID }); // plus VALID_FROM
     metaData.addIndex(IDX_NAME_NAMEAFFIX);
@@ -583,6 +589,22 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     return getDecimal(SELLINGPRICE);
   }
 
+  public void setPopupfrage(String popupfrage) {
+    setString(POPUPFRAGE, popupfrage);
+  }
+
+  public String getPopupfrage() {
+    return getString(POPUPFRAGE);
+  }
+
+  public void setAnsprechperson(String ansprechperson) {
+    setString(ANSPRECHPERSON, ansprechperson);
+  }
+
+  public String getAnsprechperson() {
+    return getString(ANSPRECHPERSON);
+  }
+
   public String getQualifiedVariantName(int variant) {
     int idx = getVariantIndex(variant);
     String s = getTypeDescription(idx);
@@ -958,6 +980,11 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     ((ItemTypeDate) item).setAllowYearOnly(true);
     v.add(item = new ItemTypeDecimal(BoatRecord.SELLINGPRICE, getSellingPrice(), 2, true,
         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verkaufspreis")));
+
+    v.add(item = new ItemTypeString(BoatRecord.POPUPFRAGE, getPopupfrage(),
+            IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("PopUp-Frage")));
+    v.add(item = new ItemTypeString(BoatRecord.ANSPRECHPERSON, getAnsprechperson(),
+            IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Ansprechperson")));
 
     // CAT_MOREDATA
     itemList = new Vector<IItemType[]>();

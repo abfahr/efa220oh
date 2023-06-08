@@ -2838,6 +2838,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       return;
     }
 
+    if (Daten.isNotWriteModeMitSchluessel()) {
+      Dialog.meldung("Nur für Vereinsmitglieder",
+              "Bitte erst Bootshausschlüssel nach rechts drehen.");
+      return;
+    }
+
     ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
     if (item == null) {
       Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
@@ -3068,6 +3074,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       return;
     }
 
+    if (Daten.isNotWriteModeMitSchluessel()) {
+      Dialog.meldung("Nur für Vereinsmitglieder",
+              "Bitte erst Bootshausschlüssel nach rechts drehen.");
+      return;
+    }
+
     ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
     if (item == null || item.boat == null) {
       Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
@@ -3202,6 +3214,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     alive();
     clearAllPopups();
     if (Daten.project == null || logbook == null) {
+      return;
+    }
+
+    if (Daten.isNotWriteModeMitSchluessel()) {
+      Dialog.meldung("Nur für Vereinsmitglieder",
+              "Bitte erst Bootshausschlüssel nach rechts drehen.");
       return;
     }
 

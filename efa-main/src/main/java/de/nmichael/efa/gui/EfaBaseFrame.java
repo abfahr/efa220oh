@@ -4617,7 +4617,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         item.boat = null;
       }
     }
-    if (item.boat != null && item.boat.getTypeSeats(0).equals(
+    else if (item.boat != null && item.boat.getTypeSeats(0).equals(
             International.getString("Profi Boote Kontrollnummer"))) {
       int yesNoDialog = Dialog.yesNoDialog(
               International.getString("Titel Einweisung Profi Boote"),

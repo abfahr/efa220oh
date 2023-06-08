@@ -208,7 +208,7 @@ public class BoatReservationListDialog extends DataListDialog {
         return false;
       }
     }
-    if (boatRecord != null && boatRecord.getTypeSeats(0).equals(
+    else if (boatRecord != null && boatRecord.getTypeSeats(0).equals(
             International.getString("Profi Boote Kontrollnummer"))) {
       int yesNoDialog = Dialog.yesNoDialog(
               International.getString("Titel Einweisung Boote"),

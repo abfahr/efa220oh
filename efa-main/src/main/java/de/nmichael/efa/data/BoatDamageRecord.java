@@ -358,7 +358,10 @@ public class BoatDamageRecord extends DataRecord {
     }
     try {
       Persons persons = getPersistence().getProject().getPersons(false);
-      long fixTimestamp = getFixDate().getTimestamp(getFixTime());
+      long fixTimestamp = System.currentTimeMillis(); // jetzt
+      if (getFixDate() != null) {
+        fixTimestamp = getFixDate().getTimestamp(getFixTime());
+      }
       PersonRecord person = persons.getPerson(id, fixTimestamp);
       if (person == null) {
         person = persons.getPerson(id, System.currentTimeMillis());

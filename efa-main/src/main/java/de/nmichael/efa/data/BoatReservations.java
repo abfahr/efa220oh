@@ -268,7 +268,7 @@ public class BoatReservations extends StorageObject {
         }
       }
 
-      if (r.isBootshausOH()) {
+      if (r.isBootshausOH() && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
         // String maximaleEndZeit = "11:00"; // Uhr
         String maximaleEndZeit = Daten.efaConfig
             .getMaximaleEndUhrzeitFolgetagBeiBootshausReservierung();

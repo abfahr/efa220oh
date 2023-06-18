@@ -328,7 +328,7 @@ public class EfaAboutDialog extends BaseDialog {
 
   void gplLabel_mouseClicked(MouseEvent e) {
     BrowserDialog.openInternalBrowser(this, "Browser", "file:"
-        + Daten.efaImagesDirectory // TODO 2020-09-25 abf besseres directory finden
+        // TODO 2020-09-25 abf besseres internes directory finden
         + Daten.EFA_LICENSE,
         700, 600);
   }

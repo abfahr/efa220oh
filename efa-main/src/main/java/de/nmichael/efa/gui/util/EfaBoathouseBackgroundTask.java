@@ -670,10 +670,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
           "EfaBoathouseBackgroundTask: checkBoatStatus() -> resetSorting() "
               + "(idle since " + idleSec / 60 + "min " + idleSec % 60 + "sec)");
     }
-    if (!efaBoathouseFrame.resetSorting()) { // nach 5 Minuten
-      // includes efaBoathouseFrame.updateBoatLists(listChanged);
-      // true means reset has already done updateBoatLists() and alive()
-
+    // resetSorting nach 5 Minuten
+    boolean sortingHasChanged = efaBoathouseFrame.resetSorting();
+    // includes efaBoathouseFrame.updateBoatLists(listChanged);
+    // true means reset has already done updateBoatLists() and alive()
+    if (!sortingHasChanged) { // nach 5 Minuten
       // efaBoathouseFrame.boatListRequestFocus(0);
       efaBoathouseFrame.updateBoatLists(false);
     }

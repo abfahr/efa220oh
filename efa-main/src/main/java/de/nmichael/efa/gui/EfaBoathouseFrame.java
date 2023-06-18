@@ -22,7 +22,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -66,7 +65,6 @@ import de.nmichael.efa.core.items.ItemTypeBoatstatusList;
 import de.nmichael.efa.core.items.ItemTypeBoatstatusList.SortingBy;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.core.items.ItemTypeConfigButton;
-import de.nmichael.efa.core.items.ItemTypeList;
 import de.nmichael.efa.data.BoatDamageRecord;
 import de.nmichael.efa.data.BoatDamages;
 import de.nmichael.efa.data.BoatRecord;
@@ -412,13 +410,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   public boolean resetSorting() {
+    boolean sortingHasChanged = false;
     if (!toggleAvailableBoatsToPersons.isSelected() &&
         !toggleAvailableBoatsToBoats.isSelected()) {
       toggleAvailableBoatsToBoats.setSelected(true);
       toggleAvailableBoats_actionPerformed(null); // incl. updateBoatLists() alive()
-      return true; // means updateBoatLists() has already been called
+      sortingHasChanged = true; // means updateBoatLists() has already been called
     }
-    return false;
+    return sortingHasChanged;
   }
 
   private void iniGuiPanels() {
@@ -905,9 +904,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   private void updateGuiZentralesLogo(String strZentralesBild) {
     if (strZentralesBild == null || strZentralesBild.length() == 0) {
-      strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
+      strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild (wanted)
     }
     if (strZentralesBild.equals(logoLabel.getName())) {
+      // genau dieses Bild wird gerade schon angezeigt. Keine Änderung
       return;
     }
 
@@ -917,7 +917,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       int yHeight = 654; // 704;
       ImageIcon imageIcon = new ImageIcon(strZentralesBild);
       if (imageIcon.getIconHeight() < 0) {
-        strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
+        strZentralesBild = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild (wanted)
         imageIcon = new ImageIcon(strZentralesBild);
       }
       Image newImage;
@@ -929,7 +929,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       imageIcon = new ImageIcon(newImage, imageIcon.getDescription());
       logoLabel.setIcon(imageIcon);
       logoLabel.setName(strZentralesBild);
-      Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "IconName " + logoLabel.getName());
+      Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "updateGuiZentralesLogo: IconName " + logoLabel.getName());
 
       int lastIndexSlash = strZentralesBild.lastIndexOf(Daten.fileSep);
       String fileName = strZentralesBild.substring(lastIndexSlash + 1);
@@ -2319,7 +2319,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       chosenPicture = filenames.get(index).getPath();
     } while (anzahlBildDateien > 1 && chosenPicture.equals(logoLabel.getName()));
 
-    Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "chosen Picture: " + chosenPicture);
+    Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, "randomly chosen Picture: " + chosenPicture);
     return chosenPicture; // Bild vom Boot
   }
 

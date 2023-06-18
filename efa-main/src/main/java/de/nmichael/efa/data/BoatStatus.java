@@ -115,10 +115,10 @@ public class BoatStatus extends StorageObject {
                   case BoatStatusRecord.STATUS_ONTHEWATER:
                     r.setBoatText(r.getBoatText().split(" \\(")[0]);
                     if (r.getComment() != null) {
-                      if (r.getComment().contains("mit ")) {
-                        r.setBoatText(r.getBoatText() + " (" + r.getComment().split("mit ")[1].split(" ")[0] + ")");
-                      } else if (r.getComment().contains("für ")) {
+                      if (r.getComment().contains("für ")) {
                         r.setBoatText(r.getBoatText() + " (" + r.getComment().split("für ")[1].split(" ")[0] + ")");
+                      } else if (r.getComment().contains("mit ")) {
+                        r.setBoatText(r.getBoatText() + " (" + r.getComment().split("mit ")[1].split(" ")[0] + ")");
                       }
                     }
                     break;

@@ -384,12 +384,12 @@ public class Dialog {
         icon = new ImageIcon(fileName);
         if (icon.getIconHeight() < 0) {
           Logger.log(Logger.WARNING,
-              Logger.MSG_FILE_FILENOTFOUND,"icon nicht gefunden: " + fileName);
-          fileName = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild
+              Logger.MSG_FILE_FILENOTFOUND,"bootsinfoDialog: icon nicht gefunden: " + fileName);
+          fileName = Daten.efaImagesDirectory + "missing.photo.png"; // alternatives Bild (wanted)
           icon = new ImageIcon(fileName);
         }
       } catch (Exception e) {
-        icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png"); // alternatives Bild
+        icon = BaseDialog.getIcon(Daten.IMAGEPATH + "efaLocked.png"); // alternatives Bild (Parkverbot)
       }
       icon = scale(icon, 240);
       JOptionPane.showConfirmDialog(frame,

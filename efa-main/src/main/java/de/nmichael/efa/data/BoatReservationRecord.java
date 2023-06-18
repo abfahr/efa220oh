@@ -250,7 +250,6 @@ public class BoatReservationRecord extends DataRecord {
       if (isBootshausOH()) {
         s = International.getString("Fehlermeldung PrivatMitVertrag");
       }
-
     }
     return s;
   }

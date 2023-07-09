@@ -366,13 +366,37 @@ public abstract class DataFile extends DataAccess {
           storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
     }
     try {
+      if (meta == null) {
+        // TODO 2023-07-10 abf nur zum Live-Debuging eingebaut
+        Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED,
+                "Could not saveStorageObject1 " + filename + " with meta null." );
+      }
       createBackupFile(filename);
+      if (meta == null) {
+        // TODO 2023-07-10 abf nur zum Live-Debuging eingebaut
+        Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED,
+                "Could not saveStorageObject2 " + filename + " with meta null." );
+      }
       FileOutputStream fout = new FileOutputStream(filename, false);
+      if (meta == null) {
+        // TODO 2023-07-10 abf nur zum Live-Debuging eingebaut
+        Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED,
+                "Could not saveStorageObject3 " + filename + " with meta null." );
+      }
       writeFile(fout);
+      if (meta == null) {
+        // TODO 2023-07-10 abf nur zum Live-Debuging eingebaut
+        Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED,
+                "Could not saveStorageObject4 " + filename + " with meta null." );
+      }
       if (fout != null) {
         fout.close();
       }
     } catch (Exception e) {
+      // TODO 2023-07-10 abf nur zum Live-Debuging eingebaut
+      Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED,
+              "Could not saveStorageObject5 " + filename + " with " + meta + ": " + e);
+
       String fileWriting = LogString.fileWritingFailed(filename, storageLocation, e.toString());
       StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
       throw new EfaException(Logger.MSG_DATA_SAVEFAILED, fileWriting, stackTrace);

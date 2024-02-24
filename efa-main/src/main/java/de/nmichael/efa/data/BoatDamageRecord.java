@@ -71,8 +71,8 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
   private boolean showOnlyAddDamageFields = false;
 
   public static void initialize() {
-    Vector<String> f = new Vector<String>();
-    Vector<Integer> t = new Vector<Integer>();
+    Vector<String> f = new Vector<>();
+    Vector<Integer> t = new Vector<>();
 
     f.add(BOATID);
     t.add(IDataAccess.DATA_UUID);
@@ -227,16 +227,12 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
     if (severity == null) {
       return 5;
     }
-    switch (severity) {
-      case SEVERITY_NOTUSEABLE:
-        return 1;
-      case SEVERITY_LIMITEDUSEABLE:
-        return 2;
-      case SEVERITY_FULLYUSEABLE:
-        return 3;
-      default:
-        return 5;
-    }
+      return switch (severity) {
+          case SEVERITY_NOTUSEABLE -> 1;
+          case SEVERITY_LIMITEDUSEABLE -> 2;
+          case SEVERITY_FULLYUSEABLE -> 3;
+          default -> 5;
+      };
   }
 
   public void setReportDate(DataTypeDate date) {
@@ -304,8 +300,7 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
     }
     Persons persons = getPersistence().getProject().getPersons(false);
     long reportTimestamp = getReportDate().getTimestamp(getReportTime());
-    PersonRecord person = persons.getPerson(id, reportTimestamp);
-    return person;
+      return persons.getPerson(id, reportTimestamp);
   }
 
   public String getReportedByPersonEmail() {
@@ -313,8 +308,7 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
     if (person == null) {
       return null;
     }
-    String email = person.getEmail();
-    return email;
+    return person.getEmail();
   }
 
   public void setFixedByPersonId(UUID id) {
@@ -393,16 +387,12 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
   }
 
   public String getCompleteDamageInfo() {
-    StringBuffer s = new StringBuffer();
-    s.append(International.getMessage("Bootsschaden für {boat}", getBoatAsName())
-        + "\n==============================================\n");
-    s.append(International.getString("Beschreibung") + ": " + getDescription() + "\n");
-    s.append(International.getString("Schwere des Schadens") + ": " + getSeverityDescription()
-        + "\n");
-    s.append(International.getString("gemeldet von") + ": " + getReportedByPersonAsName() + "\n");
-    s.append(International.getString("gemeldet am") + ": "
-        + DataTypeDate.getDateTimeString(getReportDate(), getReportTime()) + "\n");
-    return s.toString();
+    return International.getMessage("Bootsschaden für {boat}", getBoatAsName())
+            + "\n==============================================\n"
+            + International.getString("Beschreibung") + ": " + getDescription() + "\n"
+            + International.getString("Schwere des Schadens") + ": " + getSeverityDescription() + "\n"
+            + International.getString("gemeldet von") + ": " + getReportedByPersonAsName() + "\n"
+            + International.getString("gemeldet am") + ": " + DataTypeDate.getDateTimeString(getReportDate(), getReportTime()) + "\n";
   }
 
   public String getShortDamageInfo() {
@@ -472,7 +462,7 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
   public Vector<IItemType> getGuiItems(AdminRecord admin) {
     String CAT_BASEDATA = "%01%" + International.getString("Bootsschaden");
     IItemType item;
-    Vector<IItemType> v = new Vector<IItemType>();
+    Vector<IItemType> v = new Vector<>();
     v.add(item = new ItemTypeLabel("GUI_BOAT_NAME", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getMessage("Bootsschaden für {boat}", getBoatAsName())));
     if (showOnlyAddDamageFields) {
@@ -492,9 +482,9 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
           if (BoatDamageRecord.SEVERITY_FULLYUSEABLE.equals(damages[0].getSeverity())) {
             // add Button for immediate repair
             v.add(item = new ItemTypeButton("SOFORT_REPARATUR", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                    "--> Bootsschaden jetzt sofort selber reparieren..."));
-            ((ItemTypeButton) item).setDataKey(damages[0].getKey());
-            ((ItemTypeButton) item).registerItemListener(this);
+                    International.getString("Schaden jetzt selber reparieren")));
+            item.setDataKey(damages[0].getKey());
+            item.registerItemListener(this);
           }
           item.setPadding(0, 0, 0, 30);
           v.add(item = new ItemTypeLabel("GUI_BOAT_NAME", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
@@ -511,9 +501,9 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
             if (BoatDamageRecord.SEVERITY_FULLYUSEABLE.equals(damage.getSeverity())) {
               // add Button for immediate repair
               v.add(item = new ItemTypeButton("SOFORT_REPARATUR", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                      "--> Bootsschaden jetzt sofort selber reparieren..."));
-              ((ItemTypeButton) item).setDataKey(damage.getKey());
-              ((ItemTypeButton) item).registerItemListener(this);
+                      International.getString("Schaden jetzt selber reparieren")));
+              item.setDataKey(damage.getKey());
+              item.registerItemListener(this);
             }
           }
           item.setPadding(0, 0, 0, 30);
@@ -544,9 +534,9 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
     if (getReportedByPersonId() != null) {
       ((ItemTypeStringAutoComplete) item).setId(getReportedByPersonId());
     } else {
-      ((ItemTypeStringAutoComplete) item).parseAndShowValue(getReportedByPersonName());
+      item.parseAndShowValue(getReportedByPersonName());
     }
-    ((ItemTypeStringAutoComplete) item).setNotNull(true);
+    item.setNotNull(true);
     ((ItemTypeStringAutoComplete) item)
         .setAlternateFieldNameForPlainText(BoatDamageRecord.REPORTEDBYPERSONNAME);
     v.add(item = new ItemTypeDateTime(GUIITEM_REPORTDATETIME, getReportDate(), getReportTime(),
@@ -568,7 +558,7 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
       if (getFixedByPersonId() != null) {
         ((ItemTypeStringAutoComplete) item).setId(getFixedByPersonId());
       } else {
-        ((ItemTypeStringAutoComplete) item).parseAndShowValue(getFixedByPersonName());
+        item.parseAndShowValue(getFixedByPersonName());
       }
       ((ItemTypeStringAutoComplete) item)
           .setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
@@ -657,10 +647,10 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
   public void itemListenerAction(IItemType itemType, AWTEvent event) {
     if (itemType.getName().equals("SOFORT_REPARATUR")) {
       if (event instanceof ActionEvent
-      && ((ActionEvent) event).getID() == ActionEvent.ACTION_PERFORMED) {
+      && event.getID() == ActionEvent.ACTION_PERFORMED) {
         BoatDamageRecord foundBoatDamageRecord = null;
         if (itemType instanceof ItemTypeButton
-        && ((ItemTypeButton) itemType).getDataKey() != null) {
+        && itemType.getDataKey() != null) {
           BoatDamages boatDamages = Daten.project.getBoatDamages(false);
           BoatDamageRecord[] damages = boatDamages.getBoatDamages(getBoatId(), true, true);
           for (BoatDamageRecord boatDamageRecord : damages) {
@@ -677,9 +667,7 @@ public class BoatDamageRecord extends DataRecord implements IItemListener {
           foundBoatDamageRecord.setRepairCosts(DataTypeDecimal.parseDecimal("0"));
           BoatDamageEditDialog dlg = new BoatDamageEditDialog((JDialog) null,
                   foundBoatDamageRecord, false, null);
-          if (dlg != null) {
             dlg.showDialog();
-          }
         }
       }
     }

@@ -10,19 +10,14 @@
 
 package de.nmichael.efa.data;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.items.IItemType;
-import de.nmichael.efa.core.items.ItemTypeBoolean;
-import de.nmichael.efa.core.items.ItemTypeDateTime;
-import de.nmichael.efa.core.items.ItemTypeDecimal;
-import de.nmichael.efa.core.items.ItemTypeLabel;
-import de.nmichael.efa.core.items.ItemTypeString;
-import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
-import de.nmichael.efa.core.items.ItemTypeStringList;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
@@ -30,14 +25,17 @@ import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDecimal;
 import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.gui.dataedit.BoatDamageEditDialog;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
+import javax.swing.*;
+
 // @i18n complete
 
-public class BoatDamageRecord extends DataRecord {
+public class BoatDamageRecord extends DataRecord implements IItemListener {
 
   public static final String SEVERITY_FULLYUSEABLE = "FULLYUSEABLE";
   public static final String SEVERITY_LIMITEDUSEABLE = "LIMITEDUSEABLE";
@@ -486,13 +484,41 @@ public class BoatDamageRecord extends DataRecord {
         case 0:
           break;
         case 1:
+          item.setPadding(0, 0, 0, 10);
           v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-              "Schaden bereits erfasst? Prüfe erst den schon gemeldeten Bootsschaden."));
+              "Schaden bereits erfasst? Prüfe erst den schon gemeldeten Bootsschaden:"));
+          v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                  "seit " + damages[0].getReportDate() + " " + damages[0].getDescription()));
+          if (BoatDamageRecord.SEVERITY_FULLYUSEABLE.equals(damages[0].getSeverity())) {
+            // add Button for immediate repair
+            v.add(item = new ItemTypeButton("SOFORT_REPARATUR", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    "--> Bootsschaden jetzt sofort selber reparieren..."));
+            ((ItemTypeButton) item).setDataKey(damages[0].getKey());
+            ((ItemTypeButton) item).registerItemListener(this);
+          }
+          item.setPadding(0, 0, 0, 30);
+          v.add(item = new ItemTypeLabel("GUI_BOAT_NAME", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                  "Neuer " + International.getMessage("Bootsschaden für {boat}", getBoatAsName())));
           break;
         default:
+          item.setPadding(0, 0, 0, 10);
           v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-              "Prüfe erst die vorigen Bootsschäden: "
-                  + "Es sind bereits " + countDamages + " Schäden erfasst."));
+              "Prüfe erst die bisherigen Bootsschäden: "
+                  + "Es sind bereits " + countDamages + " Schäden erfasst:"));
+          for (BoatDamageRecord damage : damages) {
+              v.add(item = new ItemTypeLabel("GUI_DAMAGE_MESSAGE", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                  "seit " + damage.getReportDate() + " " + damage.getDescription()));
+            if (BoatDamageRecord.SEVERITY_FULLYUSEABLE.equals(damage.getSeverity())) {
+              // add Button for immediate repair
+              v.add(item = new ItemTypeButton("SOFORT_REPARATUR", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                      "--> Bootsschaden jetzt sofort selber reparieren..."));
+              ((ItemTypeButton) item).setDataKey(damage.getKey());
+              ((ItemTypeButton) item).registerItemListener(this);
+            }
+          }
+          item.setPadding(0, 0, 0, 30);
+          v.add(item = new ItemTypeLabel("GUI_BOAT_NAME", IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                  "Neuer " + International.getMessage("Bootsschaden für {boat}", getBoatAsName())));
           break;
       }
     }
@@ -529,8 +555,11 @@ public class BoatDamageRecord extends DataRecord {
       item.setEnabled(false);
     }
     if (!showOnlyAddDamageFields) {
+      v.add(item = new ItemTypeString(BoatDamageRecord.LOGBOOKTEXT, getLogbookText(),
+              IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrt")));
+      item.setPadding(0, 0, 0, 10);
       v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Schaden wurde behoben")));
+          IItemType.TYPE_PUBLIC, CAT_BASEDATA, "<-- " + International.getString("Schaden wurde behoben")));
       v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.FIXEDBYPERSONID, null,
           IItemType.TYPE_PUBLIC, CAT_BASEDATA,
           getPersistence().getProject().getPersons(false), System.currentTimeMillis(),
@@ -545,14 +574,12 @@ public class BoatDamageRecord extends DataRecord {
           .setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
       v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
-      v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
-      v.add(item = new ItemTypeString(BoatDamageRecord.LOGBOOKTEXT, getLogbookText(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrt")));
+      v.add(item = new ItemTypeBoolean(BoatDamageRecord.CLAIM, getClaim(),
+              IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Versicherungsfall")));
       v.add(item = new ItemTypeDecimal(BoatDamageRecord.REPAIRCOSTS, getRepairCosts(), 2, true,
           IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Reparaturkosten")));
-      v.add(item = new ItemTypeBoolean(BoatDamageRecord.CLAIM, getClaim(),
-          IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Versicherungsfall")));
+      v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
+              IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")+ " zum Fix"));
     }
     return v;
   }
@@ -626,4 +653,35 @@ public class BoatDamageRecord extends DataRecord {
     this.showOnlyAddDamageFields = showOnlyAddDamageFields;
   }
 
+  @Override
+  public void itemListenerAction(IItemType itemType, AWTEvent event) {
+    if (itemType.getName().equals("SOFORT_REPARATUR")) {
+      if (event instanceof ActionEvent
+      && ((ActionEvent) event).getID() == ActionEvent.ACTION_PERFORMED) {
+        BoatDamageRecord foundBoatDamageRecord = null;
+        if (itemType instanceof ItemTypeButton
+        && ((ItemTypeButton) itemType).getDataKey() != null) {
+          BoatDamages boatDamages = Daten.project.getBoatDamages(false);
+          BoatDamageRecord[] damages = boatDamages.getBoatDamages(getBoatId(), true, true);
+          for (BoatDamageRecord boatDamageRecord : damages) {
+            if (boatDamageRecord.getKey().equals(itemType.getDataKey())) {
+              foundBoatDamageRecord = boatDamageRecord;
+              break;
+            }
+          }
+        }
+        if (foundBoatDamageRecord != null) {
+          foundBoatDamageRecord.setFixDate(DataTypeDate.today());
+          foundBoatDamageRecord.setFixTime(DataTypeTime.now());
+          foundBoatDamageRecord.setFixed(true);
+          foundBoatDamageRecord.setRepairCosts(DataTypeDecimal.parseDecimal("0"));
+          BoatDamageEditDialog dlg = new BoatDamageEditDialog((JDialog) null,
+                  foundBoatDamageRecord, false, null);
+          if (dlg != null) {
+            dlg.showDialog();
+          }
+        }
+      }
+    }
+  }
 }

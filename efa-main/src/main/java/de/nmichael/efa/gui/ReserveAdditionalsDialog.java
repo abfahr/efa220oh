@@ -76,7 +76,9 @@ public class ReserveAdditionalsDialog extends BaseDialog{
      * @param isAdminMode
      */
     public ReserveAdditionalsDialog(Window parent, String title, BoatReservationRecord originalReservation, Hashtable<String, TableItem[]> items, boolean isAdminMode) {
-        super(parent, title, International.getStringWithMnemonic("OK"));
+        // 2024-02-25 abf leider kein "abbrechen"-Button möglich. "nein Danke, mir reicht das eine Boot" --> cancel.
+        super(parent, title, International.getStringWithMnemonic("OK")
+                + International.getString("Boote dazubuchen")); // ausgewählte
         this.items = items;
         this.originalReservation = originalReservation;
         this.isAdminMode = isAdminMode;

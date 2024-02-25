@@ -27,15 +27,7 @@ import java.util.zip.Adler32;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.core.items.IItemType;
-import de.nmichael.efa.core.items.ItemTypeDate;
-import de.nmichael.efa.core.items.ItemTypeLabel;
-import de.nmichael.efa.core.items.ItemTypeRadioButtons;
-import de.nmichael.efa.core.items.ItemTypeString;
-import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
-import de.nmichael.efa.core.items.ItemTypeStringList;
-import de.nmichael.efa.core.items.ItemTypeStringPhone;
-import de.nmichael.efa.core.items.ItemTypeTime;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
@@ -83,6 +75,7 @@ public class BoatReservationRecord extends DataRecord {
   public static final String CONTACT = "Contact";
   public static final String VDATESBETWEEN = "TageDazwischen";
   public static final String HASHID = "HashId";
+  public static final String VORSTANDSBESCHLUSS = "Vorstandsbeschluss";
 
   public static final String[] IDX_BOATID = new String[] { BOATID };
 
@@ -124,6 +117,9 @@ public class BoatReservationRecord extends DataRecord {
     t.add(IDataAccess.DATA_VIRTUAL);
     f.add(HASHID);
     t.add(IDataAccess.DATA_STRING);
+    f.add(VORSTANDSBESCHLUSS);
+    t.add(IDataAccess.DATA_BOOLEAN);
+
     MetaData metaData = constructMetaData(BoatReservations.DATATYPE, f, t, false);
     metaData.setKey(new String[] { BOATID, RESERVATION });
     metaData.addIndex(IDX_BOATID);
@@ -290,6 +286,14 @@ public class BoatReservationRecord extends DataRecord {
       return "";
     }
     return s;
+  }
+
+  private void setVorstandsbeschluss(boolean vorstandsbeschluss) {
+    setBool(VORSTANDSBESCHLUSS, vorstandsbeschluss);
+  }
+
+  public Boolean isVorstandsbeschluss() {
+    return getBool(VORSTANDSBESCHLUSS);
   }
 
   private String getDateDescription(DataTypeDate date,
@@ -651,11 +655,16 @@ public class BoatReservationRecord extends DataRecord {
     IItemType item;
     Vector<IItemType> v = new Vector<>();
 
-    item = new ItemTypeLabel("GUI_BOAT_NAME",
+    ItemTypeLabel bootname = new ItemTypeLabel("GUI_BOAT_NAME",
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getMessage("Reservierung für {boat}", getBoatName()));
-    item.setPadding(0, 0, 0, 10);
-    v.add(item);
+    v.add(bootname);
+
+    ItemTypeBoolean vorstandsbeschluss = new ItemTypeBoolean(BoatReservationRecord.VORSTANDSBESCHLUSS,
+            isVorstandsbeschluss(), IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+            "(" + International.getString("Vorstandsbeschluss") + "?)");
+    vorstandsbeschluss.setPadding(0, 0, 0, 10);
+    v.add(vorstandsbeschluss);
 
     item = new ItemTypeRadioButtons(BoatReservationRecord.TYPE,
         (getType() != null && getType().length() > 0 ? getType() : TYPE_ONETIME),
@@ -712,6 +721,7 @@ public class BoatReservationRecord extends DataRecord {
     timeto.enableSeconds(false);
     timeto.setReferenceTime(DataTypeTime.time235959());
     timeto.setMustBeAfter(dateFrom, timeFrom, dateTo, false);
+    timeto.setPadding(0, 0, 0, 10);
     v.add(timeto);
 
     ItemTypeStringAutoComplete personId = getGuiItemTypeStringAutoComplete(

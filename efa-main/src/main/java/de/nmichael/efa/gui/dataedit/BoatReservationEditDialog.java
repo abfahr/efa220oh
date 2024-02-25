@@ -10,33 +10,10 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import java.awt.AWTEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.swing.JDialog;
-
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.items.IItemListener;
-import de.nmichael.efa.core.items.IItemType;
-import de.nmichael.efa.core.items.ItemTypeDate;
-import de.nmichael.efa.core.items.ItemTypeRadioButtons;
-import de.nmichael.efa.core.items.ItemTypeString;
-import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
-import de.nmichael.efa.core.items.ItemTypeStringPhone;
-import de.nmichael.efa.core.items.ItemTypeTime;
-import de.nmichael.efa.data.BoatRecord;
-import de.nmichael.efa.data.BoatReservationRecord;
-import de.nmichael.efa.data.BoatReservations;
-import de.nmichael.efa.data.PersonRecord;
-import de.nmichael.efa.data.Persons;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
@@ -45,10 +22,23 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 // @i18n complete
 public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     implements IItemListener {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r,
@@ -61,16 +51,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
   }
 
-  @Override
-  public void keyAction(ActionEvent evt) {
-    _keyAction(evt);
-  }
-
-  private void initListener() {
+    private void initListener() {
     IItemType itemType = null;
     for (IItemType item : allGuiItems) {
       if (item.getName().equals(BoatReservationRecord.TYPE)) {
-        ((ItemTypeRadioButtons) item).registerItemListener(this);
+        item.registerItemListener(this);
         itemType = item;
       }
       if (item.getName().equals(BoatReservationRecord.DATEFROM)) {
@@ -86,6 +71,9 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         item.registerItemListener(this);
       }
       if (item.getName().equals(BoatReservationRecord.CONTACT)) {
+        item.registerItemListener(this);
+      }
+      if (item.getName().equals(BoatReservationRecord.VORSTANDSBESCHLUSS)) {
         item.registerItemListener(this);
       }
     }
@@ -154,7 +142,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         BoatReservationRecord.PERSONID);
     if (cox == null || !cox.isKnown()) {
       if (booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern) {
-        fragenUndLoggen(action, cox, phoneNr);
+        fragenUndLoggen(cox, phoneNr);
       }
       return true;
     }
@@ -163,7 +151,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     PersonRecord person = persons.getPerson(personId, System.currentTimeMillis());
     if (person == null) {
       if (booleanAlleMenschenZumVormerkenDerHandyNummerAuffordern) {
-        fragenUndLoggen(action, cox, phoneNr);
+        fragenUndLoggen(cox, phoneNr);
       }
       return true;
     }
@@ -203,16 +191,15 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
   }
 
-  private void fragenUndLoggen(String action,
-      ItemTypeStringAutoComplete cox,
-      ItemTypeStringPhone phoneNr) {
-    String info = checkUndAktualisiereHandyNr(action, phoneNr.getValue());
+  private void fragenUndLoggen(ItemTypeStringAutoComplete cox,
+                               ItemTypeStringPhone phoneNr) {
+    String info = checkUndAktualisiereHandyNr(phoneNr.getValue());
     String coxName = (cox != null) ? cox.getValue() + " (unbekannt)" : "Ein unbekanntes Mitglied";
     info = coxName + " hätte vielleicht gerne " + phoneNr + " gespeichert: " + info;
     Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
   }
 
-  public String checkUndAktualisiereHandyNr(String action, String newPhone) {
+  private String checkUndAktualisiereHandyNr(String newPhone) {
     // true = nur zugesagte Leute werden korrigiert.
     // false = alle Leute werden gefragt, Ausnahme zugesagte Nummer stimmt noch
     String telnumAusProfil = International.getString("keine Nummer bzw nix"); // keine bzw. nix
@@ -224,20 +211,20 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         frage, newPhone + " vorschlagen", // 0 ja neue Nummer übernehmen
         "nix mehr vorschlagen", // 1 Erlaubnis entziehen
         telnumAusProfil + " vorschlagen"); // 2 = alte bisherige Nummer
-    switch (antwort) {
-      case 0: // neue Nummer zukünftig merken (rechts, default, selektiert)
-        return "savedNew"; // muss noch gespeichert werden / persistiert
-      case 1: // gar nix mehr vorschlagen
-        return "savedEmpty"; // muss noch gespeichert werden / persistiert
-      case 2: // alten Vorschlag beibehalten (links)
-        return "savedEmpty"; // muss noch gespeichert werden / persistiert
-      case 3: // hier könnte ein Button "abbrechen" rein...
-        return "abbrechen"; // = nix tun
-      case -1: // abbrechen = cancel = ESC = x // zurück, nochmal die Nummer ändern
-        return "abbrechen"; // = nix tun
-      default: // unbekannt
-        return "abbrechen"; // = nix tun
-    }
+      return switch (antwort) {
+          case 0 -> // neue Nummer zukünftig merken (rechts, default, selektiert)
+                  "savedNew"; // muss noch gespeichert werden / persistiert
+          case 1 -> // gar nix mehr vorschlagen
+                  "savedEmpty"; // muss noch gespeichert werden / persistiert
+          case 2 -> // alten Vorschlag beibehalten (links)
+                  "savedEmpty"; // muss noch gespeichert werden / persistiert
+          case 3 -> // hier könnte ein Button "abbrechen" rein...
+                  "abbrechen"; // = nix tun
+          case -1 -> // abbrechen = cancel = ESC = x // zurück, nochmal die Nummer ändern
+                  "abbrechen"; // = nix tun
+          default -> // unbekannt
+                  "abbrechen"; // = nix tun
+      };
   }
 
   @Override
@@ -264,8 +251,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
     // Das Datum übernehmen
     if (item != null && item.getName().equals(BoatReservationRecord.DATEFROM) &&
-        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
-            (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+            ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
+                    (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
       ItemTypeDate dateFrom = (ItemTypeDate) item;
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.DATETO)) {
@@ -292,8 +279,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
     // Die Uhrzeit übernehmen und 2 Stunden dazuzählen
     if (item != null && item.getName().equals(BoatReservationRecord.TIMEFROM) &&
-        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST)
-            || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+            ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST)
+                    || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
       ItemTypeTime timeFrom = (ItemTypeTime) item;
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.TIMETO)) {
@@ -312,8 +299,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
     // Datum erst zwei Tage später?
     if (item != null && item.getName().equals(BoatReservationRecord.DATETO) &&
-        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST)
-            || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+            ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST)
+                    || (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
       ItemTypeDate dateTo = (ItemTypeDate) item;
       double anzahlStunden = 0;
       for (IItemType it : allGuiItems) {
@@ -348,8 +335,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
     // Name des Mitglieds
     if (item != null && item.getName().equals(BoatReservationRecord.PERSONID) &&
-        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
-            (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+            ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
+                    (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
 
       // Prüfung Name zu kurz?
       ItemTypeString eingegebenerName = (ItemTypeString) item;
@@ -381,8 +368,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
     // Telefonnummer (Handy)
     if (item != null && item.getName().equals(BoatReservationRecord.CONTACT) &&
-        ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
-            (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
+            ((event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
+                    (event instanceof KeyEvent && ((KeyEvent) event).getKeyChar() == '\n'))) {
       ItemTypeStringPhone eingegebeneHandynummer = (ItemTypeStringPhone) item;
       for (IItemType it : allGuiItems) {
         if (it.getName().equals(BoatReservationRecord.REASON)) {
@@ -397,6 +384,30 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
           reason.setValue(reasonString);
           reason.showValue();
           reason.setSelection(0, 999);
+          break;
+        }
+      }
+    }
+
+    // Vorstandsbeschluss schaltet Kommentarfeld für Vereinsveranstaltung frei
+    if (item != null && item.getName().equals(BoatReservationRecord.VORSTANDSBESCHLUSS)
+            && (event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED)) {
+      ItemTypeBoolean istVorstandsbeschluss = (ItemTypeBoolean) item;
+      istVorstandsbeschluss.setValue(!istVorstandsbeschluss.getValue());
+      for (IItemType it : allGuiItems) {
+        if (it.getName().equals(BoatReservationRecord.REASON)) {
+          ItemTypeString reason = (ItemTypeString) it;
+          String prangerText = International.getString("Vorstandsbeschluss");
+          prangerText += ":";
+          String reasonString = reason.getValue().replace(prangerText, "").trim();
+          if (istVorstandsbeschluss.getValue()) {
+            reasonString = prangerText + " " + reasonString;
+          }
+          enableReason(istVorstandsbeschluss.getValue());
+          reason.setValue(reasonString);
+          reason.showValue();
+          reason.requestFocus();
+          reason.setSelection(reasonString.length(), 999);
           break;
         }
       }
@@ -420,10 +431,10 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     String bestReason = "";
     String latestReason = "";
     bestTelnum = person.getHandy2();
-    if (bestTelnum == null || bestTelnum.length() == 0) {
+    if (bestTelnum == null || bestTelnum.isEmpty()) {
       bestTelnum = person.getFestnetz1();
     }
-    if (bestTelnum == null || bestTelnum.length() == 0) {
+    if (bestTelnum == null || bestTelnum.isEmpty()) {
       bestTelnum = "";
     } else {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE,
@@ -440,7 +451,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       long latestModified = 0L;
       for (BoatReservationRecord boatReservationRecord : oldReservations) {
         listTelnums.add(boatReservationRecord.getContact());
-        if (boatReservationRecord.getReason().trim().length() > 0) {
+        if (!boatReservationRecord.getReason().trim().isEmpty()) {
           listReasons.add(boatReservationRecord.getReason());
         }
         if (boatReservationRecord.getLastModified() > latestModified) {

@@ -102,7 +102,7 @@ public class ICalendarExport {
   }
 
   private Vector<DataRecord> getAlleBoothausLogbookrecords(StorageObject persistence) {
-    Vector<DataRecord> retVal = new Vector<DataRecord>();
+    Vector<DataRecord> retVal = new Vector<>();
     try {
       for (DataKey<?, ?, ?> k : persistence.data().getAllKeys()) {
         LogbookRecord r = (LogbookRecord) persistence.data().get(k);
@@ -117,7 +117,7 @@ public class ICalendarExport {
   }
 
   private Vector<DataRecord> getAlleBoothausReservierungen(StorageObject persistence) {
-    Vector<DataRecord> retVal = new Vector<DataRecord>();
+    Vector<DataRecord> retVal = new Vector<>();
     try {
       for (DataKey<?, ?, ?> k : persistence.data().getAllKeys()) {
         BoatReservationRecord r = (BoatReservationRecord) persistence.data().get(k);
@@ -132,7 +132,7 @@ public class ICalendarExport {
   }
 
   private String[] getWollesFieldNames(StorageObject persistence) {
-    List<String> retVal = new ArrayList<String>();
+    List<String> retVal = new ArrayList<>();
     String[] fields = persistence.createNewRecord().getFieldNamesForTextExport(false);
     for (String field : fields) {
       if (!field.equals(DataRecord.LASTMODIFIED) &&
@@ -141,8 +141,9 @@ public class ICalendarExport {
           !field.equals(DataRecord.INVALIDFROM) &&
           !field.equals(DataRecord.INVISIBLE) &&
           !field.equals(DataRecord.DELETED) &&
+          !field.equals(BoatReservationRecord.HASHID) &&
           !field.equals("Id")) {
-        retVal.add("" + field);
+        retVal.add(field);
       }
     }
     return retVal.toArray(new String[retVal.size()]);

@@ -19,16 +19,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.BoatDamageRecord;
@@ -70,12 +61,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private static final int ONCE_AN_HOUR = 3600 / CHECK_INTERVAL;
   private static final long BOAT_DAMAGE_REMINDER_INTERVAL = 7 * 24 * 60 * 60 * 1000;
   private static final long RESERVATION_REMINDER_DAY = 24 * 60 * 60 * 1000;
-  private EfaBoathouseFrame efaBoathouseFrame;
+  private final EfaBoathouseFrame efaBoathouseFrame;
   private boolean isProjectOpen = false;
   private boolean isLocalProject = true;
   private int onceAnHour;
-  private Date date;
-  private Calendar cal;
+  private final Date date;
+  private final Calendar cal;
   private Calendar lockEfa;
   private long lastEfaConfigScn = -1;
   private long lastBoatStatusScn = -1;
@@ -83,7 +74,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
   public EfaBoathouseBackgroundTask(EfaBoathouseFrame efaBoathouseFrame) {
     this.efaBoathouseFrame = efaBoathouseFrame;
-    onceAnHour = 5; // initial nach 5 Schleifendurchläufen zum ersten Mal hier reingehen
+    onceAnHour = 5; // initial nach 5 Schleifendurchläufen zum ersten Mal hier hereingehen
     cal = new GregorianCalendar();
     lockEfa = null;
     date = new Date();
@@ -110,7 +101,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       BufferedReader f = new BufferedReader(new FileReader(Daten.efaLogfile));
       String s;
-      Vector<String> warnings = new Vector<String>();
+      Vector<String> warnings = new Vector<>();
       while ((s = f.readLine()) != null) {
         if (Logger.isWarningLine(s)
             && Logger.getLineTimestamp(s) > Daten.efaConfig
@@ -119,7 +110,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         }
       }
       f.close();
-      if (warnings.size() == 0) {
+      if (warnings.isEmpty()) {
         Logger.log(Logger.INFO, Logger.MSG_EVT_CHECKFORWARNINGS,
             International.getMessage(
                 "Seit {date} sind keinerlei Warnungen in efa verzeichnet worden.",
@@ -129,22 +120,22 @@ public class EfaBoathouseBackgroundTask extends Thread {
             International.getMessage("Seit {date} sind {n} Warnungen in efa verzeichnet worden.",
                 EfaUtil.getTimeStamp(Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime()),
                 warnings.size()));
-        String txt = International.getMessage(
-            "Folgende Warnungen sind seit {date} in efa verzeichnet worden:",
-            EfaUtil.getTimeStamp(Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime())) + "\n"
-            + International.getMessage("{n} Warnungen", warnings.size()) + "\n\n";
-        for (int i = 0; i < warnings.size(); i++) {
-          txt += warnings.get(i) + "\n";
-        }
+        StringBuilder txt = new StringBuilder(International.getMessage(
+                "Folgende Warnungen sind seit {date} in efa verzeichnet worden:",
+                EfaUtil.getTimeStamp(Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime())) + "\n"
+                + International.getMessage("{n} Warnungen", warnings.size()) + "\n\n");
+          for (String warning : warnings) {
+              txt.append(warning).append("\n");
+          }
         if (Daten.project != null && Daten.efaConfig != null) {
           Messages messages = Daten.project.getMessages(false);
           if (messages != null && Daten.efaConfig.getValueEfaDirekt_bnrWarning_admin()) {
             messages.createAndSaveMessageRecord(MessageRecord.TO_ADMIN,
-                International.getString("Warnungen"), txt);
+                International.getString("Warnungen"), txt.toString());
           }
           if (messages != null && Daten.efaConfig.getValueEfaDirekt_bnrWarning_bootswart()) {
             messages.createAndSaveMessageRecord(MessageRecord.TO_BOATMAINTENANCE,
-                International.getString("Warnungen"), txt);
+                International.getString("Warnungen"), txt.toString());
           }
         }
       }
@@ -155,7 +146,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     } catch (Exception e) {
       Logger.log(Logger.ERROR, Logger.MSG_ERR_CHECKFORWARNINGS,
-          "Checking Logfile for Warnings and mailing them to Admin failed: " + e.toString());
+          "Checking Logfile for Warnings and mailing them to Admin failed: " + e);
     }
   }
 
@@ -595,7 +586,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           }
           if ((oldComment == null &&
               boatStatusRecord.getComment() != null &&
-              boatStatusRecord.getComment().length() > 0)
+                  !boatStatusRecord.getComment().isEmpty())
               || (oldComment != null &&
                   !oldComment.equals(boatStatusRecord.getComment()))) {
             statusRecordChanged = true;
@@ -608,7 +599,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           if (statusRecordChanged && Logger.isTraceOn(Logger.TT_BACKGROUND, 2)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
                 "BoatStatus changed for Boat " + boatStatusRecord.getBoatNameAsString(now)
-                    + ", new Status: " + boatStatusRecord.toString());
+                    + ", new Status: " + boatStatusRecord);
           }
         } catch (Exception ee) {
           Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, ee);
@@ -681,7 +672,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
   }
 
   /**
-   * Eine Woche vor der Reservierung wird eine Email verschickt
+   * Eine Woche vor der Reservierung wird eine E-Mail verschickt
    *
    * @param reservations
    */
@@ -700,7 +691,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       long realStart = boatReservationRecord.getDateFrom()
           .getTimestamp(boatReservationRecord.getTimeFrom());
       if (lastModified + remindertime > realStart) {
-        // Email wurde offenbar schon einmal verschickt
+        // E-Mail wurde offenbar schon einmal verschickt
         continue;
       }
 
@@ -915,7 +906,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     BoatReservationRecord[] brrArray = boatReservations.findBoatReservationsByHashId(strHashId);
     if (brrArray == null || brrArray.length == 0) {
       String error = "Storno-Link: Reservierung mit hashId " + strHashId
-          + " nicht (mehr) gefunden. " + brrArray;
+          + " nicht (mehr) gefunden. " + Arrays.toString(brrArray);
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
     }
@@ -993,7 +984,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     long now = System.currentTimeMillis();
     String strBoatName = strMap.get("efaBootName");
     if (strBoatName == null) {
-      String error = "Add-Link: kein Boot angegeben " + strBoatName;
+      String error = "Add-Link: kein Boot angegeben.";
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
       return error;
     }
@@ -1028,18 +1019,41 @@ public class EfaBoathouseBackgroundTask extends Thread {
         brr.setPersonName(strMap.get("ForName"));
       }
       brr.setType(BoatReservationRecord.TYPE_ONETIME);
-      brr.setDateFrom(DataTypeDate.parseDate(strMap.get("DateFrom")));
-      brr.setTimeFrom(DataTypeTime.parseTime(strMap.get("TimeFrom")));
-      brr.setDateTo(DataTypeDate.parseDate(strMap.get("DateTo")));
-      brr.setTimeTo(DataTypeTime.parseTime(strMap.get("TimeTo")));
+      brr.setDateFrom(DataTypeDate.parseDate("" + strMap.get("DateFrom")));
+      brr.setTimeFrom(DataTypeTime.parseTime("" + strMap.get("TimeFrom")));
+      brr.setDateTo(DataTypeDate.parseDate("" + strMap.get("DateTo")));
+      brr.setTimeTo(DataTypeTime.parseTime("" + strMap.get("TimeTo")));
       brr.setContact(strMap.get("Telefon"));
       brr.setReason(strMap.get("Reason"));
-      if (!brr.getDateTo().isSet()) {
-        brr.setDateTo(DataTypeDate.parseDate(strMap.get("DateFrom")));
+      if (brr.getDateTo() != null && !brr.getDateTo().isSet()) {
+        brr.setDateTo(DataTypeDate.parseDate("" + strMap.get("DateFrom")));
       }
-      if (brr.getReason().isEmpty()) {
+      if (brr.getReason().isEmpty() || brr.getReason().equals(International.getString("Fehlermeldung PrivatMitVertrag"))) {
         brr.setReason("anhand Add-Link");
       }
+
+      String error = "";
+      if (brr.getPersonAsName() == null) {
+        error += "bitte Mitgliedsnamen angeben: " + strMap.get("ForName") + ". ";
+      }
+      if (brr.getDateFrom() == null) {
+        error += "bitte Startdatum angeben: " + strMap.get("DateFrom") + ". ";
+      }
+      if (brr.getDateTo() == null) {
+        error += "bitte auch Enddatum angeben: " + strMap.get("DateTo") + ". ";
+      }
+      if (brr.getTimeFrom() == null) {
+        error += "bitte Startzeit angeben: " + strMap.get("TimeFrom") + ". ";
+      }
+      if (brr.getTimeTo() == null) {
+        error += "bitte auch Endzeit angeben: " + strMap.get("TimeTo") + ". ";
+      }
+      if (!error.isEmpty()) {
+        error = "Add-Link: " + error;
+        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
+        return error;
+      }
+
     } catch (Exception e3) {
       Logger.log(Logger.ERROR, Logger.MSG_ABF_ERROR, e3);
       return "Add-Link: e3 " + e3.getLocalizedMessage();
@@ -1260,7 +1274,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return error;
     }
     String neuerNachname = nameParts[1].trim();
-    if (neuerNachname == null) {
+    if (neuerNachname.isEmpty()) {
       String error = "Person-Profil-" + aktion + ": Der Name '" + neuerName
           + "' hat keinen Vornamen " + neuerNachname;
       Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
@@ -1582,7 +1596,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     BoatReservations boatReservations = Daten.project.getBoatReservations(false);
     BoatReservationRecord[] brrArray = boatReservations.findBoatReservationsByHashId(strHashId);
     if (brrArray == null || brrArray.length == 0) {
-      return "checkHashId: keine Reservierung mit hashId " + strHashId + " gefunden. " + brrArray;
+      return "checkHashId: keine Reservierung mit hashId " + strHashId + " gefunden. " + Arrays.toString(brrArray);
     }
     BoatReservationRecord brr = brrArray[0];
     if (brr == null) {
@@ -1593,9 +1607,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
   }
 
   private Map<String, String> getStringMap(String folderTodo) {
-    Map<String, String> stringMap = new HashMap<String, String>();
+    Map<String, String> stringMap = new HashMap<>();
     try {
-      List<Path> listTxtFiles = new ArrayList<Path>();
+      List<Path> listTxtFiles = new ArrayList<>();
       DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folderTodo), "*.{txt,json}");
       stream.forEach(listTxtFiles::add);
       listTxtFiles.sort(Comparator.comparing(Path::toString));
@@ -1603,7 +1617,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         return stringMap;
       }
 
-      // erste Datei rausnehmen (älteste) (nur eine)
+      // erste Datei herausnehmen (älteste) (nur eine)
       Path firstFilename = listTxtFiles.get(0);
       Charset charset = Charset.defaultCharset();
       List<String> stringList = Files.readAllLines(firstFilename, charset);
@@ -1706,7 +1720,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     // automatisches Beenden nach Inaktivität ?
     if (Daten.efaConfig.getValueEfaDirekt_exitIdleTime() > 0
-        && System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() > Daten.efaConfig
+        && System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() > (long) Daten.efaConfig
             .getValueEfaDirekt_exitIdleTime() * 60 * 1000) {
       Logger.log(Logger.INFO, Logger.MSG_EVT_INACTIVITYBASEDEXIT,
           International.getString("Eingestellte Inaktivitätsdauer zum Beenden von efa erreicht"));
@@ -1878,9 +1892,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           Daten.WARN_FREEMEM_PERCENTAGE)) {
         efaBoathouseFrame.exitOnLowMemory("EfaBoathouseBackgroundTask: MemoryLow", false);
       }
-    } catch (UnsupportedClassVersionError e) {
-      EfaUtil.foo();
-    } catch (NoClassDefFoundError e) {
+    } catch (UnsupportedClassVersionError | NoClassDefFoundError e) {
       EfaUtil.foo();
     }
   }
@@ -1891,8 +1903,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
           "EfaBoathouseBackgroundTask: checkWarnings()");
     }
     // WARNINGs aus Logfile an Admins verschicken
-    if (System.currentTimeMillis() >= Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime() + 7l
-        * 24l * 60l * 60l * 1000l
+    if (System.currentTimeMillis() >= Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime() + 7L
+        * 24L * 60L * 60L * 1000L
         && (Daten.efaConfig.getValueEfaDirekt_bnrWarning_admin() || Daten.efaConfig
             .getValueEfaDirekt_bnrWarning_bootswart())
         && Daten.efaLogfile != null) {
@@ -1918,7 +1930,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     long last = (Daten.efaConfig != null ? Daten.efaConfig.getValueLastBoatDamageReminder() : -1);
     if (last == -1 || now - BOAT_DAMAGE_REMINDER_INTERVAL > last) {
       boolean damagesOlderThanAWeek = false;
-      Vector<DataKey<?, ?, ?>> openDamages = new Vector<DataKey<?, ?, ?>>();
+      Vector<DataKey<?, ?, ?>> openDamages = new Vector<>();
       try {
         DataKeyIterator it = boatDamages.data().getStaticIterator();
         for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
@@ -1946,17 +1958,16 @@ public class EfaBoathouseBackgroundTask extends Thread {
         if (damagesOlderThanAWeek) {
           StringBuilder s = new StringBuilder();
           s.append(International.getMessage("Es liegen {count} offene Bootsschäden vor:",
-              openDamages.size()) + "\n\n");
+                  openDamages.size())).append("\n\n");
           for (DataKey<?, ?, ?> k : openDamages) {
             if (boatDamages == null) {
               continue;
             }
             BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
-            s.append(damage.getCompleteDamageInfo() + "\n");
+            s.append(damage.getCompleteDamageInfo()).append("\n");
           }
           s.append(International
-              .getString("Sollten die Schäden bereits behoben sein, so markiere sie bitte "
-                  + "in efa als behoben."));
+              .getString("Sollten die Schäden bereits behoben sein, so markiere sie bitte in efa als behoben."));
           messages.createAndSaveMessageRecord(MessageRecord.TO_BOATMAINTENANCE,
               International.getString("Offene Bootsschäden"),
               s.toString());
@@ -2016,7 +2027,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return;
     }
     String newLogbookName = Daten.project.getAutoNewLogbookName();
-    if (newLogbookName == null || newLogbookName.length() == 0) {
+    if (newLogbookName == null || newLogbookName.isEmpty()) {
       return;
     }
     Logbook currentLogbook = efaBoathouseFrame.getLogbook();
@@ -2062,7 +2073,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
         Vector<BoatStatusRecord> boatsOnTheWater = boatStatus
             .getBoats(BoatStatusRecord.STATUS_ONTHEWATER);
-        if (boatsOnTheWater.size() > 0) {
+        if (!boatsOnTheWater.isEmpty()) {
           lockStatus = boatStatus.data().acquireGlobalLock();
           lockLogbook = currentLogbook.data().acquireGlobalLock();
           sessionsAborted = true;

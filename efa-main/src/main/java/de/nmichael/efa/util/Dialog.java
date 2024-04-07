@@ -281,39 +281,14 @@ public class Dialog {
     }
   }
 
-  public static int auswahlDialog(String title, String messagebody, String[] options) {
+  public static int auswahlDialog(String title, String messageBody, String[] options) {
     Window frame = frameCurrent();
     prepareWindow(frame);
-    int iLen = options.length; // count options
-    if (iLen > 5) {
-      // JList<JButton> blist = new JList<JButton>();
-      String strFromInputDialog = JOptionPane.showInputDialog(frame,
-              new JList<>(options),
-          chopDialogString(messagebody),
-          JOptionPane.QUESTION_MESSAGE);
-      if (strFromInputDialog != null) {
-        String numbers = strFromInputDialog.replaceAll("[^0-9]", "");
-        int intFromInputDialog = Integer.parseInt("0" + numbers);
-        if (intFromInputDialog > 0) {
-          return intFromInputDialog - 1;
-        }
-        for (int i = 0; i < options.length; i++) {
-          if (options[i].matches(strFromInputDialog)) {
-            return i;
-          }
-        }
-      }
-      return JOptionPane.showOptionDialog(frame,
-          chopDialogString(messagebody), title + " /" + iLen,
-          JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE,
-          null, options, options[0]);
-    }
     return JOptionPane.showOptionDialog(frame,
-        chopDialogString(messagebody), title,
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.QUESTION_MESSAGE,
-        null, options, options[0]);
+      chopDialogString(messageBody), title,
+      JOptionPane.YES_NO_OPTION,
+      JOptionPane.QUESTION_MESSAGE,
+      null, options, options[0]);
   }
 
   public static int auswahlDialog(String title, String messagebody, String option1, String option2,

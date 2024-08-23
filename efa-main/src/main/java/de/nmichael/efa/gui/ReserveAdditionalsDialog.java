@@ -78,7 +78,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
     public ReserveAdditionalsDialog(Window parent, String title, BoatReservationRecord originalReservation, Hashtable<String, TableItem[]> items, boolean isAdminMode) {
         // 2024-02-25 abf leider kein "abbrechen"-Button möglich. "nein Danke, mir reicht das eine Boot" --> cancel.
         super(parent, title, International.getStringWithMnemonic("OK")
-                + International.getString("Boote dazubuchen")); // ausgewählte
+                + ", keine " + ("Boote dazubuchen")); // ausgewählte
         this.items = items;
         this.originalReservation = originalReservation;
         this.isAdminMode = isAdminMode;
@@ -363,6 +363,23 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                     source.removeAllItems();
                 }
             }
+
+
+            String anzahlZusaetzlich = "0";
+            if (itemType.getName().equals(BOAT_REMOVE_BTN) && source != null) {
+                anzahlZusaetzlich = "" + source.getItemObjects().size();
+            }
+            if (!itemType.getName().equals(BOAT_REMOVE_BTN) && target != null) {
+                anzahlZusaetzlich = "" + target.getItemObjects().size();
+            }
+            if (anzahlZusaetzlich.endsWith("0")) {
+                anzahlZusaetzlich = "keine";
+            }
+            _closeButtonText = International.getStringWithMnemonic("Speichern")
+                    + " und dabei " + anzahlZusaetzlich + " "
+                    + International.getString("Boote dazubuchen"); // ausgewählte
+            closeButton.setText(_closeButtonText);
+
 
             if (target == null){
                 target.requestFocus();

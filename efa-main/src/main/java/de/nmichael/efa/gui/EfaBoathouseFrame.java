@@ -2106,16 +2106,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (actions == null || actions.length == 0) {
       return;
     }
-    String[] myActions = new String[actions.length + 1];
-    for (int i = 0; i < actions.length; i++) {
-      myActions[i] = actions[i].substring(1);
-    }
-    myActions[myActions.length - 1] = International.getString("Nichts");
-    int selection = Dialog.auswahlDialog(International.getString("Boot") + " " + name,
-        International.getMessage("Was möchtest Du mit dem Boot {boat} machen?", name),
-        myActions);
-    if (selection >= 0 && selection < actions.length) {
-      processListAction(blitem, EfaUtil.string2int(actions[selection].substring(0, 1), -1));
+    for (String action : actions) {
+      if (action.startsWith("" + ACTIONID_BOATRESERVATIONS)) {
+        processListAction(blitem, ACTIONID_BOATRESERVATIONS);
+        return;
+      }
     }
   }
 

@@ -11,6 +11,7 @@ import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -206,6 +207,21 @@ public class ReserveAdditionalsDialog extends BaseDialog{
             }
         });
 
+        //löscht Items mittels Doppelklick statt mit selectButton
+        selectedItemsList.registerItemListener(new AddRemoveListener(selectedItemsList, itemsOfGroupList) {
+            @Override
+            protected List<IItemType> getSelectedItems(IItemType itemType, AWTEvent event) {
+                List<IItemType> result = new ArrayList<>();
+                if (event instanceof ActionEvent ) {
+                    String actionCommand = ((ActionEvent) event).getActionCommand();
+                    if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
+                        IItemType selectedItem = selectedItemsList.getSelectedValue();
+                        result.add(selectedItem);
+                    }
+                }
+                return result;
+            }
+        });
 
         IItemListener groupDropDownListener = new IItemListener() {
 
@@ -311,7 +327,12 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                             .createBoatReservationsRecordFromClone(boatRecord.getId(), originalReservation);
 
                     reservations.preModifyRecordCallback(testReservationsRecord, true, false, false);
-                    ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
+                    String prefixError = "";
+                    if (!typeSeats.equals(boatRecord.getTypeSeats(0))) {
+                        prefixError = typeSeats + "=" + boatRecord.getTypeSeats(0) + ": ";
+                        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, prefixError + "beim Übertragen auf weitere Gruppen");
+                    }
+                    ItemTypeBoolean item = new ItemTypeBoolean(prefixError + boatRecord.getName(), false,
                             IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
                     item.setDataKey(boatRecord.getKey());
                     liste.add(item);
@@ -364,13 +385,27 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                 }
             }
 
-
-            String anzahlZusaetzlich = "0";
-            if (itemType.getName().equals(BOAT_REMOVE_BTN) && source != null) {
-                anzahlZusaetzlich = "" + source.getItemObjects().size();
+            updateOkSaveButtonText(itemType.getName()); // buttonPressed
+            if (target == null){
+                target.requestFocus();
             }
-            if (!itemType.getName().equals(BOAT_REMOVE_BTN) && target != null) {
-                anzahlZusaetzlich = "" + target.getItemObjects().size();
+            if (source == null){
+                source.requestFocus();
+            }
+            selectedItems.clear();
+        }
+
+        private void updateOkSaveButtonText(String areaClicked) {
+            String anzahlZusaetzlich = "0";
+            if (areaClicked.equals(BOAT_REMOVE_BTN)
+                    || areaClicked.equals("SelectedStuff")) {
+                if (source != null) {
+                    anzahlZusaetzlich = "" + source.getItemObjects().size();
+                }
+            } else {
+                if (target != null) {
+                    anzahlZusaetzlich = "" + target.getItemObjects().size();
+                }
             }
             if (anzahlZusaetzlich.endsWith("0")) {
                 anzahlZusaetzlich = "keine";
@@ -379,15 +414,6 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                     + " und dabei " + anzahlZusaetzlich + " "
                     + International.getString("Boote dazubuchen"); // ausgewählte
             closeButton.setText(_closeButtonText);
-
-
-            if (target == null){
-                target.requestFocus();
-            }
-            if (source == null){
-                source.requestFocus();
-            }
-            selectedItems.clear();
         }
 
         protected abstract List<IItemType> getSelectedItems(IItemType itemType, AWTEvent event);

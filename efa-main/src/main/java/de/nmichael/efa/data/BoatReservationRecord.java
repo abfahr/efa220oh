@@ -926,7 +926,7 @@ public class BoatReservationRecord extends DataRecord {
         msg.add("Solltest Du (noch) keinen Bootshausnutzungsvertrag unterschrieben haben, "
                 + "dann fülle das Formular umgehend aus (" + International.getString("Web Download Vertrag") + ") "
                 + "und gib es im Bootshaus rechtzeitig vor Deiner Bootshausnutzung ab. "
-                + "Ansonsten werden Dir automatisch 75EUR berechnet.");
+                + "Ansonsten werden Dir automatisch 100EUR berechnet.");
         msg.add("");
       }
 

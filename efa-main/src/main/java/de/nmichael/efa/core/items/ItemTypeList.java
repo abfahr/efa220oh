@@ -27,9 +27,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
@@ -48,6 +46,8 @@ import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.Mnemonics;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class ItemTypeList<T> extends ItemType implements ActionListener {
 
@@ -158,6 +158,16 @@ public class ItemTypeList<T> extends ItemType implements ActionListener {
     this.category = category;
     this.description = description;
     data = new Vector<ItemTypeListData>();
+  }
+
+  public void sortAlphabetically( ) {
+    // Nachdem die Liste vdata erstellt wurde, sortiere sie alphabetisch nach text
+    Collections.sort(data, new Comparator<ItemTypeListData>() {
+      @Override
+      public int compare(ItemTypeListData item1, ItemTypeListData item2) {
+        return item1.toString().compareToIgnoreCase(item2.toString());
+      }
+    });
   }
 
   @Override

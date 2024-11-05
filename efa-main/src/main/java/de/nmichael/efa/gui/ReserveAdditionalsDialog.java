@@ -280,6 +280,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                         for (IItemType boat :filteredList) {
                             itemsOfGroupList.addItem(boat.getName(), boat, true, '\0');
                         }
+                        itemsOfGroupList.sortAlphabetically();
                         itemsOfGroupList.requestFocus();
                     }
                 });
@@ -384,7 +385,7 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                     source.removeAllItems();
                 }
             }
-
+            itemsOfGroupList.sortAlphabetically();  //werden die Elemente entfernt, sollen sie geordnet angezeigt werden
             updateOkSaveButtonText(itemType.getName()); // buttonPressed
             if (target == null){
                 target.requestFocus();

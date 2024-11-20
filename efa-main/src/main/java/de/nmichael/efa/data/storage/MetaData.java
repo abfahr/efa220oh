@@ -34,8 +34,13 @@ public class MetaData {
     this.dataType = dataType;
   }
 
-  public static MetaData constructMetaData(String dataType, Vector<String> fields,
+  public static synchronized MetaData constructMetaData(String dataType, Vector<String> fields,
       Vector<Integer> types, boolean versionized) {
+
+    if (dataType == null || fields == null || types == null || fields.size() != types.size()) {
+      throw new IllegalArgumentException("Invalid parameters for constructing MetaData");
+    }
+
     MetaData m = metaData.get(dataType);
     if (m != null) {
       metaData.remove(dataType);

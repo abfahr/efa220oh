@@ -70,7 +70,9 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <descriptor>src/assembly/dist.xml</descriptor>
+              <descriptors>
+                <descriptor>src/assembly/dist.xml</descriptor>
+              </descriptors>
             </configuration>
           </execution>
         </executions>

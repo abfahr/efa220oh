@@ -2335,55 +2335,49 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         for (int i = 0; i < v.size(); i++) {
           m += (m.length() > 0 ? "; " : "") + v.get(i);
         }
-        switch (Dialog
-            .auswahlDialog(
-                International.getString("Doppeleintrag") + "?",
-                // @todo (P5) make duplicate entry dialog a bit more readable
-                International.getString("efa hat einen ähnlichen Eintrag im Fahrtenbuch gefunden.")
-                    + "\n"
-                    + International
-                    .getString(
-                        "Eventuell hast Du oder jemand anderes die Fahrt bereits eingetragen.")
-                    + "\n\n"
-                    + International.getString("Vorhandener Eintrag")
-                    + ":\n"
-                    + International.getMessage("#{entry} vom {date} mit {boat}",
-                    duplicate.getEntryId().toString(), duplicate.getDate().toString(),
-                    duplicate.getBoatAsName())
-                    + ":\n"
-                    + International.getString("Mannschaft")
-                    + ": "
-                    + m
-                    + "\n"
-                    + International.getString("Abfahrt")
-                    + ": "
-                    + (duplicate.getStartTime() != null ? duplicate.getStartTime().toString() : "")
-                    + "; "
-                    + International.getString("Ankunft")
-                    + ": "
-                    + (duplicate.getEndTime() != null ? duplicate.getEndTime().toString() : "")
-                    + "; "
-                    + International.getString("Ziel")
-                    + " / "
-                    +
-                    International.getString("Strecke")
-                    + ": "
-                    + duplicate.getDestinationAndVariantName()
-                    + " ("
-                    + (duplicate.getDistance() != null ? duplicate.getDistance()
-                    .getAsFormattedString() : "")
-                    + " Km)"
-                    + "\n\n"
-                    + International
-                    .getString(
-                        "Bitte füge den aktuellen Eintrag nur hinzu, falls es sich NICHT um einen Doppeleintrag handelt.")
-                    + "\n"
-                    + International.getString("Was möchtest Du tun?"),
-                International.getString("Eintrag hinzufügen")
-                    + " (" + International.getString("kein Doppeleintrag") + ")",
-                International.getString("Eintrag nicht hinzufügen")
-                    + " (" + International.getString("Doppeleintrag") + ")",
-                International.getString("Zurück zum Eintrag"))) {
+        switch (Dialog.auswahlDialog(
+            International.getString("Doppeleintrag") + "?",
+            International.getString("efa hat einen ähnlichen Eintrag im Fahrtenbuch gefunden.")
+                + "\n"
+                + International.getString(
+                    "Eventuell hast Du oder jemand anderes die Fahrt bereits eingetragen.")
+                + "\n\n"
+                + International.getString("Vorhandener Eintrag")
+                + ":\n"
+                + International.getMessage("#{entry} vom {date} mit {boat}",
+                duplicate.getEntryId().toString(), duplicate.getDate().toString(),
+                duplicate.getBoatAsName())
+                + ":\n"
+                + International.getString("Mannschaft")
+                + ": "
+                + m
+                + "\n"
+                + International.getString("Abfahrt")
+                + ": "
+                + (duplicate.getStartTime() != null ? duplicate.getStartTime().toString() : "")
+                + "; "
+                + International.getString("Ankunft")
+                + ": "
+                + (duplicate.getEndTime() != null ? duplicate.getEndTime().toString() : "")
+                + "; "
+                + International.getString("Ziel")
+                + " / "
+                + International.getString("Strecke")
+                + ": "
+                + duplicate.getDestinationAndVariantName()
+                + " ("
+                + (duplicate.getDistance() != null ? duplicate.getDistance().getAsFormattedString() : "")
+                + " Km)"
+                + "\n\n"
+                + International.getString(
+                    "Bitte füge den aktuellen Eintrag nur hinzu, falls es sich NICHT um einen Doppeleintrag handelt.")
+                + "\n"
+                + International.getString("Was möchtest Du tun?"),
+            International.getString("Eintrag hinzufügen")
+                + " (" + International.getString("kein Doppeleintrag") + ")",
+            International.getString("Eintrag nicht hinzufügen")
+                + " (" + International.getString("Doppeleintrag") + ")",
+            International.getString("Zurück zum Eintrag"))) {
           case 0: // kein Doppeleintrag: Hinzufügen
             break;
           case 1: // Doppeleintrag: NICHT hinzufügen
@@ -2786,7 +2780,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
       if (isModeFinishOrLateEntry()
           && Daten.efaConfig.getValueEfaDirekt_zielBeiFahrtbeginnPflicht()
-          // TODO abf 2020-10-02 keine Frage nach Fahrtziel Alster mehr
           && destination.getValue().length() == 0) {
         Dialog.error(International.getString("Bitte trage ein Fahrtziel/Strecke ein!"));
         destination.requestFocus();
@@ -4656,8 +4649,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     createNewRecord(false);
     date.parseAndShowValue(EfaUtil.getCurrentTimeStampDD_MM_YYYY());
     setTime(starttime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt(), null);
-    setTime(endtime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt() + 119,
-        starttime.getTime());
+    setTime(endtime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt() + 119, starttime.getTime());
 
     setFieldEnabled(false, false, entryno);
     setFieldEnabled(true, true, date);
@@ -4677,21 +4669,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
     setFieldEnabled(false, false, distance);
     setFieldEnabled(true, true, comments);
-    setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(),
-        boatDamageButton);
+    setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
     setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
 
     efaBoathouseSetPersonAndBoat(item);
-    // destination.parseAndShowValue("Alster"); // schon mal ein Ziel eintragen
-    // distance.parseAndShowValue("");
-
-    // TODO abf 2020-03-27 Dialog vereinfachen
-    // distance.setVisible(false);
-    // distance.setEditable(false);
-    // boatcaptain.setVisible(false);
-    // boatcaptain.setEditable(false);
-    // cox.setVisible(false);
-    // cox.setEditable(false);
     updateTimeInfoFields();
     return true;
   }
@@ -4708,16 +4689,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     if (currentRecord == null) {
       String msg = International.getString("Fahrt korrigieren")
           + ": "
-          +
-          International
-              .getMessage(
-                  "Die gewählte Fahrt #{lfdnr} ({boot}) konnte nicht gefunden werden!",
-                  (item != null && item.boatStatus != null && item.boatStatus.getEntryNo() != null
-                      ? item.boatStatus
-                      .getEntryNo().toString()
-                      : "null"),
-                  (item != null && item.boat != null ? item.boat.getQualifiedName()
-                      : (item != null ? item.text : "null")));
+          + International.getMessage(
+            "Die gewählte Fahrt #{lfdnr} ({boot}) konnte nicht gefunden werden!",
+            (item != null && item.boatStatus != null && item.boatStatus.getEntryNo() != null
+                ? item.boatStatus
+                .getEntryNo().toString()
+                : "null"),
+            (item != null && item.boat != null ? item.boat.getQualifiedName()
+                : (item != null ? item.text : "null")));
       logBoathouseEvent(Logger.ERROR, Logger.MSG_ERR_NOLOGENTRYFORBOAT, msg, null);
       return false;
     }

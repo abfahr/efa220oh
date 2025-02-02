@@ -81,10 +81,6 @@ public class Audit extends Thread {
     }
   }
 
-  /*
-   * @todo (P3) Audit - SessionGroups
-   */
-
   private void addMessageToBuffer(String s) {
     if (s == null || s.length() == 0) {
       return;
@@ -866,13 +862,13 @@ public class Audit extends Thread {
     }
   }
 
-  private int runAuditBoatReservations() {
+  private void runAuditBoatReservations() {
     int reservErr = 0;
     try {
       BoatReservations boatReservations = project.getBoatReservations(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return reservErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
       String logbookName = Daten.project.getCurrentLogbookEfaBoathouse();
       new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
@@ -887,7 +883,7 @@ public class Audit extends Thread {
 
         // Person
         if (brr.getPersonId() != null && brr.getPersonName() != null
-            && brr.getPersonName().length() > 0
+            && !brr.getPersonName().isEmpty()
             && !isReferenceInvalid(brr.getPersonId(), persons, validAt)) {
           // TODO 2021-03-01 abf Wird das jemals benutzt?
           String name = brr.getPersonName();
@@ -975,12 +971,11 @@ public class Audit extends Thread {
         k = it.getNext();
       }
 
-      return reservErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
           "runAuditBoatReservations() Caught Exception: " + e.toString());
-      return ++reservErr;
+      ++reservErr;
     }
   }
 

@@ -73,9 +73,6 @@ public class DataExportDialog extends BaseDialog {
   private Vector<DataRecord> selectedData;
   private Vector<DataRecord> filteredData;
 
-  // @todo (P4) DataExport option: "export to efa", which leaves all keys as they are (only xml, add
-  // flag "<exportMode>efa</exportMode>"
-
   public DataExportDialog(Frame parent, StorageObject persistence, long validAt, AdminRecord admin,
       Vector<DataRecord> selectedData, Vector<DataRecord> filteredData) {
     super(parent, International.getMessage("{data} exportieren", persistence.getDescription()),

@@ -647,7 +647,7 @@ public class BrowserDialog extends BaseDialog {
         try {
           // Quelldatei lesen
           f = new BufferedReader(new InputStreamReader(new FileInputStream(quelle),
-              Daten.ENCODING_UTF)); // @todo (P9) save file in browser: get proper encoding
+              Daten.ENCODING_UTF));
           String s;
           // Zeilenweise lesen
           while ((s = f.readLine()) != null) {

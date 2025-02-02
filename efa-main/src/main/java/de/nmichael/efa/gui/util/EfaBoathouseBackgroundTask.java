@@ -682,7 +682,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return;
     }
     if (reservations.length != 1) {
-      // TODO abf
       return;
     }
     String aktion = "REMINDER";

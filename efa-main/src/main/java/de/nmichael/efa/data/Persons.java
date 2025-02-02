@@ -576,8 +576,6 @@ public class Persons extends StorageObject {
           }
         }
 
-        // @todo (P2) - merge ID's for Clubwork
-
         // Search Boat Damages
         logInfo("Searching Boat Damages ...\n");
         BoatDamages boatDamages = p.getBoatDamages(false);

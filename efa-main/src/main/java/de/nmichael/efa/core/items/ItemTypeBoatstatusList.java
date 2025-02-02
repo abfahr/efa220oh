@@ -328,16 +328,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             case 8 -> Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8);
             default -> Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, "" + myBoatStringElement.seats);
         };
-          if (s == null || s.equals(EfaTypes.getStringUnknown())) {
-          /*
-           * @todo (P5) Doppeleinträge currently not supported in efa2 DatenFelder d =
-           * Daten.fahrtenbuch
-           * .getDaten().boote.getExactComplete(removeDoppeleintragFromBootsname(a[i].name)); if (d
-           * != null) { s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,
-           * d.get(Boote.ANZAHL)); } else {
-           */
+        if (s == null || s.equals(EfaTypes.getStringUnknown())) {
           s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_OTHER);
-          // }
         }
         if (s != null) {
           s = s.trim();

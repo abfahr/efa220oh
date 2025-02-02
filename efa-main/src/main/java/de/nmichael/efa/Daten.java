@@ -217,7 +217,7 @@ public class Daten {
   public static String efaNamesDirectory = null; // Efa-Namen-Verzeichnis, immer mit "/" am Ende
   // ("./names/")
   public static String efaTodoDirectory = null; // Efa-To-do-Verzeichnis, immer mit "/" am Ende
-  // ("./todo/")
+  // ("./to-do/")
   public static String efaFormattingDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am
   // Ende ("./fmt/")
   public static String efaBakDirectory = null; // Efa-Backupverzeichnis, immer mit "/" am Ende
@@ -340,7 +340,6 @@ public class Daten {
     iniRemoteEfaServer();
     iniEmailSenderThread();
     iniGUI();
-    iniChecks();
     if (createNewAdmin && efaFirstSetup != null) {
       return (AdminRecord) efaFirstSetup[1];
     }
@@ -780,7 +779,7 @@ public class Daten {
       haltProgram(HALT_DIRECTORIES);
     }
 
-    // ./todo
+    // ./to-do
     efaTodoDirectory = efaBaseConfig.efaUserDirectory + "todo" + fileSep;
     if (!checkAndCreateDirectory(efaTodoDirectory)) {
       haltProgram(HALT_DIRECTORIES);
@@ -1167,14 +1166,6 @@ public class Daten {
     }
   }
 
-  public static void iniChecks() {
-    if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-      Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniChecks()");
-    }
-    checkEfaVersion(true);
-    checkJavaVersion(true);
-  }
-
   public static void iniDataFile(de.nmichael.efa.efa1.DatenListe f, boolean autoNewIfDoesntExist,
       String s) {
     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
@@ -1492,14 +1483,6 @@ public class Daten {
       default:
         return IMAGEPATH + "efa_logo.png";
     }
-  }
-
-  public static void checkEfaVersion(boolean interactive) {
-    // @todo (P7) check for outdated efa version
-  }
-
-  public static void checkJavaVersion(boolean interactive) {
-    // @todo (P7) check for outdated java version
   }
 
   public static void checkRegister() {

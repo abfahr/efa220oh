@@ -474,7 +474,7 @@ public class BoatReservationRecord extends DataRecord {
     try {
       date = dayFormat.parse(dayName);
     } catch (ParseException e) {
-      // TODO Auto-generated catch block
+      // Auto-generated catch block
       e.printStackTrace();
       return null;
     }

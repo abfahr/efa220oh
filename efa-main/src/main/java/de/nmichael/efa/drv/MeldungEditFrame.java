@@ -1433,40 +1433,40 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     switch (MELDTYP) {
       case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
         this.mGeschlecht.addItem("ungültig");
-        hGeschlecht.put("", new Integer(0));
+        hGeschlecht.put("", Integer.valueOf(0));
         this.mGeschlecht.addItem("männlich");
-        hGeschlecht.put(EfaWettMeldung.GESCHLECHT_M, new Integer(1));
+        hGeschlecht.put(EfaWettMeldung.GESCHLECHT_M, Integer.valueOf(1));
         this.mGeschlecht.addItem("weiblich");
-        hGeschlecht.put(EfaWettMeldung.GESCHLECHT_W, new Integer(2));
+        hGeschlecht.put(EfaWettMeldung.GESCHLECHT_W, Integer.valueOf(2));
 
         this.mGruppe.addItem("ungültig");
-        hGruppe.put("", new Integer(0));
+        hGruppe.put("", Integer.valueOf(0));
         this.mGruppe.addItem("1a (Männer 19-30)");
-        hGruppe.put("1a", new Integer(1));
+        hGruppe.put("1a", Integer.valueOf(1));
         this.mGruppe.addItem("1b (Männer 31-60)");
-        hGruppe.put("1b", new Integer(2));
+        hGruppe.put("1b", Integer.valueOf(2));
         this.mGruppe.addItem("1c (Männer 61-??)");
-        hGruppe.put("1c", new Integer(3));
+        hGruppe.put("1c", Integer.valueOf(3));
         this.mGruppe.addItem("1x (Männer 50% Beh.)");
-        hGruppe.put("1 (50% Behinderung)", new Integer(4));
+        hGruppe.put("1 (50% Behinderung)", Integer.valueOf(4));
         this.mGruppe.addItem("2a (Frauen 19-30)");
-        hGruppe.put("2a", new Integer(5));
+        hGruppe.put("2a", Integer.valueOf(5));
         this.mGruppe.addItem("2b (Frauen 31-60)");
-        hGruppe.put("2b", new Integer(6));
+        hGruppe.put("2b", Integer.valueOf(6));
         this.mGruppe.addItem("2c (Frauen 61-??)");
-        hGruppe.put("2c", new Integer(7));
+        hGruppe.put("2c", Integer.valueOf(7));
         this.mGruppe.addItem("2x (Frauen 50% Beh.)");
-        hGruppe.put("2 (50% Behinderung)", new Integer(8));
+        hGruppe.put("2 (50% Behinderung)", Integer.valueOf(8));
         this.mGruppe.addItem("3a (Jugend 8-10)");
-        hGruppe.put("3a", new Integer(9));
+        hGruppe.put("3a", Integer.valueOf(9));
         this.mGruppe.addItem("3b (Jugend 11-12)");
-        hGruppe.put("3b", new Integer(10));
+        hGruppe.put("3b", Integer.valueOf(10));
         this.mGruppe.addItem("3c (Jugend 13-14)");
-        hGruppe.put("3c", new Integer(11));
+        hGruppe.put("3c", Integer.valueOf(11));
         this.mGruppe.addItem("3d (Jugend 15-16)");
-        hGruppe.put("3d", new Integer(12));
+        hGruppe.put("3d", Integer.valueOf(12));
         this.mGruppe.addItem("3e (Jugend 17-18)");
-        hGruppe.put("3e", new Integer(13));
+        hGruppe.put("3e", Integer.valueOf(13));
 
         hAbzeichen.put("", "ungültig");
         hAbzeichen.put(EfaWettMeldung.ABZEICHEN_ERW_EINF, "Erwachsene einfach");
@@ -2303,8 +2303,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ewm.nachname = notEmpty(mNachname);
         ewm.vorname = notEmpty(mVorname);
         ewm.jahrgang = field2jahr(mJahrgang);
-        ewm.geschlecht = findValue(hGeschlecht, new Integer(mGeschlecht.getSelectedIndex()));
-        ewm.gruppe = findValue(hGruppe, new Integer(mGruppe.getSelectedIndex()));
+        ewm.geschlecht = findValue(hGeschlecht, Integer.valueOf(mGeschlecht.getSelectedIndex()));
+        ewm.gruppe = findValue(hGruppe, Integer.valueOf(mGruppe.getSelectedIndex()));
         ewm.kilometer = field2int(mKilometer);
         ewm.drv_aequatorpreis = findValue(hAequator, mAequatorpreis.getText());
         ewm.drv_anzAbzeichen = field2int(mAnzAbzeichen);
@@ -3193,7 +3193,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   void deleteButton_actionPerformed(ActionEvent e) {
     Dialog.infoDialog("Noch nicht implementiert", "Diese Funktion ist noch nicht implementiert.");
-    // @todo (P9) efaDRV Meldungen löschen
+    // (P9) efaDRV Meldungen löschen
   }
 
   void mUnblockButton_actionPerformed(ActionEvent e) {

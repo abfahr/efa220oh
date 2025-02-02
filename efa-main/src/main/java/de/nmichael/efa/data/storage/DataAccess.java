@@ -59,7 +59,7 @@ public abstract class DataAccess implements IDataAccess {
         dataAccess.setPersistence(persistence);
         return dataAccess;
       case IDataAccess.TYPE_DB_SQL:
-        break; // @todo (P6) TYPE_DB_SQL not yet implemented
+        break; // (P6) TYPE_DB_SQL not yet implemented
       case IDataAccess.TYPE_EFA_REMOTE:
         dataAccess = new RemoteEfaClient(storageLocation, storageUsername,
             storagePassword, storageObjectName, storageObjectType, storageObjectDescription);

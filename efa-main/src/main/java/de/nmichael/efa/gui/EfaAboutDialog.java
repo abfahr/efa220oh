@@ -19,6 +19,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.io.Serial;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -38,9 +39,7 @@ import de.nmichael.efa.util.International;
 
 public class EfaAboutDialog extends BaseDialog {
 
-  /**
-   *
-   */
+  @Serial
   private static final long serialVersionUID = 1L;
   JPanel infoPanel = new JPanel();
   JLabel nameLabel = new JLabel();
@@ -88,8 +87,8 @@ public class EfaAboutDialog extends BaseDialog {
   @Override
   protected void iniDialog() throws Exception {
     mainPanel.setLayout(new BorderLayout());
-    nameLabel.setFont(new java.awt.Font("Dialog", 1, (Dialog.getFontSize() > 0 ? Dialog
-        .getFontSize() + 6 : 18)));
+    nameLabel.setFont(new java.awt.Font("Dialog", 1,
+            (Dialog.getFontSize() > 0 ? Dialog.getFontSize() + 6 : 18)));
     nameLabel.setForeground(Color.black);
     nameLabel.setText(Daten.EFA_LONGNAME);
     versionLabel.setText("Version 0.1"); // do not internationalize
@@ -224,9 +223,9 @@ public class EfaAboutDialog extends BaseDialog {
     mainPanel.add(tabbedPane, BorderLayout.CENTER);
     versionLabel.setText(International.getString("Version") + " " + Daten.getVersion() + "   ("
         + Daten.getVersionId() + ") vom " + Daten.getVersionReleaseDate());
-    Vector infos = Daten.getEfaInfos();
+    Vector<String> infos = Daten.getEfaInfos();
     for (int i = 0; infos != null && i < infos.size(); i++) {
-      efaInfos.append((String) infos.get(i) + "\n");
+      efaInfos.append(infos.get(i) + "\n");
     }
     if (infos == null) {
       efaInfos.append(International.getString("Keine Systeminformationen verfügbar."));

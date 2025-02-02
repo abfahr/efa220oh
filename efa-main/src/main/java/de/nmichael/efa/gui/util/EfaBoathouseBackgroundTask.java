@@ -219,8 +219,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         sleepForAWhile();
 
-      } catch (Exception eglobal) {
-        Logger.log(eglobal);
+      } catch (Exception e) {
+        Logger.log(e);
       }
     } // end: while(true)
   } // end: run
@@ -1257,7 +1257,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return error;
     }
 
-    String nameParts[] = neuerName.split(" ", 2);
+    String[] nameParts = neuerName.split(" ", 2);
     String neuerVorname = nameParts[0];
     if (neuerVorname == null) {
       String error = "Person-Profil-" + aktion + ": Der Name '" + neuerName
@@ -1505,15 +1505,15 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return error;
     }
 
-    String neuesKürzel = strMap.get("kürzel");
-    if (neuesKürzel == null) {
-      neuesKürzel = "";
+    String neuesKuerzel = strMap.get("kürzel");
+    if (neuesKuerzel == null) {
+      neuesKuerzel = "";
     } else {
-      neuesKürzel = neuesKürzel.trim().toLowerCase();
+      neuesKuerzel = neuesKuerzel.trim().toLowerCase();
     }
 
     if (person.isErlaubtKuerzel()) {
-      if (neuesKürzel.equals(person.getInputShortcut())) {
+      if (neuesKuerzel.equals(person.getInputShortcut())) {
         String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
             + " hat bereits Kürzel '" + person.getInputShortcut()
             + "' und Erlaubnis: " + person.isErlaubtKuerzel();
@@ -1521,7 +1521,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         return error;
       }
     } else {
-      if (neuesKürzel.isBlank() && person.getInputShortcut() == null) {
+      if (neuesKuerzel.isBlank() && person.getInputShortcut() == null) {
         String error = "Person-Profil-" + aktion + ": " + person.getFirstLastName()
             + " hat kein Kürzel zum Entfernen. "
             + person.isErlaubtKuerzel() + " " + person.getInputShortcut();
@@ -1531,12 +1531,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     // not blank, check spelling
-    if (!neuesKürzel.isBlank()) {
+    if (!neuesKuerzel.isBlank()) {
       String myMatch = "\\w+\\.?"; // "^[\"\\\\w+\\\\.?\"]+";
       // String myMatch = "^[A-Za-z0-9]+";
-      if (!neuesKürzel.matches(myMatch)) {
+      if (!neuesKuerzel.matches(myMatch)) {
         String error = "Person-Profil-" + aktion + ": "
-            + "Illegales Kürzel sieht komisch aus: '" + neuesKürzel + "'";
+            + "Illegales Kürzel sieht komisch aus: '" + neuesKuerzel + "'";
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
@@ -1548,19 +1548,19 @@ public class EfaBoathouseBackgroundTask extends Thread {
         return error;
       }
       long now = System.currentTimeMillis();
-      PersonRecord otherPerson = persons.getPersonWithInputShortcut(neuesKürzel, now);
+      PersonRecord otherPerson = persons.getPersonWithInputShortcut(neuesKuerzel, now);
       if (otherPerson != null &&
           !otherPerson.getId().equals(person.getId()) &&
           !otherPerson.getMembershipNo().equals(person.getMembershipNo())) {
-        String error = "Person-Profil-" + aktion + ": Das Kürzel '" + neuesKürzel
+        String error = "Person-Profil-" + aktion + ": Das Kürzel '" + neuesKuerzel
             + "' ist bereits vergeben: an " + otherPerson.getFirstLastName();
         Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, error);
         return error;
       }
     }
 
-    person.setErlaubnisKuerzel(!neuesKürzel.isBlank());
-    person.setInputShortcut(neuesKürzel);
+    person.setErlaubnisKuerzel(!neuesKuerzel.isBlank());
+    person.setInputShortcut(neuesKuerzel);
 
     if (persons == null) {
       String error = "Person-Profil-" + aktion
@@ -1850,8 +1850,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
           "EfaBoathouseBackgroundTask: checkAlwaysInFront()");
     }
-    if (Daten.efaConfig.getValueEfaDirekt_immerImVordergrund() &&
-        efaBoathouseFrame != null
+    if (Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()
+        && efaBoathouseFrame != null
         && Dialog.frameCurrent() == efaBoathouseFrame) {
       Window[] windows = efaBoathouseFrame.getOwnedWindows();
       boolean topWindow = true;
@@ -1933,9 +1933,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
       try {
         DataKeyIterator it = boatDamages.data().getStaticIterator();
         for (DataKey<?, ?, ?> k = it.getFirst(); k != null; k = it.getNext()) {
-          if (boatDamages == null) {
-            continue;
-          }
           BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
           if (!damage.getFixed()) {
             BoatRecord r = damage.getBoatRecord();
@@ -2078,8 +2075,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           sessionsAborted = true;
           Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBSTEP,
               International.getString("Offene Fahrten werden abgebrochen ..."));
-          for (int i = 0; i < boatsOnTheWater.size(); i++) {
-            BoatStatusRecord sr = boatsOnTheWater.get(i);
+          for (BoatStatusRecord sr : boatsOnTheWater) {
             LogbookRecord r = null;
             if (sr.getEntryNo() != null && sr.getEntryNo().isSet()) {
               r = currentLogbook.getLogbookRecord(sr.getEntryNo());
@@ -2090,7 +2086,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             sr.setCurrentStatus(sr.getBaseStatus());
             boatStatus.data().update(sr, lockStatus);
             EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPABORT,
-                International.getString("Fahrtabbruch"), r);
+                    International.getString("Fahrtabbruch"), r);
             boatStatus.data().releaseGlobalLock(lockStatus);
             lockStatus = -1;
             currentLogbook.data().releaseGlobalLock(lockLogbook);
@@ -2111,28 +2107,27 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
 
       Messages messages = Daten.project.getMessages(false);
-      messages
-          .createAndSaveMessageRecord(
-              MessageRecord.TO_ADMIN,
-              International.getString("Fahrtenbuchwechsel"),
-              International
-                  .getString("efa hat soeben wie konfiguriert ein neues Fahrtenbuch geöffnet.")
-                  + "\n"
-                  + International
-                      .getMessage(
-                          "Das neue Fahrtenbuch heißt {name} und ist gültig vom {fromdate} bis {todate}.",
-                          newLogbook.getName(), newLogbook.getStartDate().toString(), newLogbook
-                              .getEndDate().toString())
-                  + "\n"
-                  + LogString.operationSuccessfullyCompleted(International
-                      .getString("Fahrtenbuchwechsel"))
-                  + "\n\n"
-                  + (sessionsAborted ? International
-                      .getString(
-                          "Zum Zeitpunkt des Fahrtenbuchwechsels befanden sich noch einige Boote "
-                              + "auf dem Wasser. Diese Fahrten wurden ABGEBROCHEN. Die abgebrochenen "
-                              + "Fahrten sind in der Logdatei verzeichnet.")
-                      : ""));
+      messages.createAndSaveMessageRecord(
+          MessageRecord.TO_ADMIN,
+          International.getString("Fahrtenbuchwechsel"),
+          International
+              .getString("efa hat soeben wie konfiguriert ein neues Fahrtenbuch geöffnet.")
+              + "\n"
+              + International
+                  .getMessage(
+                      "Das neue Fahrtenbuch heißt {name} und ist gültig vom {fromdate} bis {todate}.",
+                      newLogbook.getName(), newLogbook.getStartDate().toString(), newLogbook
+                          .getEndDate().toString())
+              + "\n"
+              + LogString.operationSuccessfullyCompleted(International
+                  .getString("Fahrtenbuchwechsel"))
+              + "\n\n"
+              + (sessionsAborted ? International
+                  .getString(
+                      "Zum Zeitpunkt des Fahrtenbuchwechsels befanden sich noch einige Boote "
+                          + "auf dem Wasser. Diese Fahrten wurden ABGEBROCHEN. Die abgebrochenen "
+                          + "Fahrten sind in der Logdatei verzeichnet.")
+                  : ""));
       EfaUtil.sleep(500);
       efaBoathouseFrame.updateBoatLists(true);
       EfaUtil.sleep(500);
@@ -2142,19 +2137,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
           LogString.operationAborted(International.getString("Fahrtenbuchwechsel")));
       Messages messages = Daten.project.getMessages(false);
-      messages
-          .createAndSaveMessageRecord(
-              MessageRecord.TO_ADMIN,
-              International.getString("Fahrtenbuchwechsel"),
-              International
-                  .getString(
-                      "efa hat soeben versucht, wie konfiguriert ein neues Fahrtenbuch anzulegen.")
-                  + "\n"
-                  + International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.")
-                  + "\n\n"
-                  + International
-                      .getString(
-                          "Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
+      messages.createAndSaveMessageRecord(
+          MessageRecord.TO_ADMIN,
+          International.getString("Fahrtenbuchwechsel"),
+          International
+              .getString(
+                  "efa hat soeben versucht, wie konfiguriert ein neues Fahrtenbuch anzulegen.")
+              + "\n"
+              + International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.")
+              + "\n\n"
+              + International.getString(
+                      "Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
     } finally {
       if (boatStatus != null && lockStatus >= 0) {
         boatStatus.data().releaseGlobalLock(lockStatus);

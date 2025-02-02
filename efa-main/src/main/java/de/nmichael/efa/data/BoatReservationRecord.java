@@ -14,14 +14,7 @@ import java.io.File;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 import java.util.zip.Adler32;
 
 import de.nmichael.efa.Daten;
@@ -241,7 +234,7 @@ public class BoatReservationRecord extends DataRecord {
 
   public String getReason() {
     String s = getString(REASON);
-    if (s == null || s.length() == 0) {
+    if (s == null || s.isEmpty()) {
       s = "";
       if (isBootshausOH()) {
         s = International.getString("Fehlermeldung PrivatMitVertrag");
@@ -256,7 +249,7 @@ public class BoatReservationRecord extends DataRecord {
 
   public String getContact() {
     String s = getString(CONTACT);
-    if (s == null || s.length() == 0) {
+    if (s == null || s.isEmpty()) {
       return "";
     }
     return s;
@@ -264,11 +257,10 @@ public class BoatReservationRecord extends DataRecord {
 
   private void setHashId(Long seed) {
     String bisherigerHash = getString(HASHID);
-    if (bisherigerHash != null &&
-        bisherigerHash.length() > 0) {
+    if (bisherigerHash != null && !bisherigerHash.isEmpty()) {
       return; // already assigned
     }
-    String tmpString = this.data.toString() + seed;
+    String tmpString = Arrays.toString(this.data) + seed;
     Adler32 adler32 = new Adler32();
     adler32.update(tmpString.getBytes());
     String hashId = Long.toHexString(adler32.getValue());
@@ -282,7 +274,7 @@ public class BoatReservationRecord extends DataRecord {
 
   public String getHashId() {
     String s = getString(HASHID);
-    if (s == null || s.length() == 0) {
+    if (s == null || s.isEmpty()) {
       return "";
     }
     return s;
@@ -667,7 +659,7 @@ public class BoatReservationRecord extends DataRecord {
     v.add(vorstandsbeschluss);
 
     item = new ItemTypeRadioButtons(BoatReservationRecord.TYPE,
-        (getType() != null && getType().length() > 0 ? getType() : TYPE_ONETIME),
+        (getType() != null && !getType().isEmpty() ? getType() : TYPE_ONETIME),
         new String[] { TYPE_ONETIME, TYPE_WEEKLY },
         new String[] {
             International.getString("einmalig"),
@@ -839,8 +831,7 @@ public class BoatReservationRecord extends DataRecord {
             + "\n";
         fehlermeldung += "Gib EFA eine Minute, damit das Boot auf Fahrt geht...\n";
       }
-      // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp.
-      // Lange-Ausleihe.
+      // TODO 2020-05-22 abf Boris. Weiter Fehlermeldungen wie im getReason() hier anzeigen. Bsp. Lange-Ausleihe.
     }
     return fehlermeldung;
   }
@@ -943,7 +934,7 @@ public class BoatReservationRecord extends DataRecord {
       msg.add("Storno?");
       msg.add("Solltest Du diese Reservierung (inzwischen) nicht (mehr) brauchen, "
           + "dann trage Dich bitte im Bootshaus wieder aus.");
-      if (personRecord != null && getHashId().length() > 0) {
+      if (personRecord != null && !getHashId().isEmpty()) {
         msg.add("Alternativ kannst Du diese Reservierung hier mit ein paar Klicks stornieren: ");
         msg.add(getWebOnlineURL("storno/", personRecord.getMembershipNo()));
       }

@@ -113,15 +113,15 @@ public class Daten {
   public static final String DEBUG_MODE_SPECIAL = "mit.Debug.heute.touch.txt";
 
   public static final String EFA_GROSS = "EFA"; // efa program name/ID
-  public static String EFA_SHORTNAME = "efa"; // dummy, will be set in International.ininitalize()
+  public static String EFA_SHORTNAME = "efa"; // dummy, will be set in International.initialize()
   public static String EFA_LONGNAME = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in
   // International.()
   public static String EFA_ONLINE = "efaOnline"; // dummy, will be set in International.()
-  public static String EFA_BASE = "efaBasis"; // dummy, will be set in International.ininitalize()
+  public static String EFA_BASE = "efaBasis"; // dummy, will be set in International.initialize()
   public static String EFA_BOATHOUSE = "efaBootshaus"; // dummy, will be set in International.()
-  public static String EFA_CLI = "efaCLI"; // dummy, will be set in International.ininitalize()
-  public static String EFA_LIVE = "efaLive"; // dummy, will be set in International.ininitalize()
-  public static String EFA_WETT = "efaWett"; // dummy, will be set in International.ininitalize()
+  public static String EFA_CLI = "efaCLI"; // dummy, will be set in International.initialize()
+  public static String EFA_LIVE = "efaLive"; // dummy, will be set in International.initialize()
+  public static String EFA_WETT = "efaWett"; // dummy, will be set in International.initialize()
   public static String EFA_REMOTE = "efaRemote"; // dummy, will be set in International.()
   public static final String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name
   // containing all arguments passed to the "java" command
@@ -142,11 +142,8 @@ public class Daten {
   public static final String EFA_RUNNING = "efa.run"; // <efauser>/efa.run Indiz, daß efaDirekt
   // läuft (enthält Port#)
 
-  public static final String CONFIGFILE = "efa.cfg"; // <efauser>/cfg/efa.cfg Konfigurationsdatei
   public static final String DRVCONFIGFILE = "drv.cfg"; // <efauser>/cfg/drv.cfg
   // DRV-Konfigurationsdatei
-  public static final String EFATYPESFILE = "types.cfg"; // <efauser>/cfg/types.cfg Konfiguration
-  // für EfaTypes (Bezeichnungen)
   public static final String WETTFILE = "wett.cfg"; // <efauser>/cfg/wett.cfg Konfiguration für
   // Wettbewerbe
   public static final String WETTDEFS = "wettdefs.cfg"; // <efauser>/cfg/wettdefs.cfg
@@ -176,10 +173,7 @@ public class Daten {
   public static final int HALT_EFATYPES = 4;
   public static final int HALT_EFASEC = 5;
   public static final int HALT_EFARUNNING = 6;
-  public static final int HALT_FILEOPEN = 7;
-  public static final int HALT_EFASECADMIN = 8;
   public static final int HALT_FILEERROR = 9;
-  public static final int HALT_ERROR = 10;
   public static final int HALT_INSTALLATION = 11;
   public static final int HALT_ADMIN = 12;
   public static final int HALT_MISCONFIG = 12;
@@ -222,7 +216,7 @@ public class Daten {
   // Ende ("./fmt/")
   public static String efaBakDirectory = null; // Efa-Backupverzeichnis, immer mit "/" am Ende
   // ("./backup/")
-  public static String efaTmpDirectory = null; // Efa-Tempverzeichnis, immer mit "/" am Ende
+  public static String efaTmpDirectory = null; // Efa-Temp-Verzeichnis, immer mit "/" am Ende
   // ("./tmp/")
   // public static String efaStyleDirectory = null; // Efa-Stylesheetverzeichnis, mit "/" am Ende
   // ("./fmt/layout/")
@@ -240,16 +234,15 @@ public class Daten {
 
   public static final String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou/eou.xml";
   public static final String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eou/eoudrv.xml";
-  public static final String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
   public static final String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
   public static final String IMAGEPATH = "/de/nmichael/efa/img/";
   public static final String FILEPATH = "/de/nmichael/efa/files/";
   public static final String DATATEMPLATEPATH = "/de/nmichael/efa/data/templates/";
 
   public static final int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein
-  // muß, damit es zu einem automatischen Beenden/Restart kommt (60)
+  // muss, damit es zu einem automatischen Beenden/Restart kommt (60)
   public static final int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt
-  // wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als
+  // wurde, damit Beenden/Neustart nicht verzögert wird (muss kleiner als
   // AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
   public static final int MIN_FREEMEM_PERCENTAGE = 90;
   public static final int WARN_FREEMEM_PERCENTAGE = 70;
@@ -274,7 +267,7 @@ public class Daten {
 
   private static StartLogo splashScreen; // Efa Splash Screen
 
-  // true wenn efa das erste Mal gestartet wurde und EfaBaseConfig neu erzeugt wurde
+  // true, wenn efa das erste Mal gestartet wurde und EfaBaseConfig neu erzeugt wurde
   private static boolean firstEfaStart = false;
   public static Color colorGreen = new Color(0, 150, 0);
   public static Color colorOrange = new Color(255, 100, 0);
@@ -681,7 +674,7 @@ public class Daten {
       Logger.log(Logger.INFO, Logger.MSG_EVT_LOGFILEARCHIVED,
           International.getMessage("Alte Logdatei wurde nach '{filename}' verschoben.", baklog));
     }
-    if (lastLogEntry != null && lastLogEntry.length() > 0 &&
+    if (lastLogEntry != null && !lastLogEntry.isEmpty() &&
         !lastLogEntry.contains(International.getString("PROGRAMMENDE"))) {
       String text1 = "efa wurde zuvor nicht korrekt beendet. ";
       String text2 = "Letzer Eintrag in Logdatei: ";
@@ -711,7 +704,7 @@ public class Daten {
 
     try {
       s = System.getenv(EFACREDENVVAR);
-      if (s != null && s.length() > 0) {
+      if (s != null && !s.isEmpty()) {
         EFACREDFILE = s;
       } else {
         EFACREDFILE = userHomeDir + EFACREDFILE;
@@ -907,7 +900,7 @@ public class Daten {
       }
       return false; // we never reach here, but just to be sure... ;-)
     }
-    // we do have a admin file already that we can open. now check whether there's a super admin
+    // we do have an admin file already that we can open. now check whether there's a super admin
     // configured as well
     if (admins.getAdmin(Admins.SUPERADMIN) == null) {
       // we don't have a super admin yet
@@ -924,11 +917,8 @@ public class Daten {
         Dialog.error(msg);
       }
       haltProgram(HALT_EFASEC);
-      return false; // we never reach here, but just to be sure... ;-)
-    } else {
-      // ok, we do have a super admin already
-      return false;
     }
+    return false;
   }
 
   /**
@@ -1116,7 +1106,7 @@ public class Daten {
     // Look&Feel
     if (efaConfig != null) { // is null for applDRV
       try {
-        if (efaConfig.getValueLookAndFeel().length() == 0) {
+        if (efaConfig.getValueLookAndFeel().isEmpty()) {
           UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } else {
           UIManager.setLookAndFeel(efaConfig.getValueLookAndFeel());
@@ -1199,14 +1189,6 @@ public class Daten {
         !CrontabThread.CRONJOB_THREAD_NAME.equals(Thread.currentThread().getName());
   }
 
-  public static boolean isApplEfaBase() {
-    return (applID == APPL_EFABASE);
-  }
-
-  public static boolean isApplEfaBoathouse() {
-    return (applID == APPL_EFABH);
-  }
-
   public static boolean isAdminMode() {
     return applID != APPL_EFABH || applMode == APPL_MODE_ADMIN;
   }
@@ -1285,7 +1267,7 @@ public class Daten {
   }
 
   public static boolean trySetEfaBackupDirectory(String dir) {
-    if (dir == null || dir.length() == 0) {
+    if (dir == null || dir.isEmpty()) {
       dir = efaBaseConfig.efaUserDirectory + efaSubdirBACKUP + fileSep;
     }
     if (!dir.endsWith(fileSep)) {
@@ -1313,7 +1295,7 @@ public class Daten {
     if (efaInfos) {
       infos.add("efa.version=" + getVersionId());
       infos.add("efa.release.date=" + getVersionReleaseDate());
-      if (EFALIVE_VERSION != null && EFALIVE_VERSION.length() > 0) {
+      if (EFALIVE_VERSION != null && !EFALIVE_VERSION.isEmpty()) {
         infos.add("efalive.version=" + EFALIVE_VERSION);
       }
       if (applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) {
@@ -1388,6 +1370,7 @@ public class Daten {
 
     // Java Infos
     if (javaInfos) {
+      infos.add("java.arguments" + efa_java_arguments);
       infos.add("java.version=" + System.getProperty("java.version"));
       infos.add("java.vendor=" + System.getProperty("java.vendor"));
       infos.add("java.home=" + System.getProperty("java.home"));
@@ -1422,7 +1405,7 @@ public class Daten {
     if (jarInfos && Logger.isDebugLogging()) {
       try {
         String cp = System.getProperty("java.class.path");
-        while (cp != null && cp.length() > 0) {
+        while (cp != null && !cp.isEmpty()) {
           int pos = cp.indexOf(";");
           if (pos < 0) {
             pos = cp.indexOf(":");
@@ -1435,7 +1418,7 @@ public class Daten {
             jarfile = cp;
             cp = null;
           }
-          if (jarfile.length() > 0 && new File(jarfile).isFile()) {
+          if (!jarfile.isEmpty() && new File(jarfile).isFile()) {
             try {
               infos.add("java.jar.filename=" + jarfile);
               JarFile jar = new JarFile(jarfile);
@@ -1492,7 +1475,7 @@ public class Daten {
     efaConfig.setValueRegistrationChecks(efaConfig.getValueRegistrationChecks() + 1);
 
     boolean promptForRegistration = false;
-    if (efaConfig.getValueRegisteredProgramID().length() == 0) {
+    if (efaConfig.getValueRegisteredProgramID().isEmpty()) {
       // never before registered
       if (efaConfig.getValueRegistrationChecks() <= 30
           && efaConfig.getValueRegistrationChecks() % 10 == 0) {

@@ -7,11 +7,7 @@ package de.nmichael.efa.core.config;
 
 import java.awt.Color;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.UIManager;
 
@@ -150,11 +146,9 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
   private ItemTypeInteger printTopMargin;
   private ItemTypeInteger printPageOverlap;
   private ItemTypeHashtable<String> keys;
-  private ItemTypeInteger countEfaStarts;
   private ItemTypeString registeredProgramID;
   private ItemTypeInteger registrationChecks;
   private ItemTypeString efaBoathouseChangeLogbookReminder;
-  private ItemTypeBoolean autoStandardmannsch;
   private ItemTypeBoolean manualStandardmannsch;
   private ItemTypeBoolean showObmann;
   private ItemTypeBoolean autoObmann;
@@ -388,8 +382,8 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
   private void initialize(CustSettings custSettings) {
     EfaConfigRecord.initialize();
     dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
-    configValues = new HashMap<String, IItemType>();
-    configValueNames = new Vector<String>();
+    configValues = new HashMap<>();
+    configValueNames = new Vector<>();
     iniParameters(custSettings);
   }
 
@@ -460,8 +454,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
   public void open(boolean createNewIfNotExists) throws EfaException {
     super.open(createNewIfNotExists);
     synchronized (configValues) {
-      for (int i = 0; i < configValueNames.size(); i++) {
-        String name = configValueNames.get(i);
+      for (String name : configValueNames) {
         if (!name.startsWith("_") && getValue(name) == null) {
           addValue(name, configValues.get(name).toString());
         }
@@ -499,7 +492,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
           Long.MAX_VALUE,
           IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_INTERNAL),
           "efa last checked for new version"));
-      addParameter(countEfaStarts = new ItemTypeInteger("EfaStartsCounter", 0, 0,
+      addParameter(new ItemTypeInteger("EfaStartsCounter", 0, 0,
           Integer.MAX_VALUE, false,
           IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_INTERNAL),
           "efa start counter"));
@@ -601,7 +594,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
       addParameter(autoObmann = new ItemTypeBoolean("BoatCaptainAutoSelect", true,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getString("Obmann bei Eingabe automatisch auswählen")));
-      addParameter(autoStandardmannsch = new ItemTypeBoolean("DefaultCrewAutoSelect", true,
+      addParameter(new ItemTypeBoolean("DefaultCrewAutoSelect", true,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getString("Standardmannschaft automatisch eintragen")));
       addParameter(manualStandardmannsch = new ItemTypeBoolean("DefaultCrewManualSelect", false,
@@ -622,7 +615,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getMessage("Eingabefeld '{field}' überspringen",
               International.getString("Bemerkungen"))));
-      addParameter(keys = new ItemTypeHashtable<String>("InputCommentsHotkeys", "", false,
+      addParameter(keys = new ItemTypeHashtable<>("InputCommentsHotkeys", "", false,
           IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
           International.getString("Tastenbelegungen für Bemerkungs-Feld")));
       addParameter(efaDirekt_colorizeInputField = new ItemTypeBoolean("InputColorizeFields", true,
@@ -1309,10 +1302,8 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
               International.getString("Bootswarte"),
               International.getString("bei Bootsstatus-Änderungen"))));
       addParameter(efaDirekt_bnrWarning_lasttime = new ItemTypeLong("NotificationLastWarnings",
-          System.currentTimeMillis() - 7l * 24l * 60l * 60l * 1000l, 0, Long.MAX_VALUE, // one week
-          // ago
-          IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE,
-              CATEGORY_NOTIFICATIONS),
+          System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L, 0, Long.MAX_VALUE, // one week ago
+          IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
           International.getString("letzte Benachrichtigungen")));
       addParameter(notificationMarkReadAdmin = new ItemTypeBoolean("NotificationMarkReadAdmin",
           false,
@@ -1415,8 +1406,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
           International.getMessage("Funktionalitäten aktivieren für {sport}",
               International.getString("Rudern"))));
       addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("CustUsageRowingGermany",
-          (custSettings != null ? custSettings.activateGermanRowingOptions
-              : false && International.getLanguageID().startsWith("de")),
+          (custSettings != null ? custSettings.activateGermanRowingOptions : false),
           IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
           International.getMessage("Funktionalitäten aktivieren für {sport}",
               International.getString("Rudern")) + " "
@@ -1501,7 +1491,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
       }
 
       // ============================= CRONTAB =============================
-      addParameter(crontab = new ItemTypeItemList("CronTab", new Vector<IItemType[]>(), this,
+      addParameter(crontab = new ItemTypeItemList("CronTab", new Vector<>(), this,
           IItemType.TYPE_PUBLIC,
           BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_CRONTAB),
           International.getString("Automatische Abläufe")));
@@ -1722,10 +1712,6 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
     return keys;
   }
 
-  public int getValueCountEfaStarts() {
-    return countEfaStarts.getValue();
-  }
-
   public String getValueRegisteredProgramID() {
     return registeredProgramID.getValue();
   }
@@ -1748,14 +1734,6 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
 
   public void setValueEfaBoathouseChangeLogbookReminder(String logbook) {
     setValue(efaBoathouseChangeLogbookReminder, logbook);
-  }
-
-  public boolean getValueAutoStandardmannsch() {
-    return autoStandardmannsch.getValue();
-  }
-
-  public boolean getValueManualStandardmannsch() {
-    return manualStandardmannsch.getValue();
   }
 
   public boolean getValueShowObmann() {
@@ -2170,12 +2148,12 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
 
   public String getRegexForVorUndNachname() {
     String retVal = regexForVorUndNachname.getValue();
-    return retVal == "" ? ".*" : retVal;
+    return Objects.equals(retVal, "") ? ".*" : retVal;
   }
 
   public String getRegexForHandynummer() {
     String retVal = regexForHandynummer.getValue();
-    return retVal == "" ? ".*" : retVal;
+    return Objects.equals(retVal, "") ? ".*" : retVal;
   }
 
   public double getMinimumDauerFuerKulanz() {
@@ -2421,7 +2399,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
     setValue(efaDirekt_showAdvancedReserveAdditionalsDialog, Boolean.toString(showDialog));}
 
   public boolean getValueEfaDirekt_showAdvancedReserveAdditionalsDialog() {
-    return efaDirekt_showAdvancedReserveAdditionalsDialog.getValue();};
+    return efaDirekt_showAdvancedReserveAdditionalsDialog.getValue();}
 
   public boolean getValueEfaDirekt_allowAdvancedReserveBoatCategories() {
     return efaDirekt_allowAdvancedReserveBoatCategories.getValue();
@@ -2610,9 +2588,9 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
   }
 
   public Vector<IItemType> getGuiItems() {
-    Vector<IItemType> items = new Vector<IItemType>();
-    for (int i = 0; i < configValueNames.size(); i++) {
-      items.add(getExternalGuiItem(configValueNames.get(i)));
+    Vector<IItemType> items = new Vector<>();
+    for (String configValueName : configValueNames) {
+      items.add(getExternalGuiItem(configValueName));
     }
     return items;
   }
@@ -2650,7 +2628,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
         }
       }
     }
-    if (changedSettings.size() > 0) {
+    if (!changedSettings.isEmpty()) {
       String[] keys = changedSettings.keySet().toArray(new String[0]);
       String s = null;
       for (String key : keys) {
@@ -2703,8 +2681,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
       if (changed) {
         Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
             LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen"))
-                +
-                "\n" + International.getString("Bezeichnungen"));
+                + "\n" + International.getString("Bezeichnungen"));
       }
     }
 
@@ -2813,7 +2790,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
       if (type == STRINGLIST_DISPLAY) {
         int pos = (s != null ? s.lastIndexOf(".") : -1);
         if (pos > 0 && pos + 1 < s.length()) {
-          s = s.substring(pos + 1, s.length());
+          s = s.substring(pos + 1);
         }
       }
       lookAndFeelArray[i + 1] = s;
@@ -2862,35 +2839,35 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
     if (myEfaTypes == null) {
       return;
     }
-    addParameter(typesBoat = new ItemTypeHashtable<String>("_TYPES_BOAT", "", true,
-        IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
-        International.getString("Bootsart")));
-    addParameter(typesNumSeats = new ItemTypeHashtable<String>("_TYPES_NUMSEATS", "", true,
-        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_SEAT),
-        International.getString("Anzahl Bootsplätze")));
-    addParameter(typesRigging = new ItemTypeHashtable<String>("_TYPES_RIGGING", "", true,
-        IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_RIGG),
-        International.getString("Riggerung")));
-    addParameter(typesCoxing = new ItemTypeHashtable<String>("_TYPES_COXING", "", true,
-        IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_COXD),
-        International.getString("mit/ohne Stm.")));
-    addParameter(typesSession = new ItemTypeHashtable<String>("_TYPES_SESSION", "", true,
-        IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_SESS),
-        International.getString("Fahrtart")));
-    addParameter(typesStatus = new ItemTypeHashtable<String>("_TYPES_STATUS", "", true,
-        IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_STAT),
-        International.getString("Status")));
+    addParameter(typesBoat = new ItemTypeHashtable<>("_TYPES_BOAT", "", true,
+            IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
+            International.getString("Bootsart")));
+    addParameter(typesNumSeats = new ItemTypeHashtable<>("_TYPES_NUMSEATS", "", true,
+            IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_SEAT),
+            International.getString("Anzahl Bootsplätze")));
+    addParameter(typesRigging = new ItemTypeHashtable<>("_TYPES_RIGGING", "", true,
+            IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_RIGG),
+            International.getString("Riggerung")));
+    addParameter(typesCoxing = new ItemTypeHashtable<>("_TYPES_COXING", "", true,
+            IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_COXD),
+            International.getString("mit/ohne Stm.")));
+    addParameter(typesSession = new ItemTypeHashtable<>("_TYPES_SESSION", "", true,
+            IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_SESS),
+            International.getString("Fahrtart")));
+    addParameter(typesStatus = new ItemTypeHashtable<>("_TYPES_STATUS", "", true,
+            IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_STAT),
+            International.getString("Status")));
 
-    addParameter(kanuEfb_boatTypes = new ItemTypeMultiSelectList<String>("KanuEfbBoatTypes",
-        getCanoeBoatTypes(),
-        EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
-        EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        getValueUseFunctionalityCanoeingGermany() ? IItemType.TYPE_PUBLIC : IItemType.TYPE_EXPERT,
-        BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
-        International
-            .onlyFor("Fahrten mit folgenden Bootstypen mit Kanu-eFB synchronisieren", "de")));
+    addParameter(kanuEfb_boatTypes = new ItemTypeMultiSelectList<>("KanuEfbBoatTypes",
+            getCanoeBoatTypes(),
+            EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
+            EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+            getValueUseFunctionalityCanoeingGermany() ? IItemType.TYPE_PUBLIC : IItemType.TYPE_EXPERT,
+            BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
+            International
+                    .onlyFor("Fahrten mit folgenden Bootstypen mit Kanu-eFB synchronisieren", "de")));
     String myValue = getValue("KanuEfbBoatTypes");
-    if (myValue != null && myValue.length() > 0) {
+    if (myValue != null && !myValue.isEmpty()) {
       kanuEfb_boatTypes.parseValue(myValue);
     }
 
@@ -2967,9 +2944,9 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
   public DataTypeList<String> getCanoeBoatTypes() {
     EfaTypes t = getMyEfaTypes();
     if (t == null) {
-      return new DataTypeList<String>(new String[0]); // happens during startup
+      return new DataTypeList<>(new String[0]); // happens during startup
     }
-    return new DataTypeList<String>(t.getDefaultCanoeBoatTypes());
+    return new DataTypeList<>(t.getDefaultCanoeBoatTypes());
   }
 
   public boolean isCanoeBoatType(BoatRecord r) {
@@ -2986,7 +2963,7 @@ public class  EfaConfig extends StorageObject implements IItemFactory {
 
   class ConfigValueUpdateThread extends Thread {
 
-    private EfaConfig efaConfig;
+    private final EfaConfig efaConfig;
     private long lastScn = -1;
     private volatile boolean keepRunning = true;
 

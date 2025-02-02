@@ -35,7 +35,6 @@ public class EfaBaseConfig {
   private String filename;
   public String efaUserDirectory; // Verzeichnis für alle User-Daten von efa (daten, cfg, tmp)
   public String language; // Sprache
-  public String version; // only used to distinguish between efa1 and efa2
 
   private String normalize(String sin) {
     String sout = "";
@@ -91,7 +90,7 @@ public class EfaBaseConfig {
       Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "trySetUserDir(" + dir + ","
           + createDir + ")");
     }
-    if (dir == null || dir.length() == 0) {
+    if (dir == null || dir.isEmpty()) {
       return false;
     }
     dir = dir.trim();
@@ -124,7 +123,6 @@ public class EfaBaseConfig {
   // Einstellungen zurücksetzen
   void reset() {
     language = null;
-    version = null;
     efaUserDirectory = Daten.userHomeDir
         + (!Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "")
         + Daten.EFA_USERDATA_DIR + Daten.fileSep;
@@ -151,7 +149,7 @@ public class EfaBaseConfig {
       while ((s = f.readLine()) != null) {
         s = s.trim();
         if (s.startsWith(FIELD_USERHOME + "=")) {
-          String newUserHome = s.substring(FIELD_USERHOME.length() + 1, s.length()).trim();
+          String newUserHome = s.substring(FIELD_USERHOME.length() + 1).trim();
           if (efaCanWrite(newUserHome, true)) {
             efaUserDirectory = newUserHome;
             if (!efaUserDirectory.endsWith(Daten.fileSep)) {
@@ -168,9 +166,6 @@ public class EfaBaseConfig {
           if (language.isEmpty()) {
             language = "de";
           }
-        }
-        if (s.startsWith(FIELD_VERSION + "=")) {
-          version = s.substring(FIELD_VERSION.length() + 1).trim();
         }
       }
       f.close();
@@ -194,7 +189,7 @@ public class EfaBaseConfig {
     try {
       f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename, false),
           Daten.ENCODING_UTF));
-      if (efaUserDirectory != null && efaUserDirectory.length() > 0) {
+      if (efaUserDirectory != null && !efaUserDirectory.isEmpty()) {
         f.write(FIELD_USERHOME + "=" + efaUserDirectory + "\n");
       }
       if (language != null) {

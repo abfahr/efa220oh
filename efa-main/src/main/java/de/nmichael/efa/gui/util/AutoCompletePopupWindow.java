@@ -16,6 +16,7 @@ import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.MouseEvent;
+import java.io.Serial;
 import java.util.Hashtable;
 
 import javax.swing.JList;
@@ -31,13 +32,11 @@ import de.nmichael.efa.util.Dialog;
 // @i18n complete
 public class AutoCompletePopupWindow extends JWindow {
 
-  /**
-   *
-   */
+  @Serial
   private static final long serialVersionUID = 1L;
   private static AutoCompletePopupWindow window = null;
-  private Hashtable<AutoCompleteList, String[]> autoCompleteLists = new Hashtable<AutoCompleteList, String[]>();
-  private Hashtable<AutoCompleteList, Long> autoCompleteSCN = new Hashtable<AutoCompleteList, Long>();
+  private final Hashtable<AutoCompleteList, String[]> autoCompleteLists = new Hashtable<>();
+  private final Hashtable<AutoCompleteList, Long> autoCompleteSCN = new Hashtable<>();
   private JTextField showingAt;
   private JTextField lastShowingAt;
   private long lastShowingAtTime = 0;
@@ -58,8 +57,9 @@ public class AutoCompletePopupWindow extends JWindow {
       scrollPane.setHorizontalScrollBar(null);
       // Bugfix: AutoCompletePopupWindow muß unter Windows ebenfalls alwaysOnTop sein, wenn
       // EfaDirektFrame alwaysOnTop ist, da sonst die Popup-Liste nicht erscheint
-      if (Daten.osName.startsWith("Windows") && Daten.efaConfig != null &&
-          Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()) {
+      if (Daten.osName.startsWith("Windows")
+              && Daten.efaConfig != null
+              && Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()) {
         de.nmichael.efa.java15.Java15.setAlwaysOnTop(this, true);
       }
     } catch (Exception e) {
@@ -93,7 +93,7 @@ public class AutoCompletePopupWindow extends JWindow {
     }
   }
 
-  private void jbInit() throws Exception {
+  private void jbInit() {
     this.getContentPane().setLayout(borderLayout);
     list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     this.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -130,7 +130,7 @@ public class AutoCompletePopupWindow extends JWindow {
     if (data == null || scn == null || scn.longValue() != list.getSCN()) {
       data = list.getData();
       autoCompleteLists.put(list, data);
-      autoCompleteSCN.put(list, new Long(list.getSCN()));
+      autoCompleteSCN.put(list, Long.valueOf(list.getSCN()));
     }
     this.list.setListData(data);
     return data.length;
@@ -274,7 +274,7 @@ public class AutoCompletePopupWindow extends JWindow {
 
 class HideWindowThread extends Thread {
 
-  private AutoCompletePopupWindow window;
+  private final AutoCompletePopupWindow window;
 
   public HideWindowThread(AutoCompletePopupWindow window) {
     this.window = window;

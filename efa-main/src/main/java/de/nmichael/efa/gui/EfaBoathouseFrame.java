@@ -797,7 +797,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
     centerPanel.add(logoLabel, new GridBagConstraints(1, yPlacement, 1, 1, 0.0, 0.0,
         GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(logoTop, 0, 0 + logoBottom, 0),
+        new Insets(logoTop, 0, logoBottom, 0),
         0, 0));
 
     int fahrtbeginnTop = (int) (10.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize())
@@ -900,7 +900,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "Zeitmessung: zentrales Bild geladen"
             + " t=" + t2 + "ms für " + fileName);
         Writer output = new BufferedWriter(new FileWriter(strZentralesBild + ".txt", true));
-        output.append(t2 + "ms" + NEWLINE);
+        output.append(String.valueOf(t2)).append("ms").append(NEWLINE);
         output.close();
       }
     } catch (Exception e) {
@@ -2360,11 +2360,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     ItemTypeBoatstatusList.BoatListItem item = null;
     if (Daten.efaConfig.isValueEfaDirekt_listAllowToggleBoatsPersons()
         && toggleAvailableBoatsToPersons.isSelected()) {
-      if (item == null && personsAvailableList != null) {
+      if (personsAvailableList != null) {
         item = getSelectedListItem(personsAvailableList);
       }
     } else {
-      if (item == null && boatsAvailableList != null) {
+      if (boatsAvailableList != null) {
         item = getSelectedListItem(boatsAvailableList);
       }
     }
@@ -2451,7 +2451,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       long diffBisEndeMillis = enddatum.getTimestamp(endzeit) - now;
       if (diffBisEndeMillis > 0) {
         long minutes = diffBisEndeMillis / 1000 / 60;
-        reservations = boatReservations.getBoatReservations(boatStatus.getBoatId(), now, minutes);
+        if (boatStatus != null && boatStatus.getBoatId() != null) {
+          reservations = boatReservations.getBoatReservations(boatStatus.getBoatId(), now, minutes);
+        }
       }
     }
     // ask user how to proceed

@@ -645,22 +645,13 @@ public class Daten {
     if (applID == APPL_EFABH) {
       lastLogEntry = Logger.getLastLogEntry(EFA_LOG_FILE);
     }
-    String baklog; // backup'ed logfile
-    switch (applID) {
-      case APPL_EFABASE:
-      case APPL_EFABH:
-      case APPL_DRV:
-        baklog = Logger.ini(EFA_LOG_FILE, true, false);
-        break;
-      case APPL_CLI:
-        baklog = Logger.ini(EFA_LOG_FILE, true, true);
-        break;
-      default:
-        baklog = Logger.ini(null, true, false);
-        break;
-    }
+    String baklog = switch (applID) {
+        case APPL_EFABASE, APPL_EFABH, APPL_DRV -> Logger.ini(EFA_LOG_FILE, true, false);
+        case APPL_CLI -> Logger.ini(EFA_LOG_FILE, true, true);
+        default -> Logger.ini(null, true, false);
+    }; // backup'ed logfile
 
-    Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
         International.getString("PROGRAMMSTART") + " (Ver:" + getVersionId() + " vom "
             + getVersionReleaseDate() + ")");
     Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
@@ -1456,16 +1447,12 @@ public class Daten {
   }
 
   public static String getEfaImage(int size) {
-    switch (size) {
-      case 1:
-        return IMAGEPATH + "efa_small.png";
-      case 2:
-        return IMAGEPATH + "efa_logo.png";
-      case 3:
-        return IMAGEPATH + "efa_large.png";
-      default:
-        return IMAGEPATH + "efa_logo.png";
-    }
+      return switch (size) {
+          case 1 -> IMAGEPATH + "efa_small.png";
+          case 2 -> IMAGEPATH + "efa_logo.png";
+          case 3 -> IMAGEPATH + "efa_large.png";
+          default -> IMAGEPATH + "efa_logo.png";
+      };
   }
 
   public static void checkRegister() {
@@ -1474,6 +1461,19 @@ public class Daten {
     }
     efaConfig.setValueRegistrationChecks(efaConfig.getValueRegistrationChecks() + 1);
 
+    if (isPromptForRegistration()) {
+      if (BrowserDialog.openInternalBrowser(null, EFA_SHORTNAME,
+          "file:" + HtmlFactory.createRegister(),
+          850, 750).endsWith(".pl")) {
+        // registration complete
+        efaConfig.setValueRegisteredProgramID(getProgrammId());
+        efaConfig.setValueRegistrationChecks(0);
+      }
+
+    }
+  }
+
+  private static boolean isPromptForRegistration() {
     boolean promptForRegistration = false;
     if (efaConfig.getValueRegisteredProgramID().isEmpty()) {
       // never before registered
@@ -1488,16 +1488,6 @@ public class Daten {
         promptForRegistration = true;
       }
     }
-
-    if (promptForRegistration) {
-      if (BrowserDialog.openInternalBrowser(null, EFA_SHORTNAME,
-          "file:" + HtmlFactory.createRegister(),
-          850, 750).endsWith(".pl")) {
-        // registration complete
-        efaConfig.setValueRegisteredProgramID(getProgrammId());
-        efaConfig.setValueRegistrationChecks(0);
-      }
-
-    }
+    return promptForRegistration;
   }
 }

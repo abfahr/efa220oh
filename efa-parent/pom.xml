@@ -17,8 +17,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
     <efa.version>${project.version}</efa.version>
-    <efa.versionId>${efa.version}_195</efa.versionId>
-    <efa.versionReleaseDate>06.01.2025</efa.versionReleaseDate>
+    <efa.versionId>${efa.version}_196</efa.versionId>
+    <efa.versionReleaseDate>02.02.2025</efa.versionReleaseDate>
     <efa.majorVersion>2</efa.majorVersion>
     <efa.programmId>EFA.220</efa.programmId>
     <efa.programmIdDrv>EFADRV.220</efa.programmIdDrv>

@@ -354,7 +354,7 @@ public class BoatReservationRecord extends DataRecord {
       strTo = strTo.replace("heute ", "");
       return strFrom + "-" + strTo;
     }
-    if (getDateFrom().equals(getDateTo())) {
+    if (Objects.equals(getDateFrom(), getDateTo())) {
       strTo = strTo.replace(getDateFrom() + " ", "");
       return strFrom + "-" + strTo;
     }

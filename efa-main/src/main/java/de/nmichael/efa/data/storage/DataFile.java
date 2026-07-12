@@ -271,27 +271,43 @@ public abstract class DataFile extends DataAccess {
     if (!isOpen) {
       return;
     }
+    Exception cleanupException = null;
+    DataFileWriter writer = fileWriter;
+    fileWriter = null;
+    isOpen = false;
+
     try {
-      if (fileWriter == null) {
+      if (writer == null) {
         Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED,
             LogString.fileCloseFailed(filename, storageLocation,
                 "File appears to be already closed (fileWriter==null)"));
-        clearAllData();
-        isOpen = false;
-        closeJournal();
-        return;
+      } else {
+        writer.save(true, false);
+        writer.exit();
+        writer.join(DataFileWriter.SAVE_INTERVAL * 2);
       }
-      fileWriter.save(true, false);
-      clearAllData();
-      isOpen = false;
-      closeJournal();
-      fileWriter.exit();
-      fileWriter.join(DataFileWriter.SAVE_INTERVAL * 2);
     } catch (Exception e) {
-      throw new EfaException(Logger.MSG_DATA_CLOSEFAILED, LogString.fileCloseFailed(filename,
-          storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+      cleanupException = e;
     } finally {
-      fileWriter = null;
+      try {
+        clearAllData();
+      } catch (Exception e) {
+        if (cleanupException == null) cleanupException = e;
+        else cleanupException.addSuppressed(e);
+      }
+      try {
+        closeJournal();
+      } catch (Exception e) {
+        if (cleanupException == null) cleanupException = e;
+        else cleanupException.addSuppressed(e);
+      }
+    }
+
+    if (cleanupException != null) {
+      throw new EfaException(
+              Logger.MSG_DATA_CLOSEFAILED,
+              LogString.fileCloseFailed(filename, storageLocation, cleanupException.toString()),
+              Thread.currentThread().getStackTrace());
     }
   }
 

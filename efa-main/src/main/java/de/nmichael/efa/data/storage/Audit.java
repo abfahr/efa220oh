@@ -1160,6 +1160,17 @@ public class Audit extends Thread {
       DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
         LogbookRecord r = (LogbookRecord) logbook.dataAccess.get(k);
+        if (r == null) {
+          auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
+                  "runAuditLogbook(): "
+                          + International.getString("Fahrtenbuch") + " "
+                          + logbookName + " "
+                          + International.getMessage("Fahrtenbucheintrag #{entryno}", "NULL")
+                          + ": LogbookRecord ist null.");
+          logbookErr++;
+          k = it.getNext();
+          continue; // Überspringe diesen Eintrag
+        }
         long validAt = r.getValidAtTimestamp();
         boolean updated = false;
 

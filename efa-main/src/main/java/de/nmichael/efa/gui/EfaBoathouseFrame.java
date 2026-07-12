@@ -2259,6 +2259,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     String chosenPicture;
     do {
       int index = (int) (anzahlBildDateien * Math.random());
+      if (index >= anzahlBildDateien) {
+        // Fix ArrayIndexOutOfBoundsException: Rundungsfehler abfangen
+        Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+                "ArrayIndexOutOfBoundsException:"
+                        + " anzahlBildDateien=" + anzahlBildDateien
+                        + " aber index=" + index
+                        + " bei Boot=" + boatname);
+        index = anzahlBildDateien - 1;
+      }
       chosenPicture = filenames.get(index).getPath();
     } while (anzahlBildDateien > 1 && chosenPicture.equals(logoLabel.getName()));
 
@@ -3131,7 +3140,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       if (damages != null) {
         for (BoatDamageRecord damage : damages) {
           if (!damage.getFixed()) {
-            s.append("Bootsschaden: ").append(damage.getDescription()).append(NEWLINE);
+            s.append(damage.getSeverityDescription()).append(", ");
+            s.append("Bootsschaden: ").append(damage.getDescription());
+            s.append(" --> ").append(damage.getSeverityDescription()).append(NEWLINE);
           }
         }
       }

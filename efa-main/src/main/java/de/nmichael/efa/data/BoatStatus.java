@@ -113,7 +113,9 @@ public class BoatStatus extends StorageObject {
                     }
                     break;
                   case BoatStatusRecord.STATUS_ONTHEWATER:
-                    r.setBoatText(r.getBoatText().split(" \\(")[0]);
+                    if (r.getBoatText() != null) {
+                      r.setBoatText(r.getBoatText().split(" \\(")[0]);
+                    }
                     if (r.getComment() != null) {
                       if (r.getComment().contains("für ")) {
                         r.setBoatText(r.getBoatText() + " (" + r.getComment().split("für ")[1].split(" ")[0] + ")");
@@ -123,7 +125,9 @@ public class BoatStatus extends StorageObject {
                     }
                     break;
                   case BoatStatusRecord.STATUS_NOTAVAILABLE:
-                    r.setBoatText(r.getBoatText().split(" \\(")[0]);
+                    if (r.getBoatText() != null) {
+                      r.setBoatText(r.getBoatText().split(" \\(")[0]);
+                    }
                     if (r.getComment() != null) {
                       if (r.getComment().contains("Bootsschaden: ")) {
                         r.setBoatText(r.getBoatText() + " (" + r.getComment().split("Bootsschaden: ")[1] + ")");
@@ -153,7 +157,7 @@ public class BoatStatus extends StorageObject {
 
   public boolean areBoatsOutOnTheWater() {
     Vector<BoatStatusRecord> v = getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
-    return (v != null && v.size() > 0);
+    return (v != null && !v.isEmpty());
   }
 
   @Override

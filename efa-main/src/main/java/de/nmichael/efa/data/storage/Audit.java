@@ -64,8 +64,8 @@ public class Audit extends Thread {
   private static final long MAX_AUDIT_MESSAGE_BUFFER = 1024 * 1024;
 
   private static volatile boolean auditRunning = false;
-  private Project project;
-  private boolean correctErrors;
+  private final Project project;
+  private final boolean correctErrors;
   private int errors = 0;
   private int warnings = 0;
   private int infos = 0;
@@ -74,7 +74,7 @@ public class Audit extends Thread {
 
   public Audit(Project project) {
     this.project = project;
-    this.correctErrors = Daten.efaConfig == null ? false : Daten.efaConfig.getValueDataAuditCorrectErrors();
+    this.correctErrors = Daten.efaConfig != null && Daten.efaConfig.getValueDataAuditCorrectErrors();
     if (!correctErrors) {
       auditWarning(Logger.MSG_DATA_AUDIT_NOTCORRECTERRORSSET,
           "Option DataAuditCorrectErrors is NOT set. Audit will only report errors, but not fix them.");
@@ -82,12 +82,12 @@ public class Audit extends Thread {
   }
 
   private void addMessageToBuffer(String s) {
-    if (s == null || s.length() == 0) {
+    if (s == null || s.isEmpty()) {
       return;
     }
     if (auditMessages != null) {
       if (auditMessages.length() < MAX_AUDIT_MESSAGE_BUFFER) {
-        auditMessages.append(s + "\n");
+        auditMessages.append(s).append("\n");
       } else {
         if (!auditMessagesMaxReached) {
           auditMessages.append("*** too many messages - for all messages, see logfile ***");
@@ -115,13 +115,11 @@ public class Audit extends Thread {
     addMessageToBuffer(s);
   }
 
-  private int runAuditPersistence(StorageObject p, String dataType) {
+  private void runAuditPersistence(StorageObject p, String dataType) {
     if (p != null && p.isOpen()) {
-      Logger.log(Logger.DEBUG, Logger.MSG_DATA_AUDIT, dataType + " open (" + p.toString() + ")");
-      return 0;
+      Logger.log(Logger.DEBUG, Logger.MSG_DATA_AUDIT, dataType + " open (" + p + ")");
     } else {
       auditError(Logger.MSG_DATA_AUDIT, dataType + " not open");
-      return 1;
     }
   }
 
@@ -149,7 +147,7 @@ public class Audit extends Thread {
   }
 
   private UUID findValidReference(String name, StorageObject so, long validAt) {
-    if (name == null || name.length() == 0) {
+    if (name == null || name.isEmpty()) {
       return null;
     }
     if (so instanceof Boats) {
@@ -186,12 +184,12 @@ public class Audit extends Thread {
     }
   }
 
-  private int runAuditBoats() {
+  private void runAuditBoats() {
     int boatErr = 0;
     try {
       Boats boats = project.getBoats(false);
       if (boats.dataAccess.getNumberOfRecords() == 0) {
-        return boatErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
       BoatStatus boatStatus = project.getBoatStatus(false);
       BoatReservations boatReservations = project.getBoatReservations(false);
@@ -210,7 +208,7 @@ public class Audit extends Thread {
             boat.getValidFrom() < 0 || boat.getInvalidFrom() < 0 ||
             boat.getValidFrom() >= boat.getInvalidFrom()) {
           auditError(Logger.MSG_DATA_AUDIT_INVALIDREC,
-              "Boat Record is invalid: " + boat.toString());
+              "Boat Record is invalid: " + boat);
           boatErr++;
         }
         if (boat.getDeleted()) {
@@ -284,7 +282,7 @@ public class Audit extends Thread {
         BoatStatusRecord status = boatStatus.getBoatStatus(boat.getId());
         if (status == null) {
           auditWarning(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-              "No Boat Status found for Boat " + boat.getQualifiedName() + ": " + boat.toString());
+              "No Boat Status found for Boat " + boat.getQualifiedName() + ": " + boat);
           if (correctErrors) {
             boatStatus.data().add(boatStatus.createBoatStatusRecord(boat.getId(),
                 boat.getQualifiedName()));
@@ -299,6 +297,7 @@ public class Audit extends Thread {
             for (int i : boathouseIds) {
               if (i == bid) {
                 found = true;
+                break;
               }
             }
             if (!found) {
@@ -339,13 +338,13 @@ public class Audit extends Thread {
           DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(status.getBoatId(), 0));
           if (boat == null || boat.length == 0) {
             auditError(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-                "No Boat found for Boat Status: " + status.toString());
+                "No Boat found for Boat Status: " + status);
             boatErr++;
             if (correctErrors) {
               boatStatus.dataAccess.delete(status.getKey());
             }
             auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-                "Boat Status " + status.toString() + " deleted.");
+                "Boat Status " + status + " deleted.");
             k = it.getNext();
             continue;
           }
@@ -438,13 +437,13 @@ public class Audit extends Thread {
         DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(reservation.getBoatId(), 0));
         if (boat == null || boat.length == 0) {
           auditError(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-              "No Boat found for Boat Reservation: " + reservation.toString());
+              "No Boat found for Boat Reservation: " + reservation);
           boatErr++;
           if (correctErrors) {
             boatReservations.dataAccess.delete(reservation.getKey());
           }
           auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-              "Boat Reservation " + reservation.toString() + " deleted.");
+              "Boat Reservation " + reservation + " deleted.");
           k = it.getNext();
           continue;
         }
@@ -454,9 +453,9 @@ public class Audit extends Thread {
           // run check only agains non-empty list (could be due to error opening list)
           if (isReferenceInvalid(reservation.getPersonId(), persons, -1)) {
             String name = getNameOfLatestInvalidRecord(reservation.getPersonId(), persons);
-            if (name != null) {
               reservation.setPersonId(null);
-              reservation.setPersonName(name);
+              if (name != null) {
+                  reservation.setPersonName(name);
               if (correctErrors) {
                 boatReservations.dataAccess.update(reservation);
               }
@@ -468,8 +467,7 @@ public class Audit extends Thread {
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
             } else {
-              reservation.setPersonId(null);
-              if (correctErrors) {
+                  if (correctErrors) {
                 boatReservations.dataAccess.update(reservation);
               }
               auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
@@ -494,13 +492,13 @@ public class Audit extends Thread {
         DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(damage.getBoatId(), 0));
         if (boat == null || boat.length == 0) {
           auditError(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-              "No Boat found for Boat Damage: " + damage.toString());
+              "No Boat found for Boat Damage: " + damage);
           boatErr++;
           if (correctErrors) {
             boatStatus.dataAccess.delete(damage.getKey());
           }
           auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-              "Boat Damage " + damage.toString() + " deleted.");
+              "Boat Damage " + damage + " deleted.");
           k = it.getNext();
           continue;
         }
@@ -571,22 +569,21 @@ public class Audit extends Thread {
         k = it.getNext();
       }
 
-      return boatErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditBoats() Caught Exception: " + e.toString());
-      return ++boatErr;
+          "runAuditBoats() Caught Exception: " + e);
+      ++boatErr;
     }
   }
 
-  private int runAuditCrews() {
+  private void runAuditCrews() {
     int crewErr = 0;
     try {
       Crews crews = project.getCrews(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return crewErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = crews.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -607,22 +604,21 @@ public class Audit extends Thread {
         k = it.getNext();
       }
 
-      return crewErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditCrews() Caught Exception: " + e.toString());
-      return ++crewErr;
+          "runAuditCrews() Caught Exception: " + e);
+      ++crewErr;
     }
   }
 
-  private int runAuditGroups() {
+  private void runAuditGroups() {
     int groupErr = 0;
     try {
       Groups groups = project.getGroups(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return groupErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = groups.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -653,23 +649,22 @@ public class Audit extends Thread {
         k = it.getNext();
       }
 
-      return groupErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditGroups() Caught Exception: " + e.toString());
-      return ++groupErr;
+          "runAuditGroups() Caught Exception: " + e);
+      ++groupErr;
     }
   }
 
-  private int runAuditDestinations() {
+  private void runAuditDestinations() {
     int destinationErr = 0;
     try {
       int[] boathouseIds = project.getAllBoathouseIds();
       Destinations destinations = project.getDestinations(false);
       Waters waters = project.getWaters(false);
       if (waters.dataAccess.getNumberOfRecords() == 0) {
-        return destinationErr; // don't run check agains empty list (could be due to error opening
+        return; // don't run check agains empty list (could be due to error opening
         // list)
       }
       DataKeyIterator it = destinations.data().getStaticIterator();
@@ -700,6 +695,7 @@ public class Audit extends Thread {
           for (int i : boathouseIds) {
             if (i == bid) {
               found = true;
+              break;
             }
           }
           if (!found) {
@@ -728,21 +724,20 @@ public class Audit extends Thread {
         k = it.getNext();
       }
 
-      return destinationErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditDestinations() Caught Exception: " + e.toString());
-      return ++destinationErr;
+          "runAuditDestinations() Caught Exception: " + e);
+      ++destinationErr;
     }
   }
 
-  private int runAuditWaters() {
+  private void runAuditWaters() {
     int watersErr = 0;
     try {
       Waters waters = project.getWaters(false);
       if (waters.dataAccess.getNumberOfRecords() == 0) {
-        return watersErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = waters.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -773,16 +768,15 @@ public class Audit extends Thread {
         k = it.getNext();
       }
 
-      return watersErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditWaters() Caught Exception: " + e.toString());
-      return ++watersErr;
+          "runAuditWaters() Caught Exception: " + e);
+      ++watersErr;
     }
   }
 
-  private int runAuditPersons() {
+  private void runAuditPersons() {
     int personErr = 0;
     try {
       Persons persons = project.getPersons(false);
@@ -790,7 +784,7 @@ public class Audit extends Thread {
       Status status = project.getStatus(false);
       if (boats.dataAccess.getNumberOfRecords() == 0 ||
           status.dataAccess.getNumberOfRecords() == 0) {
-        return personErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = persons.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -817,22 +811,21 @@ public class Audit extends Thread {
         k = it.getNext();
       }
 
-      return personErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditPersons() Caught Exception: " + e.toString());
-      return ++personErr;
+          "runAuditPersons() Caught Exception: " + e);
+      ++personErr;
     }
   }
 
-  private int runAuditFahrtenabzeichen() {
+  private void runAuditFahrtenabzeichen() {
     int faErr = 0;
     try {
       Fahrtenabzeichen fahrtenabzeichen = project.getFahrtenabzeichen(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return faErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
       DataKeyIterator it = fahrtenabzeichen.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -842,23 +835,22 @@ public class Audit extends Thread {
             .getValidLatest(PersonRecord.getKey(abzeichen.getPersonId(), -1)) == null) {
           auditWarning(Logger.MSG_DATA_AUDIT_RECNOTFOUND,
               "runAuditFahrtenabzeichen(): Keine Person zu Fahrtenabzeichen gefunden: "
-                  + abzeichen.toString());
+                  + abzeichen);
           if (correctErrors) {
             fahrtenabzeichen.dataAccess.delete(abzeichen.getKey());
           }
           auditWarning(Logger.MSG_DATA_AUDIT_RECNOTFOUND,
-              "runAuditFahrtenabzeichen(): Fahrtenabzeichen " + abzeichen.toString()
+              "runAuditFahrtenabzeichen(): Fahrtenabzeichen " + abzeichen
                   + " gelöscht.");
         }
         k = it.getNext();
       }
 
-      return faErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditFahrtenabzeichen() Caught Exception: " + e.toString());
-      return ++faErr;
+          "runAuditFahrtenabzeichen() Caught Exception: " + e);
+      ++faErr;
     }
   }
 
@@ -871,7 +863,7 @@ public class Audit extends Thread {
         return; // don't run check agains empty list (could be due to error opening list)
       }
       String logbookName = Daten.project.getCurrentLogbookEfaBoathouse();
-      new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
+      boolean b = new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
       UUID id;
 
       DataKeyIterator it = boatReservations.data().getStaticIterator();
@@ -940,7 +932,7 @@ public class Audit extends Thread {
               }
             } catch (FileNotFoundException e) {
               try {
-                new File(nameWithPath).createNewFile();
+                boolean bb = new File(nameWithPath).createNewFile();
               } catch (IOException ioe) {
                 auditInfo(Logger.MSG_ABF_ERROR,
                     "Error while creating the new empty file " + nameWithPath + " :" + ioe);
@@ -974,7 +966,7 @@ public class Audit extends Thread {
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditBoatReservations() Caught Exception: " + e.toString());
+          "runAuditBoatReservations() Caught Exception: " + e);
       ++reservErr;
     }
   }
@@ -983,7 +975,7 @@ public class Audit extends Thread {
     try {
       if (!file.exists())
         new FileOutputStream(file).close();
-      file.setLastModified(timestamp);
+      boolean b = file.setLastModified(timestamp);
     } catch (IOException e) {}
   }
 
@@ -1033,7 +1025,7 @@ public class Audit extends Thread {
     return cntUnread;
   }
 
-  private int runAuditMessages() {
+  private void runAuditMessages() {
     int messageErr = 0;
     try {
       Messages messages = project.getMessages(false);
@@ -1075,16 +1067,15 @@ public class Audit extends Thread {
           }
         }
       }
-      return messageErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditMessages() Caught Exception: " + e.toString());
-      return ++messageErr;
+          "runAuditMessages() Caught Exception: " + e);
+      ++messageErr;
     }
   }
 
-  private int runAuditStatistics() {
+  private void runAuditStatistics() {
     int statsErr = 0;
     try {
       Statistics statistics = project.getStatistics(false);
@@ -1124,20 +1115,19 @@ public class Audit extends Thread {
         } catch (Exception e) {
           Logger.logdebug(e);
           auditError(Logger.MSG_DATA_AUDIT,
-              "runAuditStatistics() Caught Exception: " + e.toString());
+              "runAuditStatistics() Caught Exception: " + e);
           statsErr++;
         }
       }
-      return statsErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditStatistics() Caught Exception: " + e.toString());
-      return ++statsErr;
+          "runAuditStatistics() Caught Exception: " + e);
+      ++statsErr;
     }
   }
 
-  private int runAuditLogbook(String logbookName) {
+  private void runAuditLogbook(String logbookName) {
     int logbookErr = 0;
     try {
       Boats boats = project.getBoats(false);
@@ -1149,9 +1139,9 @@ public class Audit extends Thread {
       if (boats.dataAccess.getNumberOfRecords() == 0 ||
           persons.dataAccess.getNumberOfRecords() == 0 ||
           destinations.dataAccess.getNumberOfRecords() == 0) {
-        return logbookErr; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check agains empty list (could be due to error opening list)
       }
-      new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
+      boolean b = new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
       UUID id;
 
       boolean wasLogbookOpen = project.isLogbookOpen(logbookName);
@@ -1218,7 +1208,7 @@ public class Audit extends Thread {
         // Boat References
         if (r.getBoatId() != null &&
             r.getBoatName() != null &&
-            r.getBoatName().length() > 0 &&
+            !r.getBoatName().isEmpty() &&
             !isReferenceInvalid(r.getBoatId(), boats, validAt)) {
           String name = r.getBoatName();
           r.setBoatName(null);
@@ -1292,7 +1282,7 @@ public class Audit extends Thread {
 
         // Persons
         for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
-          if (r.getCrewId(i) != null && r.getCrewName(i) != null && r.getCrewName(i).length() > 0
+          if (r.getCrewId(i) != null && r.getCrewName(i) != null && !r.getCrewName(i).isEmpty()
               && !isReferenceInvalid(r.getCrewId(i), persons, validAt)) {
             String name = r.getCrewName(i);
             r.setCrewName(i, null);
@@ -1357,7 +1347,7 @@ public class Audit extends Thread {
                 }
               } catch (FileNotFoundException e) {
                 try {
-                  new File(nameWithPath).createNewFile();
+                  boolean bb = new File(nameWithPath).createNewFile();
                 } catch (IOException ioe) {
                   auditInfo(Logger.MSG_ABF_ERROR,
                       "Error while creating the new empty file " + nameWithPath + " :" + ioe);
@@ -1386,7 +1376,7 @@ public class Audit extends Thread {
 
         // Destination Reference
         if (r.getDestinationId() != null && r.getDestinationName() != null
-            && r.getDestinationName().length() > 0
+            && !r.getDestinationName().isEmpty()
             && !isReferenceInvalid(r.getDestinationId(), destinations, validAt)) {
           String name = r.getDestinationName();
           r.setDestinationName(null);
@@ -1506,23 +1496,22 @@ public class Audit extends Thread {
         logbook.close();
       }
 
-      return logbookErr;
     } catch (NullPointerException e) {
       // TODO abf 2022-12-26 first try to find Audit-Bug in Overfreunde-Mails
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-              "runAuditLogbook(" + logbookName + ") Caught Exception: " + e.toString());
+              "runAuditLogbook(" + logbookName + ") Caught Exception: " + e);
       Logger.logwarn(e);
-      return ++logbookErr;
+      ++logbookErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditLogbook(" + logbookName + ") Caught Exception: " + e.toString());
-      return ++logbookErr;
+          "runAuditLogbook(" + logbookName + ") Caught Exception: " + e);
+      ++logbookErr;
     }
   }
 
-  private int runAuditClubworks() {
+  private void runAuditClubworks() {
     int clubworkErr = 0;
     String[] clubworkNames = project.getAllClubworkNames();
     if (clubworkNames != null) {
@@ -1542,15 +1531,15 @@ public class Audit extends Thread {
         } catch (Exception e) {
           Logger.logdebug(e);
           auditError(Logger.MSG_DATA_AUDIT,
-              "runAuditClubworks(" + s + ") Caught Exception: " + e.toString());
-          return ++clubworkErr;
+              "runAuditClubworks(" + s + ") Caught Exception: " + e);
+          ++clubworkErr;
+          return;
         }
       }
     }
-    return clubworkErr;
   }
 
-  private int runAuditPurgeDeletedRecords(StorageObject so, String itemDescription) {
+  private void runAuditPurgeDeletedRecords(StorageObject so, String itemDescription) {
     int purgeErr = 0;
     long now = System.currentTimeMillis();
     long purgeAfter = 0; /*
@@ -1586,25 +1575,24 @@ public class Audit extends Thread {
         }
         k = it.getNext();
       }
-      return purgeErr;
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(Logger.MSG_DATA_AUDIT,
-          "runAuditPurgeDeletedRecords() Caught Exception: " + e.toString());
-      return ++purgeErr;
+          "runAuditPurgeDeletedRecords() Caught Exception: " + e);
+      ++purgeErr;
     }
   }
 
-  public boolean runAudit() {
+  public void runAudit() {
     if (auditRunning) {
-      return true;
+      return;
     }
     auditRunning = true;
 
     try {
       if (project == null || project.isInOpeningProject() || !project.isOpen()
           || project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-        return true;
+        return;
       }
       errors = 0;
       warnings = 0;
@@ -1656,7 +1644,7 @@ public class Audit extends Thread {
       } catch (Exception e) {
         Logger.logdebug(e);
         auditError(Logger.MSG_DATA_AUDIT,
-            "runAudit() Caught Exception: " + e.toString());
+            "runAudit() Caught Exception: " + e);
       }
       boolean logEnd = (errors > 0 || warnings > 0 || infos > 0);
       String s = Logger.log((errors == 0 ? (logEnd ? Logger.INFO : Logger.DEBUG) : Logger.ERROR),
@@ -1673,7 +1661,6 @@ public class Audit extends Thread {
         }
 
       }
-      return errors == 0;
     } finally {
       auditRunning = false;
     }

@@ -45,6 +45,7 @@ import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.EfaBaseFrame;
 import de.nmichael.efa.gui.EfaBoathouseFrame;
 import de.nmichael.efa.gui.EfaExitFrame;
@@ -229,11 +230,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     try {
       if (Daten.project != null) {
         isProjectOpen = true;
-        if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
-          isLocalProject = true;
-        } else {
-          isLocalProject = false;
-        }
+        isLocalProject = Daten.project.getProjectStorageType() == IDataAccess.TYPE_FILE_XML;
       } else {
         isProjectOpen = false;
       }
@@ -469,8 +466,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
             continue;
           }
 
-          // höchstens alle 10 Minuten, nicht jede Minute
-          if (aktuelleMinute % 10 == 0) {
+          // höchstens alle 60 Minuten, nicht jede Minute
+          if (aktuelleMinute % 60 == 0) {
             long boatReservationReminderTime = RESERVATION_REMINDER_DAY;
             if (boatStatusRecord.isBootshausOH()) {
               boatReservationReminderTime *= Daten.efaConfig.getAnzahlTageErinnerungBootshaus();
@@ -640,7 +637,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
       efaBoathouseFrame.clearAllPopups(); // nach 30 Sekunden
     }
-    if (idleSec < (waitSec + 0)) {
+    if (idleSec < (waitSec)) {
       if (Logger.isTraceOn(Logger.TT_BACKGROUND, 6)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
             "EfaBoathouseBackgroundTask: checkBoatStatus() - nix reset. zu kurz "
@@ -674,7 +671,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
   /**
    * Eine Woche vor der Reservierung wird eine E-Mail verschickt
    *
-   * @param reservations
    */
   private void sendeEmailAlsErinnerungWennZeitpunktErreicht(BoatReservationRecord[] reservations,
       long remindertime) {
@@ -696,9 +692,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
       boatReservationRecord.sendEmailReminder(aktion);
 
-      // update von LastModified, um keine erneuten Erinnerungsmails zu schicken
       try {
+        // update von LastModified, um keine erneuten Erinnerungsmails zu schicken
         Daten.project.getBoatReservations(false).data().update(boatReservationRecord);
+      } catch (EfaModifyException e) {
+        Logger.logwarn(e);
       } catch (EfaException e) {
         Logger.logwarn(e);
         e.printStackTrace();
@@ -709,8 +707,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
   /**
    * Eine Reservierung startet automatisch eine Fahrt
    *
-   * @param boatReservations
-   * @return
    */
   private LogbookRecord starteFahrtMitEndtimeLautReservation(
       BoatReservationRecord[] boatReservations) {
@@ -843,12 +839,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (oldEmailTo != null && !oldEmailTo.equals(emailToAdresse)) {
         person.sendEmailConfirmation(oldEmailTo, "CONFIRM_" + aktion, resultText);
       }
-      switch (aktion) {
-        case "DELETE":
-        case "INSERT":
-          break; // return; // to avoid two Mails
-        default:
-          person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
+      if (aktion != null) {
+        switch (aktion) {
+          case "DELETE":
+          case "INSERT":
+            break; // return; // to avoid two Mails
+          default:
+            person.sendEmailConfirmation(emailToAdresse, "CONFIRM_" + aktion, resultText);
+        }
       }
     }
   }
@@ -1686,7 +1684,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
           "EfaBoathouseBackgroundTask: checkForExitOrRestart()");
     }
-    // automatisches, zeitgesteuertes Beenden von efa ?
+    // automatisches, zeitgesteuertes Beenden von efa?
     if (Daten.efaConfig.getValueEfaDirekt_exitTime().isSet()
         && System.currentTimeMillis() > Daten.efaStartTime + (Daten.AUTO_EXIT_MIN_RUNTIME + 1) * 60
             * 1000) {
@@ -1717,7 +1715,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
     }
 
-    // automatisches Beenden nach Inaktivität ?
+    // automatisches Beenden nach Inaktivität?
     if (Daten.efaConfig.getValueEfaDirekt_exitIdleTime() > 0
         && System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() > (long) Daten.efaConfig
             .getValueEfaDirekt_exitIdleTime() * 60 * 1000) {
@@ -1727,7 +1725,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
           EfaBoathouseFrame.EFA_EXIT_REASON_IDLE);
     }
 
-    // automatischer, zeitgesteuerter Neustart von efa ?
+    // automatischer, zeitgesteuerter Neustart von efa?
     if (Daten.efaConfig.getValueEfaDirekt_restartTime().isSet()
         && System.currentTimeMillis() > Daten.efaStartTime + (Daten.AUTO_EXIT_MIN_RUNTIME + 1) * 60
             * 1000) {
@@ -1784,7 +1782,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         continue;
       }
       if (filename.endsWith(filenameRestartEfaCmd)) {
-        new java.io.File(filename).delete();
+        boolean b = new java.io.File(filename).delete();
       }
       return filename;
     }
@@ -1956,9 +1954,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
           s.append(International.getMessage("Es liegen {count} offene Bootsschäden vor:",
                   openDamages.size())).append("\n\n");
           for (DataKey<?, ?, ?> k : openDamages) {
-            if (boatDamages == null) {
-              continue;
-            }
             BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
             s.append(damage.getCompleteDamageInfo()).append("\n");
           }
@@ -2152,7 +2147,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       if (boatStatus != null && lockStatus >= 0) {
         boatStatus.data().releaseGlobalLock(lockStatus);
       }
-      if (currentLogbook != null && lockLogbook >= 0) {
+      if (lockLogbook >= 0) {
         currentLogbook.data().releaseGlobalLock(lockLogbook);
       }
     }

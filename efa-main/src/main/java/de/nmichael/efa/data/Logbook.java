@@ -301,9 +301,9 @@ public class Logbook extends StorageObject {
             Thread.currentThread().getStackTrace());
       }
 
-      // make sure enddate is after startdate
+      // make sure enddate is equal or after startdate
       if (r.getDate() != null && r.getDate().isSet() && r.getEndDate() != null
-          && r.getEndDate().isSet() && !r.getDate().isBefore(r.getEndDate())) {
+          && r.getEndDate().isSet() && !r.getDate().isBeforeOrEqual(r.getEndDate())) {
         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
             "#" + r.getEntryId().toString() + ": " +
                 International.getString("Das Enddatum muß nach dem Startdatum liegen."),

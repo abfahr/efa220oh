@@ -64,7 +64,6 @@ import de.nmichael.efa.util.Logger;
 // @i18n complete
 public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListener {
 
-  public static final String CRLF = net.fortuna.ical4j.util.Strings.LINE_SEPARATOR; // "\r\n"
   public static final int ACTION_NEW = 0;
   public static final int ACTION_EDIT = 1;
   public static final int ACTION_DELETE = 2;
@@ -327,7 +326,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         } else {
           button.setHorizontalAlignment(SwingConstants.LEFT);
         }
-        if (iconName.length() > 0) {
+        if (!iconName.isEmpty()) {
           button.setIcon(BaseDialog.getIcon(iconName));
         }
       }
@@ -474,9 +473,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   // efaBoathouseBackgroundTask.interrupt();
                 } else {
                   try {
-                    // allowed for identified Persons with Id
-                    // if (reservation.getPersonId() != null) { // validRecord?
-
                     if (Daten.efaConfig.getValueEfaDirekt_showAdvancedReserveAdditionalsDialog()){
                         reserveAdditionalItems(reservation, admin != null);
                     }else{
@@ -588,57 +584,57 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               }
             }
             try {
-              for (int i = 0; i < records.length; i++) {
-                if (records[i] != null) {
-                  if (persistence.data().getMetaData().isVersionized()) {
-                    if (records[i] instanceof BoatReservationRecord) {
-                      BoatReservationRecord reservation = (BoatReservationRecord) records[i];
-                      String aktion = "DELETE";
-                      reservation.sendEmailBeiReservierung(aktion);
+                for (DataRecord record : records) {
+                    if (record != null) {
+                        if (persistence.data().getMetaData().isVersionized()) {
+                            if (record instanceof BoatReservationRecord) {
+                                BoatReservationRecord reservation = (BoatReservationRecord) record;
+                                String aktion = "DELETE";
+                                reservation.sendEmailBeiReservierung(aktion);
+                            }
+                            persistence.data().deleteVersionizedAll(record.getKey(), deleteAt);
+                            String whoUser = admin != null
+                                    ? International.getString("Admin") + " '" + admin.getName() + "'"
+                                    : International.getString("Normaler Benutzer");
+                            if (deleteAt >= 0) {
+                                Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETEDAT,
+                                        record.getPersistence().getDescription() + ": "
+                                                + International.getMessage(
+                                                "{name} hat Datensatz '{record}' ab {date} gelöscht.",
+                                                whoUser, record.getQualifiedName(),
+                                                EfaUtil.getTimeStampDDMMYYYY(deleteAt)));
+                            } else {
+                                Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+                                        record.getPersistence().getDescription() + ": "
+                                                + International.getMessage(
+                                                "{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
+                                                whoUser, record.getQualifiedName()));
+                            }
+                        } else {
+                            String name = "";
+                            if (record instanceof BoatReservationRecord) {
+                                BoatReservationRecord reservation = (BoatReservationRecord) record;
+                                String aktion = "DELETE";
+                                reservation.sendEmailBeiReservierung(aktion);
+                                name += " ab " + reservation.getDateTimeFromDescription(
+                                        BoatReservationRecord.REPLACE_HEUTE);
+                                name += " für " + reservation.getPersonAsName();
+                            }
+                            String whoUser;
+                            if (admin != null) {
+                                whoUser = International.getString("Admin") + " '" + admin.getName() + "'";
+                            } else {
+                                whoUser = International.getString("Normaler Benutzer");
+                            }
+                            persistence.data().delete(record.getKey());
+                            Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+                                    record.getPersistence().getDescription() + ": "
+                                            + International.getMessage(
+                                            "{name} hat Datensatz '{record}' gelöscht.",
+                                            whoUser, record.getQualifiedName() + name));
+                        }
                     }
-                    persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
-                    String whoUser = admin != null
-                        ? International.getString("Admin") + " '" + admin.getName() + "'"
-                        : International.getString("Normaler Benutzer");
-                    if (deleteAt >= 0) {
-                      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETEDAT,
-                          records[i].getPersistence().getDescription() + ": "
-                              + International.getMessage(
-                                  "{name} hat Datensatz '{record}' ab {date} gelöscht.",
-                                  whoUser, records[i].getQualifiedName(),
-                                  EfaUtil.getTimeStampDDMMYYYY(deleteAt)));
-                    } else {
-                      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
-                          records[i].getPersistence().getDescription() + ": "
-                              + International.getMessage(
-                                  "{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
-                                  whoUser, records[i].getQualifiedName()));
-                    }
-                  } else {
-                    String name = "";
-                    if (records[i] instanceof BoatReservationRecord) {
-                      BoatReservationRecord reservation = (BoatReservationRecord) records[i];
-                      String aktion = "DELETE";
-                      reservation.sendEmailBeiReservierung(aktion);
-                      name += " ab " + reservation.getDateTimeFromDescription(
-                          BoatReservationRecord.REPLACE_HEUTE);
-                      name += " für " + reservation.getPersonAsName();
-                    }
-                    String whoUser;
-                    if (admin != null) {
-                      whoUser = International.getString("Admin") + " '" + admin.getName() + "'";
-                    } else {
-                      whoUser = International.getString("Normaler Benutzer");
-                    }
-                    persistence.data().delete(records[i].getKey());
-                    Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
-                        records[i].getPersistence().getDescription() + ": "
-                            + International.getMessage(
-                                "{name} hat Datensatz '{record}' gelöscht.",
-                                whoUser, records[i].getQualifiedName() + name));
-                  }
                 }
-              }
             } catch (EfaModifyException exmodify) {
               exmodify.displayMessage();
             } catch (Exception ex) {
@@ -672,13 +668,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED
             && itemType == searchField) {
       String s = searchField.getValueFromField();
-      if (s != null && s.length() > 0 && keys != null && items != null) {
+      if (s != null && !s.isEmpty() && keys != null && items != null) {
         s = s.toLowerCase();
         Vector<String> sv = null;
         boolean[] sb = null;
         if (s.indexOf(" ") > 0) {
           sv = EfaUtil.split(s, ' ');
-          if (sv != null && sv.size() == 0) {
+          if (sv != null && sv.isEmpty()) {
             sv = null;
           } else {
             sb = new boolean[sv.size()];
@@ -803,15 +799,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     } // for loop
     if (!fehlerListe.isEmpty()) {
       // display the failures at end
-      String s = "";
-      s += "Für die Zeit " + reservation.getReservationTimeDescription(
-              BoatReservationRecord.REPLACE_HEUTE) + "\n";
-      s += "konnten nicht alle Boote automatisch mitreserviert werden.\n";
+      StringBuilder s = new StringBuilder();
+      s.append("Für die Zeit ").append(reservation.getReservationTimeDescription(
+              BoatReservationRecord.REPLACE_HEUTE)).append("\n");
+      s.append("konnten nicht alle Boote automatisch mitreserviert werden.\n");
       for (String string : fehlerListe) {
-        s += string + "\n";
+        s.append(string).append("\n");
       }
-      s += lastException;
-      Dialog.infoDialog("Fehlerprotokoll", s);
+      s.append(lastException);
+      Dialog.infoDialog("Fehlerprotokoll", s.toString());
     }
   }
 
@@ -1035,9 +1031,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (conflict != null) {
       String warn = International.getString("Es existiert bereits ein gleichnamiger Datensatz!");
       if (Dialog.yesNoDialog(International.getString("Warnung"),
-          warn + "\n"
-              + conflict + "\n"
-              + International
+          warn + "\n" + conflict + "\n" + International
                   .getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
         return true;
       }
@@ -1097,7 +1091,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         if (aggregationStrings != null) {
           int length = 0;
           for (int i = 0; i < header.length; i++) {
-            if (!aggregationStrings[i].equals("")) {
+            if (!aggregationStrings[i].isEmpty()) {
               length++;
             }
           }
@@ -1105,7 +1099,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           // create table
           TableModel dataModel = new DefaultTableModel(1, length);
           for (int i = 0, j = 0; i < header.length; i++) {
-            if (!aggregationStrings[i].equals("")) {
+            if (!aggregationStrings[i].isEmpty()) {
               dataModel.setValueAt(aggregationStrings[i], 0, j++);
             }
           }
@@ -1141,7 +1135,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         filterBySearch.getValueFromField();
         searchField.getValueFromGui();
         if (filterBySearch.getValue() && searchField.getValue() != null
-            && searchField.getValue().length() > 0) {
+            && !searchField.getValue().isEmpty()) {
           filterByAnyText = searchField.getValue().toLowerCase();
         }
       }
@@ -1480,6 +1474,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     Integer wochentag = getWochentag(strDayOfWeek);
     if (wochentag != null) {
       String regelterminKuerzel = "r";
+      String bootshausKuerzel = "BH";
+      if (brr.isBootshausOH()) {
+        regelterminKuerzel += bootshausKuerzel;
+      }
       mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
 
       // Das "r" muss wissen, wann es anfangen soll!

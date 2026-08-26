@@ -409,13 +409,11 @@ public abstract class DataFile extends DataAccess {
         fout.close();
       }
     } catch (Exception e) {
-      // TODO 2023-07-10 abf nur zum Live-Debuging eingebaut
+      // TODO 2023-07-10 abf nur zum Live-Debugging eingebaut
       Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED,
               "Could not saveStorageObject5 " + filename + " with " + meta + ": " + e);
-
       String fileWriting = LogString.fileWritingFailed(filename, storageLocation, e.toString());
-      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-      throw new EfaException(Logger.MSG_DATA_SAVEFAILED, fileWriting, stackTrace);
+      throw new EfaException(Logger.MSG_DATA_SAVEFAILED, fileWriting, e.getStackTrace());
     }
   }
 

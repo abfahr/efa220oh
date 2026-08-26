@@ -180,7 +180,7 @@ public class BoatReservations extends StorageObject {
   public BoatReservationRecord[] getBoatReservations(UUID boatId, long now, long lookAheadMinutes) {
     BoatReservationRecord[] reservations = getBoatReservations(boatId);
 
-    Vector<BoatReservationRecord> activeReservations = new Vector<BoatReservationRecord>();
+    Vector<BoatReservationRecord> activeReservations = new Vector<>();
     for (int i = 0; reservations != null && i < reservations.length; i++) {
       BoatReservationRecord r = reservations[i];
       if (r.getReservationValidInMinutes(now, lookAheadMinutes) >= 0) {
@@ -188,7 +188,7 @@ public class BoatReservations extends StorageObject {
       }
     }
 
-    if (activeReservations.size() == 0) {
+    if (activeReservations.isEmpty()) {
       return null;
     }
     BoatReservationRecord[] a = new BoatReservationRecord[activeReservations.size()];
@@ -312,7 +312,8 @@ public class BoatReservations extends StorageObject {
                   throw new EfaModifyException(
                       Logger.MSG_DATA_MODIFYEXCEPTION,
                       International.getMessage(
-                          "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung von {nameTel}",
+                          "Die Reservierung {oldnameTel} überschneidet sich mit einer wöchentlichen Reservierung von {nameTel}",
+                          "von " + r.getPersonAsName() + " vom " + r.getDateTimeFromDescription(false),
                           br[i].getPersonAsName() + " " + br[i].getContact()),
                       Thread.currentThread().getStackTrace());
                 }
@@ -333,7 +334,8 @@ public class BoatReservations extends StorageObject {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International.getMessage(
-                    "Die Reservierung überschneidet sich mit einer wöchentlichen Reservierung von {nameTel}",
+                    "Die Reservierung {oldnameTel} überschneidet sich mit einer wöchentlichen Reservierung von {nameTel}",
+                        "von " + r.getPersonAsName() + " vom " + r.getDateTimeFromDescription(false),
                     br[i].getPersonAsName() + " " + br[i].getContact()),
                 Thread.currentThread().getStackTrace());
 
@@ -355,7 +357,8 @@ public class BoatReservations extends StorageObject {
               br[i].getTimeTo())) {
             throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                 International.getMessage(
-                    "Die Reservierung überschneidet sich mit einer Reservierung von {nameTel}",
+                    "Die Reservierung {oldnameTel} überschneidet sich mit einer Reservierung von {nameTel}",
+                        "von " + r.getPersonAsName() + " vom " + r.getDateTimeFromDescription(false),
                     br[i].getPersonAsName() + " " + br[i].getContact()),
                 Thread.currentThread().getStackTrace());
           }
@@ -396,8 +399,7 @@ public class BoatReservations extends StorageObject {
     }
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(date);
-    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-    return dayOfWeek;
+      return calendar.get(Calendar.DAY_OF_WEEK);
   }
 
 }

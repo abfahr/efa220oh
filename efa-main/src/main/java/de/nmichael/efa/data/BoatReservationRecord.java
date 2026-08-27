@@ -350,14 +350,16 @@ public class BoatReservationRecord extends DataRecord {
   public String getReservationTimeDescription(boolean replaceHeute) {
     String strFrom = getDateTimeFromDescription(replaceHeute);
     String strTo = getDateTimeToDescription(replaceHeute);
-    if (strFrom.contains("heute")) {
-      strTo = strTo.replace("heute ", "");
-      return strFrom + "-" + strTo;
+
+    if (strFrom.contains(International.getString("heute"))) {
+      strTo = strTo.replace(International.getString("heute"), "");
     }
-    if (getDateFrom().equals(getDateTo())) {
-      strTo = strTo.replace(getDateFrom() + " ", "");
-      return strFrom + "-" + strTo;
+
+    DataTypeDate dateFrom = getDateFrom();
+    if (dateFrom != null && dateFrom.equals(getDateTo())) {
+      strTo = strTo.replace(dateFrom.toString(), "");
     }
+
     return strFrom + " - " + strTo;
   }
 

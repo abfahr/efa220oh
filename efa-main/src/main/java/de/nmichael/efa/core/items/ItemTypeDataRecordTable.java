@@ -642,6 +642,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               Dialog.error(ex.toString());
             }
             break;
+          case DataListDialog.ACTION_HIDE:  // <-- NEU
+            // Die Logik für "Verstecken" wird bereits in DataListDialog.itemListenerActionTable()
+            // behandelt. Hier muss nichts getan werden, aber der Case muss existieren.
+
+            // Ignoriere bekannte Aktionen, die hier nicht behandelt werden müssen
+            Logger.log(Logger.WARNING, Logger.MSG_ABF_ERROR,
+              "itemListenerAction()3: unreachable switch: ACTION_HIDE actionId = " + actionId);
+            break;
           case DataListDialog.ACTION_IMPORT:
           case DataListDialog.ACTION_EXPORT:
           case DataListDialog.ACTION_MERGE:

@@ -720,7 +720,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return null;
     }
     for (BoatReservationRecord boatReservationRecord : boatReservations) {
-      if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+      if (boatReservationRecord.isWeeklyReservationType()) {
         continue; // skip weekly
       }
       if (boatReservationRecord.getInvisible()) {

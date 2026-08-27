@@ -21,6 +21,7 @@ import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaException;
 import net.fortuna.ical4j.data.CalendarOutputter;
@@ -268,7 +269,7 @@ public class ICalendarExport {
         continue;
       }
       String type = boatReservationRecord.getType();
-      String dayOfWeek = boatReservationRecord.getDayOfWeek();
+      DataTypeList<String> daysOfWeek = boatReservationRecord.getDaysOfWeekWithFallback();
       String boatName = boatReservationRecord.getBoatName();
       boolean isBootshausReservierung = boatReservationRecord.isBootshausOH();
       DataTypeDate dateFrom = boatReservationRecord.getDateFrom();
@@ -299,7 +300,7 @@ public class ICalendarExport {
       }
       description += modif;
 
-      if (BoatReservationRecord.TYPE_WEEKLY.equals(type)) {
+      if (BoatReservationRecord.isWeeklyReservationType(type)) {
         if (!saveWeekly) {
           continue;
         }
@@ -320,7 +321,7 @@ public class ICalendarExport {
       termin.getProperties().add(new Location("Isekai 10 Hamburg"));
       termin.getProperties().add(new Uid(uid));
 
-      if (BoatReservationRecord.TYPE_WEEKLY.equals(type)) {
+      if (BoatReservationRecord.isWeeklyReservationType(type)) {
         if (saveWeeklyAsSingleEvent && !isBootshausReservierung) {
           if (wochentermine.contains(reservationTimeDescription)) {
             continue;
@@ -341,7 +342,13 @@ public class ICalendarExport {
         } else {
           recur = new Recur(Recur.WEEKLY, 4 * 52);
         }
-        recur.getDayList().add(new WeekDay(dayOfWeek.substring(0, 2)));
+        recur.setInterval(boatReservationRecord.getWeekInterval());
+        for (int i = 0; i < daysOfWeek.length(); i++) {
+          String dayOfWeek = daysOfWeek.get(i);
+          if (dayOfWeek != null && dayOfWeek.length() >= 2) {
+            recur.getDayList().add(new WeekDay(dayOfWeek.substring(0, 2)));
+          }
+        }
         termin.getProperties().add(new RRule(recur));
       }
       termin.getProperties().add(new Description(description));

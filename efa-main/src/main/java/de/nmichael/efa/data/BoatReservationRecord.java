@@ -26,6 +26,7 @@ import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
@@ -47,6 +48,7 @@ public class BoatReservationRecord extends DataRecord {
   // =========================================================================
   public static final String TYPE_ONETIME = "ONETIME";
   public static final String TYPE_WEEKLY = "WEEKLY";
+  public static final String TYPE_WEEKLY_INTERVAL = "WEEKLY_INTERVAL";
 
   // =========================================================================
   // Field Names
@@ -59,6 +61,8 @@ public class BoatReservationRecord extends DataRecord {
   public static final String DATEFROM = "DateFrom";
   public static final String DATETO = "DateTo";
   public static final String DAYOFWEEK = "DayOfWeek";
+  public static final String DAYSOFWEEK = "DaysOfWeek";
+  public static final String WEEKINTERVAL = "WeekInterval";
   public static final String TIMEFROM = "TimeFrom";
   public static final String TIMETO = "TimeTo";
   public static final String VPERSON = "VirtualPerson";
@@ -92,6 +96,10 @@ public class BoatReservationRecord extends DataRecord {
     t.add(IDataAccess.DATA_DATE);
     f.add(DAYOFWEEK);
     t.add(IDataAccess.DATA_STRING);
+    f.add(DAYSOFWEEK);
+    t.add(IDataAccess.DATA_LIST_STRING);
+    f.add(WEEKINTERVAL);
+    t.add(IDataAccess.DATA_INTEGER);
     f.add(TIMEFROM);
     t.add(IDataAccess.DATA_TIME);
     f.add(TIMETO);
@@ -172,6 +180,18 @@ public class BoatReservationRecord extends DataRecord {
     return getString(TYPE);
   }
 
+  public static boolean isWeeklyReservationType(String type) {
+    return TYPE_WEEKLY.equals(type) || TYPE_WEEKLY_INTERVAL.equals(type);
+  }
+
+  public boolean isWeeklyReservationType() {
+    return isWeeklyReservationType(getType());
+  }
+
+  public boolean isWeeklyIntervalReservationType() {
+    return TYPE_WEEKLY_INTERVAL.equals(getType());
+  }
+
   public void setDateFrom(DataTypeDate date) {
     setDate(DATEFROM, date);
   }
@@ -194,6 +214,42 @@ public class BoatReservationRecord extends DataRecord {
 
   public String getDayOfWeek() {
     return getString(DAYOFWEEK);
+  }
+
+  public void setDaysOfWeek(DataTypeList<String> daysOfWeek) {
+    setList(DAYSOFWEEK, daysOfWeek);
+  }
+
+  public DataTypeList<String> getDaysOfWeek() {
+    return getList(DAYSOFWEEK, IDataAccess.DATA_LIST_STRING);
+  }
+
+  public DataTypeList<String> getDaysOfWeekWithFallback() {
+    DataTypeList<String> daysOfWeek = getDaysOfWeek();
+    if (daysOfWeek != null && daysOfWeek.length() > 0) {
+      return daysOfWeek;
+    }
+    String dayOfWeek = getDayOfWeek();
+    if (dayOfWeek != null && !dayOfWeek.isEmpty()) {
+      return new DataTypeList<String>(new String[] { dayOfWeek });
+    }
+    return new DataTypeList<String>();
+  }
+
+  public void setWeekInterval(int weekInterval) {
+    setInt(WEEKINTERVAL, Math.max(1, weekInterval));
+  }
+
+  public int getWeekInterval() {
+    if (!isWeeklyIntervalReservationType()) {
+      return 1;
+    }
+    return getConfiguredWeekInterval();
+  }
+
+  public int getConfiguredWeekInterval() {
+    int weekInterval = getInt(WEEKINTERVAL);
+    return (weekInterval > 0 ? weekInterval : 1);
   }
 
   public void setTimeFrom(DataTypeTime time) {
@@ -315,18 +371,59 @@ public class BoatReservationRecord extends DataRecord {
     return retVal;
   }
 
+  private String getWeeklyDateDescription(DataTypeDate date,
+      DataTypeTime time, boolean replaceHeute, boolean isFrom) {
+    String strDate = "";
+    if (date != null) {
+      if (replaceHeute && date.equals(DataTypeDate.today())) {
+        strDate = "heute";
+      } else {
+        strDate = date.toString();
+      }
+    }
+    String strTime = (time != null ? " " + time : "");
+    String weekdays = getDaysOfWeekDescription();
+    if (weekdays.isEmpty()) {
+      return getDateDescription(date, null, time, replaceHeute, isFrom);
+    }
+    String retVal = weekdays + strTime;
+    if (!isFrom || (date != null && date.isAfterOrEqual(DataTypeDate.today()))) {
+      retVal += " " + strDate;
+    }
+    if (isWeeklyIntervalReservationType() && getWeekInterval() > 1) {
+      retVal += " (" + International.getMessage("alle {number} Wochen",
+          Integer.toString(getWeekInterval())) + ")";
+    }
+    return retVal;
+  }
+
+  public String getDaysOfWeekDescription() {
+    DataTypeList<String> daysOfWeek = getDaysOfWeekWithFallback();
+    StringBuilder description = new StringBuilder();
+    for (int i = 0; i < daysOfWeek.length(); i++) {
+      String dayOfWeek = daysOfWeek.get(i);
+      if (dayOfWeek != null && !dayOfWeek.isEmpty()) {
+        if (description.length() > 0) {
+          description.append(", ");
+        }
+        description.append(EfaTypes.getValueWeekday(dayOfWeek)).append("s");
+      }
+    }
+    return description.toString();
+  }
+
   public String getDateTimeFromDescription(boolean replaceHeute) {
     String type = getType();
     DataTypeDate dateFrom = getDateFrom();
     if (type != null && type.equals(TYPE_ONETIME)) {
       return getDateDescription(dateFrom, null, getTimeFrom(), replaceHeute, IS_FROM);
     }
-    if (type != null && type.equals(TYPE_WEEKLY)) {
+    if (isWeeklyReservationType(type)) {
       if (dateFrom == null) {
         dateFrom = DataTypeDate.today();
         dateFrom.addDays(-31); // minus 1 Monat
       }
-      return getDateDescription(dateFrom, getDayOfWeek(), getTimeFrom(), replaceHeute, IS_FROM);
+      return getWeeklyDateDescription(dateFrom, getTimeFrom(), replaceHeute, IS_FROM);
     }
     return "";
   }
@@ -337,12 +434,12 @@ public class BoatReservationRecord extends DataRecord {
     if (type != null && type.equals(TYPE_ONETIME)) {
       return getDateDescription(dateTo, null, getTimeTo(), replaceHeute, IS_TO);
     }
-    if (type != null && type.equals(TYPE_WEEKLY)) {
+    if (isWeeklyReservationType(type)) {
       if (dateTo == null) {
         dateTo = DataTypeDate.today();
         dateTo.addDays(366); // plus 1 Jahr
       }
-      return getDateDescription(dateTo, getDayOfWeek(), getTimeTo(), replaceHeute, IS_TO);
+      return getWeeklyDateDescription(dateTo, getTimeTo(), replaceHeute, IS_TO);
     }
     return "";
   }
@@ -426,15 +523,13 @@ public class BoatReservationRecord extends DataRecord {
     if (getDateTo() == null) {
       return "";
     }
-    if (getType().equals(TYPE_WEEKLY)) {
+    if (isWeeklyReservationType()) {
       String daysBetween = "";
       try {
         int step = 1;
         for (DataTypeDate day = getDateFrom(); day.compareTo(getDateTo()) < 0; day.addDays(step)) {
-          int weekday = day.toCalendar().get(Calendar.DAY_OF_WEEK);
-          if (weekday == getWochentag(getDayOfWeek())) {
+          if (isWeeklyReservationOnDate(day)) {
             daysBetween += day + " ";
-            step = 7; // week
           }
         }
       } catch (Exception e) {
@@ -475,6 +570,62 @@ public class BoatReservationRecord extends DataRecord {
     return calendar.get(Calendar.DAY_OF_WEEK); // dayOfWeek
   }
 
+  public boolean isWeeklyReservationOnDate(DataTypeDate date) {
+    if (!isWeeklyReservationType() || date == null || !date.isSet()) {
+      return false;
+    }
+    DataTypeDate dateFrom = getDateFrom();
+    DataTypeDate dateTo = getDateTo();
+    if (dateFrom != null && dateFrom.isSet() && date.isBefore(dateFrom)) {
+      return false;
+    }
+    if (dateTo != null && dateTo.isSet() && date.isAfter(dateTo)) {
+      return false;
+    }
+    if (!containsDayOfWeek(getEfaWeekday(date.toCalendar().get(Calendar.DAY_OF_WEEK)))) {
+      return false;
+    }
+    if (dateFrom == null || !dateFrom.isSet()) {
+      return true;
+    }
+    long daysSinceStart = date.getDifferenceDays(dateFrom);
+    if (daysSinceStart < 0) {
+      return false;
+    }
+    return (daysSinceStart / 7) % getWeekInterval() == 0;
+  }
+
+  public boolean containsDayOfWeek(String weekday) {
+    DataTypeList<String> daysOfWeek = getDaysOfWeekWithFallback();
+    for (int i = 0; i < daysOfWeek.length(); i++) {
+      if (weekday != null && weekday.equals(daysOfWeek.get(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private String getEfaWeekday(int calendarDayOfWeek) {
+    switch (calendarDayOfWeek) {
+      case Calendar.MONDAY:
+        return EfaTypes.TYPE_WEEKDAY_MONDAY;
+      case Calendar.TUESDAY:
+        return EfaTypes.TYPE_WEEKDAY_TUESDAY;
+      case Calendar.WEDNESDAY:
+        return EfaTypes.TYPE_WEEKDAY_WEDNESDAY;
+      case Calendar.THURSDAY:
+        return EfaTypes.TYPE_WEEKDAY_THURSDAY;
+      case Calendar.FRIDAY:
+        return EfaTypes.TYPE_WEEKDAY_FRIDAY;
+      case Calendar.SATURDAY:
+        return EfaTypes.TYPE_WEEKDAY_SATURDAY;
+      case Calendar.SUNDAY:
+        return EfaTypes.TYPE_WEEKDAY_SUNDAY;
+      default:
+        return null;
+    }
+  }
+
   /**
    * @return 0 if valid now; n>0 in valid in n minutes; <0 if not valid within specified interval
    */
@@ -485,54 +636,23 @@ public class BoatReservationRecord extends DataRecord {
       DataTypeTime timeFrom = this.getTimeFrom();
       DataTypeTime timeTo = this.getTimeTo();
 
-      if (this.getType().equals(TYPE_WEEKLY)) {
-        dateFrom = new DataTypeDate(now);
-        dateTo = new DataTypeDate(now);
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeInMillis(now);
-        int weekday = cal.get(Calendar.DAY_OF_WEEK);
-        String dayOfWeek = getDayOfWeek();
-        // Note: lookAheadMinutes is not supported over midnight for weekly reservations
-        switch (weekday) {
-          case Calendar.MONDAY:
-            if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_MONDAY)) {
-              return -1;
+      if (isWeeklyReservationType()) {
+        long until = now + lookAheadMinutes * 60 * 1000;
+        DataTypeDate candidate = new DataTypeDate(now);
+        while (candidate.getTimestamp(timeFrom) <= until + LONG_MILLI_SECONDS_PER_DAY) {
+          if (isWeeklyReservationOnDate(candidate)) {
+            long resStart = candidate.getTimestamp(timeFrom);
+            long resEnd = candidate.getTimestamp(timeTo);
+            if (now > resStart && now < resEnd) {
+              return 0;
             }
-            break;
-          case Calendar.TUESDAY:
-            if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_TUESDAY)) {
-              return -1;
+            if (now < resStart && until > resStart) {
+              return (resStart - now) / (60 * 1000);
             }
-            break;
-          case Calendar.WEDNESDAY:
-            if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_WEDNESDAY)) {
-              return -1;
-            }
-            break;
-          case Calendar.THURSDAY:
-            if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_THURSDAY)) {
-              return -1;
-            }
-            break;
-          case Calendar.FRIDAY:
-            if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_FRIDAY)) {
-              return -1;
-            }
-            break;
-          case Calendar.SATURDAY:
-            if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_SATURDAY)) {
-              return -1;
-            }
-            break;
-          case Calendar.SUNDAY:
-            if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_SUNDAY)) {
-              return -1;
-            }
-            break;
-          default:
-            break;
+          }
+          candidate.addDays(1);
         }
-        // ok, this is our weekday!
+        return -1;
       }
       long resStart = dateFrom.getTimestamp(timeFrom);
       long resEnd = dateTo.getTimestamp(timeTo);
@@ -567,7 +687,7 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public double getDurationInHours() {
-    if (this.getType().equals(TYPE_WEEKLY)) {
+    if (isWeeklyReservationType()) {
       int seconds = getTimeTo().getTimeAsSeconds() - getTimeFrom().getTimeAsSeconds();
       return seconds / 60 / 60; // Stunden
     }
@@ -580,7 +700,7 @@ public class BoatReservationRecord extends DataRecord {
     try {
       DataTypeDate dateTo = this.getDateTo();
       DataTypeTime timeTo = this.getTimeTo();
-      if (this.getType().equals(TYPE_WEEKLY)) {
+      if (isWeeklyReservationType()) {
         if (dateTo == null) {
           return false;
         }
@@ -660,21 +780,39 @@ public class BoatReservationRecord extends DataRecord {
 
     item = new ItemTypeRadioButtons(BoatReservationRecord.TYPE,
         (getType() != null && !getType().isEmpty() ? getType() : TYPE_ONETIME),
-        new String[] { TYPE_ONETIME, TYPE_WEEKLY },
+        new String[] { TYPE_ONETIME, TYPE_WEEKLY, TYPE_WEEKLY_INTERVAL },
         new String[] {
             International.getString("einmalig"),
             International.getString("wöchentlich"),
+            International.getString("individuell"),
         },
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
         International.getString("Art der Reservierung"));
+    ((ItemTypeRadioButtons) item).setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
     v.add(item);
 
     item = new ItemTypeStringList(BoatReservationRecord.DAYOFWEEK,
         getDayOfWeek(),
         EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
         EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        IItemType.TYPE_INTERNAL, "",
         International.getString("Wochentag"));
+    v.add(item);
+
+    item = new ItemTypeMultiSelectCheckboxes<String>(BoatReservationRecord.DAYSOFWEEK,
+        getDaysOfWeekWithFallback(),
+        EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
+        EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Wochentage"));
+    item.setNotNull(true);
+    item.setFieldSize(300, 120);
+    v.add(item);
+
+    item = new ItemTypeInteger(BoatReservationRecord.WEEKINTERVAL,
+        getConfiguredWeekInterval(), 1, 52,
+        IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+        International.getString("Wochenrhythmus"));
     item.setNotNull(true);
     v.add(item);
 
@@ -770,6 +908,15 @@ public class BoatReservationRecord extends DataRecord {
   public void saveGuiItems(Vector<IItemType> items) {
     setHashId(new SecureRandom().nextLong());
     super.saveGuiItems(items);
+    if (isWeeklyReservationType()) {
+      DataTypeList<String> daysOfWeek = getDaysOfWeekWithFallback();
+      setDayOfWeek(daysOfWeek.length() > 0 ? daysOfWeek.get(0) : null);
+      setWeekInterval(isWeeklyIntervalReservationType() ? getConfiguredWeekInterval() : 1);
+    } else {
+      setDayOfWeek(null);
+      setDaysOfWeek(null);
+      setWeekInterval(1);
+    }
   }
 
   @Override

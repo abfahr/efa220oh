@@ -230,7 +230,7 @@ public class BoatReservationListDialog extends DataListDialog {
   public boolean deleteCallback(DataRecord[] records) {
     for (DataRecord dataRecord : records) {
       BoatReservationRecord boatReservationRecord = (BoatReservationRecord) dataRecord;
-      if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+      if (boatReservationRecord.isWeeklyReservationType()) {
         return nachfragenWeekly(); // leider ist ein WEEKLY dabei.
       }
     }

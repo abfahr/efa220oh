@@ -287,7 +287,7 @@ public class BoatReservations extends StorageObject {
         if (br[i].getReservation() == r.getReservation()) {
           continue;
         }
-        if (br[i].getType().equals(BoatReservationRecord.TYPE_WEEKLY)
+        if (br[i].isWeeklyReservationType()
             && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
           assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
           assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
@@ -295,9 +295,7 @@ public class BoatReservations extends StorageObject {
           assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
           List<DataTypeDate> liste = getListOfDates(r.getDateFrom(), r.getDateTo());
           for (DataTypeDate day : liste) {
-            int dayOfWeek = day.toCalendar().get(Calendar.DAY_OF_WEEK);
-            int dayOfWeekBR = getWochentag(br[i].getDayOfWeek());
-            if (dayOfWeek == dayOfWeekBR) {
+            if (br[i].isWeeklyReservationOnDate(day)) {
               if (DataTypeDate.isRangeOverlap(r.getDateFrom(),
                   r.getTimeFrom(),
                   r.getDateTo(),
@@ -320,16 +318,19 @@ public class BoatReservations extends StorageObject {
             }
           }
         }
-        if (br[i].getType().equals(BoatReservationRecord.TYPE_WEEKLY)
-            && r.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
-          assertFieldNotEmpty(record, BoatReservationRecord.DAYOFWEEK);
+        if (br[i].isWeeklyReservationType()
+            && r.isWeeklyReservationType()) {
+          assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
           assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
           assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
-          if (!r.getDayOfWeek().equals(br[i].getDayOfWeek())) {
-            continue;
+          if (r.getDaysOfWeekWithFallback().length() == 0) {
+            throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                International.getString("Bitte Wochentag eingeben"),
+                Thread.currentThread().getStackTrace());
           }
           if (DataTypeTime.isRangeOverlap(r.getTimeFrom(), r.getTimeTo(),
-              br[i].getTimeFrom(), br[i].getTimeTo())) {
+              br[i].getTimeFrom(), br[i].getTimeTo())
+              && hasWeeklyDateOverlap(r, br[i])) {
             throw new EfaModifyException(
                 Logger.MSG_DATA_MODIFYEXCEPTION,
                 International.getMessage(
@@ -337,6 +338,37 @@ public class BoatReservations extends StorageObject {
                     br[i].getPersonAsName() + " " + br[i].getContact()),
                 Thread.currentThread().getStackTrace());
 
+          }
+        }
+        if (br[i].getType().equals(BoatReservationRecord.TYPE_ONETIME)
+            && r.isWeeklyReservationType()) {
+          assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
+          assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
+          assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
+          if (r.getDaysOfWeekWithFallback().length() == 0) {
+            throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                International.getString("Bitte Wochentag eingeben"),
+                Thread.currentThread().getStackTrace());
+          }
+          List<DataTypeDate> liste = getListOfDates(br[i].getDateFrom(), br[i].getDateTo());
+          for (DataTypeDate day : liste) {
+            if (r.isWeeklyReservationOnDate(day)) {
+              if (DataTypeDate.isRangeOverlap(br[i].getDateFrom(),
+                  br[i].getTimeFrom(),
+                  br[i].getDateTo(),
+                  br[i].getTimeTo(),
+                  br[i].getDateFrom(),
+                  r.getTimeFrom(),
+                  br[i].getDateTo(),
+                  r.getTimeTo())) {
+                throw new EfaModifyException(
+                    Logger.MSG_DATA_MODIFYEXCEPTION,
+                    International.getMessage(
+                        "Die Reservierung überschneidet sich mit einer Reservierung von {nameTel}",
+                        br[i].getPersonAsName() + " " + br[i].getContact()),
+                    Thread.currentThread().getStackTrace());
+              }
+            }
           }
         }
         if (br[i].getType().equals(BoatReservationRecord.TYPE_ONETIME)
@@ -364,6 +396,8 @@ public class BoatReservations extends StorageObject {
       if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME) &&
           r.getDayOfWeek() != null) {
         r.setDayOfWeek(null);
+        r.setDaysOfWeek(null);
+        r.setWeekInterval(1);
       }
     }
   }
@@ -379,6 +413,47 @@ public class BoatReservations extends StorageObject {
       myDate.addDays(1);
     }
     return datumListe;
+  }
+
+  private boolean hasWeeklyDateOverlap(BoatReservationRecord a, BoatReservationRecord b) {
+    DataTypeDate dateFrom = maxDate(getWeeklyDateFrom(a), getWeeklyDateFrom(b));
+    DataTypeDate dateTo = minDate(getWeeklyDateTo(a, dateFrom), getWeeklyDateTo(b, dateFrom));
+    for (DataTypeDate day = new DataTypeDate(dateFrom);
+        day.isBeforeOrEqual(dateTo);
+        day.addDays(1)) {
+      if (a.isWeeklyReservationOnDate(day) && b.isWeeklyReservationOnDate(day)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private DataTypeDate getWeeklyDateFrom(BoatReservationRecord r) {
+    DataTypeDate dateFrom = r.getDateFrom();
+    if (dateFrom != null && dateFrom.isSet()) {
+      return dateFrom;
+    }
+    dateFrom = DataTypeDate.today();
+    dateFrom.addDays(-30);
+    return dateFrom;
+  }
+
+  private DataTypeDate getWeeklyDateTo(BoatReservationRecord r, DataTypeDate dateFrom) {
+    DataTypeDate dateTo = r.getDateTo();
+    if (dateTo != null && dateTo.isSet()) {
+      return dateTo;
+    }
+    dateTo = new DataTypeDate(dateFrom);
+    dateTo.addDays(4 * 365);
+    return dateTo;
+  }
+
+  private DataTypeDate maxDate(DataTypeDate a, DataTypeDate b) {
+    return (a.isAfter(b) ? a : b);
+  }
+
+  private DataTypeDate minDate(DataTypeDate a, DataTypeDate b) {
+    return (a.isBefore(b) ? a : b);
   }
 
   private int getWochentag(String dayName) {

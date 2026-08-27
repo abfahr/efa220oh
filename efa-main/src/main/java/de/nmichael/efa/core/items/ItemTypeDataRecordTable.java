@@ -41,6 +41,7 @@ import de.nmichael.efa.data.storage.DataRecord;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.BaseDialog;
@@ -95,6 +96,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   protected Vector<DataRecord> data;
   protected Hashtable<String, DataRecord> mappingKeyToRecord = new Hashtable<>();
   protected Hashtable<DataTypeDate, Integer> mappingDateToReservations = new Hashtable<>();
+  protected Hashtable<DataTypeDate, String> mappingDateToRecurringReservations = new Hashtable<>();
   protected Hashtable<DataTypeDate, String> mappingBootshausDateToReservations = new Hashtable<>();
   protected Hashtable<Integer, String> mappingWeekdayToReservations = new Hashtable<>();
   protected Hashtable<Integer, DataTypeDate> mappingMinWeekdayToReservations = new Hashtable<>();
@@ -1154,6 +1156,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       Hashtable<DataKey<?, ?, ?>, String> uniqueHash = new Hashtable<>();
       if (updateDataRightSideCalendar) {
         mappingDateToReservations = new Hashtable<>();
+        mappingDateToRecurringReservations = new Hashtable<>();
         mappingWeekdayToReservations = new Hashtable<>();
         mappingMinWeekdayToReservations = new Hashtable<>();
         mappingMaxWeekdayToReservations = new Hashtable<>();
@@ -1408,6 +1411,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     String myBuchungtext = "";
     Integer weekday = date.toCalendar().get(Calendar.DAY_OF_WEEK);
 
+    String recurringDateEvent = mappingDateToRecurringReservations.get(date);
+    if (recurringDateEvent != null) {
+      myBuchungtext += recurringDateEvent;
+    }
+
     String recurringEvent = mappingWeekdayToReservations.get(weekday);
     if (recurringEvent != null) {
       DataTypeDate minDate = mappingMinWeekdayToReservations.get(weekday);
@@ -1476,38 +1484,53 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private void mappingDateToName(BoatReservationRecord brr) {
-    String strDayOfWeek = brr.getDayOfWeek();
-    Integer wochentag = getWochentag(strDayOfWeek);
-    if (wochentag != null) {
+    DataTypeList<String> daysOfWeek = brr.getDaysOfWeekWithFallback();
+    if (brr.isWeeklyIntervalReservationType() && daysOfWeek.length() > 0) {
       String regelterminKuerzel = "r";
-      mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
+      List<DataTypeDate> dates = getListOfDates(getSeriesDateFrom(brr), getSeriesDateTo(brr));
+      for (DataTypeDate dataTypeDate : dates) {
+        if (brr.isWeeklyReservationOnDate(dataTypeDate)) {
+          mappingDateToRecurringReservations.put(dataTypeDate, regelterminKuerzel);
+        }
+      }
+      return; // individuelle Regeltermine konkret markieren
+    }
+    if (brr.isWeeklyReservationType() && daysOfWeek.length() > 0) {
+      for (int i = 0; i < daysOfWeek.length(); i++) {
+        Integer wochentag = getWochentag(daysOfWeek.get(i));
+        if (wochentag == null) {
+          continue;
+        }
+        String regelterminKuerzel = "r";
+        mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
 
-      // Das "r" muss wissen, wann es anfangen soll!
-      DataTypeDate neuesMinDate = brr.getDateFrom();
-      if (neuesMinDate == null) {
-        neuesMinDate = DataTypeDate.today();
-        neuesMinDate.addDays(-30);
-      }
-      DataTypeDate bisherigesMinDate = mappingMinWeekdayToReservations.get(wochentag);
-      if (bisherigesMinDate == null) {
-        bisherigesMinDate = neuesMinDate;
-      }
-      if (bisherigesMinDate.isAfterOrEqual(neuesMinDate)) {
-        mappingMinWeekdayToReservations.put(wochentag, neuesMinDate);
-      }
+        // Das "r" muss wissen, wann es anfangen soll!
+        DataTypeDate neuesMinDate = brr.getDateFrom();
+        if (neuesMinDate == null) {
+          neuesMinDate = DataTypeDate.today();
+          neuesMinDate.addDays(-30);
+        }
+        DataTypeDate bisherigesMinDate = mappingMinWeekdayToReservations.get(wochentag);
+        if (bisherigesMinDate == null) {
+          bisherigesMinDate = neuesMinDate;
+        }
+        if (bisherigesMinDate.isAfterOrEqual(neuesMinDate)) {
+          mappingMinWeekdayToReservations.put(wochentag, neuesMinDate);
+        }
 
-      // Das "r" muss wissen, wann es aufhören soll!
-      DataTypeDate neuesMaxDate = brr.getDateTo();
-      if (neuesMaxDate == null) {
-        neuesMaxDate = DataTypeDate.today();
-        neuesMaxDate.addDays(366);
-      }
-      DataTypeDate bisherigesMaxDate = mappingMaxWeekdayToReservations.get(wochentag);
-      if (bisherigesMaxDate == null) {
-        bisherigesMaxDate = neuesMaxDate;
-      }
-      if (neuesMaxDate.isAfterOrEqual(bisherigesMaxDate)) {
-        mappingMaxWeekdayToReservations.put(wochentag, neuesMaxDate);
+        // Das "r" muss wissen, wann es aufhören soll!
+        DataTypeDate neuesMaxDate = brr.getDateTo();
+        if (neuesMaxDate == null) {
+          neuesMaxDate = DataTypeDate.today();
+          neuesMaxDate.addDays(366);
+        }
+        DataTypeDate bisherigesMaxDate = mappingMaxWeekdayToReservations.get(wochentag);
+        if (bisherigesMaxDate == null) {
+          bisherigesMaxDate = neuesMaxDate;
+        }
+        if (neuesMaxDate.isAfterOrEqual(bisherigesMaxDate)) {
+          mappingMaxWeekdayToReservations.put(wochentag, neuesMaxDate);
+        }
       }
       return; // Regeltermine nicht zusammenzählen
     }
@@ -1535,6 +1558,24 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
     }
     return datumListe;
+  }
+
+  private DataTypeDate getSeriesDateFrom(BoatReservationRecord brr) {
+    DataTypeDate dateFrom = brr.getDateFrom();
+    if (dateFrom == null) {
+      dateFrom = DataTypeDate.today();
+      dateFrom.addDays(-30);
+    }
+    return dateFrom;
+  }
+
+  private DataTypeDate getSeriesDateTo(BoatReservationRecord brr) {
+    DataTypeDate dateTo = brr.getDateTo();
+    if (dateTo == null) {
+      dateTo = DataTypeDate.today();
+      dateTo.addDays(366);
+    }
+    return dateTo;
   }
 
   private Integer getWochentag(String dayName) {

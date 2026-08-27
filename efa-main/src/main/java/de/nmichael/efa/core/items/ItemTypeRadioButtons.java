@@ -13,6 +13,7 @@ package de.nmichael.efa.core.items;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.FlowLayout;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 
@@ -20,6 +21,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
 
 // @i18n complete
 
@@ -52,7 +54,10 @@ public class ItemTypeRadioButtons extends ItemTypeLabelValue {
   @Override
   protected JComponent initializeField() {
     JPanel groupPanel = new JPanel();
-    groupPanel.setLayout(new GridBagLayout());
+    boolean rightAligned = hAlignment == SwingConstants.RIGHT;
+    groupPanel.setLayout(rightAligned
+        ? new FlowLayout(FlowLayout.RIGHT, 10, 0)
+        : new GridBagLayout());
     ButtonGroup group = new ButtonGroup();
     if (displayList != null) {
       buttons = new JRadioButton[displayList.length];
@@ -61,9 +66,13 @@ public class ItemTypeRadioButtons extends ItemTypeLabelValue {
       JRadioButton b = new JRadioButton();
       b.setText(displayList[i]);
       group.add(b);
-      groupPanel.add(b, new GridBagConstraints(i, 0, 1, 1, 0.0, 0.0,
-          GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, (i > 0 ? 10 : 0), 0, 0),
-          0, 0));
+      if (rightAligned) {
+        groupPanel.add(b);
+      } else {
+        groupPanel.add(b, new GridBagConstraints(i, 0, 1, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(0, (i > 0 ? 10 : 0), 0, 0), 0, 0));
+      }
       b.addItemListener(new java.awt.event.ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent e) {

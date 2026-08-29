@@ -63,6 +63,7 @@ public class BoatReservationRecord extends DataRecord {
   public static final String DAYOFWEEK = "DayOfWeek";
   public static final String DAYSOFWEEK = "DaysOfWeek";
   public static final String WEEKINTERVAL = "WeekInterval";
+  public static final String EXCLUDEDDATES = "ExcludedDates";
   public static final String TIMEFROM = "TimeFrom";
   public static final String TIMETO = "TimeTo";
   public static final String VPERSON = "VirtualPerson";
@@ -100,6 +101,8 @@ public class BoatReservationRecord extends DataRecord {
     t.add(IDataAccess.DATA_LIST_STRING);
     f.add(WEEKINTERVAL);
     t.add(IDataAccess.DATA_INTEGER);
+    f.add(EXCLUDEDDATES);
+    t.add(IDataAccess.DATA_LIST_STRING);
     f.add(TIMEFROM);
     t.add(IDataAccess.DATA_TIME);
     f.add(TIMETO);
@@ -250,6 +253,34 @@ public class BoatReservationRecord extends DataRecord {
   public int getConfiguredWeekInterval() {
     int weekInterval = getInt(WEEKINTERVAL);
     return (weekInterval > 0 ? weekInterval : 1);
+  }
+
+  public void setExcludedDates(DataTypeList<String> excludedDates) {
+    setList(EXCLUDEDDATES, excludedDates);
+  }
+
+  public DataTypeList<String> getExcludedDates() {
+    DataTypeList<String> excludedDates = getList(EXCLUDEDDATES, IDataAccess.DATA_LIST_STRING);
+    return (excludedDates != null ? excludedDates : new DataTypeList<String>());
+  }
+
+  public void addExcludedDate(DataTypeDate date) {
+    if (date == null || !date.isSet()) {
+      return;
+    }
+    DataTypeList<String> excludedDates = getExcludedDates();
+    String excludedDate = date.toString();
+    if (!excludedDates.contains(excludedDate)) {
+      excludedDates.add(excludedDate);
+      setExcludedDates(excludedDates);
+    }
+  }
+
+  public boolean isExcludedDate(DataTypeDate date) {
+    if (date == null || !date.isSet()) {
+      return false;
+    }
+    return getExcludedDates().contains(date.toString());
   }
 
   public void setTimeFrom(DataTypeTime time) {
@@ -585,6 +616,9 @@ public class BoatReservationRecord extends DataRecord {
     if (!containsDayOfWeek(getEfaWeekday(date.toCalendar().get(Calendar.DAY_OF_WEEK)))) {
       return false;
     }
+    if (isExcludedDate(date)) {
+      return false;
+    }
     if (dateFrom == null || !dateFrom.isSet()) {
       return true;
     }
@@ -916,6 +950,7 @@ public class BoatReservationRecord extends DataRecord {
       setDayOfWeek(null);
       setDaysOfWeek(null);
       setWeekInterval(1);
+      setExcludedDates(null);
     }
   }
 

@@ -441,7 +441,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (rows != null && rows.length > 0) {
         records = new DataRecord[rows.length];
         for (int i = 0; i < rows.length; i++) {
-          records[i] = mappingKeyToRecord.get(keys[rows[i]]);
+          records[i] = mappingKeyToRecord.get(keys[table.getOriginalIndex(rows[i])]);
         }
       }
       if (Daten.isNotWriteModeMitSchluessel()) {
@@ -557,6 +557,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             if (records == null) {
               return;
             }
+            if (handleRecurringReservationDeleteAction(records)) {
+              updateData();
+              showValue();
+              refreshCalendarAfterDataChange();
+              return;
+            }
             // löschen alter Termine verhindern
             if (!itemListenerActionTable.deleteCallback(records)) {
               updateData();
@@ -670,6 +676,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       }
       updateData();
       showValue();
+      refreshCalendarAfterDataChange();
     }
     if (event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED
             && itemType == searchField) {
@@ -815,6 +822,71 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       s += lastException;
       Dialog.infoDialog("Fehlerprotokoll", s);
     }
+  }
+
+  private boolean handleRecurringReservationDeleteAction(DataRecord[] records) {
+    if (!Daten.isAdminMode() || selectedDateFilter == null || records.length != 1
+        || !(records[0] instanceof BoatReservationRecord)) {
+      return false;
+    }
+    BoatReservationRecord reservation = (BoatReservationRecord) records[0];
+    if (!reservation.isWeeklyReservationType()
+        || !reservation.isWeeklyReservationOnDate(selectedDateFilter)) {
+      return false;
+    }
+    int answer = Dialog.auswahlDialog(International.getString("Serientermin löschen"),
+        International.getMessage("Was soll mit dem Termin am {date} passieren?",
+            selectedDateFilter.toString()),
+        International.getString("diesen Einzeltermin entfernen"),
+        International.getString("ganze Serie löschen"),
+        International.getString("Abbruch"));
+    if (answer == 0) {
+      return removeSelectedDateFromRecurringReservation(reservation);
+    }
+    if (answer == 1) {
+      return false;
+    }
+    return true;
+  }
+
+  private boolean removeSelectedDateFromRecurringReservation(BoatReservationRecord reservation) {
+    try {
+      reservation.addExcludedDate(selectedDateFilter);
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(true);
+      try {
+        persistence.data().update(reservation);
+      } finally {
+        BoatReservations.setIgnoreReservationConflictsForCurrentThread(false);
+      }
+      String whoUser = admin != null
+          ? International.getString("Admin") + " '" + admin.getName() + "'"
+          : International.getString("Admin");
+      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDUPDATED,
+          reservation.getPersistence().getDescription() + ": "
+              + International.getMessage(
+                  "{name} hat den Termin am {date} aus der Serie '{record}' entfernt.",
+                  whoUser, selectedDateFilter.toString(), reservation.getQualifiedName()));
+      return true;
+    } catch (EfaModifyException exmodify) {
+      exmodify.displayMessage();
+    } catch (Exception ex) {
+      Logger.logdebug(ex);
+      Dialog.error(ex.toString());
+    }
+    return true;
+  }
+
+  private void refreshCalendarAfterDataChange() {
+    if (tblCalendar == null || mtblCalendar == null) {
+      return;
+    }
+    int selectedDay = (selectedDateFilter != null
+        && selectedDateFilter.getMonth() == currentMonth + 1
+        && selectedDateFilter.getYear() == currentYear)
+        ? selectedDateFilter.getDay()
+        : 0;
+    refreshCalendar(selectedDay, currentMonth, currentYear);
+    repaintCalendarButtons();
   }
 
   private void reserveAdditionalItems(BoatReservationRecord reservation, boolean adminMode) throws EfaException {
@@ -1195,11 +1267,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           if (filterFieldName == null || filterFieldValue == null
               || filterFieldValue.equals(r.getAsString(filterFieldName))) {
             String allFieldsAsLowerText = r.getAllFieldsAsSeparatedText().toLowerCase();
-            if (filterByAnyText == null
+            boolean isWeeklyReservation = r instanceof BoatReservationRecord
+                && ((BoatReservationRecord) r).isWeeklyReservationType();
+            boolean matchesSelectedReservationDate = selectedDateFilter != null
+                && r instanceof BoatReservationRecord
+                && ((BoatReservationRecord) r).isWeeklyReservationOnDate(selectedDateFilter);
+            boolean matchesFilter = filterByAnyText == null
                 || allFieldsAsLowerText.contains(filterByAnyText)
-                || wochentagFilter != null && allFieldsAsLowerText.contains(wochentagFilter)
-                    && r instanceof BoatReservationRecord
-                    && ((BoatReservationRecord) r).getDateTo() == null) {
+                || matchesSelectedReservationDate;
+            if (selectedDateFilter != null && isWeeklyReservation) {
+              matchesFilter = matchesSelectedReservationDate;
+            }
+            if (matchesFilter) {
               if (!(r instanceof ClubworkRecord) || Daten.isAdminMode()
                   || isToday(r.getLastModified())) {
                 data.add(r);
@@ -1485,7 +1564,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   private void mappingDateToName(BoatReservationRecord brr) {
     DataTypeList<String> daysOfWeek = brr.getDaysOfWeekWithFallback();
-    if (brr.isWeeklyIntervalReservationType() && daysOfWeek.length() > 0) {
+    if (brr.isWeeklyReservationType() && daysOfWeek.length() > 0) {
       String regelterminKuerzel = "r";
       List<DataTypeDate> dates = getListOfDates(getSeriesDateFrom(brr), getSeriesDateTo(brr));
       for (DataTypeDate dataTypeDate : dates) {
@@ -1493,46 +1572,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           mappingDateToRecurringReservations.put(dataTypeDate, regelterminKuerzel);
         }
       }
-      return; // individuelle Regeltermine konkret markieren
-    }
-    if (brr.isWeeklyReservationType() && daysOfWeek.length() > 0) {
-      for (int i = 0; i < daysOfWeek.length(); i++) {
-        Integer wochentag = getWochentag(daysOfWeek.get(i));
-        if (wochentag == null) {
-          continue;
-        }
-        String regelterminKuerzel = "r";
-        mappingWeekdayToReservations.put(wochentag, regelterminKuerzel);
-
-        // Das "r" muss wissen, wann es anfangen soll!
-        DataTypeDate neuesMinDate = brr.getDateFrom();
-        if (neuesMinDate == null) {
-          neuesMinDate = DataTypeDate.today();
-          neuesMinDate.addDays(-30);
-        }
-        DataTypeDate bisherigesMinDate = mappingMinWeekdayToReservations.get(wochentag);
-        if (bisherigesMinDate == null) {
-          bisherigesMinDate = neuesMinDate;
-        }
-        if (bisherigesMinDate.isAfterOrEqual(neuesMinDate)) {
-          mappingMinWeekdayToReservations.put(wochentag, neuesMinDate);
-        }
-
-        // Das "r" muss wissen, wann es aufhören soll!
-        DataTypeDate neuesMaxDate = brr.getDateTo();
-        if (neuesMaxDate == null) {
-          neuesMaxDate = DataTypeDate.today();
-          neuesMaxDate.addDays(366);
-        }
-        DataTypeDate bisherigesMaxDate = mappingMaxWeekdayToReservations.get(wochentag);
-        if (bisherigesMaxDate == null) {
-          bisherigesMaxDate = neuesMaxDate;
-        }
-        if (neuesMaxDate.isAfterOrEqual(bisherigesMaxDate)) {
-          mappingMaxWeekdayToReservations.put(wochentag, neuesMaxDate);
-        }
-      }
-      return; // Regeltermine nicht zusammenzählen
+      return; // Regeltermine konkret markieren, damit entfernte Einzeltermine nicht angezeigt werden
     }
 
     boolean isBootshausReservierung = brr.isBootshausOH();

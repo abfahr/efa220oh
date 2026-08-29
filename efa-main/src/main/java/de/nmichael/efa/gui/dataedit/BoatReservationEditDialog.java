@@ -171,7 +171,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         + International.getString("Möchtest Du die Reservierung trotzdem speichern?");
     int answer = Dialog.auswahlDialog(International.getString("Warnung"), msg,
         International.getString("Reservierung abbrechen"),
-        International.getString("trotz Kollisionen speichern"));
+        International.getString("trotz Kollisionen speichern"), false);
     saveDespiteReservationConflicts = (answer == 1);
     return saveDespiteReservationConflicts;
   }

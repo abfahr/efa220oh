@@ -38,6 +38,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
   @Serial
   private static final long serialVersionUID = 1L;
+  private boolean reservationConflictWarningShown = false;
+  private boolean saveDespiteReservationConflicts = false;
 
   public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r,
       boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) throws Exception {
@@ -126,7 +128,56 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         return false;
       }
     }
-    return super.saveRecord();
+    checkValidValues();
+    dataRecord.saveGuiItems(getItems());
+    if (admin != null && !confirmReservationConflictsBeforeSave()) {
+      return false;
+    }
+    try {
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(
+          admin != null && saveDespiteReservationConflicts);
+      boolean saved = super.saveRecord();
+      if (saved) {
+        saveDespiteReservationConflicts = false;
+      }
+      return saved;
+    } finally {
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(false);
+    }
+  }
+
+  @Override
+  protected void preShowCallback() {
+    super.preShowCallback();
+    if (admin != null && !newRecord && !reservationConflictWarningShown) {
+      reservationConflictWarningShown = true;
+      String conflicts = getBoatReservations().getReservationConflictsDescription(
+          getDataRecord());
+      if (!conflicts.isEmpty()) {
+        Dialog.infoDialog(International.getString("Warnung"), conflicts);
+      }
+    }
+  }
+
+  private boolean confirmReservationConflictsBeforeSave() {
+    BoatReservations boatReservations = getBoatReservations();
+    List<BoatReservationRecord> conflicts = boatReservations.findConflictingReservations(
+        getDataRecord());
+    if (conflicts.isEmpty()) {
+      saveDespiteReservationConflicts = false;
+      return true;
+    }
+    String msg = boatReservations.getReservationConflictsDescription(conflicts) + "\n\n"
+        + International.getString("Möchtest Du die Reservierung trotzdem speichern?");
+    int answer = Dialog.auswahlDialog(International.getString("Warnung"), msg,
+        International.getString("Reservierung abbrechen"),
+        International.getString("trotz Kollisionen speichern"));
+    saveDespiteReservationConflicts = (answer == 1);
+    return saveDespiteReservationConflicts;
+  }
+
+  private BoatReservations getBoatReservations() {
+    return (BoatReservations) dataRecord.getPersistence();
   }
 
   private boolean checkUndAktualisiereHandyNrInPersonProfil() {

@@ -197,11 +197,25 @@ public class ItemTypeMultiSelectCheckboxes<T> extends ItemType implements Action
     if (field != null) {
       field.setVisible(isVisible);
     }
+    if (label != null) {
+      label.setVisible(isVisible);
+    }
+    if (checkboxPanel != null) {
+      checkboxPanel.setVisible(isVisible);
+    }
+    if (checkboxes != null) {
+      for (JCheckBox checkbox : checkboxes) {
+        checkbox.setVisible(isVisible);
+      }
+    }
   }
 
   @Override
   public void setEnabled(boolean enabled) {
     super.setEnabled(enabled);
+    if (field != null) {
+      field.setEnabled(enabled);
+    }
     if (checkboxes != null) {
       for (JCheckBox checkbox : checkboxes) {
         checkbox.setEnabled(enabled);

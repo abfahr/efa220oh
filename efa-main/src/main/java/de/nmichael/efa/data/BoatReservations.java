@@ -249,13 +249,13 @@ public class BoatReservations extends StorageObject {
     for (BoatReservationRecord conflict : conflicts) {
       msg.append("\n- ")
           .append(conflict.getReservationTimeDescription(BoatReservationRecord.KEEP_NUM_DATE))
-          .append(" | ")
+          .append("\n  ")
           .append(conflict.getPersonAsName())
           .append(" ")
           .append(conflict.getContact());
       String reason = conflict.getReason();
       if (reason != null && !reason.trim().isEmpty()) {
-        msg.append(" | ").append(reason.trim());
+        msg.append("\n  ").append(reason.trim());
       }
     }
     return msg.toString();

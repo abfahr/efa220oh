@@ -812,7 +812,7 @@ public class BoatReservationRecord extends DataRecord {
     item = new ItemTypeInteger(BoatReservationRecord.WEEKINTERVAL,
         getConfiguredWeekInterval(), 1, 52,
         IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-        International.getString("Wochenrhythmus") + " (alle x Wochen)");
+        International.getString("Wochenrhythmus (alle x Wochen)"));
     item.setNotNull(true);
     v.add(item);
 

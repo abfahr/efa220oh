@@ -383,7 +383,7 @@ public abstract class DataFile extends DataAccess {
 
     if (meta == null) {
       String msg = "Cannot saveStorageObject() " + filename + ": metadata is null";
-      Logger.log(Logger.ERROR, Logger.MSG_DATA_SAVEFAILED, msg);
+      Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED, msg);
       throw new EfaException(Logger.MSG_DATA_SAVEFAILED,
         LogString.fileWritingFailed(filename, storageLocation, msg),
         Thread.currentThread().getStackTrace());

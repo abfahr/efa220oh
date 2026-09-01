@@ -896,7 +896,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
       long t2 = System.currentTimeMillis() - t;
-      if (t2 >= 300) {
+      if (t2 >= 3000) {
         Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "Zeitmessung: zentrales Bild geladen"
             + " t=" + t2 + "ms für " + fileName);
         Writer output = new BufferedWriter(new FileWriter(strZentralesBild + ".txt", true));
@@ -2947,7 +2947,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           adminOnStack = true;
         }
       }
-    } catch (Exception ee) {
+    } catch (Exception eignore) {
 
     }
     if (adminOnStack) {

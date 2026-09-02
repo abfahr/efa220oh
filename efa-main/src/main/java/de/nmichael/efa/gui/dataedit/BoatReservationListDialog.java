@@ -31,6 +31,7 @@ import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.AutoCompleteList;
+import de.nmichael.efa.gui.util.EfaMenuButton;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
@@ -231,27 +232,14 @@ public class BoatReservationListDialog extends DataListDialog {
     for (DataRecord dataRecord : records) {
       BoatReservationRecord boatReservationRecord = (BoatReservationRecord) dataRecord;
       if (boatReservationRecord.isWeeklyReservationType()) {
-        return nachfragenWeekly(); // leider ist ein WEEKLY dabei.
+        if (admin == null) {
+          EfaMenuButton.insufficientRights(admin, International.getString("Serientermin löschen"));
+          return false;
+        }
+        return true;
       }
     }
     return super.deleteCallback(records);
-  }
-
-  private boolean nachfragenWeekly() {
-    int antwortAuswahlDialog = Dialog.auswahlDialog(
-        International.getString("Wöchentliche Termine löschen"),
-        International.getString("Möchtest du wöchentliche Termine wirklich löschen?\n"
-            + "Diese festen Termine wurden von Fachwarten angelegt."),
-        International.getString("nein, ich trau mich nicht"),
-        International.getString("ja, ich darf das - bin Fachwart"));
-    switch (antwortAuswahlDialog) {
-      case 0: // nein // nein, nicht löschen
-        return false; // nein, nicht löschen
-      case 1: // ja, // ja, bitte Termine löschen
-        return true; // ja, bitte Termine löschen
-      default:
-        return false; // "Abbruch"
-    }
   }
 
   public String getFilterFieldDescription() {

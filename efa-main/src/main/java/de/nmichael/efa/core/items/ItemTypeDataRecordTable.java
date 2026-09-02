@@ -54,6 +54,7 @@ import de.nmichael.efa.gui.dataedit.DataListDialog;
 import de.nmichael.efa.gui.dataedit.StatisticsListDialog;
 import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.util.EfaMouseListener;
+import de.nmichael.efa.gui.util.EfaMenuButton;
 import de.nmichael.efa.gui.util.TableCellRenderer;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
@@ -910,7 +911,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private boolean handleRecurringReservationDeleteAction(DataRecord[] records) {
-    if (!Daten.isAdminMode() || selectedDateFilter == null || records.length != 1
+    if (selectedDateFilter == null || records.length != 1
         || !(records[0] instanceof BoatReservationRecord)) {
       return false;
     }
@@ -918,6 +919,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (!reservation.isWeeklyReservationType()
         || !reservation.isWeeklyReservationOnDate(selectedDateFilter)) {
       return false;
+    }
+    if (!hasPermissionToDeleteRecurringReservation()) {
+      showMissingRecurringReservationDeletePermission();
+      return true;
     }
     int answer = Dialog.auswahlDialog(International.getString("Serientermin löschen"),
         International.getMessage("Was soll mit dem Termin am {date} passieren?",
@@ -932,6 +937,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       return false;
     }
     return true;
+  }
+
+  private boolean hasPermissionToDeleteRecurringReservation() {
+    return admin != null;
+  }
+
+  private void showMissingRecurringReservationDeletePermission() {
+    EfaMenuButton.insufficientRights(admin, International.getString("Serientermin löschen"));
   }
 
   private boolean removeSelectedDateFromRecurringReservation(BoatReservationRecord reservation) {

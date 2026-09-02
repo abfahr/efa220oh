@@ -130,12 +130,12 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
     checkValidValues();
     dataRecord.saveGuiItems(getItems());
-    if (admin != null && !confirmReservationConflictsBeforeSave()) {
+    if (admin != null && !newRecord && !confirmReservationConflictsBeforeSave()) {
       return false;
     }
     try {
       BoatReservations.setIgnoreReservationConflictsForCurrentThread(
-          admin != null && saveDespiteReservationConflicts);
+          newRecord || (admin != null && saveDespiteReservationConflicts));
       boolean saved = super.saveRecord();
       if (saved) {
         saveDespiteReservationConflicts = false;

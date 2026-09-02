@@ -462,8 +462,6 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               // reservation saved? persisted? valid?;
               if (!reservation.getContact().isEmpty() // validRecord?
                   && reservation.getLastModified() > 0) {
-                String aktion = "INSERT";
-                reservation.sendEmailBeiReservierung(aktion);
                 String fehlermeldung = reservation.checkAndDisplayWarning();
                 if (!fehlermeldung.isEmpty()) {
                   String warnungTitel = "Hinweis: neue Reservierung in der Vergangenheit ";
@@ -476,18 +474,23 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                   // efaBoathouseBackgroundTask.interrupt();
                 } else {
                   try {
-                    // allowed for identified Persons with Id
-                    // if (reservation.getPersonId() != null) { // validRecord?
-
-                    if (Daten.efaConfig.getValueEfaDirekt_showAdvancedReserveAdditionalsDialog()){
-                        reserveAdditionalItems(reservation, admin != null);
-                    }else{
-                        if (admin != null) {
-                          uebertragenAufAndereBoote(reservation);
-                        } else {
-                          uebertragenAufAndereBooteDieserGruppe(reservation);
-                        }
+                    List<BoatReservationRecord> additionalReservations;
+                    if (Daten.efaConfig.getValueEfaDirekt_showAdvancedReserveAdditionalsDialog()) {
+                      additionalReservations = reserveAdditionalItems(reservation, admin != null);
+                    } else {
+                      if (admin != null) {
+                        additionalReservations = uebertragenAufAndereBoote(reservation);
+                      } else {
+                        additionalReservations = uebertragenAufAndereBooteDieserGruppe(reservation);
+                      }
                     }
+                    if (!confirmReservationConflictsAtEnd(reservation, additionalReservations)) {
+                      deleteNewReservationAfterConflictCancel(reservation);
+                      return;
+                    }
+                    String aktion = "INSERT";
+                    reservation.sendEmailBeiReservierung(aktion);
+                    saveAdditionalReservations(additionalReservations, aktion);
                   } catch (EfaException e1) {
                     Logger.log(Logger.ERROR, Logger.MSG_ERR_PANIC, e1);
                   }
@@ -750,9 +753,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
   }
 
-  private void reserveSelectedItems(List<IItemType> selectedItems, BoatReservationRecord reservation) throws EfaException {
+  private List<BoatReservationRecord> reserveSelectedItems(List<IItemType> selectedItems,
+      BoatReservationRecord reservation) throws EfaException {
     ArrayList<String> fehlerListe = new ArrayList<>();
     String lastException = "";
+    List<BoatReservationRecord> additionalReservations = new ArrayList<>();
 
     BoatRecord originalBoat = reservation.getBoat();
 
@@ -789,7 +794,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
       // check Conflicts with same time
       try {
-        reservations.preModifyRecordCallback(newReservationsRecord, true, false, false);
+        validateReservationBeforeFinalConflictCheck(reservations, newReservationsRecord);
       } catch (EfaModifyException e) {
         // Logger.log(Logger.INFO, Logger.MSG_DATA_UPDATECONFLICT, e); // MSG_DATA_CREATEFAILED
         fehlerListe.add("- leider kein " + newReservationsRecord.getBoatName());
@@ -797,18 +802,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         continue;
       }
 
-      reservations.data().add(newReservationsRecord);
-      String aktion = "INSERT";
-      newReservationsRecord.sendEmailBeiReservierung(aktion);
-      Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
-              newReservationsRecord.getPersistence().getDescription() + ": " +
-                      International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                              (admin != null
-                                      ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                                      : newReservationsRecord.getPersonAsName()),
-                              newReservationsRecord.getQualifiedName() + " "
-                                      + newReservationsRecord.getReservationTimeDescription(
-                                      BoatReservationRecord.REPLACE_HEUTE)));
+      additionalReservations.add(newReservationsRecord);
     } // for loop
     if (!fehlerListe.isEmpty()) {
       // display the failures at end
@@ -822,6 +816,97 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       s += lastException;
       Dialog.infoDialog("Fehlerprotokoll", s);
     }
+    return additionalReservations;
+  }
+
+  private void validateReservationBeforeFinalConflictCheck(BoatReservations reservations,
+      BoatReservationRecord reservation) throws EfaModifyException {
+    try {
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(true);
+      reservations.preModifyRecordCallback(reservation, true, false, false);
+    } finally {
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(false);
+    }
+  }
+
+  private boolean confirmReservationConflictsAtEnd(BoatReservationRecord reservation,
+      List<BoatReservationRecord> additionalReservations) {
+    BoatReservations reservations = Daten.project.getBoatReservations(false);
+    List<BoatReservationRecord> reservationsToCheck = new ArrayList<>();
+    reservationsToCheck.add(reservation);
+    reservationsToCheck.addAll(additionalReservations);
+
+    String conflicts = getReservationConflictsDescriptionAtEnd(reservations, reservationsToCheck);
+    if (conflicts.isEmpty()) {
+      return true;
+    }
+
+    if (admin == null) {
+      Dialog.infoDialog(International.getString("Warnung"), conflicts);
+      return false;
+    }
+
+    String msg = conflicts + "\n\n"
+        + International.getString("Möchtest Du die Reservierung trotzdem speichern?");
+    int answer = Dialog.auswahlDialog(International.getString("Warnung"), msg,
+        International.getString("Reservierung abbrechen"),
+        International.getString("trotz Kollisionen speichern"), false);
+    return answer == 1;
+  }
+
+  private String getReservationConflictsDescriptionAtEnd(BoatReservations reservations,
+      List<BoatReservationRecord> reservationsToCheck) {
+    StringBuilder msg = new StringBuilder();
+    for (BoatReservationRecord reservation : reservationsToCheck) {
+      List<BoatReservationRecord> conflicts = reservations.findConflictingReservations(reservation);
+      if (conflicts.isEmpty()) {
+        continue;
+      }
+      if (msg.length() == 0) {
+        msg.append(International.getString("Folgende Reservierungen verursachen Kollisionen:"));
+      }
+      msg.append("\n\n")
+          .append(reservation.getBoatName())
+          .append(" ")
+          .append(reservation.getReservationTimeDescription(BoatReservationRecord.KEEP_NUM_DATE))
+          .append("\n")
+          .append(reservations.getReservationConflictsDescription(conflicts));
+    }
+    return msg.toString();
+  }
+
+  private void deleteNewReservationAfterConflictCancel(BoatReservationRecord reservation) {
+    try {
+      reservation.getPersistence().data().delete(reservation.getKey());
+    } catch (Exception e) {
+      Logger.log(Logger.ERROR, Logger.MSG_ERR_PANIC, e);
+    }
+  }
+
+  private void saveAdditionalReservations(List<BoatReservationRecord> additionalReservations,
+      String aktion) throws EfaException {
+    BoatReservations.setIgnoreReservationConflictsForCurrentThread(true);
+    try {
+      for (BoatReservationRecord reservation : additionalReservations) {
+        reservation.getPersistence().data().add(reservation);
+        reservation.sendEmailBeiReservierung(aktion);
+        logReservationAdded(reservation);
+      }
+    } finally {
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(false);
+    }
+  }
+
+  private void logReservationAdded(BoatReservationRecord reservation) {
+    Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
+        reservation.getPersistence().getDescription() + ": "
+            + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
+                (admin != null
+                    ? International.getString("Admin") + " '" + admin.getName() + "!'"
+                    : reservation.getPersonAsName()),
+                reservation.getQualifiedName() + " "
+                    + reservation.getReservationTimeDescription(
+                        BoatReservationRecord.REPLACE_HEUTE)));
   }
 
   private boolean handleRecurringReservationDeleteAction(DataRecord[] records) {
@@ -889,13 +974,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     repaintCalendarButtons();
   }
 
-  private void reserveAdditionalItems(BoatReservationRecord reservation, boolean adminMode) throws EfaException {
+  private List<BoatReservationRecord> reserveAdditionalItems(BoatReservationRecord reservation,
+      boolean adminMode) throws EfaException {
 
     List<IItemType> selectedItems = ReserveAdditionalsDialog.showInputDialog(getParentDialog(), reservation, items, adminMode);
 
-    if (!selectedItems.isEmpty()){
-      reserveSelectedItems(selectedItems, reservation);
+    if (selectedItems == null || selectedItems.isEmpty()) {
+      return new ArrayList<>();
     }
+    return reserveSelectedItems(selectedItems, reservation);
   }
 
 
@@ -903,7 +990,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
    * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppen
    *
    */
-  private void uebertragenAufAndereBoote(BoatReservationRecord dataRecord) throws EfaException {
+  private List<BoatReservationRecord> uebertragenAufAndereBoote(BoatReservationRecord dataRecord)
+      throws EfaException {
     String[] boatSeatsValuesArray = EfaTypes
         .makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES);
     String[] boatSeatsDisplayArray = EfaTypes
@@ -931,6 +1019,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         "Achtung: Schon 1 Häckchen reserviert viele Boote, evtl. Mailflut");
     boolean success = MultiInputDialog.showInputDialog(getParentDialog(),
         International.getString("Übertragen auf ganze Gruppen"), items);
+    List<BoatReservationRecord> additionalReservations = new ArrayList<>();
     if (success) {
 
       // join items
@@ -968,29 +1057,21 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
               .createBoatReservationsRecordFromClone(boatRecord.getId(), dataRecord);
 
           if (!versionizedRecordOfThatNameAlreadyExists(newReservationsRecord)) {
-            reservations.data().add(newReservationsRecord);
-            String aktion = "INSERT";
-            newReservationsRecord.sendEmailBeiReservierung(aktion);
-            Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDED,
-                newReservationsRecord.getPersistence().getDescription() + ": "
-                    + International.getMessage("{name} hat neuen Datensatz '{record}' erstellt.",
-                        (admin != null
-                            ? International.getString("Admin") + " '" + admin.getName() + "!'"
-                            : newReservationsRecord.getPersonAsName()),
-                        newReservationsRecord.getQualifiedName() + " "
-                            + newReservationsRecord.getReservationTimeDescription(
-                                BoatReservationRecord.REPLACE_HEUTE)));
+            validateReservationBeforeFinalConflictCheck(reservations, newReservationsRecord);
+            additionalReservations.add(newReservationsRecord);
           }
         }
       }
     }
+    return additionalReservations;
   }
 
   /**
    * Bitte diese Reservierung übertragen auf alle Boote dieser Gruppe
    *
    */
-  private void uebertragenAufAndereBooteDieserGruppe(BoatReservationRecord reservationRecord)
+  private List<BoatReservationRecord> uebertragenAufAndereBooteDieserGruppe(
+      BoatReservationRecord reservationRecord)
       throws EfaException {
     BoatRecord originalBoat = reservationRecord.getBoat();
 
@@ -1013,10 +1094,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         International.getString("Übertragen auf andere Boote dieser Gruppe"),
         items);
     if (!pressedOKAY) {
-      return;
+      return new ArrayList<>();
     }
 
-    reserveSelectedItems(liste, reservationRecord);
+    return reserveSelectedItems(liste, reservationRecord);
   }
 
 

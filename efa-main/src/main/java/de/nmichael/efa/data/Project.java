@@ -59,7 +59,7 @@ public class Project extends StorageObject {
   public static final String STORAGEOBJECT_WATERS = "waters";
   public static final String STORAGEOBJECT_STATISTICS = "statistics";
   public static final String STORAGEOBJECT_MESSAGES = "messages";
-  private Hashtable<String, StorageObject> persistenceCache = new Hashtable<String, StorageObject>();
+  private final Hashtable<String, StorageObject> persistenceCache = new Hashtable<String, StorageObject>();
   protected IDataAccess remoteDataAccess; // used for ClubRecord and LogbookRecord, if
   // TYPE_EFA_REMOTE
   private String myIdentifier = null;
@@ -143,13 +143,15 @@ public class Project extends StorageObject {
       }
       if (p.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
         p.remoteDataAccess = DataAccess.createDataAccess(p, IDataAccess.TYPE_EFA_REMOTE,
-            p.getProjectStorageLocation(),
-            p.getProjectStorageUsername(),
-            p.getProjectStoragePassword(),
-            p.getProjectRemoteProjectName(),
-            p.dataAccess.getStorageObjectType(),
-            International.getString("Projekt") + " " + p.getProjectRemoteProjectName());
-        p.remoteDataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+                p.getProjectStorageLocation(),
+                p.getProjectStorageUsername(),
+                p.getProjectStoragePassword(),
+                p.getProjectRemoteProjectName(),
+                p.dataAccess.getStorageObjectType(),
+                International.getString("Projekt") + " " + p.getProjectRemoteProjectName());
+        if (p.remoteDataAccess != null) {
+          p.remoteDataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+        }
         // since login into remote data is lazy, we should retrieve a project record here
         // to make the login happen. It's important to chose a record which is a remote
         // record, i.e. *not* the project record itself. Therefore we select the club
@@ -209,7 +211,7 @@ public class Project extends StorageObject {
         for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
           ProjectRecord r = (ProjectRecord) data().get(k);
           if (r != null && ProjectRecord.TYPE_BOATHOUSE.equals(r.getType())
-              && (r.getName() == null || r.getName().length() == 0)) {
+              && (r.getName() == null || r.getName().isEmpty())) {
             data().delete(k);
           }
         }
@@ -326,11 +328,11 @@ public class Project extends StorageObject {
     return isRemoteOpen;
   }
 
-  public boolean openAllData() {
+  public void openAllData() {
     if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
       // in order to speed up initial login to a remote project,
       // we will only open the neccesary files on demand
-      return true;
+      return;
     }
     try {
       if (Logger.isTraceOn(Logger.TT_CORE, 3)) {
@@ -357,13 +359,11 @@ public class Project extends StorageObject {
       if (Logger.isTraceOn(Logger.TT_CORE, 3)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "All Project Data opened.");
       }
-      return true;
     } catch (Exception e) {
       if (Logger.isTraceOn(Logger.TT_CORE, 3)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Failed to open Project Data.");
       }
       Logger.log(e);
-      return false;
     }
   }
 
@@ -406,7 +406,7 @@ public class Project extends StorageObject {
           } catch (Exception eignore) {
             Logger.logdebug(eignore);
             try {
-              (new File(((DataFile) p.data()).getFilename())).delete();
+              boolean b = (new File(((DataFile) p.data()).getFilename())).delete();
             } catch (Exception eignore2) {}
           }
         }
@@ -414,7 +414,7 @@ public class Project extends StorageObject {
 
       data().deleteStorageObject();
       if (projectDir != null) {
-        (new File(projectDir)).delete(); // delete project directory
+        boolean b = (new File(projectDir)).delete(); // delete project directory
       }
       if (projectDir == null || (new File(projectDir)).exists()) {
         Dialog
@@ -472,39 +472,42 @@ public class Project extends StorageObject {
       if (dir.isDirectory()) {
         String[] files = dir.list();
         for (int i = 0; files != null && i < files.length; i++) {
-          if (files[i] != null && files[i].length() > 0
+          if (files[i] != null && !files[i].isEmpty()
               && files[i].toLowerCase().endsWith("." + Project.DATATYPE)) {
             int pos = files[i].lastIndexOf(".");
             String name = files[i].substring(0, pos);
             try {
               Project p = new Project(name);
               p.open(false);
-              StringBuffer description = new StringBuffer();
-              description.append("<b>" + International.getString("Projekt")
-                  + ":</b> <b style=\"color:blue\">" + name + "</b><br>");
+              StringBuilder description = new StringBuilder();
+              description.append("<b>")
+                      .append(International.getString("Projekt"))
+                      .append(":</b> <b style=\"color:blue\">")
+                      .append(name)
+                      .append("</b><br>");
               if (p.getProjectDescription() != null) {
-                description.append(p.getProjectDescription() + "<br>");
+                description.append(p.getProjectDescription()).append("<br>");
               }
               String[] logbooks = p.getAllLogbookNames();
               if (logbooks != null) {
-                description.append(International.getString("Fahrtenbücher") + ": ");
+                description.append(International.getString("Fahrtenbücher")).append(": ");
                 for (int j = 0; j < logbooks.length; j++) {
-                  description.append((j > 0 ? ", " : "") + logbooks[j]);
+                  description.append(j > 0 ? ", " : "").append(logbooks[j]);
                 }
               }
               String[] clubworkNames = p.getAllClubworkNames();
               if (clubworkNames != null) {
-                description.append(International.getString("Vereinsarbeit") + ": ");
+                description.append(International.getString("Vereinsarbeit")).append(": ");
                 for (int j = 0; j < clubworkNames.length; j++) {
-                  description.append((j > 0 ? ", " : "") + clubworkNames[j]);
+                  description.append(j > 0 ? ", " : "").append(clubworkNames[j]);
                 }
               }
               items.put(name, description.toString());
-            } catch (Exception e1) {}
+            } catch (Exception eignore) {}
           }
         }
       }
-    } catch (Exception e) {}
+    } catch (Exception eignore) {}
     return items;
   }
 
@@ -516,7 +519,7 @@ public class Project extends StorageObject {
       if (r != null) {
         String name = "<b>" + International.getString("Fahrtenbuch")
             + ":</b> <b style=\"color:blue\">" + logbooks[i] + "</b><br>";
-        String description = (r.getDescription() != null && r.getDescription().length() > 0 ? r
+        String description = (r.getDescription() != null && !r.getDescription().isEmpty() ? r
             .getDescription() + " " : "");
         description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
         items.put(logbooks[i], name + description);
@@ -533,7 +536,7 @@ public class Project extends StorageObject {
       if (r != null) {
         String name = "<b>" + International.getString("Vereinsarbeit")
             + ":</b> <b style=\"color:blue\">" + clubworks[i] + "</b><br>";
-        String description = (r.getDescription() != null && r.getDescription().length() > 0 ? r
+        String description = (r.getDescription() != null && !r.getDescription().isEmpty() ? r
             .getDescription() + " " : "");
         description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
         items.put(clubworks[i], name + description);
@@ -577,7 +580,7 @@ public class Project extends StorageObject {
   }
 
   public ProjectRecord createNewBoathouseRecord(String boathouseName) {
-    if (boathouseName == null || boathouseName.length() == 0) {
+    if (boathouseName == null || boathouseName.isEmpty()) {
       return null;
     }
     ProjectRecord r = createProjectRecord(ProjectRecord.TYPE_BOATHOUSE, boathouseName);
@@ -760,7 +763,7 @@ public class Project extends StorageObject {
     } catch (Exception e) {
       Logger.logdebug(e);
     }
-    return (name != null && name.length() > 0 ? name : International.getString("Bootshaus") + " "
+    return (name != null && !name.isEmpty() ? name : International.getString("Bootshaus") + " "
         + id);
   }
 
@@ -770,8 +773,7 @@ public class Project extends StorageObject {
   }
 
   public ProjectRecord getBoathouseRecord(String boathouseName) {
-    ProjectRecord r = getRecord(getBoathouseRecordKey(boathouseName));
-    return r;
+      return getRecord(getBoathouseRecordKey(boathouseName));
   }
 
   public ProjectRecord getBoathouseRecord() {
@@ -821,7 +823,7 @@ public class Project extends StorageObject {
   }
 
   public String getMyBoathouseName() {
-    if (myBoathouseName != null && myBoathouseName.length() > 0) {
+    if (myBoathouseName != null && !myBoathouseName.isEmpty()) {
       return myBoathouseName;
     }
     ProjectRecord r = getBoathouseRecord();
@@ -861,7 +863,7 @@ public class Project extends StorageObject {
     }
   }
 
-  public void closeAllStorageObjects() throws Exception {
+  public void closeAllStorageObjects() {
     // close all of this project's storage objects
     Set<String> keys = persistenceCache.keySet();
     for (String key : keys) {
@@ -904,74 +906,73 @@ public class Project extends StorageObject {
         return p; // fast path (would happen anyhow a few lines further down, but let's optimize for
         // the most frequent use-case
       }
-      if (p == null) {
         if (c == null) {
-          if (storageObjectType.equals(AutoIncrement.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_AUTOINCREMENT)) {
-            c = AutoIncrement.class;
-          }
-          if (storageObjectType.equals(SessionGroups.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_SESSIONGROUPS)) {
-            c = SessionGroups.class;
-          }
-          if (storageObjectType.equals(Persons.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_PERSONS)) {
-            c = Persons.class;
-          }
-          if (storageObjectType.equals(Status.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_STATUS)) {
-            c = Status.class;
-          }
-          if (storageObjectType.equals(Groups.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_GROUPS)) {
-            c = Groups.class;
-          }
-          if (storageObjectType.equals(Fahrtenabzeichen.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_FAHRTENABZEICHEN)) {
-            c = Fahrtenabzeichen.class;
-          }
-          if (storageObjectType.equals(Boats.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_BOATS)) {
-            c = Boats.class;
-          }
-          if (storageObjectType.equals(Crews.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_CREWS)) {
-            c = Crews.class;
-          }
-          if (storageObjectType.equals(BoatStatus.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_BOATSTATUS)) {
-            c = BoatStatus.class;
-          }
-          if (storageObjectType.equals(BoatReservations.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_BOATRESERVATIONS)) {
-            c = BoatReservations.class;
-          }
-          if (storageObjectType.equals(BoatDamages.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_BOATDAMAGES)) {
-            c = BoatDamages.class;
-          }
-          if (storageObjectType.equals(Destinations.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_DESTINATIONS)) {
-            c = Destinations.class;
-          }
-          if (storageObjectType.equals(Waters.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_WATERS)) {
-            c = Waters.class;
-          }
-          if (storageObjectType.equals(Statistics.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_STATISTICS)) {
-            c = Statistics.class;
-          }
-          if (storageObjectType.equals(Messages.DATATYPE)
-              && storageObjectName.equals(STORAGEOBJECT_MESSAGES)) {
-            c = Messages.class;
-          }
-          if (storageObjectType.equals(Logbook.DATATYPE)) {
-            c = Logbook.class;
-          }
-          if (storageObjectType.equals(Clubwork.DATATYPE)) {
-            c = Clubwork.class;
-          }
+            if (storageObjectType.equals(AutoIncrement.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_AUTOINCREMENT)) {
+                c = AutoIncrement.class;
+            }
+            if (storageObjectType.equals(SessionGroups.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_SESSIONGROUPS)) {
+                c = SessionGroups.class;
+            }
+            if (storageObjectType.equals(Persons.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_PERSONS)) {
+                c = Persons.class;
+            }
+            if (storageObjectType.equals(Status.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_STATUS)) {
+                c = Status.class;
+            }
+            if (storageObjectType.equals(Groups.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_GROUPS)) {
+                c = Groups.class;
+            }
+            if (storageObjectType.equals(Fahrtenabzeichen.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_FAHRTENABZEICHEN)) {
+                c = Fahrtenabzeichen.class;
+            }
+            if (storageObjectType.equals(Boats.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_BOATS)) {
+                c = Boats.class;
+            }
+            if (storageObjectType.equals(Crews.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_CREWS)) {
+                c = Crews.class;
+            }
+            if (storageObjectType.equals(BoatStatus.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_BOATSTATUS)) {
+                c = BoatStatus.class;
+            }
+            if (storageObjectType.equals(BoatReservations.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_BOATRESERVATIONS)) {
+                c = BoatReservations.class;
+            }
+            if (storageObjectType.equals(BoatDamages.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_BOATDAMAGES)) {
+                c = BoatDamages.class;
+            }
+            if (storageObjectType.equals(Destinations.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_DESTINATIONS)) {
+                c = Destinations.class;
+            }
+            if (storageObjectType.equals(Waters.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_WATERS)) {
+                c = Waters.class;
+            }
+            if (storageObjectType.equals(Statistics.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_STATISTICS)) {
+                c = Statistics.class;
+            }
+            if (storageObjectType.equals(Messages.DATATYPE)
+                    && storageObjectName.equals(STORAGEOBJECT_MESSAGES)) {
+                c = Messages.class;
+            }
+            if (storageObjectType.equals(Logbook.DATATYPE)) {
+                c = Logbook.class;
+            }
+            if (storageObjectType.equals(Clubwork.DATATYPE)) {
+                c = Clubwork.class;
+            }
         }
         if (c == null) {
           return null;
@@ -988,8 +989,7 @@ public class Project extends StorageObject {
                 getProjectStoragePassword(),
                 storageObjectName);
         p.setProject(this);
-      }
-      if (!p.isOpen()) {
+        if (!p.isOpen()) {
         p.open(createNewIfDoesntExist);
       }
       if (p.isOpen()) {
@@ -1051,9 +1051,6 @@ public class Project extends StorageObject {
   public synchronized boolean isLogbookOpen(String logbookName) {
     try {
       String key = getPersistenceCacheKey(logbookName, Logbook.DATATYPE);
-      if (key == null) {
-        return false;
-      }
       StorageObject p = persistenceCache.get(key);
       return (p != null && p.isOpen());
     } catch (Exception e) {
@@ -1065,9 +1062,6 @@ public class Project extends StorageObject {
   public synchronized boolean isClubworkOpen(String clubworkName) {
     try {
       String key = getPersistenceCacheKey(clubworkName, Clubwork.DATATYPE);
-      if (key == null) {
-        return false;
-      }
       StorageObject p = persistenceCache.get(key);
       return (p != null && p.isOpen());
     } catch (Exception e) {
@@ -1129,7 +1123,7 @@ public class Project extends StorageObject {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_LOGBOOK).get(k);
         if (r != null && r.getType() != null
             && r.getType().equals(ProjectRecord.TYPE_LOGBOOK)
-            && r.getName() != null && r.getName().length() > 0) {
+            && r.getName() != null && !r.getName().isEmpty()) {
           a.add(r.getName());
         }
         k = it.getNext();
@@ -1154,7 +1148,7 @@ public class Project extends StorageObject {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_CLUBWORK).get(k);
         if (r != null && r.getType() != null
             && r.getType().equals(ProjectRecord.TYPE_CLUBWORK)
-            && r.getName() != null && r.getName().length() > 0) {
+            && r.getName() != null && !r.getName().isEmpty()) {
           a.add(r.getName());
         }
         k = it.getNext();
@@ -1201,7 +1195,7 @@ public class Project extends StorageObject {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).get(k);
         if (r != null && r.getType() != null
             && r.getType().equals(ProjectRecord.TYPE_BOATHOUSE)
-            && r.getName() != null && r.getName().length() > 0) {
+            && r.getName() != null && !r.getName().isEmpty()) {
           a.add(r.getName());
         }
         k = it.getNext();
@@ -1226,7 +1220,7 @@ public class Project extends StorageObject {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).get(k);
         if (r != null && r.getType() != null
             && r.getType().equals(ProjectRecord.TYPE_BOATHOUSE)
-            && r.getName() != null && r.getName().length() > 0) {
+            && r.getName() != null && !r.getName().isEmpty()) {
           a.add(r.getBoathouseId());
         }
         k = it.getNext();
@@ -2050,7 +2044,7 @@ public class Project extends StorageObject {
     if (Daten.applID == Daten.APPL_EFABH) {
       name = getCurrentLogbookEfaBoathouse();
     }
-    if (name != null && name.length() > 0) {
+    if (name != null && !name.isEmpty()) {
       return getLogbook(name, false);
     }
     return null;
@@ -2064,7 +2058,7 @@ public class Project extends StorageObject {
     if (Daten.applID == Daten.APPL_EFABH) {
       name = getCurrentClubworkEfaBoathouse();
     }
-    if (name != null && name.length() > 0) {
+    if (name != null && !name.isEmpty()) {
       return getClubwork(name, false);
     }
     return null;
@@ -2206,7 +2200,7 @@ public class Project extends StorageObject {
       if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
         ProjectRecord r = (ProjectRecord) record;
         String lName = r.getAutoNewLogbookName();
-        if (lName != null && lName.length() > 0 && getLoogbookRecord(lName) == null) {
+        if (lName != null && !lName.isEmpty() && getLoogbookRecord(lName) == null) {
           throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
               "Logbook " + lName + " not found!",
               Thread.currentThread().getStackTrace());
@@ -2217,7 +2211,7 @@ public class Project extends StorageObject {
       if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_LOGBOOK)) {
         ProjectRecord r = (ProjectRecord) record;
         String lName = getAutoNewLogbookName();
-        if (lName != null && lName.length() > 0 && r.getName().equals(lName)) {
+        if (lName != null && !lName.isEmpty() && r.getName().equals(lName)) {
           throw new EfaModifyException(
               Logger.MSG_DATA_MODIFYEXCEPTION,
               International
@@ -2230,7 +2224,7 @@ public class Project extends StorageObject {
       if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_CLUBWORK)) {
         ProjectRecord r = (ProjectRecord) record;
         String lName = getAutoNewClubworkName();
-        if (lName != null && lName.length() > 0 && r.getName().equals(lName)) {
+        if (lName != null && !lName.isEmpty() && r.getName().equals(lName)) {
           throw new EfaModifyException(
               Logger.MSG_DATA_MODIFYEXCEPTION,
               International

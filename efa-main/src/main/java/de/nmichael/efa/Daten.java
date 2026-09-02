@@ -1361,7 +1361,7 @@ public class Daten {
 
     // Java Infos
     if (javaInfos) {
-      infos.add("java.arguments" + efa_java_arguments);
+      infos.add("java.arguments=" + efa_java_arguments);
       infos.add("java.version=" + System.getProperty("java.version"));
       infos.add("java.vendor=" + System.getProperty("java.vendor"));
       infos.add("java.home=" + System.getProperty("java.home"));

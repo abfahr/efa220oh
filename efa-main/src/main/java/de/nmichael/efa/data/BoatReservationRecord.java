@@ -478,14 +478,16 @@ public class BoatReservationRecord extends DataRecord {
   public String getReservationTimeDescription(boolean replaceHeute) {
     String strFrom = getDateTimeFromDescription(replaceHeute);
     String strTo = getDateTimeToDescription(replaceHeute);
-    if (strFrom.contains("heute")) {
-      strTo = strTo.replace("heute ", "");
-      return strFrom + "-" + strTo;
+
+    if (strFrom.contains(International.getString("heute"))) {
+      strTo = strTo.replace(International.getString("heute"), "");
     }
-    if (Objects.equals(getDateFrom(), getDateTo())) {
-      strTo = strTo.replace(getDateFrom() + " ", "");
-      return strFrom + "-" + strTo;
+
+    DataTypeDate dateFrom = getDateFrom();
+    if (dateFrom != null && dateFrom.equals(getDateTo())) {
+      strTo = strTo.replace(dateFrom.toString(), "");
     }
+
     return strFrom + " - " + strTo;
   }
 
@@ -555,12 +557,12 @@ public class BoatReservationRecord extends DataRecord {
       return "";
     }
     if (isWeeklyReservationType()) {
-      String daysBetween = "";
+      StringBuilder daysBetween = new StringBuilder();
       try {
         int step = 1;
         for (DataTypeDate day = getDateFrom(); day.compareTo(getDateTo()) < 0; day.addDays(step)) {
           if (isWeeklyReservationOnDate(day)) {
-            daysBetween += day + " ";
+            daysBetween.append(day).append(" ");
           }
         }
       } catch (Exception e) {
@@ -568,19 +570,19 @@ public class BoatReservationRecord extends DataRecord {
             "Cannot compute days between " + getDateFrom() + " and " + getDateTo() + ". "
                 + e.getLocalizedMessage());
       }
-      return daysBetween;
+      return daysBetween.toString();
     }
-    String daysBetween = "";
+    StringBuilder daysBetween = new StringBuilder();
     try {
       for (DataTypeDate day = getDateFrom(); day.compareTo(getDateTo()) < 0; day.addDays(1)) {
-        daysBetween += day + " ";
+        daysBetween.append(day).append(" ");
       }
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION,
           "Cannot compute days between " + getDateFrom() + " and " + getDateTo() + ". "
               + e.getLocalizedMessage());
     }
-    return daysBetween;
+    return daysBetween.toString();
   }
 
   private Integer getWochentag(String dayName) {
@@ -592,8 +594,9 @@ public class BoatReservationRecord extends DataRecord {
     try {
       date = dayFormat.parse(dayName);
     } catch (ParseException e) {
-      // Auto-generated catch block
-      e.printStackTrace();
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION,
+              "ParseException in BoatReservationRecord.getWochentag( " + dayName
+                      + ") and dayFormat=" + dayFormat + ". " + e.getLocalizedMessage());
       return null;
     }
     Calendar calendar = Calendar.getInstance();
@@ -723,11 +726,11 @@ public class BoatReservationRecord extends DataRecord {
   public double getDurationInHours() {
     if (isWeeklyReservationType()) {
       int seconds = getTimeTo().getTimeAsSeconds() - getTimeFrom().getTimeAsSeconds();
-      return seconds / 60 / 60; // Stunden
+      return (double) seconds / 60 / 60; // Stunden
     }
     long resStart = getDateFrom().getTimestamp(getTimeFrom());
     long resEnd = getDateTo().getTimestamp(getTimeTo());
-    return (resEnd - resStart) / 1000 / 60 / 60;
+    return (double) (resEnd - resStart) / 1000 / 60 / 60;
   }
 
   public boolean isObsolete(long now) {
@@ -979,8 +982,8 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   public String getEfaId() {
-    return Daten.EFA_SHORTNAME + getReservation() + ""
-        + getPersonAsName().substring(0, 1).toUpperCase();
+    return Daten.EFA_SHORTNAME + getReservation()
+            + getPersonAsName().substring(0, 1).toUpperCase();
   }
 
   @Override
@@ -1211,7 +1214,7 @@ public class BoatReservationRecord extends DataRecord {
     emailSubject += "OH Reservierung " + aktion
         + " " + getDateFrom();
     if (!kombinierteEmailErlaubnis) {
-      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
+      emailToAdresse = emailToAdresse.replace("@", ".").trim();
       emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getPersonAsName();
     }
@@ -1254,7 +1257,7 @@ public class BoatReservationRecord extends DataRecord {
         + " " + getDateFrom()
         + " " + getReason();
     if (!kombinierteEmailErlaubnis) {
-      emailToAdresse = emailToAdresse.replaceAll("@", ".").trim();
+      emailToAdresse = emailToAdresse.replace("@", ".").trim();
       emailToAdresse = "efa+no." + emailToAdresse + Daten.EMAILDEBUG_DOMAIN;
       emailSubject += " " + getPersonAsName();
     }

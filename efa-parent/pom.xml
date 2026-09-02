@@ -17,8 +17,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
     <efa.version>${project.version}</efa.version>
-    <efa.versionId>${efa.version}_196</efa.versionId>
-    <efa.versionReleaseDate>02.02.2025</efa.versionReleaseDate>
+    <efa.versionId>${efa.version}_204</efa.versionId>
+    <efa.versionReleaseDate>30.08.2026</efa.versionReleaseDate>
     <efa.majorVersion>2</efa.majorVersion>
     <efa.programmId>EFA.220</efa.programmId>
     <efa.programmIdDrv>EFADRV.220</efa.programmIdDrv>
@@ -71,7 +71,7 @@
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>jakarta.mail</artifactId>
-        <version>1.6.7</version>
+        <version>1.6.8</version>
       </dependency>
       <dependency>
         <groupId>com.sun.activation</groupId>
@@ -81,7 +81,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.12.0</version>
+        <version>3.18.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>

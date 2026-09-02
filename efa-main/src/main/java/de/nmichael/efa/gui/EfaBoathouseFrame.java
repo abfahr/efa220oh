@@ -494,7 +494,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     String dateString = DataTypeDate.today().getDateString("YYYY-MM-DD");
     File newName = new File(pathname + dateString + "." + filename);
-    oldName.renameTo(newName);
+    boolean b = oldName.renameTo(newName);
 
     Persons persistence = Daten.project.getPersons(false);
     DataImport dataImport = new DataImport(persistence,
@@ -896,7 +896,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
       long t2 = System.currentTimeMillis() - t;
-      if (t2 >= 300) {
+      if (t2 >= 3000) {
         Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "Zeitmessung: zentrales Bild geladen"
             + " t=" + t2 + "ms für " + fileName);
         Writer output = new BufferedWriter(new FileWriter(strZentralesBild + ".txt", true));
@@ -1966,6 +1966,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           keyCode == KeyEvent.VK_SPACE) {
         // don't react if space was pressed as part of an incremental search string
         if (keyCode == KeyEvent.VK_SPACE) {
+          if (aMainList == null) {
+            return;
+          }
           String s = aMainList.getIncrementalSearchString();
           if (s != null && !s.isEmpty() && !s.startsWith(" ")) {
             return;
@@ -2259,6 +2262,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     String chosenPicture;
     do {
       int index = (int) (anzahlBildDateien * Math.random());
+      if (index >= anzahlBildDateien) {
+        // Fix ArrayIndexOutOfBoundsException: Rundungsfehler abfangen
+        Logger.log(Logger.INFO, Logger.MSG_ABF_INFO,
+                "ArrayIndexOutOfBoundsException:"
+                        + " anzahlBildDateien=" + anzahlBildDateien
+                        + " aber index=" + index
+                        + " bei Boot=" + boatname);
+        index = anzahlBildDateien - 1;
+      }
       chosenPicture = filenames.get(index).getPath();
     } while (anzahlBildDateien > 1 && chosenPicture.equals(logoLabel.getName()));
 
@@ -2512,24 +2524,27 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       damages = boatDamages.getBoatDamages(boatId, true, true);
     }
     if (damages != null && damages.length > 0) {
-      String bodyText;
+      StringBuilder bodyText;
       if (damages.length == 1) {
-        bodyText = International.getMessage(
-            "Für das Boot {boat} wurde folgender Bootsschaden gemeldet:",
-            item.boatStatus.getBoatText()) + NEWLINE;
+        bodyText = new StringBuilder(International.getMessage(
+                "Für das Boot {boat} wurde folgender Bootsschaden gemeldet:",
+                item.boatStatus.getBoatText()) + NEWLINE);
       } else {
-        bodyText = International.getMessage(
-            "Für das Boot {boat} wurden folgende Bootsschäden gemeldet:",
-            item.boatStatus.getBoatText()) + NEWLINE;
+        bodyText = new StringBuilder(International.getMessage(
+                "Für das Boot {boat} wurden folgende Bootsschäden gemeldet:",
+                item.boatStatus.getBoatText()) + NEWLINE);
       }
       for (int i = 0; i < damages.length; i++) {
-        bodyText += (i + 1) + ") \"" + damages[i].getDescription() + "\"" + NEWLINE
-            + International.getString("Schwere des Schadens") + ": "
-            + damages[i].getSeverityDescription() + NEWLINE;
+        bodyText.append((i + 1))
+                .append(") \"").append(damages[i].getDescription()).append("\"")
+                .append(NEWLINE)
+                .append(International.getString("Schwere des Schadens")).append(": ")
+                .append(damages[i].getSeverityDescription())
+                .append(NEWLINE);
       }
-      bodyText += NEWLINE + questionText;
+      bodyText.append(NEWLINE).append(questionText);
       int yesNoAnswer = Dialog.yesNoDialog(International.getString("Bootsschaden gemeldet"),
-          bodyText);
+              bodyText.toString());
       return yesNoAnswer == Dialog.YES;
     }
     return true;
@@ -2932,7 +2947,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           adminOnStack = true;
         }
       }
-    } catch (Exception ee) {
+    } catch (Exception eignore) {
 
     }
     if (adminOnStack) {
@@ -3131,7 +3146,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       if (damages != null) {
         for (BoatDamageRecord damage : damages) {
           if (!damage.getFixed()) {
-            s.append("Bootsschaden: ").append(damage.getDescription()).append(NEWLINE);
+            s.append(damage.getSeverityDescription()).append(", ");
+            s.append("Bootsschaden: ").append(damage.getDescription());
+            s.append(" --> ").append(damage.getSeverityDescription()).append(NEWLINE);
           }
         }
       }
@@ -3227,7 +3244,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       new Thread(() -> {
         try {
           Thread.sleep(1000);
-        } catch (Exception e) {
+        } catch (Exception eignore) {
 
         }
         String endeDerSperrung = (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().isSet()
@@ -3283,7 +3300,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 + endeDerSperrung);
         browser.showDialog();
       }).start();
-    } catch (Exception ee) {
+    } catch (Exception eignore) {
 
     }
   }

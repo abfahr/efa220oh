@@ -186,7 +186,7 @@ public class BoatReservations extends StorageObject {
   public BoatReservationRecord[] getBoatReservations(UUID boatId, long now, long lookAheadMinutes) {
     BoatReservationRecord[] reservations = getBoatReservations(boatId);
 
-    Vector<BoatReservationRecord> activeReservations = new Vector<BoatReservationRecord>();
+    Vector<BoatReservationRecord> activeReservations = new Vector<>();
     for (int i = 0; reservations != null && i < reservations.length; i++) {
       BoatReservationRecord r = reservations[i];
       if (r.getReservationValidInMinutes(now, lookAheadMinutes) >= 0) {
@@ -194,7 +194,7 @@ public class BoatReservations extends StorageObject {
       }
     }
 
-    if (activeReservations.size() == 0) {
+    if (activeReservations.isEmpty()) {
       return null;
     }
     BoatReservationRecord[] a = new BoatReservationRecord[activeReservations.size()];
@@ -488,8 +488,7 @@ public class BoatReservations extends StorageObject {
     }
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(date);
-    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-    return dayOfWeek;
+      return calendar.get(Calendar.DAY_OF_WEEK);
   }
 
 }

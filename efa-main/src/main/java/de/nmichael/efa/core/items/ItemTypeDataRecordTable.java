@@ -560,6 +560,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             if (records == null) {
               return;
             }
+            if (!hasPermissionToDeleteRecurringReservation()
+                && containsRecurringReservation(records)) {
+              showMissingRecurringReservationDeletePermission();
+              return;
+            }
             if (handleRecurringReservationDeleteAction(records)) {
               updateData();
               showValue();
@@ -948,6 +953,16 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
   private boolean hasPermissionToDeleteRecurringReservation() {
     return admin != null;
+  }
+
+  private boolean containsRecurringReservation(DataRecord[] records) {
+    for (DataRecord record : records) {
+      if (record instanceof BoatReservationRecord
+          && ((BoatReservationRecord) record).isWeeklyReservationType()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void showMissingRecurringReservationDeletePermission() {

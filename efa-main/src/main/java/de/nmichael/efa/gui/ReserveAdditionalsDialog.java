@@ -7,11 +7,9 @@ import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.ex.EfaException;
-import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.util.International;
-import de.nmichael.efa.util.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -302,10 +300,6 @@ public class ReserveAdditionalsDialog extends BaseDialog{
         ArrayList<IItemType> liste = new ArrayList<>();
         long now = System.currentTimeMillis();
 
-        BoatReservations reservations = Daten.project.getBoatReservations(false); //bisherige vorherige Reservierungen
-
-        List<String> keys = Collections.list(items.keys());
-
         for (DataKey<UUID, Long, String> dataKey : allBoats.getAllKeys()) {
             BoatRecord boatRecord = (BoatRecord) allBoats.get(dataKey);
 
@@ -323,23 +317,10 @@ public class ReserveAdditionalsDialog extends BaseDialog{
                     continue;
                 }
 
-                try{
-                    BoatReservationRecord testReservationsRecord = reservations
-                            .createBoatReservationsRecordFromClone(boatRecord.getId(), originalReservation);
-
-                    reservations.preModifyRecordCallback(testReservationsRecord, true, false, false);
-                    String prefixError = "";
-                    if (!typeSeats.equals(boatRecord.getTypeSeats(0))) {
-                        prefixError = typeSeats + "=" + boatRecord.getTypeSeats(0) + ": ";
-                        Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING, prefixError + "beim Übertragen auf weitere Gruppen");
-                    }
-                    ItemTypeBoolean item = new ItemTypeBoolean(prefixError + boatRecord.getName(), false,
-                            IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
-                    item.setDataKey(boatRecord.getKey());
-                    liste.add(item);
-                }catch (EfaModifyException exception){
-                    //Intentionally left blank
-                }
+                ItemTypeBoolean item = new ItemTypeBoolean(boatRecord.getName(), false,
+                        IItemType.TYPE_INTERNAL, "", boatRecord.getQualifiedName());
+                item.setDataKey(boatRecord.getKey());
+                liste.add(item);
             }
         }
         return liste;

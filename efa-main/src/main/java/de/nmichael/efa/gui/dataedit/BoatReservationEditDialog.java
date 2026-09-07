@@ -38,6 +38,8 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
 
   @Serial
   private static final long serialVersionUID = 1L;
+  private boolean reservationConflictWarningShown = false;
+  private boolean saveDespiteReservationConflicts = false;
 
   public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r,
       boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) throws Exception {
@@ -126,7 +128,56 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         return false;
       }
     }
-    return super.saveRecord();
+    checkValidValues();
+    dataRecord.saveGuiItems(getItems());
+    if (admin != null && !newRecord && !confirmReservationConflictsBeforeSave()) {
+      return false;
+    }
+    try {
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(
+          newRecord || (admin != null && saveDespiteReservationConflicts));
+      boolean saved = super.saveRecord();
+      if (saved) {
+        saveDespiteReservationConflicts = false;
+      }
+      return saved;
+    } finally {
+      BoatReservations.setIgnoreReservationConflictsForCurrentThread(false);
+    }
+  }
+
+  @Override
+  protected void preShowCallback() {
+    super.preShowCallback();
+    if (admin != null && !newRecord && !reservationConflictWarningShown) {
+      reservationConflictWarningShown = true;
+      String conflicts = getBoatReservations().getReservationConflictsDescription(
+          getDataRecord());
+      if (!conflicts.isEmpty()) {
+        Dialog.infoDialog(International.getString("Warnung"), conflicts);
+      }
+    }
+  }
+
+  private boolean confirmReservationConflictsBeforeSave() {
+    BoatReservations boatReservations = getBoatReservations();
+    List<BoatReservationRecord> conflicts = boatReservations.findConflictingReservations(
+        getDataRecord());
+    if (conflicts.isEmpty()) {
+      saveDespiteReservationConflicts = false;
+      return true;
+    }
+    String msg = boatReservations.getReservationConflictsDescription(conflicts) + "\n\n"
+        + International.getString("Möchtest Du die Reservierung trotzdem speichern?");
+    int answer = Dialog.auswahlDialog(International.getString("Warnung"), msg,
+        International.getString("Reservierung abbrechen"),
+        International.getString("trotz Kollisionen speichern"), false);
+    saveDespiteReservationConflicts = (answer == 1);
+    return saveDespiteReservationConflicts;
+  }
+
+  private BoatReservations getBoatReservations() {
+    return (BoatReservations) dataRecord.getPersistence();
   }
 
   private boolean checkUndAktualisiereHandyNrInPersonProfil() {
@@ -243,8 +294,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
         return;
       }
       for (IItemType it : allGuiItems) {
-        if (it.getName().equals(BoatReservationRecord.DAYOFWEEK)) {
-          it.setVisible(type.equals(BoatReservationRecord.TYPE_WEEKLY));
+        if (it.getName().equals(BoatReservationRecord.DAYSOFWEEK)) {
+          it.setVisible(BoatReservationRecord.isWeeklyReservationType(type));
+        }
+        if (it.getName().equals(BoatReservationRecord.WEEKINTERVAL)) {
+          it.setVisible(BoatReservationRecord.TYPE_WEEKLY_INTERVAL.equals(type));
         }
         if (it.getName().equals(BoatReservationRecord.DATEFROM)) {
           it.setVisible(type.equals(BoatReservationRecord.TYPE_ONETIME));
@@ -535,21 +589,21 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     if (allowWeeklyReservation) {
       return;
     }
-    if (!newRecord && dataRecord != null && BoatReservationRecord.TYPE_WEEKLY
-        .equals(((BoatReservationRecord) dataRecord).getType())) {
-      throw new Exception(
-          International.getString("Diese Reservierung kann nicht bearbeitet werden.")
-              + "\n" + ((BoatReservationRecord) dataRecord).getType());
-    }
+    boolean existingWeeklyReservation = !newRecord && dataRecord != null
+        && ((BoatReservationRecord) dataRecord).isWeeklyReservationType();
     for (IItemType it : allGuiItems) {
       if (it.getName().equals(BoatReservationRecord.TYPE)) {
-        it.parseAndShowValue(BoatReservationRecord.TYPE_ONETIME);
+        if (!existingWeeklyReservation) {
+          it.parseAndShowValue(BoatReservationRecord.TYPE_ONETIME);
+        }
         it.setVisible(false);
         it.setEditable(false);
         itemListenerAction(it, null);
         continue;
       }
-      if (it.getName().equals(BoatReservationRecord.DAYOFWEEK)) {
+      if (!existingWeeklyReservation
+          && (it.getName().equals(BoatReservationRecord.DAYOFWEEK)
+          || it.getName().equals(BoatReservationRecord.DAYSOFWEEK))) {
         // sonst verhindert ein Dirty das Abbrechen:
         it.parseValue("SUNDAY");
         it.setUnchanged();

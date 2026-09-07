@@ -37,6 +37,12 @@ import de.nmichael.efa.util.Logger;
 public class BoatReservations extends StorageObject {
 
   public static final String DATATYPE = "efa2boatreservations";
+  private static final ThreadLocal<Boolean> IGNORE_RESERVATION_CONFLICTS =
+      ThreadLocal.withInitial(() -> false);
+
+  public static void setIgnoreReservationConflictsForCurrentThread(boolean ignoreConflicts) {
+    IGNORE_RESERVATION_CONFLICTS.set(ignoreConflicts);
+  }
 
   public BoatReservations(int storageType,
       String storageLocation,
@@ -216,6 +222,109 @@ public class BoatReservations extends StorageObject {
     return purged;
   }
 
+  public List<BoatReservationRecord> findConflictingReservations(BoatReservationRecord r) {
+    List<BoatReservationRecord> conflicts = new ArrayList<BoatReservationRecord>();
+    BoatReservationRecord[] br = this.getBoatReservations(r.getBoatId());
+    for (int i = 0; br != null && i < br.length; i++) {
+      if (br[i].getReservation() == r.getReservation()) {
+        continue;
+      }
+      if (isReservationConflict(r, br[i])) {
+        conflicts.add(br[i]);
+      }
+    }
+    return conflicts;
+  }
+
+  public String getReservationConflictsDescription(BoatReservationRecord r) {
+    return getReservationConflictsDescription(findConflictingReservations(r));
+  }
+
+  public String getReservationConflictsDescription(List<BoatReservationRecord> conflicts) {
+    if (conflicts == null || conflicts.isEmpty()) {
+      return "";
+    }
+    StringBuilder msg = new StringBuilder();
+    msg.append(International.getString("Folgende Reservierungen verursachen Kollisionen:"));
+    for (BoatReservationRecord conflict : conflicts) {
+      msg.append("\n- ")
+          .append(conflict.getReservationTimeDescription(BoatReservationRecord.KEEP_NUM_DATE))
+          .append("\n  ")
+          .append(conflict.getPersonAsName())
+          .append(" ")
+          .append(conflict.getContact());
+      String reason = conflict.getReason();
+      if (reason != null && !reason.trim().isEmpty()) {
+        msg.append("\n  ").append(reason.trim());
+      }
+    }
+    return msg.toString();
+  }
+
+  private boolean isReservationConflict(BoatReservationRecord r, BoatReservationRecord other) {
+    if (other.isWeeklyReservationType()
+        && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+      List<DataTypeDate> liste = getListOfDates(r.getDateFrom(), r.getDateTo());
+      for (DataTypeDate day : liste) {
+        if (other.isWeeklyReservationOnDate(day)) {
+          if (DataTypeDate.isRangeOverlap(r.getDateFrom(),
+              r.getTimeFrom(),
+              r.getDateTo(),
+              r.getTimeTo(),
+              r.getDateFrom(),
+              other.getTimeFrom(),
+              r.getDateTo(),
+              other.getTimeTo())) {
+            double anzahlStunden = r.getDurationInHours();
+            double minimumDauerFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
+            return anzahlStunden < minimumDauerFuerKulanz;
+          }
+        }
+      }
+    }
+    if (other.isWeeklyReservationType()
+        && r.isWeeklyReservationType()) {
+      return isTimeRangeOverlap(r.getTimeFrom(), r.getTimeTo(),
+          other.getTimeFrom(), other.getTimeTo())
+          && hasWeeklyDateOverlap(r, other);
+    }
+    if (other.getType().equals(BoatReservationRecord.TYPE_ONETIME)
+        && r.isWeeklyReservationType()) {
+      List<DataTypeDate> liste = getListOfDates(other.getDateFrom(), other.getDateTo());
+      for (DataTypeDate day : liste) {
+        if (r.isWeeklyReservationOnDate(day)) {
+          if (DataTypeDate.isRangeOverlap(other.getDateFrom(),
+              other.getTimeFrom(),
+              other.getDateTo(),
+              other.getTimeTo(),
+              other.getDateFrom(),
+              r.getTimeFrom(),
+              other.getDateTo(),
+              r.getTimeTo())) {
+            return true;
+          }
+        }
+      }
+    }
+    if (other.getType().equals(BoatReservationRecord.TYPE_ONETIME)
+        && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+      return DataTypeDate.isRangeOverlap(r.getDateFrom(),
+          r.getTimeFrom(),
+          r.getDateTo(),
+          r.getTimeTo(),
+          other.getDateFrom(),
+          other.getTimeFrom(),
+          other.getDateTo(),
+          other.getTimeTo());
+    }
+    return false;
+  }
+
+  private boolean isTimeRangeOverlap(DataTypeTime r1From, DataTypeTime r1To,
+      DataTypeTime r2From, DataTypeTime r2To) {
+    return r1From.isBefore(r2To) && r1To.isAfter(r2From);
+  }
+
   @Override
   public void preModifyRecordCallback(DataRecord record, boolean add, boolean update,
       boolean delete)
@@ -282,91 +391,30 @@ public class BoatReservations extends StorageObject {
         }
       }
 
-      BoatReservationRecord[] br = this.getBoatReservations(r.getBoatId());
-      for (int i = 0; br != null && i < br.length; i++) {
-        if (br[i].getReservation() == r.getReservation()) {
-          continue;
-        }
-        if (br[i].getType().equals(BoatReservationRecord.TYPE_WEEKLY)
-            && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
-          assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
-          assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
-          assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
-          assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
-          List<DataTypeDate> liste = getListOfDates(r.getDateFrom(), r.getDateTo());
-          for (DataTypeDate day : liste) {
-            int dayOfWeek = day.toCalendar().get(Calendar.DAY_OF_WEEK);
-            int dayOfWeekBR = getWochentag(br[i].getDayOfWeek());
-            if (dayOfWeek == dayOfWeekBR) {
-              if (DataTypeDate.isRangeOverlap(r.getDateFrom(),
-                  r.getTimeFrom(),
-                  r.getDateTo(),
-                  r.getTimeTo(),
-                  r.getDateFrom(), // Ersatz
-                  br[i].getTimeFrom(),
-                  r.getDateTo(), // Ersatz
-                  br[i].getTimeTo())) {
-                double anzahlStunden = r.getDurationInHours();
-                double minimumDauerFuerKulanz = Daten.efaConfig.getMinimumDauerFuerKulanz();
-                if (anzahlStunden < minimumDauerFuerKulanz) {
-                  throw new EfaModifyException(
-                      Logger.MSG_DATA_MODIFYEXCEPTION,
-                      International.getMessage(
-                          "Die Reservierung {oldnameTel} überschneidet sich mit einer wöchentlichen Reservierung von {nameTel}",
-                          "von " + r.getPersonAsName() + " vom " + r.getDateTimeFromDescription(false),
-                          br[i].getPersonAsName() + " " + br[i].getContact()),
-                      Thread.currentThread().getStackTrace());
-                }
-              }
-            }
-          }
-        }
-        if (br[i].getType().equals(BoatReservationRecord.TYPE_WEEKLY)
-            && r.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
-          assertFieldNotEmpty(record, BoatReservationRecord.DAYOFWEEK);
-          assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
-          assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
-          if (!r.getDayOfWeek().equals(br[i].getDayOfWeek())) {
-            continue;
-          }
-          if (DataTypeTime.isRangeOverlap(r.getTimeFrom(), r.getTimeTo(),
-              br[i].getTimeFrom(), br[i].getTimeTo())) {
-            throw new EfaModifyException(
-                Logger.MSG_DATA_MODIFYEXCEPTION,
-                International.getMessage(
-                    "Die Reservierung {oldnameTel} überschneidet sich mit einer wöchentlichen Reservierung von {nameTel}",
-                        "von " + r.getPersonAsName() + " vom " + r.getDateTimeFromDescription(false),
-                    br[i].getPersonAsName() + " " + br[i].getContact()),
-                Thread.currentThread().getStackTrace());
-
-          }
-        }
-        if (br[i].getType().equals(BoatReservationRecord.TYPE_ONETIME)
-            && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
-          assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
-          assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
-          assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
-          assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
-          if (DataTypeDate.isRangeOverlap(r.getDateFrom(),
-              r.getTimeFrom(),
-              r.getDateTo(),
-              r.getTimeTo(),
-              br[i].getDateFrom(),
-              br[i].getTimeFrom(),
-              br[i].getDateTo(),
-              br[i].getTimeTo())) {
-            throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-                International.getMessage(
-                    "Die Reservierung {oldnameTel} überschneidet sich mit einer Reservierung von {nameTel}",
-                        "von " + r.getPersonAsName() + " vom " + r.getDateTimeFromDescription(false),
-                    br[i].getPersonAsName() + " " + br[i].getContact()),
-                Thread.currentThread().getStackTrace());
-          }
+      if (r.isWeeklyReservationType() && r.getDaysOfWeekWithFallback().length() == 0) {
+        throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+            International.getString("Bitte Wochentag eingeben"),
+            Thread.currentThread().getStackTrace());
+      }
+      assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
+      assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
+      assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
+      if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+        assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
+      }
+      if (!IGNORE_RESERVATION_CONFLICTS.get()) {
+        List<BoatReservationRecord> conflicts = findConflictingReservations(r);
+        if (!conflicts.isEmpty()) {
+          throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+              getReservationConflictsDescription(conflicts),
+              Thread.currentThread().getStackTrace());
         }
       }
       if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME) &&
           r.getDayOfWeek() != null) {
         r.setDayOfWeek(null);
+        r.setDaysOfWeek(null);
+        r.setWeekInterval(1);
       }
     }
   }
@@ -382,6 +430,47 @@ public class BoatReservations extends StorageObject {
       myDate.addDays(1);
     }
     return datumListe;
+  }
+
+  private boolean hasWeeklyDateOverlap(BoatReservationRecord a, BoatReservationRecord b) {
+    DataTypeDate dateFrom = maxDate(getWeeklyDateFrom(a), getWeeklyDateFrom(b));
+    DataTypeDate dateTo = minDate(getWeeklyDateTo(a, dateFrom), getWeeklyDateTo(b, dateFrom));
+    for (DataTypeDate day = new DataTypeDate(dateFrom);
+        day.isBeforeOrEqual(dateTo);
+        day.addDays(1)) {
+      if (a.isWeeklyReservationOnDate(day) && b.isWeeklyReservationOnDate(day)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private DataTypeDate getWeeklyDateFrom(BoatReservationRecord r) {
+    DataTypeDate dateFrom = r.getDateFrom();
+    if (dateFrom != null && dateFrom.isSet()) {
+      return dateFrom;
+    }
+    dateFrom = DataTypeDate.today();
+    dateFrom.addDays(-30);
+    return dateFrom;
+  }
+
+  private DataTypeDate getWeeklyDateTo(BoatReservationRecord r, DataTypeDate dateFrom) {
+    DataTypeDate dateTo = r.getDateTo();
+    if (dateTo != null && dateTo.isSet()) {
+      return dateTo;
+    }
+    dateTo = new DataTypeDate(dateFrom);
+    dateTo.addDays(4 * 365);
+    return dateTo;
+  }
+
+  private DataTypeDate maxDate(DataTypeDate a, DataTypeDate b) {
+    return (a.isAfter(b) ? a : b);
+  }
+
+  private DataTypeDate minDate(DataTypeDate a, DataTypeDate b) {
+    return (a.isBefore(b) ? a : b);
   }
 
   private int getWochentag(String dayName) {

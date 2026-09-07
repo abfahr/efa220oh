@@ -351,6 +351,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     if (Daten.project == null) return;
     // get List of Boats "on the water" = boatsOnTheWaterList;
     BoatStatus boatStatus = Daten.project.getBoatStatus(false);
+    if (boatStatus == null) return;
     Vector<BoatStatusRecord> boats = new Vector<>();
     if (Daten.efaConfig.isAutomaticEndLogbookOnTheWater()) {
       boats = boatStatus.getBoats(BoatStatusRecord.STATUS_ONTHEWATER, true);
@@ -360,6 +361,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     Logbook currentLogbook = Daten.project.getCurrentLogbook();
+    if (currentLogbook == null || !currentLogbook.isOpen()) return;
 
     if (boats == null) {
       return;
@@ -714,7 +716,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
       return null;
     }
     for (BoatReservationRecord boatReservationRecord : boatReservations) {
-      if (boatReservationRecord.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+      if (boatReservationRecord.isWeeklyReservationType()) {
         continue; // skip weekly
       }
       if (boatReservationRecord.getInvisible()) {
@@ -747,6 +749,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
   private LogbookRecord createAndPersistNewLogbookRecord(
       BoatReservationRecord boatReservationRecord) {
     Logbook currentLogbook = Daten.project.getCurrentLogbook();
+    if (currentLogbook == null || !currentLogbook.isOpen()) {
+      Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+          "Reservierung kann nicht automatisch gestartet werden: kein Fahrtenbuch geöffnet.");
+      return null;
+    }
 
     DataTypeIntString newEntryNo = currentLogbook.getNextEntryNo();
     LogbookRecord newLogbookRecord = currentLogbook.createLogbookRecord(newEntryNo);

@@ -20,6 +20,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
 
 // @i18n complete
 
@@ -52,18 +53,24 @@ public class ItemTypeRadioButtons extends ItemTypeLabelValue {
   @Override
   protected JComponent initializeField() {
     JPanel groupPanel = new JPanel();
+    boolean rightAligned = hAlignment == SwingConstants.RIGHT;
     groupPanel.setLayout(new GridBagLayout());
     ButtonGroup group = new ButtonGroup();
     if (displayList != null) {
       buttons = new JRadioButton[displayList.length];
     }
+    int x = 0;
+    if (rightAligned) {
+      groupPanel.add(new JPanel(), new GridBagConstraints(x++, 0, 1, 1, 1.0, 0.0,
+          GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    }
     for (int i = 0; displayList != null && i < displayList.length; i++) {
       JRadioButton b = new JRadioButton();
       b.setText(displayList[i]);
       group.add(b);
-      groupPanel.add(b, new GridBagConstraints(i, 0, 1, 1, 0.0, 0.0,
-          GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, (i > 0 ? 10 : 0), 0, 0),
-          0, 0));
+      groupPanel.add(b, new GridBagConstraints(x++, 0, 1, 1, 0.0, 0.0,
+          GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, (i > 0 ? 10 : 0), 0, 0), 0, 0));
       b.addItemListener(new java.awt.event.ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent e) {

@@ -269,10 +269,14 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
       if (f.isEnabled() && f.isEditable()) {
         if (!AutoCompletePopupWindow.isShowingAt(f)) {
           AutoCompletePopupWindow.hideWindow();
-          try {
-            Thread.sleep(50);
-          } catch (InterruptedException eignore) {}
-          AutoCompletePopupWindow.showAndSelect(f, autoCompleteList, f.getText(), null);
+          // try {
+          //   Thread.sleep(50); // auf dem EDT durch javax.swing.Timer ersetzen
+          // } catch (InterruptedException eignore) {}
+          // AutoCompletePopupWindow.showAndSelect(f, autoCompleteList, f.getText(), null);
+          javax.swing.Timer t = new javax.swing.Timer(50, e ->
+            AutoCompletePopupWindow.showAndSelect(f, autoCompleteList, f.getText(), null));
+          t.setRepeats(false);
+          t.start();
         } else {
           autoComplete(null);
           AutoCompletePopupWindow.hideWindow();

@@ -19,12 +19,7 @@ import java.awt.event.MouseEvent;
 import java.io.Serial;
 import java.util.Hashtable;
 
-import javax.swing.JList;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JWindow;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.Dialog;
@@ -209,11 +204,13 @@ public class AutoCompletePopupWindow extends JWindow {
   }
 
   private void mousePressedEvent(MouseEvent e) {
-    try {
-      if (hideWindowThread != null) {
-        hideWindowThread.interrupt();
-      }
-    } catch (Exception ee) {}
+    // no-op: hideWindow() now runs via SwingUtilities.invokeLater, nothing to interrupt
+
+    // try {
+    //   if (hideWindowThread != null) {
+    //     hideWindowThread.interrupt();
+    //   }
+    // } catch (Exception ee) {}
   }
 
   public static void showAndSelect(JTextField field, AutoCompleteList list, String eintrag,
@@ -250,8 +247,9 @@ public class AutoCompletePopupWindow extends JWindow {
           }
         }
 
-        window.hideWindowThread = new HideWindowThread(window);
-        window.hideWindowThread.start();
+        // window.hideWindowThread = new HideWindowThread(window);
+        // window.hideWindowThread.start();
+        SwingUtilities.invokeLater(window::doHide); // statt eigenem Thread
       }
     } catch (Exception e) {}
   }

@@ -936,7 +936,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       public void mouseClicked(MouseEvent e) {
         Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, e.getClickCount() + "-fach.");
         if (e.getClickCount() == 1) {
-          // actionBoatBildRefresh();
+          actionBoatBildRefreshAfterMousePressed();
         }
         if (e.getClickCount() == 2) {
           actionBoatInfosOrEfaAbout();
@@ -1930,6 +1930,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     if (actionEvent != null) {
       String actionCommand = actionEvent.getActionCommand();
       if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_1x)) {
+        showBoatStatusAfterDoubleClick(listID, aMainList, 1);
         alive();
       }
       if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {

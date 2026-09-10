@@ -10,13 +10,8 @@
 
 package de.nmichael.efa.data;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -223,7 +218,7 @@ public class BoatReservations extends StorageObject {
   }
 
   public List<BoatReservationRecord> findConflictingReservations(BoatReservationRecord r) {
-    List<BoatReservationRecord> conflicts = new ArrayList<BoatReservationRecord>();
+    List<BoatReservationRecord> conflicts = new ArrayList<>();
     BoatReservationRecord[] br = this.getBoatReservations(r.getBoatId());
     for (int i = 0; br != null && i < br.length; i++) {
       if (br[i].getReservation() == r.getReservation()) {
@@ -423,7 +418,7 @@ public class BoatReservations extends StorageObject {
     DataTypeDate myDateFrom = dateFrom;
     DataTypeDate myDateTo = dateTo;
 
-    List<DataTypeDate> datumListe = new ArrayList<DataTypeDate>();
+    List<DataTypeDate> datumListe = new ArrayList<>();
     DataTypeDate myDate = new DataTypeDate(myDateFrom);
     while (myDate.isBeforeOrEqual(myDateTo)) {
       datumListe.add(new DataTypeDate(myDate));
@@ -471,24 +466,6 @@ public class BoatReservations extends StorageObject {
 
   private DataTypeDate minDate(DataTypeDate a, DataTypeDate b) {
     return (a.isBefore(b) ? a : b);
-  }
-
-  private int getWochentag(String dayName) {
-    if (dayName == null) {
-      return 0;
-    }
-    SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.US);
-    Date date;
-    try {
-      date = dayFormat.parse(dayName);
-    } catch (ParseException e) {
-      // Auto-generated catch block
-      e.printStackTrace();
-      return 0;
-    }
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-      return calendar.get(Calendar.DAY_OF_WEEK);
   }
 
 }

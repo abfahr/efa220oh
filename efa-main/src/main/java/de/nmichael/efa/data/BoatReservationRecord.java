@@ -12,8 +12,6 @@ package de.nmichael.efa.data;
 
 import java.io.File;
 import java.security.SecureRandom;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.Adler32;
 
@@ -234,9 +232,9 @@ public class BoatReservationRecord extends DataRecord {
     }
     String dayOfWeek = getDayOfWeek();
     if (dayOfWeek != null && !dayOfWeek.isEmpty()) {
-      return new DataTypeList<String>(new String[] { dayOfWeek });
+      return new DataTypeList<>(new String[]{dayOfWeek});
     }
-    return new DataTypeList<String>();
+    return new DataTypeList<>();
   }
 
   public void setWeekInterval(int weekInterval) {
@@ -261,7 +259,7 @@ public class BoatReservationRecord extends DataRecord {
 
   public DataTypeList<String> getExcludedDates() {
     DataTypeList<String> excludedDates = getList(EXCLUDEDDATES, IDataAccess.DATA_LIST_STRING);
-    return (excludedDates != null ? excludedDates : new DataTypeList<String>());
+    return (excludedDates != null ? excludedDates : new DataTypeList<>());
   }
 
   public void addExcludedDate(DataTypeDate date) {
@@ -434,7 +432,7 @@ public class BoatReservationRecord extends DataRecord {
     for (int i = 0; i < daysOfWeek.length(); i++) {
       String dayOfWeek = daysOfWeek.get(i);
       if (dayOfWeek != null && !dayOfWeek.isEmpty()) {
-        if (description.length() > 0) {
+        if (!description.isEmpty()) {
           description.append(", ");
         }
         description.append(EfaTypes.getValueWeekday(dayOfWeek)).append("s");
@@ -585,25 +583,6 @@ public class BoatReservationRecord extends DataRecord {
     return daysBetween.toString();
   }
 
-  private Integer getWochentag(String dayName) {
-    if (dayName == null) {
-      return null;
-    }
-    SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.US);
-    Date date;
-    try {
-      date = dayFormat.parse(dayName);
-    } catch (ParseException e) {
-      Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION,
-              "ParseException in BoatReservationRecord.getWochentag( " + dayName
-                      + ") and dayFormat=" + dayFormat + ". " + e.getLocalizedMessage());
-      return null;
-    }
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    return calendar.get(Calendar.DAY_OF_WEEK); // dayOfWeek
-  }
-
   public boolean isWeeklyReservationOnDate(DataTypeDate date) {
     if (!isWeeklyReservationType() || date == null || !date.isSet()) {
       return false;
@@ -643,24 +622,16 @@ public class BoatReservationRecord extends DataRecord {
   }
 
   private String getEfaWeekday(int calendarDayOfWeek) {
-    switch (calendarDayOfWeek) {
-      case Calendar.MONDAY:
-        return EfaTypes.TYPE_WEEKDAY_MONDAY;
-      case Calendar.TUESDAY:
-        return EfaTypes.TYPE_WEEKDAY_TUESDAY;
-      case Calendar.WEDNESDAY:
-        return EfaTypes.TYPE_WEEKDAY_WEDNESDAY;
-      case Calendar.THURSDAY:
-        return EfaTypes.TYPE_WEEKDAY_THURSDAY;
-      case Calendar.FRIDAY:
-        return EfaTypes.TYPE_WEEKDAY_FRIDAY;
-      case Calendar.SATURDAY:
-        return EfaTypes.TYPE_WEEKDAY_SATURDAY;
-      case Calendar.SUNDAY:
-        return EfaTypes.TYPE_WEEKDAY_SUNDAY;
-      default:
-        return null;
-    }
+      return switch (calendarDayOfWeek) {
+          case Calendar.MONDAY -> EfaTypes.TYPE_WEEKDAY_MONDAY;
+          case Calendar.TUESDAY -> EfaTypes.TYPE_WEEKDAY_TUESDAY;
+          case Calendar.WEDNESDAY -> EfaTypes.TYPE_WEEKDAY_WEDNESDAY;
+          case Calendar.THURSDAY -> EfaTypes.TYPE_WEEKDAY_THURSDAY;
+          case Calendar.FRIDAY -> EfaTypes.TYPE_WEEKDAY_FRIDAY;
+          case Calendar.SATURDAY -> EfaTypes.TYPE_WEEKDAY_SATURDAY;
+          case Calendar.SUNDAY -> EfaTypes.TYPE_WEEKDAY_SUNDAY;
+          default -> null;
+      };
   }
 
   /**
@@ -836,7 +807,7 @@ public class BoatReservationRecord extends DataRecord {
         International.getString("Wochentag"));
     v.add(item);
 
-    item = new ItemTypeMultiSelectCheckboxes<String>(BoatReservationRecord.DAYSOFWEEK,
+    item = new ItemTypeMultiSelectCheckboxes<>(BoatReservationRecord.DAYSOFWEEK,
         getDaysOfWeekWithFallback(),
         EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
         EfaTypes.makeDayOfWeekArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),

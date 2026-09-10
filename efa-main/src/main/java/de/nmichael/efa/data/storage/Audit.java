@@ -168,7 +168,7 @@ public class Audit extends Thread {
   private String getNameOfLatestInvalidRecord(UUID id, StorageObject so) {
     try {
       DataRecord[] recs = so.dataAccess
-          .getValidAny(new DataKey<UUID, Object, Object>(id, null, null));
+          .getValidAny(new DataKey<>(id, null, null));
       long latestValid = -1;
       DataRecord latestRecord = null;
       for (int i = 0; recs != null && i < recs.length; i++) {
@@ -197,7 +197,7 @@ public class Audit extends Thread {
       Groups groups = project.getGroups(false);
       Persons persons = project.getPersons(false);
 
-      Hashtable<UUID, Integer> boatVersions = new Hashtable<UUID, Integer>();
+      Hashtable<UUID, Integer> boatVersions = new Hashtable<>();
       int[] boathouseIds = project.getAllBoathouseIds();
 
       DataKeyIterator it = boats.data().getStaticIterator();
@@ -245,7 +245,7 @@ public class Audit extends Thread {
         if (versions == null) {
           boatVersions.put(boat.getId(), 1);
         } else {
-          boatVersions.put(boat.getId(), versions.intValue() + 1);
+          boatVersions.put(boat.getId(), versions + 1);
         }
 
         // check References from BoatRecord
@@ -976,7 +976,9 @@ public class Audit extends Thread {
       if (!file.exists())
         new FileOutputStream(file).close();
       boolean b = file.setLastModified(timestamp);
-    } catch (IOException e) {}
+    } catch (IOException e) {
+      Logger.logwarn(e);
+    }
   }
 
   private int archiveMessages(Messages messages, boolean all) throws Exception {

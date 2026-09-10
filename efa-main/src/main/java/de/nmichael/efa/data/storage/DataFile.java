@@ -104,7 +104,7 @@ public abstract class DataFile extends DataAccess {
     try {
       File f = new File(storageLocation);
       if (!f.exists()) {
-        f.mkdirs();
+        boolean b = f.mkdirs();
       }
       FileOutputStream fout = new FileOutputStream(filename, false);
       writeFile(fout);
@@ -130,7 +130,7 @@ public abstract class DataFile extends DataAccess {
         while (new File(bakFile).exists()) {
           bakFile = Daten.efaBakDirectory + f.getName() + "." + ++i;
         }
-        f.renameTo(new File(bakFile));
+        boolean b = f.renameTo(new File(bakFile));
         Logger.log(Logger.INFO, Logger.MSG_DATA_RECOVERYORIGMOVED,
             LogString.fileMoved(filename, International.getString("Originaldatei"), bakFile));
       }

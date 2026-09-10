@@ -1241,11 +1241,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     cancel(e, EFA_EXIT_REASON_USER, null, false);
   }
 
-  private void this_windowDeactivated(WindowEvent e) {
+  private void this_windowDeactivated(WindowEvent windowEvent) {
     // nothing to do
   }
 
-  private void this_windowActivated(WindowEvent e) {
+  private void this_windowActivated(WindowEvent windowEvent) {
     try {
       if (!isEnabled() && efaBaseFrame != null) {
         efaBaseFrame.toFront();
@@ -1255,7 +1255,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
   }
 
-  private void this_windowIconified(WindowEvent e) {
+  private void this_windowIconified(WindowEvent windowEvent) {
     // super.processWindowEvent(e);
     this.setState(Frame.NORMAL);
   }
@@ -1265,7 +1265,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     return cancel(null, EFA_EXIT_REASON_USER, null, false);
   }
 
-  public boolean cancel(WindowEvent e, int reason, AdminRecord admin, boolean restart) {
+  public boolean cancel(WindowEvent windowEvent, int reason, AdminRecord admin, boolean restart) {
     Dialog.IGNORE_WINDOW_STACK_CHECKS = true;
     int exitCode = 0;
     String whoUser;
@@ -1360,7 +1360,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       try {
         Thread.sleep(1000);
       } catch (Exception e) {
-
+        Logger.logwarn(e);
       }
       cancel(null, _reason, _admin, _restart);
     }).start();
@@ -1914,8 +1914,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     try {
       listID = getListIdFromItem(item);
       aMainList = (ItemTypeBoatstatusList) item;
-    } catch (Exception eignore) {
-
+    } catch (Exception e) {
+      Logger.logwarn(e);
     }
     if (listID == 0) {
       return;
@@ -1924,8 +1924,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     ActionEvent actionEvent = null;
     try {
       actionEvent = (ActionEvent) event;
-    } catch (Exception eignore) {
-
+    } catch (Exception e) {
+      Logger.logwarn(e);
     }
     if (actionEvent != null) {
       String actionCommand = actionEvent.getActionCommand();
@@ -1956,8 +1956,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     KeyEvent keyEvent = null;
     try {
       keyEvent = (KeyEvent) event;
-    } catch (Exception eignore) {
-
+    } catch (Exception e) {
+      Logger.logwarn(e);
     }
     if (keyEvent != null) {
       clearAllPopups();
@@ -1985,8 +1985,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     FocusEvent focusEvent = null;
     try {
       focusEvent = (FocusEvent) event;
-    } catch (Exception eignore) {
-
+    } catch (Exception e) {
+      Logger.logwarn(e);
     }
     if (focusEvent != null) {
       if (focusEvent.getID() == FocusEvent.FOCUS_GAINED) {
@@ -2947,8 +2947,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           adminOnStack = true;
         }
       }
-    } catch (Exception eignore) {
-
+    } catch (Exception e) {
+      Logger.logwarn(e);
     }
     if (adminOnStack) {
       Dialog.error(International.getString("Es ist bereits ein Admin-Fenster geöffnet."));
@@ -3244,8 +3244,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       new Thread(() -> {
         try {
           Thread.sleep(1000);
-        } catch (Exception eignore) {
-
+        } catch (Exception e) {
+          Logger.logwarn(e);
         }
         String endeDerSperrung = (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().isSet()
             ? " "
@@ -3300,8 +3300,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 + endeDerSperrung);
         browser.showDialog();
       }).start();
-    } catch (Exception eignore) {
-
+    } catch (Exception e) {
+      Logger.logwarn(e);
     }
   }
 

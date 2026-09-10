@@ -23,6 +23,7 @@ import javax.swing.*;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 public class AutoCompletePopupWindow extends JWindow {
@@ -35,13 +36,12 @@ public class AutoCompletePopupWindow extends JWindow {
   private JTextField showingAt;
   private JTextField lastShowingAt;
   private long lastShowingAtTime = 0;
-  private HideWindowThread hideWindowThread;
   private AutoCompletePopupWindowCallback callback;
   BorderLayout borderLayout = new BorderLayout();
   JScrollPane scrollPane = new JScrollPane();
-  JList list = new JList();
+  JList<String> list = new JList<>();
 
-  private AutoCompletePopupWindow(Window parent) {
+  private AutoCompletePopupWindow(Window parentWindow) {
     this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
     try {
       jbInit();
@@ -84,7 +84,9 @@ public class AutoCompletePopupWindow extends JWindow {
             mousePressedEvent(e);
           }
         });
-      } catch (Exception e) {}
+      } catch (Exception e) {
+        Logger.logwarn(e);
+      }
     }
   }
 
@@ -122,10 +124,10 @@ public class AutoCompletePopupWindow extends JWindow {
     list.update();
     String[] data = autoCompleteLists.get(list);
     Long scn = autoCompleteSCN.get(list);
-    if (data == null || scn == null || scn.longValue() != list.getSCN()) {
+    if (data == null || scn == null || scn != list.getSCN()) {
       data = list.getData();
       autoCompleteLists.put(list, data);
-      autoCompleteSCN.put(list, Long.valueOf(list.getSCN()));
+      autoCompleteSCN.put(list, list.getSCN());
     }
     this.list.setListData(data);
     return data.length;
@@ -181,13 +183,15 @@ public class AutoCompletePopupWindow extends JWindow {
     try {
       list.scrollRectToVisible(list.getCellBounds(list.getSelectedIndex() - 1,
           list.getSelectedIndex() + 1));
-    } catch (Exception e) {}
+    } catch (Exception e) {
+      Logger.logwarn(e);
+    }
   }
 
-  private void listEntrySelected(MouseEvent e) {
+  private void listEntrySelected(MouseEvent mouseEvent) {
     if (showingAt != null) {
       try {
-        String s = (String) list.getSelectedValue();
+        String s = list.getSelectedValue();
         if (s != null) {
           showingAt.setText(s);
         }
@@ -195,22 +199,20 @@ public class AutoCompletePopupWindow extends JWindow {
         if (callback != null) {
           callback.acpwCallback(showingAt);
         }
-      } catch (Exception ee) {}
+      } catch (Exception ee) {
+        Logger.logwarn(ee);
+      }
       doHide();
       try {
         Dialog.frameCurrent().toFront();
-      } catch (Exception ee) {}
+      } catch (Exception ee) {
+        Logger.logwarn(ee);
+      }
     }
   }
 
-  private void mousePressedEvent(MouseEvent e) {
+  private void mousePressedEvent(MouseEvent mouseEvent) {
     // no-op: hideWindow() now runs via SwingUtilities.invokeLater, nothing to interrupt
-
-    // try {
-    //   if (hideWindowThread != null) {
-    //     hideWindowThread.interrupt();
-    //   }
-    // } catch (Exception ee) {}
   }
 
   public static void showAndSelect(JTextField field, AutoCompleteList list, String eintrag,
@@ -225,7 +227,9 @@ public class AutoCompletePopupWindow extends JWindow {
       }
       window.showAtTextField(field);
       window.selectEintrag(eintrag);
-    } catch (Exception e) {}
+    } catch (Exception e) {
+      Logger.logwarn(e);
+    }
   }
 
   public static void hideWindow() {
@@ -251,7 +255,9 @@ public class AutoCompletePopupWindow extends JWindow {
         // window.hideWindowThread.start();
         SwingUtilities.invokeLater(window::doHide); // statt eigenem Thread
       }
-    } catch (Exception e) {}
+    } catch (Exception e) {
+      Logger.logwarn(e);
+    }
   }
 
   public static boolean isShowingAt(JTextField field) {
@@ -261,7 +267,9 @@ public class AutoCompletePopupWindow extends JWindow {
           return true;
         }
       }
-    } catch (Exception e) {}
+    } catch (Exception e) {
+      Logger.logwarn(e);
+    }
     return false;
   }
 
@@ -270,19 +278,3 @@ public class AutoCompletePopupWindow extends JWindow {
   }
 }
 
-class HideWindowThread extends Thread {
-
-  private final AutoCompletePopupWindow window;
-
-  public HideWindowThread(AutoCompletePopupWindow window) {
-    this.window = window;
-  }
-
-  @Override
-  public void run() {
-    try {
-      Thread.sleep(10);
-      window.doHide();
-    } catch (Exception e) {}
-  }
-}

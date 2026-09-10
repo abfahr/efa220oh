@@ -18,6 +18,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -56,6 +57,7 @@ import de.nmichael.efa.util.ProgressTask;
 public abstract class DataListDialog extends BaseDialog implements IItemListener,
     IItemListenerDataRecordTable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
   public static final int ACTION_HIDE = 100;
   public static final int ACTION_MERGE = 200;
@@ -117,7 +119,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
   }
 
   protected void iniActions() {
-    Vector<Integer> actions = new Vector<Integer>();
+    Vector<Integer> actions = new Vector<>();
     actions.add(ItemTypeDataRecordTable.ACTION_NEW);
     actions.add(ItemTypeDataRecordTable.ACTION_EDIT);
     actions.add(ItemTypeDataRecordTable.ACTION_DELETE);
@@ -257,9 +259,10 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
 
     boolean hasEditAction = false;
     for (int i = 0; actionType != null && i < actionType.length; i++) {
-      if (actionType[i] == ItemTypeDataRecordTable.ACTION_EDIT) {
-        hasEditAction = true;
-      }
+        if (actionType[i] == ItemTypeDataRecordTable.ACTION_EDIT) {
+            hasEditAction = true;
+            break;
+        }
     }
     if (!hasEditAction) {
       table.setDefaultActionForDoubleclick(-1);
@@ -348,17 +351,17 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
           return;
         }
         try {
-          for (int i = 0; records != null && i < records.length; i++) {
-            if (records[i] != null) {
+          for (DataRecord record : records) {
+            if (record != null) {
               if (persistence.data().getMetaData().isVersionized()) {
-                DataRecord[] allVersions = persistence.data().getValidAny(records[i].getKey());
+                DataRecord[] allVersions = persistence.data().getValidAny(record.getKey());
                 for (int j = 0; allVersions != null && j < allVersions.length; j++) {
                   allVersions[j].setInvisible(currentlyVisible);
                   persistence.data().update(allVersions[j]);
                 }
               } else {
-                records[i].setInvisible(currentlyVisible);
-                persistence.data().update(records[i]);
+                record.setInvisible(currentlyVisible);
+                persistence.data().update(record);
               }
             }
           }
@@ -374,8 +377,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
           Dialog.error("Bitte wähle mindestens zwei Datensätze zum Zusammenfügen aus!");
           return;
         }
-        Hashtable<String, String> items = new Hashtable<String, String>();
-        Hashtable<String, DataKey> keyMapping = new Hashtable<String, DataKey>();
+        Hashtable<String, String> items = new Hashtable<>();
+        Hashtable<String, DataKey> keyMapping = new Hashtable<>();
         for (DataRecord r : records) {
           if (r != null) {
             DataKey k = r.getKey();
@@ -453,7 +456,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         break;
       case ACTION_PRINTLIST:
         Vector<DataRecord> data = table.getDisplayedData();
-        if (data == null || data.size() == 0) {
+        if (data == null || data.isEmpty()) {
           Dialog.error(International.getString("Auswahl ist leer."));
           return;
         }

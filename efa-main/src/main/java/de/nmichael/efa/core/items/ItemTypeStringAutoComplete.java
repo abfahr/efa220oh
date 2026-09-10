@@ -81,21 +81,21 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
     if (Daten.isAdminMode()) {
       return false; // kein filter
     }
-    if (fieldname == "PersonId"
-        || fieldname == "CoxName"
+    if (fieldname.equals("PersonId")
+        || fieldname.equals("CoxName")
         || fieldname.matches("Crew.Name")
         || fieldname.matches("Crew..Name")
         || fieldname.matches("PersonList_._PersonId")
         || fieldname.matches("PersonList_.._PersonId")
-        || fieldname == "ReportedByPersonId"
-        || fieldname == "FixedByPersonId"
-        || fieldname == "From" /* Emails */) {
+        || fieldname.equals("ReportedByPersonId")
+        || fieldname.equals("FixedByPersonId")
+        || fieldname.equals("From") /* Emails */) {
       return true;
-    } else if (fieldname == "BOAT"
-        || fieldname == "BoatName"
-        || fieldname == "DestinationName"
-        || fieldname == "GUIITEM_ADDITIONALWATERS"
-        || fieldname == "SessionGroupId") {
+    } else if (fieldname.equals("BOAT")
+        || fieldname.equals("BoatName")
+        || fieldname.equals("DestinationName")
+        || fieldname.equals("GUIITEM_ADDITIONALWATERS")
+        || fieldname.equals("SessionGroupId")) {
       return false;
     }
     return false; // fuer Breakpoint
@@ -135,7 +135,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
       });
     }
     super.iniDisplay();
-    ((JTextField) field).addKeyListener(new java.awt.event.KeyAdapter() {
+    field.addKeyListener(new java.awt.event.KeyAdapter() {
       @Override
       public void keyReleased(KeyEvent e) {
         autoComplete(e);
@@ -174,7 +174,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
 
   @Override
   public void setVisible(boolean visible) {
-    if (visible == true && isVisibleSticky() == false) {
+    if (visible && !isVisibleSticky()) {
       return;
     }
     super.setVisible(visible);
@@ -269,10 +269,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
       if (f.isEnabled() && f.isEditable()) {
         if (!AutoCompletePopupWindow.isShowingAt(f)) {
           AutoCompletePopupWindow.hideWindow();
-          // try {
-          //   Thread.sleep(50); // auf dem EDT durch javax.swing.Timer ersetzen
-          // } catch (InterruptedException eignore) {}
-          // AutoCompletePopupWindow.showAndSelect(f, autoCompleteList, f.getText(), null);
+
           javax.swing.Timer t = new javax.swing.Timer(50, e ->
             AutoCompletePopupWindow.showAndSelect(f, autoCompleteList, f.getText(), null));
           t.setRepeats(false);
@@ -309,7 +306,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
       return; // dieses Key-Event wurde von AutoCompletePopupWindow generiert
     }
 
-    if (field.getText().trim().length() == 0) {
+    if (field.getText().trim().isEmpty()) {
       setButtonColor(null);
     }
 
@@ -342,7 +339,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
 
     if (mode == Mode.normal
         || ((mode == Mode.enter || mode == Mode.escape || mode == Mode.none)
-            && field.getText().length() > 0)) {
+            && !field.getText().isEmpty())) {
 
       // remove leading spaces
       String spc = field.getText();
@@ -460,7 +457,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
       String s = (prefix != null ? prefix : field.getText());
       base = s.substring(0, ignorePos).trim();
       ignoredString = s.substring(ignorePos + 1).trim();
-      if (ignoredString.length() == 0) {
+      if (ignoredString.isEmpty()) {
         ignoredString = null;
       }
     }
@@ -528,14 +525,14 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
       }
     }
 
-    if (field.getText().length() == 0) {
+    if (field.getText().isEmpty()) {
       setButtonColor(null);
     }
   }
 
   private void checkSpelling() {
     String name = getValueFromField().trim();
-    if (name.length() == 0) {
+    if (name.isEmpty()) {
       return;
     }
 
@@ -560,13 +557,13 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
       int radius = (name.length() < 6 ? name.length() / 2 : 3);
       neighbours = list.getNeighbours(name, radius, (isCheckPermutations ? 6 : 0));
     }
-    if (neighbours != null && neighbours.size() > 0) {
-      ItemTypeList item = new ItemTypeList("NAME", IItemType.TYPE_PUBLIC, "",
+    if (neighbours != null && !neighbours.isEmpty()) {
+      ItemTypeList<String> item = new ItemTypeList<>("NAME", IItemType.TYPE_PUBLIC, "",
           LogString.itemIsUnknown(name, International.getString("Name")) + "\n" +
               International.getString("Meintest Du ...?"));
-      for (int i = 0; i < neighbours.size(); i++) {
-        item.addItem(neighbours.get(i), neighbours.get(i), false, '\0');
-      }
+        for (String neighbour : neighbours) {
+            item.addItem(neighbour, neighbour, false, '\0');
+        }
       item.setFieldSize(300, 200);
 
       if (field == null || !field.isValid()) {
@@ -586,7 +583,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
               SimpleOptionInputDialog.OPTION_CANCEL },
           null)) {
         String suggestedName = item.getSelectedText();
-        if (suggestedName != null && suggestedName.length() > 0) {
+        if (suggestedName != null && !suggestedName.isEmpty()) {
           this.parseAndShowValue(suggestedName);
         }
       }
@@ -648,7 +645,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements
 
   @Override
   public boolean isValidInput() {
-    if (alternateFieldNameForPlainText == null && value != null && value.length() > 0) {
+    if (alternateFieldNameForPlainText == null && value != null && !value.isEmpty()) {
       // make sure the entered value is a valid ID
       if (autoCompleteList.getId(value) == null) {
         lastInvalidErrorText = International.getString("Unbekannter Name nicht erlaubt");

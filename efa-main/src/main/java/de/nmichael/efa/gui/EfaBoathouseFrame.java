@@ -1911,38 +1911,44 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   public void itemListenerAction(IItemType item, AWTEvent event) {
     int listID = 0;
     ItemTypeBoatstatusList aMainList = null;
+
     try {
       listID = getListIdFromItem(item);
+      if (listID == 0 || event == null) {
+        return;
+      }
       aMainList = (ItemTypeBoatstatusList) item;
     } catch (Exception e) {
       Logger.logwarn(e);
     }
-    if (listID == 0) {
-      return;
-    }
 
-    ActionEvent actionEvent = null;
-    try {
-      actionEvent = (ActionEvent) event;
-    } catch (Exception e) {
-      Logger.logwarn(e);
-    }
-    if (actionEvent != null) {
+
+    if (event instanceof ActionEvent) {
+      ActionEvent actionEvent = (ActionEvent) event;
       String actionCommand = actionEvent.getActionCommand();
-      if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_1x)) {
-        showBoatStatusAfterDoubleClick(listID, aMainList, 1);
-        alive();
+      if (actionCommand == null) {
+        return;
       }
-      if (actionCommand.equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
-        alive();
-        showBoatStatusAfterDoubleClick(listID, aMainList, 1);
-        boatListDoubleClick(listID, aMainList);
+
+      switch (actionCommand) {
+        case EfaMouseListener.EVENT_MOUSECLICKED_1x -> {
+          showBoatStatusAfterDoubleClick(listID, aMainList, 1);
+          alive();
+          return;
+        }
+        case EfaMouseListener.EVENT_MOUSECLICKED_2x -> {
+          alive();
+          showBoatStatusAfterDoubleClick(listID, aMainList, 1);
+          boatListDoubleClick(listID, aMainList);
+          return;
+        }
+        case EfaMouseListener.EVENT_POPUP -> {
+          alive();
+          showBoatStatusAfterDoubleClick(listID, aMainList, 1);
+          return;
+        }
       }
-      if (actionCommand.equals(EfaMouseListener.EVENT_POPUP)) {
-        alive();
-        showBoatStatusAfterDoubleClick(listID, aMainList, 1);
-      }
-      // Popup clicked?
+
       if (actionCommand.startsWith(EfaMouseListener.EVENT_POPUP_CLICKED)) {
         int subCmd = EfaUtil.stringFindInt(actionCommand, -1);
         if (subCmd >= 0) {
@@ -1952,48 +1958,46 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
           }
         }
       }
+      return;
     }
 
-    KeyEvent keyEvent = null;
-    try {
-      keyEvent = (KeyEvent) event;
-    } catch (Exception e) {
-      Logger.logwarn(e);
-    }
-    if (keyEvent != null) {
+    if (event instanceof KeyEvent) {
+      KeyEvent keyEvent = (KeyEvent) event;
+      alive();
       clearAllPopups();
+
       int keyCode = keyEvent.getKeyCode();
-      if (keyCode == KeyEvent.VK_ENTER ||
-          keyCode == KeyEvent.VK_SPACE) {
-        // don't react if space was pressed as part of an incremental search string
+      if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_SPACE) {
         if (keyCode == KeyEvent.VK_SPACE) {
           if (aMainList == null) {
             return;
           }
-          String s = aMainList.getIncrementalSearchString();
-          if (s != null && !s.isEmpty() && !s.startsWith(" ")) {
+          String search = aMainList.getIncrementalSearchString();
+          if (search != null && !search.isEmpty()&& !search.startsWith("---")) {
             return;
           }
         }
+
         boatListDoubleClick(listID, aMainList);
         return;
       }
-      int direction = (keyCode == 38) ? -1 : 1;
+
+      int direction = keyCode == KeyEvent.VK_UP ? -1 : 1;
       showBoatStatusAfterDoubleClick(listID, aMainList, direction);
       return;
     }
 
-    FocusEvent focusEvent = null;
-    try {
-      focusEvent = (FocusEvent) event;
-    } catch (Exception e) {
-      Logger.logwarn(e);
-    }
-    if (focusEvent != null) {
+    if (event instanceof FocusEvent) {
+      FocusEvent focusEvent = (FocusEvent) event;
       if (focusEvent.getID() == FocusEvent.FOCUS_GAINED) {
         showBoatStatusAfterDoubleClick(listID, aMainList, 1);
       }
+      return;
     }
+
+    Logger.log(Logger.WARNING, Logger.MSG_ABF_WARNING,
+    "Unexpected event type in EfaBoathouseFrame.itemListenerAction: " + event.getClass().getName()
+    );
   }
 
   private void processListAction(ItemTypeBoatstatusList.BoatListItem blitem, int action) {

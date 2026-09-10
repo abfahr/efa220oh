@@ -11,6 +11,8 @@
 package de.nmichael.efa.gui.widgets;
 
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 import javax.swing.JComponent;
@@ -34,8 +36,8 @@ public class HTMLWidget extends Widget {
   public static final String PARAM_HEIGHT = "Height";
   public static final String PARAM_URL = "Url";
 
-  private JScrollPane scrollPane = new JScrollPane();
-  private JEditorPane htmlPane = new JEditorPane();
+  private final JScrollPane scrollPane = new JScrollPane();
+  private final JEditorPane htmlPane = new JEditorPane();
   private HTMLUpdater htmlUpdater;
 
   public HTMLWidget() {
@@ -61,6 +63,16 @@ public class HTMLWidget extends Widget {
   void construct() {
     htmlPane.setContentType("text/html");
     htmlPane.setEditable(false);
+    htmlPane.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        // Refresh-on-click: sofortiges Neuladen der URL, unabhängig vom regulären Update-Intervall
+        if (htmlUpdater != null) {
+          htmlUpdater.interrupt();
+        }
+        super.mouseClicked(e);
+      }
+    });
     // following hyperlinks is automatically "disabled" (if no HyperlinkListener is taking care of
     // it)
     // But we also need to disable submiting of form data:
@@ -119,7 +131,7 @@ public class HTMLWidget extends Widget {
       while (keepRunning) {
         try {
           try {
-            if (url != null && url.length() > 0) {
+            if (url != null && !url.isEmpty()) {
               url = EfaUtil.correctUrl(url);
               Document doc = new HTMLDocument();
               doc.putProperty("javax.swing.JEditorPane.postdata", "foobar"); // property must match
@@ -128,12 +140,11 @@ public class HTMLWidget extends Widget {
               htmlPane.setPage(url);
             }
           } catch (IOException ee) {
-            htmlPane.setText(International.getString("FEHLER")
-                + ": "
+            htmlPane.setText(International.getString("FEHLER") + ": "
                 + International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}", url,
                     ee.toString()));
           }
-          Thread.sleep(updateIntervalInSeconds * 1000);
+          Thread.sleep(updateIntervalInSeconds * 1000L);
         } catch (Exception e) {
           Logger.logdebug(e);
         }

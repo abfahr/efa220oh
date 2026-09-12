@@ -1704,9 +1704,9 @@ public class Audit extends Thread {
               Logger.MSG_DATA_AUDIT,
               "ReservierungKonflikt: "
                   + reservationType
-                  + " für " + boatName
                   + " am " + reservationDate
                   + " " + reservationTimeFrom + "-" + reservationTimeTo
+                  + " für " + boatName
                   + " kollidiert mit einem wiederkehrenden Termin "
                   + "auf demselben Boot.");
 
@@ -1723,8 +1723,8 @@ public class Audit extends Thread {
     } catch (Exception e) {
       Logger.logdebug(e);
       auditError(
-              Logger.MSG_DATA_AUDIT,
-              "runAuditBoatReservationLogbookConflicts() Caught Exception: " + e);
+        Logger.MSG_DATA_AUDIT,
+        "runAuditBoatReservationLogbookConflicts() Caught Exception: " + e);
     }
   }
 

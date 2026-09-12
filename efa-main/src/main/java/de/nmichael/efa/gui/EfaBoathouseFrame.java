@@ -858,7 +858,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       return;
     }
 
-    long t = System.currentTimeMillis();
     try {
       int xWidth = 352;
       int yHeight = 654; // 704;
@@ -888,17 +887,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
       }
       if (xWidth > 352) {
         xWidth = 352; // max
-        // yHeight = 704;
       }
       logoLabel.setPreferredSize(new Dimension(xWidth, yHeight));
-      long t2 = System.currentTimeMillis() - t;
-      if (t2 >= 3000) {
-        Logger.log(Logger.INFO, Logger.MSG_ABF_WARNING, "Zeitmessung: zentrales Bild geladen"
-            + " t=" + t2 + "ms für " + fileName);
-        Writer output = new BufferedWriter(new FileWriter(strZentralesBild + ".txt", true));
-        output.append(String.valueOf(t2)).append("ms").append(NEWLINE);
-        output.close();
-      }
     } catch (Exception e) {
       Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, e);
     }

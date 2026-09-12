@@ -27,6 +27,7 @@ import de.nmichael.efa.data.storage.EfaOnlineClient;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.RemoteEfaClient;
 import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.util.Logger;
 
 public class CLI {
@@ -63,7 +64,7 @@ public class CLI {
     cron
   }
 
-  private MODE mode;
+  private final MODE mode;
   private String username;
   private String password;
   private String hostname;
@@ -72,8 +73,7 @@ public class CLI {
   Console console;
   BufferedReader in;
 
-  private EfaConfig remoteEfaConfig;
-  private AdminRecord adminRecord;
+    private AdminRecord adminRecord;
   private MenuBase lastMenu;
   private Stack<String> menuStack;
 
@@ -91,7 +91,7 @@ public class CLI {
     if (Logger.isTraceOn(Logger.TT_CLI, 1)) {
       Logger.log(Logger.DEBUG, Logger.MSG_CLI_DEBUG, "CLI(" +
           username + "," +
-          (password != null && password.length() > 0 ? "***" : "") + "," +
+          (password != null && !password.isEmpty() ? "***" : "") + "," +
           hostname + "," +
           port + "," +
           project + ")");
@@ -100,11 +100,11 @@ public class CLI {
     in = new BufferedReader(new InputStreamReader(System.in));
     Credentials cred = new Credentials();
     cred.readCredentials();
-    if (username == null || username.length() == 0) {
+    if (username == null || username.isEmpty()) {
       username = cred.getDefaultAdmin();
     }
-    if (username != null && username.length() > 0 &&
-        (password == null || password.length() == 0)) {
+    if (username != null && !username.isEmpty() &&
+        (password == null || password.isEmpty())) {
       this.password = cred.getPassword(username);
     }
   }
@@ -242,57 +242,66 @@ public class CLI {
     if (Logger.isTraceOn(Logger.TT_CLI, 1)) {
       Logger.log(Logger.DEBUG, Logger.MSG_CLI_DEBUG, "connect(" +
           username + "," +
-          (password != null && password.length() > 0 ? "***" : "") + "," +
+          (password != null && !password.isEmpty() ? "***" : "") + "," +
           hostname + "," +
           port + "," +
           project + ")");
     }
-    if (port != null && port.length() > 0 && !Character.isDigit(port.charAt(0))) {
+    if (port != null && !port.isEmpty() && !Character.isDigit(port.charAt(0))) {
       getIpAndPortFromEfaOnline();
     }
-    if (project == null || project.length() == 0) {
+    if (project == null || project.isEmpty()) {
       logerr("Don't know which project to open (no recent project, and no project specified).");
       return RC_ERROR_OPEN_PROJECT;
     }
-    if (password == null || password.length() == 0) {
+    if (password == null || password.isEmpty()) {
       password = promptForPassword("Password for " + username);
     }
     loginfo("Connecting as " + username + " to " + hostname + ":" + port + " ...");
-    remoteEfaConfig = (EfaConfig) getPersistence(EfaConfig.class, null, EfaConfig.DATATYPE);
+
+    EfaConfig remoteEfaConfig = (EfaConfig) getPersistence(EfaConfig.class, null, EfaConfig.DATATYPE);
     try {
-      if (remoteEfaConfig.isOpen()) {
-        loginfo("Connected.");
-        adminRecord = ((RemoteEfaClient) remoteEfaConfig.data()).getAdminRecord();
-        if (adminRecord == null) {
-          logerr("Could not get Admin Permissions.");
-          return RC_ERROR_LOGIN;
-        }
-        loginfo("Opening Remote Project " + project + " ...");
-        Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli");
-        prj.create();
-        prj.setEmptyProject("cli");
-        prj.setProjectDescription("dummy project created by cli");
-        prj.setProjectStorageType(IDataAccess.TYPE_EFA_REMOTE);
-        prj.setProjectStorageLocation(hostname + ":" + port);
-        prj.setProjectStorageUsername(username);
-        prj.setProjectStoragePassword(password);
-        prj.setProjectRemoteProjectName(project);
-        prj.close();
-        Project.openProject(new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli"),
-            "cli", false);
-        if (Daten.project != null && Daten.project.isRemoteOpen()) {
-          loginfo("Remote Project opened.");
-          Daten.efaConfig.setValueLastProjectEfaCli(project);
-        } else {
-          logerr("Failed to open Remote Project " + project + ".");
-          return RC_ERROR_OPEN_PROJECT;
-        }
-        return RC_OK;
+      if (!remoteEfaConfig.isOpen()) {
+        return RC_ERROR_LOGIN;
       }
+      loginfo("Connected.");
+
+      adminRecord = ((RemoteEfaClient) remoteEfaConfig.data()).getAdminRecord();
+      if (adminRecord == null) {
+        logerr("Could not get Admin Permissions.");
+        return RC_ERROR_LOGIN;
+      }
+
+      loginfo("Opening Remote Project " + project + " ...");
+      Project.openProject(createDummyProject(), "cli", false);
+      if (Daten.project != null && Daten.project.isRemoteOpen()) {
+        loginfo("Remote Project opened.");
+        Daten.efaConfig.setValueLastProjectEfaCli(project);
+        return RC_OK;
+      } else {
+        logerr("Failed to open Remote Project " + project + ".");
+        return RC_ERROR_OPEN_PROJECT;
+      }
+
     } catch (Exception e) {
       logerr(e.getMessage());
+      return RC_ERROR_LOGIN;
     }
-    return RC_ERROR_LOGIN;
+  }
+
+  private Project createDummyProject() throws EfaException {
+    // Project myProject = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli");
+    Project dummyProject = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli");
+    dummyProject.create();
+    dummyProject.setEmptyProject("cli");
+    dummyProject.setProjectDescription("dummy project created by cli");
+    dummyProject.setProjectStorageType(IDataAccess.TYPE_EFA_REMOTE);
+    dummyProject.setProjectStorageLocation(hostname + ":" + port);
+    dummyProject.setProjectStorageUsername(username);
+    dummyProject.setProjectStoragePassword(password);
+    dummyProject.setProjectRemoteProjectName(project);
+    dummyProject.close();
+    return dummyProject;
   }
 
   public AdminRecord getAdminRecord() {
@@ -335,58 +344,26 @@ public class CLI {
 
   public Class getMenu() {
     String mymenu = menuStack.peek();
-    if (mymenu.equals(MENU_MAIN)) {
-      return de.nmichael.efa.cli.MenuMain.class;
-    }
-    if (mymenu.equals(MENU_BOATS)) {
-      return de.nmichael.efa.cli.MenuBoats.class;
-    }
-    if (mymenu.equals(MENU_BOATDAMAGES)) {
-      return de.nmichael.efa.cli.MenuBoatDamages.class;
-    }
-    if (mymenu.equals(MENU_BOATRESERVATIONS)) {
-      return de.nmichael.efa.cli.MenuBoatReservations.class;
-    }
-    if (mymenu.equals(MENU_BOATSTATUS)) {
-      return de.nmichael.efa.cli.MenuBoatStatus.class;
-    }
-    if (mymenu.equals(MENU_CREWS)) {
-      return de.nmichael.efa.cli.MenuCrews.class;
-    }
-    if (mymenu.equals(MENU_PERSONS)) {
-      return de.nmichael.efa.cli.MenuPersons.class;
-    }
-    if (mymenu.equals(MENU_DESTINATIONS)) {
-      return de.nmichael.efa.cli.MenuDestinations.class;
-    }
-    if (mymenu.equals(MENU_FAHRTENABZEICHEN)) {
-      return de.nmichael.efa.cli.MenuFahrtenabzeichen.class;
-    }
-    if (mymenu.equals(MENU_GROUPS)) {
-      return de.nmichael.efa.cli.MenuGroups.class;
-    }
-    if (mymenu.equals(MENU_MESSAGES)) {
-      return de.nmichael.efa.cli.MenuMessages.class;
-    }
-    if (mymenu.equals(MENU_STATISTICS)) {
-      return de.nmichael.efa.cli.MenuStatistics.class;
-    }
-    if (mymenu.equals(MENU_STATUS)) {
-      return de.nmichael.efa.cli.MenuStatus.class;
-    }
-    if (mymenu.equals(MENU_WATERS)) {
-      return de.nmichael.efa.cli.MenuWaters.class;
-    }
-    if (mymenu.equals(MENU_SYNCEFB)) {
-      return de.nmichael.efa.cli.MenuSyncEfb.class;
-    }
-    if (mymenu.equals(MENU_BACKUP)) {
-      return de.nmichael.efa.cli.MenuBackup.class;
-    }
-    if (mymenu.equals(MENU_COMMAND)) {
-      return de.nmichael.efa.cli.MenuCommand.class;
-    }
-    return null;
+      return switch (mymenu) {
+          case MENU_MAIN -> MenuMain.class;
+          case MENU_BOATS -> MenuBoats.class;
+          case MENU_BOATDAMAGES -> MenuBoatDamages.class;
+          case MENU_BOATRESERVATIONS -> MenuBoatReservations.class;
+          case MENU_BOATSTATUS -> MenuBoatStatus.class;
+          case MENU_CREWS -> MenuCrews.class;
+          case MENU_PERSONS -> MenuPersons.class;
+          case MENU_DESTINATIONS -> MenuDestinations.class;
+          case MENU_FAHRTENABZEICHEN -> MenuFahrtenabzeichen.class;
+          case MENU_GROUPS -> MenuGroups.class;
+          case MENU_MESSAGES -> MenuMessages.class;
+          case MENU_STATISTICS -> MenuStatistics.class;
+          case MENU_STATUS -> MenuStatus.class;
+          case MENU_WATERS -> MenuWaters.class;
+          case MENU_SYNCEFB -> MenuSyncEfb.class;
+          case MENU_BACKUP -> MenuBackup.class;
+          case MENU_COMMAND -> MenuCommand.class;
+          default -> null;
+      };
   }
 
   public int run(String initialCommand) {
@@ -399,11 +376,11 @@ public class CLI {
         Thread.sleep(500);
       }
     } catch (InterruptedException eignore) {}
-    if (initialCommand != null && initialCommand.length() == 0) {
+    if (initialCommand != null && initialCommand.isEmpty()) {
       initialCommand = null;
     }
 
-    menuStack = new Stack<String>();
+    menuStack = new Stack<>();
     menuStack.push(MENU_MAIN);
     try {
       lastMenu = MenuMain.class.getConstructor(CLI.class).newInstance(this);
@@ -414,7 +391,7 @@ public class CLI {
     while (true) {
       String command = (initialCommand != null ?
           initialCommand : promptForInput(null));
-      if (command == null || command.length() == 0) {
+      if (command == null || command.isEmpty()) {
         if (mode == MODE.cron) {
           break;
         } else {
@@ -438,7 +415,7 @@ public class CLI {
   public int runCommandInCurrentMenu(String command) {
     String cmd = parseCommand(command, 0);
     String args = parseCommand(command, 1);
-    if (cmd == null || cmd.length() == 0) {
+    if (cmd == null || cmd.isEmpty()) {
       return RC_OK;
     }
     Class c = getMenu();
@@ -453,7 +430,7 @@ public class CLI {
           menuChanged = true;
         }
         int ret = menu.runCommand(menuStack, cmd, args);
-        if (menuChanged && args != null && args.length() > 0) {
+        if (menuChanged && args != null && !args.isEmpty()) {
           menuStack.pop();
         } else {
           lastMenu = menu;

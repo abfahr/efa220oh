@@ -42,7 +42,7 @@ public abstract class DataFile extends DataAccess {
   private final ArrayList<DataIndex> indices = new ArrayList<>();
   protected long scn = 0;
   private DataKey[] cachedKeys; // are only updated by getAllKeys(), not automatically when data is
-    private final DataLocks dataLocks = new DataLocks();
+  private final DataLocks dataLocks = new DataLocks();
   private DataFileWriter fileWriter;
   private Journal journal;
 
@@ -548,7 +548,8 @@ public abstract class DataFile extends DataAccess {
           Thread.currentThread().getStackTrace());
     }
 
-    if (!inOpeningStorageObject() && isPreModifyRecordCallbackEnabled()) {
+    if (!inOpeningStorageObject() && isPreModifyRecordCallbackEnabled()
+            && (Daten.project == null || !Daten.project.isInAudit())) {
       getPersistence().preModifyRecordCallback(record, add, update, delete);
     }
 

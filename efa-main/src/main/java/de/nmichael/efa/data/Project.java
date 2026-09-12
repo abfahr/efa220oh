@@ -59,7 +59,7 @@ public class Project extends StorageObject {
   public static final String STORAGEOBJECT_WATERS = "waters";
   public static final String STORAGEOBJECT_STATISTICS = "statistics";
   public static final String STORAGEOBJECT_MESSAGES = "messages";
-  private final Hashtable<String, StorageObject> persistenceCache = new Hashtable<String, StorageObject>();
+  private final Hashtable<String, StorageObject> persistenceCache = new Hashtable<>();
   protected IDataAccess remoteDataAccess; // used for ClubRecord and LogbookRecord, if
   // TYPE_EFA_REMOTE
   private String myIdentifier = null;
@@ -69,6 +69,7 @@ public class Project extends StorageObject {
   private Hashtable<Integer, String> boathouseIdToNameMapping = null;
   private volatile boolean _inOpeningProject = false;
   private volatile boolean _inDeleteProject = false;
+  private boolean _inAudit = false;
   private boolean isRemoteOpen = false;
 
   // Note: storageType and storageLocation are only type and location for the project file itself
@@ -153,7 +154,7 @@ public class Project extends StorageObject {
           p.remoteDataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
         }
         // since login into remote data is lazy, we should retrieve a project record here
-        // to make the login happen. It's important to chose a record which is a remote
+        // to make the login happen. It's important to choose a record which is a remote
         // record, i.e. *not* the project record itself. Therefore we select the club
         // record.
         p.isRemoteOpen = (p.getClubRecord() != null);
@@ -371,6 +372,9 @@ public class Project extends StorageObject {
     return _inOpeningProject;
   }
 
+  public void setInAudit(boolean inAudit) { this._inAudit = inAudit;   }
+  public boolean isInAudit() { return this._inAudit; }
+
   public boolean deleteProject() {
     // we need to cache this, later it's gone...
     String projectName = getProjectName();
@@ -407,7 +411,9 @@ public class Project extends StorageObject {
             Logger.logdebug(eignore);
             try {
               boolean b = (new File(((DataFile) p.data()).getFilename())).delete();
-            } catch (Exception eignore2) {}
+            } catch (Exception eignore2) {
+              Logger.logdebug(eignore2);
+            }
           }
         }
       }
@@ -438,7 +444,7 @@ public class Project extends StorageObject {
   }
 
   public Vector<StorageObject> getAllDataAndLogbooks() {
-    Vector<StorageObject> data = new Vector<StorageObject>();
+    Vector<StorageObject> data = new Vector<>();
     data.add(getAutoIncrement(false));
     data.add(getSessionGroups(false));
     data.add(getPersons(false));
@@ -466,7 +472,7 @@ public class Project extends StorageObject {
   }
 
   public static Hashtable<String, String> getProjects() {
-    Hashtable<String, String> items = new Hashtable<String, String>();
+    Hashtable<String, String> items = new Hashtable<>();
     try {
       File dir = new File(Daten.efaDataDirectory);
       if (dir.isDirectory()) {
@@ -503,16 +509,20 @@ public class Project extends StorageObject {
                 }
               }
               items.put(name, description.toString());
-            } catch (Exception eignore) {}
+            } catch (Exception eignore) {
+              Logger.logdebug(eignore);
+            }
           }
         }
       }
-    } catch (Exception eignore) {}
+    } catch (Exception eignore) {
+      Logger.logdebug(eignore);
+    }
     return items;
   }
 
   public Hashtable<String, String> getLogbooks() {
-    Hashtable<String, String> items = new Hashtable<String, String>();
+    Hashtable<String, String> items = new Hashtable<>();
     String[] logbooks = getAllLogbookNames();
     for (int i = 0; logbooks != null && i < logbooks.length; i++) {
       ProjectRecord r = getLoogbookRecord(logbooks[i]);
@@ -529,7 +539,7 @@ public class Project extends StorageObject {
   }
 
   public Hashtable<String, String> getClubworks() {
-    Hashtable<String, String> items = new Hashtable<String, String>();
+    Hashtable<String, String> items = new Hashtable<>();
     String[] clubworks = getAllClubworkNames();
     for (int i = 0; clubworks != null && i < clubworks.length; i++) {
       ProjectRecord r = getClubworkBookRecord(clubworks[i]);
@@ -1117,7 +1127,7 @@ public class Project extends StorageObject {
         return null; // happens for remote projects
       }
       DataKeyIterator it = myAccess.getStaticIterator();
-      ArrayList<String> a = new ArrayList<String>();
+      ArrayList<String> a = new ArrayList<>();
       DataKey k = it.getFirst();
       while (k != null) {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_LOGBOOK).get(k);
@@ -1142,7 +1152,7 @@ public class Project extends StorageObject {
         return null; // happens for remote projects
       }
       DataKeyIterator it = myAccess.getStaticIterator();
-      ArrayList<String> a = new ArrayList<String>();
+      ArrayList<String> a = new ArrayList<>();
       DataKey k = it.getFirst();
       while (k != null) {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_CLUBWORK).get(k);
@@ -1189,7 +1199,7 @@ public class Project extends StorageObject {
         return null; // happens for remote projects
       }
       DataKeyIterator it = myAccess.getStaticIterator();
-      ArrayList<String> a = new ArrayList<String>();
+      ArrayList<String> a = new ArrayList<>();
       DataKey k = it.getFirst();
       while (k != null) {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).get(k);
@@ -1214,7 +1224,7 @@ public class Project extends StorageObject {
         return null; // happens for remote projects
       }
       DataKeyIterator it = myAccess.getStaticIterator();
-      ArrayList<Integer> a = new ArrayList<Integer>();
+      ArrayList<Integer> a = new ArrayList<>();
       DataKey k = it.getFirst();
       while (k != null) {
         ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).get(k);
@@ -1269,7 +1279,7 @@ public class Project extends StorageObject {
   }
 
   private void refreshBoathouseIdToNameMapping() {
-    boathouseIdToNameMapping = new Hashtable<Integer, String>();
+    boathouseIdToNameMapping = new Hashtable<>();
     try {
       String[] names = getAllBoathouseNames();
       for (String name : names) {
@@ -1939,15 +1949,12 @@ public class Project extends StorageObject {
   }
 
   public String getProjectStorageTypeTypeString() {
-    switch (getProjectStorageType()) {
-      case IDataAccess.TYPE_FILE_XML:
-        return IDataAccess.TYPESTRING_FILE_XML;
-      case IDataAccess.TYPE_EFA_REMOTE:
-        return IDataAccess.TYPESTRING_EFA_REMOTE;
-      case IDataAccess.TYPE_DB_SQL:
-        return IDataAccess.TYPESTRING_DB_SQL;
-    }
-    return null;
+    return switch (getProjectStorageType()) {
+      case IDataAccess.TYPE_FILE_XML -> IDataAccess.TYPESTRING_FILE_XML;
+      case IDataAccess.TYPE_EFA_REMOTE -> IDataAccess.TYPESTRING_EFA_REMOTE;
+      case IDataAccess.TYPE_DB_SQL -> IDataAccess.TYPESTRING_DB_SQL;
+      default -> null;
+    };
   }
 
   // get the storageLocation for this project's content

@@ -352,7 +352,7 @@ public class Audit extends Thread {
 
         // check References from BoatStatus
         boolean updated = false;
-        if (Daten.applID == Daten.APPL_EFABH &&
+        if (Daten.applID == Daten.APPL_EFABH && status != null &&
             BoatStatusRecord.STATUS_ONTHEWATER.equals(status.getCurrentStatus())) {
           String logbookName = status.getLogbook();
           DataTypeIntString entryNo = status.getEntryNo();
@@ -370,7 +370,7 @@ public class Audit extends Thread {
                         BoatStatusRecord.getStatusDescription(status.getBaseStatus()))
                     + " (Logbook " + logbookName + " or EntryNo " + entryNo + " not set)");
           }
-          if (!logbookName.equals(project.getCurrentLogbookEfaBoathouse())) {
+          if (logbookName == null || !logbookName.equals(project.getCurrentLogbookEfaBoathouse())) {
             auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                 "runAuditBoats(): "
                     + International.getString("Bootsstatus") + " "
@@ -379,8 +379,7 @@ public class Audit extends Thread {
                         .getMessage(
                             "Boot ist unterwegs in Fahrtenbuch {name}, aber Fahrtenbuch {name} ist geöffnet.",
                             logbookName, project.getCurrentLogbookEfaBoathouse())
-                    + " "
-                    + International
+                    + " " + International
                         .getString("Bitte korrigiere den Status des Bootes im Admin-Modus."));
             boatErr++;
           } else {
@@ -416,7 +415,7 @@ public class Audit extends Thread {
                             BoatStatusRecord
                                 .getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                             BoatStatusRecord.getStatusDescription(status.getBaseStatus()))
-                        + " (Entry #" + entryNo.toString() + " in Logbook '" + logbookName
+                        + " (Entry #" + entryNo + " in Logbook '" + logbookName
                         + "' does not exist)");
               }
             }
@@ -1081,7 +1080,7 @@ public class Audit extends Thread {
     int statsErr = 0;
     try {
       Statistics statistics = project.getStatistics(false);
-      Hashtable<Integer, StatisticsRecord> hash = new Hashtable<Integer, StatisticsRecord>();
+      Hashtable<Integer, StatisticsRecord> hash = new Hashtable<>();
       DataKeyIterator it = statistics.dataAccess.getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
       while (k != null) {
@@ -1591,6 +1590,10 @@ public class Audit extends Thread {
     }
     auditRunning = true;
 
+    if (project != null) {
+      project.setInAudit(true);
+    }
+
     try {
       if (project == null || project.isInOpeningProject() || !project.isOpen()
           || project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
@@ -1665,6 +1668,9 @@ public class Audit extends Thread {
       }
     } finally {
       auditRunning = false;
+      if (project != null) {
+        project.setInAudit(false);
+      }
     }
   }
 

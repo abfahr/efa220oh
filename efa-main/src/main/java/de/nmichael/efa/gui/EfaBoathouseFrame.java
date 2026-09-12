@@ -42,15 +42,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -395,6 +387,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   public void updateGuiElements() {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(this::updateGuiElements);
+      return;
+    }
     updateGuiWidgets();
     updateGuiClock();
     updateGuiNews();
@@ -1197,6 +1193,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   // i == 2 - boats on the water
   // i == 3 - boats not available
   public void boatListRequestFocus(int i) {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(() -> boatListRequestFocus(i));
+      return;
+    }
     if (i == 0) {
       if (boatsAvailableList != null &&
           boatsAvailableList.getSelectedIndex() >= 0) {
@@ -1726,6 +1726,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
   // synchronizing this method can cause deadlock!!!!
   public void updateBoatLists(boolean listChanged) {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      boolean finalListChanged = listChanged;
+      SwingUtilities.invokeLater(() -> updateBoatLists(finalListChanged));
+      return;
+    }
     if (!isEnabled()) {
       return;
     }
@@ -2077,6 +2082,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   public void clearAllPopups() {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(this::clearAllPopups);
+      return;
+    }
     boatsAvailableList.clearPopup();
     personsAvailableList.clearPopup();
     boatsOnTheWaterList.clearPopup();

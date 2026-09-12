@@ -55,6 +55,8 @@ import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 
+import javax.swing.*;
+
 public class EfaBoathouseBackgroundTask extends Thread {
 
   private static final int CHECK_INTERVAL = 60;
@@ -406,12 +408,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
           "EfaBoathouseBackgroundTask: checkBoatStatus()");
     }
 
-    boolean listChanged = false;
-    if (newBoatStatusScn != -1 &&
-        newBoatStatusScn != lastBoatStatusScn) {
-      // Falls Datenbank BoatStatus sich geändert hat (abf)
-      listChanged = true;
-    }
+    boolean listChanged = newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn;
+    // Falls Datenbank BoatStatus sich geändert hat (abf)
     lastBoatStatusScn = newBoatStatusScn;
 
     if (isProjectOpen && !isLocalProject) {
@@ -574,13 +572,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
             }
           }
 
-          boolean statusRecordChanged = false;
-          if (oldCurrentStatus == null
-              || !oldCurrentStatus.equals(boatStatusRecord.getCurrentStatus())) {
-            statusRecordChanged = true;
-          }
-          if (oldShowInList == null
-              || !oldShowInList.equals(boatStatusRecord.getShowInList())) {
+          boolean statusRecordChanged = oldCurrentStatus == null
+                  || !oldCurrentStatus.equals(boatStatusRecord.getCurrentStatus());
+          if (oldShowInList == null || !oldShowInList.equals(boatStatusRecord.getShowInList())) {
             statusRecordChanged = true;
           }
           if ((oldComment == null &&
@@ -661,7 +655,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
               + "(idle since " + idleSec / 60 + "min " + idleSec % 60 + "sec)");
     }
     // resetSorting nach 5 Minuten
-    boolean sortingHasChanged = efaBoathouseFrame.resetSorting();
+    final boolean[] result = new boolean[1];
+    try {
+      SwingUtilities.invokeAndWait(() -> result[0] = efaBoathouseFrame.resetSorting());
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      return;
+    }
+    boolean sortingHasChanged = result[0];
     // includes efaBoathouseFrame.updateBoatLists(listChanged);
     // true means reset has already done updateBoatLists() and alive()
     if (!sortingHasChanged) { // nach 5 Minuten

@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.UUID;
@@ -51,8 +52,10 @@ import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.Status;
 import de.nmichael.efa.data.Waters;
 import de.nmichael.efa.data.WatersRecord;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeList;
+import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
@@ -189,7 +192,7 @@ public class Audit extends Thread {
     try {
       Boats boats = project.getBoats(false);
       if (boats.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       BoatStatus boatStatus = project.getBoatStatus(false);
       BoatReservations boatReservations = project.getBoatReservations(false);
@@ -212,7 +215,7 @@ public class Audit extends Thread {
           boatErr++;
         }
         if (boat.getDeleted()) {
-          // if this boat is marked as deleted, treat it as if it wasn't there any more!
+          // if this boat is marked as deleted, treat it as if it wasn't there anymore!
 
           // clean up all references to this boat
           DataRecord bsr = boatStatus.getBoatStatus(boat.getId());
@@ -251,7 +254,7 @@ public class Audit extends Thread {
         // check References from BoatRecord
         boolean updated = false;
         if (groups.dataAccess.getNumberOfRecords() > 0) {
-          // run check only agains non-empty list (could be due to error opening list)
+          // run check only again non-empty list (could be due to error opening list)
           DataTypeList<UUID> uuidList = boat.getAllowedGroupIdList();
           boolean listChanged = false;
           for (int i = 0; uuidList != null && i < uuidList.length(); i++) {
@@ -436,20 +439,34 @@ public class Audit extends Thread {
         DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(reservation.getBoatId(), 0));
         if (boat == null || boat.length == 0) {
           auditError(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-              "No Boat found for Boat Reservation: " + reservation);
+              "Kein Boot gefunden für Bootsreservierung: " + reservation);
           boatErr++;
           if (correctErrors) {
             boatReservations.dataAccess.delete(reservation.getKey());
           }
           auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
-              "Boat Reservation " + reservation + " deleted.");
+              "Bootsreservierung gelöscht: " + reservation);
+          k = it.getNext();
+          continue;
+        }
+
+        long reservationStart = reservation.getDateFrom().getTimestamp(reservation.getTimeFrom());
+        DataRecord boatAtDate = boats.data().getValidAt(
+                BoatRecord.getKey(reservation.getBoatId(), 0), reservationStart);
+        if (boatAtDate == null) {
+          auditWarning(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+            "runAuditBoats(): " + International.getMessage(
+                    "Boot {boat} ist am {date} {time} bereits außer Dienst gestellt. Diese Reservierung ist ungültig!",
+                    boat[0].getQualifiedName(),
+                    reservation.getDateFrom().toString(), reservation.getTimeFrom().toString()));
+          boatErr++;
           k = it.getNext();
           continue;
         }
 
         // check References from BoatReservations
         if (persons.dataAccess.getNumberOfRecords() > 0) {
-          // run check only agains non-empty list (could be due to error opening list)
+          // run check only again non-empty list (could be due to error opening list)
           if (isReferenceInvalid(reservation.getPersonId(), persons, -1)) {
             String name = getNameOfLatestInvalidRecord(reservation.getPersonId(), persons);
               reservation.setPersonId(null);
@@ -466,7 +483,7 @@ public class Audit extends Thread {
                           "Ungültige Referenz für {item} durch '{name}' ersetzt.",
                           International.getString("Person"), name));
             } else {
-                  if (correctErrors) {
+              if (correctErrors) {
                 boatReservations.dataAccess.update(reservation);
               }
               auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
@@ -505,7 +522,7 @@ public class Audit extends Thread {
         // check References from BoatDamages
         boolean updated = false;
         if (persons.dataAccess.getNumberOfRecords() > 0) {
-          // run check only agains non-empty list (could be due to error opening list)
+          // run check only again non-empty list (could be due to error opening list)
           if (isReferenceInvalid(damage.getReportedByPersonId(), persons, -1)) {
             String name = getNameOfLatestInvalidRecord(damage.getReportedByPersonId(), persons);
             if (name != null) {
@@ -582,7 +599,7 @@ public class Audit extends Thread {
       Crews crews = project.getCrews(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       DataKeyIterator it = crews.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -617,7 +634,7 @@ public class Audit extends Thread {
       Groups groups = project.getGroups(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       DataKeyIterator it = groups.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -663,7 +680,7 @@ public class Audit extends Thread {
       Destinations destinations = project.getDestinations(false);
       Waters waters = project.getWaters(false);
       if (waters.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening
+        return; // don't run check again empty list (could be due to error opening
         // list)
       }
       DataKeyIterator it = destinations.data().getStaticIterator();
@@ -736,7 +753,7 @@ public class Audit extends Thread {
     try {
       Waters waters = project.getWaters(false);
       if (waters.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       DataKeyIterator it = waters.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -783,7 +800,7 @@ public class Audit extends Thread {
       Status status = project.getStatus(false);
       if (boats.dataAccess.getNumberOfRecords() == 0 ||
           status.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       DataKeyIterator it = persons.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -824,7 +841,7 @@ public class Audit extends Thread {
       Fahrtenabzeichen fahrtenabzeichen = project.getFahrtenabzeichen(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       DataKeyIterator it = fahrtenabzeichen.data().getStaticIterator();
       DataKey<?, ?, ?> k = it.getFirst();
@@ -859,7 +876,7 @@ public class Audit extends Thread {
       BoatReservations boatReservations = project.getBoatReservations(false);
       Persons persons = project.getPersons(false);
       if (persons.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       String logbookName = Daten.project.getCurrentLogbookEfaBoathouse();
       boolean b = new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
@@ -1103,7 +1120,7 @@ public class Audit extends Thread {
         }
       }
       if (needsReordering && correctErrors) {
-        // we should be locking, but well.. so what. This is just a cleanup at startup that
+        // we should be locking, but well... so what. This is just a cleanup at startup that
         // shouldn't happen anyhow
         try {
           statistics.dataAccess.truncateAllData();
@@ -1140,7 +1157,7 @@ public class Audit extends Thread {
       if (boats.dataAccess.getNumberOfRecords() == 0 ||
           persons.dataAccess.getNumberOfRecords() == 0 ||
           destinations.dataAccess.getNumberOfRecords() == 0) {
-        return; // don't run check agains empty list (could be due to error opening list)
+        return; // don't run check again empty list (could be due to error opening list)
       }
       boolean b = new File(Daten.efaNamesDirectory + logbookName + Daten.fileSep).mkdirs(); // abf
       UUID id;
@@ -1512,6 +1529,311 @@ public class Audit extends Thread {
     }
   }
 
+  /**
+   * Prüft Bootsreservierungen gegen wiederkehrende Fahrten im Fahrtenbuch.
+   *
+   * Es werden ausschließlich WARNINGS erzeugt.
+   * Es werden keine Reservierungen oder Fahrtenbucheinträge verändert.
+   *
+   * Ein wiederkehrendes Muster wird angenommen, wenn für dasselbe Boot
+   * und denselben Wochentag innerhalb der letzten sechs Wochen mindestens
+   * drei Fahrten vorhanden sind und dabei mindestens zwei aufeinanderfolgende
+   * Wochen belegt sind.
+   */
+  private void runAuditBoatReservationLogbookConflicts() {
+    try {
+      BoatReservations boatReservations = project.getBoatReservations(false);
+
+      if (boatReservations == null || boatReservations.data() == null) {
+        return;
+      }
+
+      /*
+       * Fahrtenbücher einmal komplett einlesen.
+       *
+       * Schlüssel:
+       *   BoatId + Datum
+       *
+       * Dadurch müssen wir bei einer Reservierung nicht jedes Mal
+       * alle Fahrtenbücher durchsuchen.
+       */
+      Hashtable<String, ArrayList<LogbookRecord>> logbookRecords = new Hashtable<>();
+
+      String[] logbookNames = project.getAllLogbookNames();
+
+      for (int i = 0; logbookNames != null && i < logbookNames.length; i++) {
+        Logbook logbook = project.getLogbook(logbookNames[i], false);
+
+        if (logbook == null || logbook.data() == null) {
+          continue;
+        }
+
+        DataKeyIterator lit = logbook.data().getStaticIterator();
+
+        for (DataKey<?, ?, ?> lk = lit.getFirst(); lk != null; lk = lit.getNext()) {
+          LogbookRecord record = (LogbookRecord) logbook.data().get(lk);
+
+          if (record == null
+                  || record.getBoatId() == null
+                  || record.getDate() == null
+                  || !record.getDate().isSet()) {
+            continue;
+          }
+
+          if (record.getStartTime() == null
+                  || !record.getStartTime().isSet()
+                  || record.getEndTime() == null
+                  || !record.getEndTime().isSet()) {
+            continue;
+          }
+
+          String key = getBoatDateKey(record.getBoatId(), record.getDate());
+
+          ArrayList<LogbookRecord> recordsForDate = logbookRecords.get(key);
+          if (recordsForDate == null) {
+            recordsForDate = new ArrayList<>();
+            logbookRecords.put(key, recordsForDate);
+          }
+
+          recordsForDate.add(record);
+        }
+      }
+
+      /*
+       * Jetzt alle Reservierungen prüfen.
+       */
+      DataKeyIterator rit = boatReservations.data().getStaticIterator();
+
+      for (DataKey<?, ?, ?> rk = rit.getFirst(); rk != null; rk = rit.getNext()) {
+        BoatReservationRecord reservation =
+                (BoatReservationRecord) boatReservations.data().get(rk);
+
+        if (reservation == null || reservation.getBoatId() == null) {
+          continue;
+        }
+
+        DataTypeDate reservationFrom = reservation.getDateFrom();
+
+        if (reservationFrom == null || !reservationFrom.isSet()) {
+          continue;
+        }
+
+        DataTypeTime reservationTimeFrom = reservation.getTimeFrom();
+        DataTypeTime reservationTimeTo = reservation.getTimeTo();
+
+        if (reservationTimeFrom == null || !reservationTimeFrom.isSet()
+                || reservationTimeTo == null || !reservationTimeTo.isSet()) {
+          continue;
+        }
+
+        /*
+         * Eine Reservierung kann entweder einen einzelnen Termin
+         * oder eine wöchentliche Serie darstellen.
+         */
+        ArrayList<DataTypeDate> datesToCheck = new ArrayList<>();
+
+        if (reservation.isWeeklyReservationType()) {
+          DataTypeDate date = new DataTypeDate(reservationFrom);
+
+          DataTypeDate reservationTo = reservation.getDateTo();
+
+          if (reservationTo == null || !reservationTo.isSet()) {
+            reservationTo = new DataTypeDate(date);
+            reservationTo.addDays(366);
+          }
+
+          /*
+           * Nicht die Vergangenheit einer Serie prüfen.
+           */
+          DataTypeDate today = DataTypeDate.today();
+
+          if (date.isBefore(today)) {
+            date = new DataTypeDate(today);
+          }
+
+          while (date.isBeforeOrEqual(reservationTo)) {
+            if (reservation.isWeeklyReservationOnDate(date)) {
+              datesToCheck.add(new DataTypeDate(date));
+            }
+            date.addDays(1);
+          }
+        } else if (BoatReservationRecord.TYPE_ONETIME.equals(reservation.getType())) {
+          /*
+           * Bei einem Einzeltermin gibt es genau einen zu prüfenden Termin.
+           */
+          datesToCheck.add(new DataTypeDate(reservationFrom));
+        } else {
+          continue;
+        }
+
+        /*
+         * Eine Reservierung soll nur einmal als Warning ausgegeben werden,
+         * auch wenn sie mehrere Termine einer Serie betrifft.
+         */
+        boolean warningIssued = false;
+
+        for (DataTypeDate reservationDate : datesToCheck) {
+          if (hasRecurringLogbookConflict(
+              logbookRecords,
+              reservation.getBoatId(),
+              reservationDate,
+              reservationTimeFrom,
+              reservationTimeTo)) {
+
+            String boatName = reservation.getBoatId().toString();
+
+            try {
+              BoatRecord boat = project.getBoats(false).getBoat(
+                  reservation.getBoatId(),
+                  reservationDate.getTimestamp(reservationTimeFrom));
+
+              if (boat != null && boat.getQualifiedName() != null
+                      && !boat.getQualifiedName().isEmpty()) {
+                boatName = boat.getQualifiedName();
+              }
+            } catch (Exception e) {
+              Logger.logdebug(e);
+            }
+
+            String reservationType =
+                reservation.isWeeklyReservationType()
+                    ? "wöchentliche Reservierung"
+                    : "Reservierung";
+
+            auditWarning(
+              Logger.MSG_DATA_AUDIT,
+              "ReservierungKonflikt: "
+                  + reservationType
+                  + " für " + boatName
+                  + " am " + reservationDate
+                  + " " + reservationTimeFrom + "-" + reservationTimeTo
+                  + " kollidiert mit einem wiederkehrenden Termin "
+                  + "auf demselben Boot.");
+
+            warningIssued = true;
+            break;
+          }
+        }
+
+        if (warningIssued) {
+          // Nur melden - keinerlei Änderung an der Reservierung!
+        }
+      }
+
+    } catch (Exception e) {
+      Logger.logdebug(e);
+      auditError(
+              Logger.MSG_DATA_AUDIT,
+              "runAuditBoatReservationLogbookConflicts() Caught Exception: " + e);
+    }
+  }
+
+
+  /**
+   * Prüft, ob für Boot + Datum eine Fahrtenbuchfahrt existiert,
+   * die zeitlich mit der Reservierung kollidiert.
+   */
+  private boolean hasRecurringLogbookConflict(
+          Hashtable<String, ArrayList<LogbookRecord>> logbookRecords,
+          UUID boatId,
+          DataTypeDate reservationDate,
+          DataTypeTime reservationTimeFrom,
+          DataTypeTime reservationTimeTo) {
+
+    /*
+     * Wir betrachten die sechs vorhergehenden Wochen.
+     *
+     * Mindestens drei Fahrten müssen vorhanden sein.
+     * Zusätzlich müssen mindestens zwei davon direkt
+     * aufeinanderfolgende Wochen bilden.
+     */
+    int matchingWeeks = 0;
+    boolean consecutiveWeeks = false;
+
+    for (int weeksAgo = 1; weeksAgo <= 6; weeksAgo++) {
+      DataTypeDate previousDate = new DataTypeDate(reservationDate);
+      previousDate.addDays(-7 * weeksAgo);
+
+      String key = getBoatDateKey(boatId, previousDate);
+
+      ArrayList<LogbookRecord> records = logbookRecords.get(key);
+
+      boolean matchingTrip = false;
+
+      if (records != null) {
+        for (LogbookRecord record : records) {
+          if (isTimeOverlap(
+              reservationTimeFrom,
+              reservationTimeTo,
+              record.getStartTime(),
+              record.getEndTime())) {
+
+            matchingTrip = true;
+            break;
+          }
+        }
+      }
+
+      if (matchingTrip) {
+        matchingWeeks++;
+
+        if (weeksAgo < 6) {
+          DataTypeDate nextPreviousDate = new DataTypeDate(reservationDate);
+          nextPreviousDate.addDays(-7 * (weeksAgo + 1));
+
+          String nextKey = getBoatDateKey(boatId, nextPreviousDate);
+
+          ArrayList<LogbookRecord> nextRecords = logbookRecords.get(nextKey);
+
+          if (nextRecords != null) {
+            for (LogbookRecord nextRecord : nextRecords) {
+              if (isTimeOverlap(
+                  reservationTimeFrom,
+                  reservationTimeTo,
+                  nextRecord.getStartTime(),
+                  nextRecord.getEndTime())) {
+
+                consecutiveWeeks = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return matchingWeeks >= 3 && consecutiveWeeks;
+  }
+
+
+  /**
+   * Prüft reine Zeitüberschneidung.
+   *
+   * 10:00-12:00 und 12:00-14:00 gelten nicht als Kollision.
+   */
+  private boolean isTimeOverlap(
+          DataTypeTime from1,
+          DataTypeTime to1,
+          DataTypeTime from2,
+          DataTypeTime to2) {
+
+    if (from1 == null || to1 == null || from2 == null || to2 == null
+            || !from1.isSet() || !to1.isSet()
+            || !from2.isSet() || !to2.isSet()) {
+      return false;
+    }
+
+    return DataTypeTime.isRangeOverlap(from1, to1, from2, to2);
+  }
+
+
+  /**
+   * Eindeutiger Schlüssel für Boot + Datum.
+   */
+  private String getBoatDateKey(UUID boatId, DataTypeDate date) {
+    return boatId.toString() + "|" + date.toString();
+  }
+
   private void runAuditClubworks() {
     int clubworkErr = 0;
     String[] clubworkNames = project.getAllClubworkNames();
@@ -1635,6 +1957,7 @@ public class Audit extends Thread {
         for (int i = 0; logbookNames != null && i < logbookNames.length; i++) {
           runAuditLogbook(logbookNames[i]);
         }
+        runAuditBoatReservationLogbookConflicts();
         if (errors == 0) {
           runAuditPurgeDeletedRecords(project.getBoats(false),
               International.getString("Boot"));

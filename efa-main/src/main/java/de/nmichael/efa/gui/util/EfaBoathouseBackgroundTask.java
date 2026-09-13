@@ -2099,7 +2099,15 @@ public class EfaBoathouseBackgroundTask extends Thread {
       }
 
       // Step 3: Activate the new Logbook
-      if (efaBoathouseFrame.openLogbook(newLogbook.getName())) {
+      final boolean[] opened = new boolean[1];
+      try {
+        SwingUtilities.invokeAndWait(
+                () -> opened[0] = efaBoathouseFrame.openLogbook(newLogbook.getName()));
+      } catch (Exception e) {
+        Logger.logdebug(e);
+        return;
+      }
+      if (opened[0]) {
         Logger
             .log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
                 LogString.operationSuccessfullyCompleted(International

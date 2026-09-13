@@ -1175,6 +1175,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   public void bringFrameToFront() {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(this::bringFrameToFront);
+      return;
+    }
     this.toFront();
   }
 
@@ -1853,6 +1857,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   // Callbacks and Events
   // ========================================================================================================================================
   public void setUnreadMessages(boolean admin, boolean boatmaintenance) {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(() -> setUnreadMessages(admin, boatmaintenance));
+      return;
+    }
     String iconName = "action_admin.png";
     if (admin && boatmaintenance) {
       iconName = "action_admin_mailAdminBoat.png";
@@ -1865,6 +1873,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   public synchronized void exitOnLowMemory(String detector, boolean immediate) {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(() -> exitOnLowMemory(detector, immediate));
+      return;
+    }
     largeChunkOfMemory = null;
     Logger.log(Logger.ERROR, Logger.MSG_ERR_EXITLOWMEMORY,
         International.getMessage(
@@ -3228,6 +3240,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
   }
 
   public void lockEfa() {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(this::lockEfa);
+      return;
+    }
     if (Daten.efaConfig == null) {
       return;
     }

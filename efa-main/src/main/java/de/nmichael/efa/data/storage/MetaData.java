@@ -60,7 +60,16 @@ public class MetaData {
   }
 
   public static MetaData getMetaData(String dataType) {
-    return metaData.get(dataType);
+    MetaData metaDataReturn = metaData.get(dataType);
+    if (metaDataReturn == null) {
+      // Der Cache ist leer - das ist ein kritischer Fehler.
+      // Wir loggen ihn und werfen eine Exception, damit der Aufrufer
+      // nicht mit einem null-Objekt weiterarbeitet.
+      throw new IllegalStateException(
+              "MetaData.getMetaData(\"" + dataType + "\"): MetaData not constructed! "
+                      + "This is a bug - constructMetaData() must be called before getMetaData().");
+    }
+    return metaDataReturn;
   }
 
   public static void removeMetaData(String dataType) {

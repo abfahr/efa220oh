@@ -151,6 +151,11 @@ public class XMLFile extends DataFile {
     while (k != null) {
       DataRecord r = data.dataAccess.get(k);
       if (r == null) {
+        // Bugfix: null-Records überspringen statt "continue" ohne k = it.getNext()
+        // (der alte Code hatte hier ein "continue", das k nicht weitersetzt → Endlosschleife!)
+        Logger.log(Logger.WARNING, Logger.MSG_DATA_WRITEFAILED,
+                "writeData(): null record for key " + k + " in " + data.dataAccess.getUID());
+        k = it.getNext();
         continue;
       }
       write(data, xmltagStart(data, FIELD_DATA_RECORD));

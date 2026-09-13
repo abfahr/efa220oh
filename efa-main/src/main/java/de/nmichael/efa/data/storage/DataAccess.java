@@ -36,7 +36,7 @@ public abstract class DataAccess implements IDataAccess {
   protected String storagePassword;
   protected String storageObjectVersion;
 
-  protected final LinkedHashMap<String, Integer> fieldTypes = new LinkedHashMap<String, Integer>();
+  protected final LinkedHashMap<String, Integer> fieldTypes = new LinkedHashMap<>();
   protected String[] keyFields;
   protected MetaData meta;
   protected DataRecord referenceRecord;
@@ -177,6 +177,11 @@ public abstract class DataAccess implements IDataAccess {
 
   @Override
   public void setMetaData(MetaData meta) {
+    if (meta == null) {
+      throw new IllegalArgumentException(
+              "setMetaData(null) for " + getUID() + " - MetaData must not be null! "
+                      + "constructMetaData() must be called before setMetaData().");
+    }
     this.meta = meta;
     try {
       for (int i = 0; i < meta.getNumberOfFields(); i++) {
@@ -189,7 +194,10 @@ public abstract class DataAccess implements IDataAccess {
       }
       referenceRecord = persistence.createNewRecord();
     } catch (Exception e) {
-      e.printStackTrace();
+      // Nicht schlucken! Wir wollen wissen, wenn hier etwas schiefgeht.
+      Logger.log(Logger.ERROR, Logger.MSG_DATA_DATAACCESS,
+              "setMetaData() failed for " + getUID() + ": " + e);
+      throw new RuntimeException("setMetaData() failed for " + getUID(), e);
     }
   }
 
@@ -204,9 +212,7 @@ public abstract class DataAccess implements IDataAccess {
     synchronized (fieldTypes) { // fieldTypes used for synchronization of fieldTypes and keyFields
       // as well
       names = new String[this.keyFields.length];
-      for (int i = 0; i < names.length; i++) {
-        names[i] = this.keyFields[i];
-      }
+      System.arraycopy(this.keyFields, 0, names, 0, names.length);
     }
     return names;
   }
@@ -222,23 +228,21 @@ public abstract class DataAccess implements IDataAccess {
       // as well
       String[] keys = new String[fieldTypes.size()];
       fieldTypes.keySet().toArray(keys);
-      if (includingVirtual) {
-        return keys;
-      } else {
-        Vector<String> v = new Vector<String>();
-        for (String key : keys) {
-          if (getMetaData().getFieldType(key) != IDataAccess.DATA_VIRTUAL) {
-            v.add(key);
+      if (!includingVirtual) {
+          Vector<String> v = new Vector<>();
+          for (String key : keys) {
+              if (getMetaData().getFieldType(key) != IDataAccess.DATA_VIRTUAL) {
+                  v.add(key);
+              }
           }
-        }
-        if (keys.length != v.size()) {
-          keys = new String[v.size()];
-          for (int i = 0; i < v.size(); i++) {
-            keys[i] = v.get(i);
+          if (keys.length != v.size()) {
+              keys = new String[v.size()];
+              for (int i = 0; i < v.size(); i++) {
+                  keys[i] = v.get(i);
+              }
           }
-        }
-        return keys;
       }
+      return keys;
     }
   }
 
@@ -253,7 +257,7 @@ public abstract class DataAccess implements IDataAccess {
       throw new EfaException(Logger.MSG_DATA_FIELDDOESNOTEXIST, getUID()
           + ": Field Name does not exist: " + fieldName, Thread.currentThread().getStackTrace());
     }
-    return i.intValue();
+    return i;
   }
 
   @Override
@@ -281,50 +285,32 @@ public abstract class DataAccess implements IDataAccess {
     for (int i = 0; i < keyFields.length; i++) {
       bUnversionized[i] = !keyFields[i].equals(DataRecord.VALIDFROM);
     }
-    return new DataKey(key, bUnversionized); // this is the corresponding "unversionized" key (i.e.
-    // key with only unversionized fields)
+    return new DataKey(key, bUnversionized);
+    // this is the corresponding "unversionized" key (i.e. key with only unversionized fields)
   }
 
   @Override
   public String getTypeName(int type) {
-    switch (type) {
-      case DATA_STRING:
-        return "STRING";
-      case DATA_INTEGER:
-        return "INTEGER";
-      case DATA_LONGINT:
-        return "LONGINT";
-      case DATA_DOUBLE:
-        return "DOUBLE";
-      case DATA_DECIMAL:
-        return "DECIMAL";
-      case DATA_DISTANCE:
-        return "DISTANCE";
-      case DATA_BOOLEAN:
-        return "BOOLEAN";
-      case DATA_DATE:
-        return "DATE";
-      case DATA_TIME:
-        return "TIME";
-      case DATA_UUID:
-        return "UUID";
-      case DATA_INTSTRING:
-        return "INTSTRING";
-      case DATA_PASSWORDH:
-        return "PASSWORDH";
-      case DATA_PASSWORDC:
-        return "PASSWORDC";
-      case DATA_LIST_STRING:
-        return "LIST_STRING";
-      case DATA_LIST_INTEGER:
-        return "LIST_INTEGER";
-      case DATA_LIST_UUID:
-        return "LIST_UUID";
-      case DATA_VIRTUAL:
-        return "VIRTUAL";
-      default:
-        return "UNKNOWN";
-    }
+      return switch (type) {
+          case DATA_STRING -> "STRING";
+          case DATA_INTEGER -> "INTEGER";
+          case DATA_LONGINT -> "LONGINT";
+          case DATA_DOUBLE -> "DOUBLE";
+          case DATA_DECIMAL -> "DECIMAL";
+          case DATA_DISTANCE -> "DISTANCE";
+          case DATA_BOOLEAN -> "BOOLEAN";
+          case DATA_DATE -> "DATE";
+          case DATA_TIME -> "TIME";
+          case DATA_UUID -> "UUID";
+          case DATA_INTSTRING -> "INTSTRING";
+          case DATA_PASSWORDH -> "PASSWORDH";
+          case DATA_PASSWORDC -> "PASSWORDC";
+          case DATA_LIST_STRING -> "LIST_STRING";
+          case DATA_LIST_INTEGER -> "LIST_INTEGER";
+          case DATA_LIST_UUID -> "LIST_UUID";
+          case DATA_VIRTUAL -> "VIRTUAL";
+          default -> "UNKNOWN";
+      };
   }
 
   @Override
@@ -370,7 +356,7 @@ public abstract class DataAccess implements IDataAccess {
       throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed("ZIP Buffer",
           storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
     }
-    if (dir.length() > 0 && !dir.endsWith(Daten.fileSep)) {
+    if (!dir.isEmpty() && !dir.endsWith(Daten.fileSep)) {
       dir += Daten.fileSep;
     }
     String zipFileEntry = dir + getStorageObjectName() + "." + getStorageObjectType();
@@ -406,7 +392,7 @@ public abstract class DataAccess implements IDataAccess {
     truncateAllData();
     try {
       DataKeyIterator it = source.getStaticIterator();
-      ArrayList<DataRecord> recordList = new ArrayList<DataRecord>();
+      ArrayList<DataRecord> recordList = new ArrayList<>();
       DataKey k = it.getFirst();
       while (k != null) {
         recordList.add(source.get(k));
@@ -415,7 +401,7 @@ public abstract class DataAccess implements IDataAccess {
 
       setInOpeningStorageObject(true); // don't update LastModified Timestamps, don't increment SCN,
       // don't check assertions!
-      if (recordList.size() > 0) {
+      if (!recordList.isEmpty()) {
         addAll(recordList.toArray(new DataRecord[0]), -1);
       }
     } catch (Exception e) {

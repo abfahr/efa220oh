@@ -19,7 +19,7 @@ public class DataFileWriter extends Thread {
 
   public static long SAVE_INTERVAL = 10000; // 10.000 ms
 
-  private DataFile dataFile;
+  private final DataFile dataFile;
   private volatile boolean writedata = false;
   private volatile long lastSave = 0;
 
@@ -47,7 +47,7 @@ public class DataFileWriter extends Thread {
             dataFile.saveStorageObject(true);
           } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_FILE_WRITETHREAD_ERROR, "DataFileWriter["
-                + dataFile.filename + "] failed to save data: " + e.toString());
+                + dataFile.filename + "] failed to save data: " + e);
             Logger.log(e);
           }
           lastSave = System.currentTimeMillis();

@@ -15,10 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.UUID;
+import java.util.*;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.BoatDamageRecord;
@@ -1530,308 +1527,656 @@ public class Audit extends Thread {
   }
 
   /**
-   * Prüft Bootsreservierungen gegen wiederkehrende Fahrten im Fahrtenbuch.
-   *
-   * Es werden ausschließlich WARNINGS erzeugt.
-   * Es werden keine Reservierungen oder Fahrtenbucheinträge verändert.
-   *
-   * Ein wiederkehrendes Muster wird angenommen, wenn für dasselbe Boot
-   * und denselben Wochentag innerhalb der letzten sechs Wochen mindestens
-   * drei Fahrten vorhanden sind und dabei mindestens zwei aufeinanderfolgende
-   * Wochen belegt sind.
+   * Prüft zukünftige Bootsreservierungen gegen wiederkehrende Fahrten
+   * im Fahrtenbuch.
+   * Diese Prüfung verändert keinerlei Daten.
+   * Die bestehende eFa-Konfliktprüfung aus BoatReservations wird
+   * ausdrücklich verwendet. Sie prüft Reservierung gegen Reservierung.
+   * Zusätzlich prüfen wir hier Reservierung gegen Fahrtenbuch.
    */
   private void runAuditBoatReservationLogbookConflicts() {
     try {
       BoatReservations boatReservations = project.getBoatReservations(false);
 
-      if (boatReservations == null || boatReservations.data() == null) {
+      if (boatReservations == null
+              || boatReservations.dataAccess.getNumberOfRecords() == 0) {
         return;
       }
 
       /*
-       * Fahrtenbücher einmal komplett einlesen.
-       *
-       * Schlüssel:
-       *   BoatId + Datum
-       *
-       * Dadurch müssen wir bei einer Reservierung nicht jedes Mal
-       * alle Fahrtenbücher durchsuchen.
+       * Die Fahrtenbücher wurden vorher in runAudit() bereits geöffnet
+       * bzw. geprüft. Wir sammeln daraus die LogbookRecords.
        */
-      Hashtable<String, ArrayList<LogbookRecord>> logbookRecords = new Hashtable<>();
+      ArrayList<LogbookRecord> logbookRecords = new ArrayList<>();
 
       String[] logbookNames = project.getAllLogbookNames();
 
       for (int i = 0; logbookNames != null && i < logbookNames.length; i++) {
-        Logbook logbook = project.getLogbook(logbookNames[i], false);
+        String logbookName = logbookNames[i];
 
-        if (logbook == null || logbook.data() == null) {
+        Logbook logbook = project.getLogbook(logbookName, false);
+        if (logbook == null) {
           continue;
         }
 
-        DataKeyIterator lit = logbook.data().getStaticIterator();
+        DataKeyIterator it = logbook.data().getStaticIterator();
+        DataKey<?, ?, ?> k = it.getFirst();
 
-        for (DataKey<?, ?, ?> lk = lit.getFirst(); lk != null; lk = lit.getNext()) {
-          LogbookRecord record = (LogbookRecord) logbook.data().get(lk);
+        while (k != null) {
+          LogbookRecord record = (LogbookRecord) logbook.data().get(k);
 
-          if (record == null
-                  || record.getBoatId() == null
-                  || record.getDate() == null
-                  || !record.getDate().isSet()) {
-            continue;
+          if (record != null
+                  && record.getBoatId() != null
+                  && record.getDate() != null
+                  && record.getDate().isSet()
+                  && record.getStartTime() != null
+                  && record.getEndTime() != null
+                  && record.getStartTime().isSet()
+                  && record.getEndTime().isSet()) {
+
+            logbookRecords.add(record);
           }
 
-          if (record.getStartTime() == null
-                  || !record.getStartTime().isSet()
-                  || record.getEndTime() == null
-                  || !record.getEndTime().isSet()) {
-            continue;
-          }
-
-          String key = getBoatDateKey(record.getBoatId(), record.getDate());
-
-          ArrayList<LogbookRecord> recordsForDate = logbookRecords.get(key);
-          if (recordsForDate == null) {
-            recordsForDate = new ArrayList<>();
-            logbookRecords.put(key, recordsForDate);
-          }
-
-          recordsForDate.add(record);
+          k = it.getNext();
         }
       }
 
       /*
-       * Jetzt alle Reservierungen prüfen.
+       * Alle Bootsreservierungen durchlaufen.
        */
-      DataKeyIterator rit = boatReservations.data().getStaticIterator();
+      DataKeyIterator it = boatReservations.data().getStaticIterator();
+      DataKey<?, ?, ?> k = it.getFirst();
 
-      for (DataKey<?, ?, ?> rk = rit.getFirst(); rk != null; rk = rit.getNext()) {
+      DataTypeDate today = DataTypeDate.today();
+
+      while (k != null) {
         BoatReservationRecord reservation =
-                (BoatReservationRecord) boatReservations.data().get(rk);
+                (BoatReservationRecord) boatReservations.data().get(k);
 
-        if (reservation == null || reservation.getBoatId() == null) {
-          continue;
-        }
-
-        DataTypeDate reservationFrom = reservation.getDateFrom();
-
-        if (reservationFrom == null || !reservationFrom.isSet()) {
-          continue;
-        }
-
-        DataTypeTime reservationTimeFrom = reservation.getTimeFrom();
-        DataTypeTime reservationTimeTo = reservation.getTimeTo();
-
-        if (reservationTimeFrom == null || !reservationTimeFrom.isSet()
-                || reservationTimeTo == null || !reservationTimeTo.isSet()) {
+        if (reservation == null
+                || reservation.getBoatId() == null
+                || reservation.getDateFrom() == null
+                || !reservation.getDateFrom().isSet()) {
+          k = it.getNext();
           continue;
         }
 
         /*
-         * Eine Reservierung kann entweder einen einzelnen Termin
-         * oder eine wöchentliche Serie darstellen.
+         * WICHTIG:
+         *
+         * Die bestehende eFa-Konfliktprüfung wird ausdrücklich benutzt.
+         *
+         * Sie prüft Reservierung gegen Reservierung und berücksichtigt
+         * insbesondere ONETIME, WEEKLY und WEEKLY_INTERVAL.
+         *
+         * Wir brauchen die Liste hier nicht für die Fahrtenbuchprüfung;
+         * der Aufruf stellt aber sicher, dass wir dieselbe zentrale
+         * Konfliktlogik wie eFa verwenden und nicht parallel dazu eine
+         * eigene Reservierungs-Konfliktlogik bauen.
          */
-        ArrayList<DataTypeDate> datesToCheck = new ArrayList<>();
+        List<BoatReservationRecord> reservationConflicts =
+                boatReservations.findConflictingReservations(reservation);
 
-        if (reservation.isWeeklyReservationType()) {
-          DataTypeDate date = new DataTypeDate(reservationFrom);
+        runAuditReservationReservationConflicts(reservation, reservationConflicts, today);
+        /*
+         * reservationConflicts wird bewusst nicht als Grundlage für
+         * die Fahrtenbuchprüfung verwendet:
+         *
+         * findConflictingReservations() prüft Reservierungen gegen
+         * Reservierungen, nicht gegen LogbookRecords.
+         *
+         * Die eigentliche neue Prüfung beginnt deshalb jetzt.
+         */
 
-          DataTypeDate reservationTo = reservation.getDateTo();
-
-          if (reservationTo == null || !reservationTo.isSet()) {
-            reservationTo = new DataTypeDate(date);
-            reservationTo.addDays(366);
-          }
-
-          /*
-           * Nicht die Vergangenheit einer Serie prüfen.
-           */
-          DataTypeDate today = DataTypeDate.today();
-
-          if (date.isBefore(today)) {
-            date = new DataTypeDate(today);
-          }
-
-          while (date.isBeforeOrEqual(reservationTo)) {
-            if (reservation.isWeeklyReservationOnDate(date)) {
-              datesToCheck.add(new DataTypeDate(date));
-            }
-            date.addDays(1);
-          }
-        } else if (BoatReservationRecord.TYPE_ONETIME.equals(reservation.getType())) {
-          /*
-           * Bei einem Einzeltermin gibt es genau einen zu prüfenden Termin.
-           */
-          datesToCheck.add(new DataTypeDate(reservationFrom));
-        } else {
+        /*
+         * Bereits vergangene Reservierungen interessieren für diese
+         * Prüfung nicht.
+         *
+         * Bei einer Wochenreservierung kann DateFrom allerdings weit
+         * in der Vergangenheit liegen. Deshalb wird bei der Ermittlung
+         * der konkreten Vorkommen immer ab heute geprüft.
+         */
+        if (reservation.getDateTo() != null
+                && reservation.getDateTo().isSet()
+                && reservation.getDateTo().isBefore(today)) {
+          k = it.getNext();
           continue;
         }
 
-        /*
-         * Eine Reservierung soll nur einmal als Warning ausgegeben werden,
-         * auch wenn sie mehrere Termine einer Serie betrifft.
-         */
-        boolean warningIssued = false;
+        if (reservation.getType() != null
+                && reservation.isWeeklyReservationType()) {
 
-        for (DataTypeDate reservationDate : datesToCheck) {
-          if (hasRecurringLogbookConflict(
-              logbookRecords,
-              reservation.getBoatId(),
-              reservationDate,
-              reservationTimeFrom,
-              reservationTimeTo)) {
+          runAuditWeeklyReservationLogbookConflict(
+                  reservation, logbookRecords, today);
 
-            String boatName = reservation.getBoatId().toString();
+        } else if (BoatReservationRecord.TYPE_ONETIME.equals(
+                reservation.getType())) {
 
-            try {
-              BoatRecord boat = project.getBoats(false).getBoat(
-                  reservation.getBoatId(),
-                  reservationDate.getTimestamp(reservationTimeFrom));
+          if (!reservation.getDateFrom().isBefore(today)) {
+            LogbookRecord recurringTrip =
+                    findRecurringLogbookConflict(
+                            reservation, reservation.getDateFrom(), logbookRecords);
 
-              if (boat != null && boat.getQualifiedName() != null
-                      && !boat.getQualifiedName().isEmpty()) {
-                boatName = boat.getQualifiedName();
-              }
-            } catch (Exception e) {
-              Logger.logdebug(e);
+            if (recurringTrip != null) {
+              auditLogbookReservationConflict(
+                      reservation, reservation.getDateFrom(), recurringTrip);
             }
-
-            String reservationType =
-                reservation.isWeeklyReservationType()
-                    ? "wöchentliche Reservierung"
-                    : "Reservierung";
-
-            auditWarning(
-              Logger.MSG_DATA_AUDIT,
-              "ReservierungKonflikt: "
-                  + reservationType
-                  + " am " + reservationDate
-                  + " " + reservationTimeFrom + "-" + reservationTimeTo
-                  + " für " + boatName
-                  + " kollidiert mit einem wiederkehrenden Termin "
-                  + "auf demselben Boot.");
-
-            warningIssued = true;
-            break;
           }
         }
 
-        if (warningIssued) {
-          // Nur melden - keinerlei Änderung an der Reservierung!
-        }
+        k = it.getNext();
       }
 
     } catch (Exception e) {
       Logger.logdebug(e);
-      auditError(
-        Logger.MSG_DATA_AUDIT,
-        "runAuditBoatReservationLogbookConflicts() Caught Exception: " + e);
+      auditError(Logger.MSG_DATA_AUDIT,
+              "runAuditBoatReservationLogbookConflicts() Caught Exception: " + e);
     }
   }
 
-
   /**
-   * Prüft, ob für Boot + Datum eine Fahrtenbuchfahrt existiert,
-   * die zeitlich mit der Reservierung kollidiert.
+   * Prüft eine Reservierung gegen die von BoatReservations bereits
+   * ermittelten kollidierenden Reservierungen.
+   * Es werden ausschließlich zukünftige tatsächliche Vorkommen betrachtet.
+   * Diese Prüfung verändert keinerlei Daten.
+   * Die Reservierungsnummern werden bewusst NICHT geloggt.
    */
-  private boolean hasRecurringLogbookConflict(
-          Hashtable<String, ArrayList<LogbookRecord>> logbookRecords,
-          UUID boatId,
-          DataTypeDate reservationDate,
-          DataTypeTime reservationTimeFrom,
-          DataTypeTime reservationTimeTo) {
+  private void runAuditReservationReservationConflicts(
+          BoatReservationRecord reservation,
+          List<BoatReservationRecord> conflicts,
+          DataTypeDate today) {
+
+    if (reservation == null
+            || conflicts == null
+            || conflicts.isEmpty()) {
+      return;
+    }
 
     /*
-     * Wir betrachten die sechs vorhergehenden Wochen.
-     *
-     * Mindestens drei Fahrten müssen vorhanden sein.
-     * Zusätzlich müssen mindestens zwei davon direkt
-     * aufeinanderfolgende Wochen bilden.
+     * Wir betrachten nur Reservierungen, die selbst noch nicht
+     * vollständig in der Vergangenheit liegen.
      */
-    int matchingWeeks = 0;
-    boolean consecutiveWeeks = false;
-
-    for (int weeksAgo = 1; weeksAgo <= 6; weeksAgo++) {
-      DataTypeDate previousDate = new DataTypeDate(reservationDate);
-      previousDate.addDays(-7 * weeksAgo);
-
-      String key = getBoatDateKey(boatId, previousDate);
-
-      ArrayList<LogbookRecord> records = logbookRecords.get(key);
-
-      boolean matchingTrip = false;
-
-      if (records != null) {
-        for (LogbookRecord record : records) {
-          if (isTimeOverlap(
-              reservationTimeFrom,
-              reservationTimeTo,
-              record.getStartTime(),
-              record.getEndTime())) {
-
-            matchingTrip = true;
-            break;
-          }
-        }
-      }
-
-      if (matchingTrip) {
-        matchingWeeks++;
-
-        if (weeksAgo < 6) {
-          DataTypeDate nextPreviousDate = new DataTypeDate(reservationDate);
-          nextPreviousDate.addDays(-7 * (weeksAgo + 1));
-
-          String nextKey = getBoatDateKey(boatId, nextPreviousDate);
-
-          ArrayList<LogbookRecord> nextRecords = logbookRecords.get(nextKey);
-
-          if (nextRecords != null) {
-            for (LogbookRecord nextRecord : nextRecords) {
-              if (isTimeOverlap(
-                  reservationTimeFrom,
-                  reservationTimeTo,
-                  nextRecord.getStartTime(),
-                  nextRecord.getEndTime())) {
-
-                consecutiveWeeks = true;
-                break;
-              }
-            }
-          }
-        }
-      }
+    if (reservation.getDateTo() != null
+            && reservation.getDateTo().isSet()
+            && reservation.getDateTo().isBefore(today)) {
+      return;
     }
 
-    return matchingWeeks >= 3 && consecutiveWeeks;
+    /*
+     * Jeden von BoatReservations gefundenen Konflikt prüfen.
+     */
+    for (BoatReservationRecord conflict : conflicts) {
+      if (conflict == null) {
+          continue;
+      }
+
+      /*
+       * Den gleichen Konflikt nicht zweimal melden.
+       *
+       * findConflictingReservations() liefert A->B und später
+       * beim Durchlauf von B auch B->A.
+       *
+       * Die Reservierungsnummer dient hier NUR als interner
+       * technischer Vergleich und erscheint niemals im Logging.
+       */
+      if (reservation.getReservation() >= conflict.getReservation()) {
+          continue;
+      }
+
+      /*
+       * Gemeinsamen Zeitraum bestimmen.
+       */
+      DataTypeDate from = reservation.getDateFrom();
+
+      if (from == null || !from.isSet()) {
+          continue;
+      }
+
+      if (from.isBefore(today)) {
+          from = new DataTypeDate(today);
+      } else {
+          from = new DataTypeDate(from);
+      }
+
+      DataTypeDate to;
+
+      if (reservation.getDateTo() != null
+              && reservation.getDateTo().isSet()) {
+          to = new DataTypeDate(reservation.getDateTo());
+      } else {
+          to = new DataTypeDate(from);
+          to.addDays(4 * 365);
+      }
+
+      if (conflict.getDateFrom() != null
+              && conflict.getDateFrom().isSet()
+              && conflict.getDateFrom().isAfter(from)) {
+          from = new DataTypeDate(conflict.getDateFrom());
+      }
+
+      if (conflict.getDateTo() != null
+              && conflict.getDateTo().isSet()
+              && conflict.getDateTo().isBefore(to)) {
+          to = new DataTypeDate(conflict.getDateTo());
+      }
+
+      /*
+       * Nicht länger als vier Jahre in die Zukunft prüfen.
+       */
+      DataTypeDate maxDate = new DataTypeDate(today);
+      maxDate.addDays(4 * 365);
+
+      if (to.isAfter(maxDate)) {
+          to = maxDate;
+      }
+
+      /*
+       * Die einzelnen tatsächlichen Tage durchlaufen.
+       */
+      for (DataTypeDate day = new DataTypeDate(from);
+           day.isBeforeOrEqual(to);
+           day.addDays(1)) {
+
+          if (!isBoatReservationActiveOnDate(reservation, day)
+                  || !isBoatReservationActiveOnDate(conflict, day)) {
+              continue;
+          }
+
+          /*
+           * Beide Reservierungen müssen an diesem Tag auch zeitlich
+           * tatsächlich kollidieren.
+           */
+          if (!DataTypeTime.isRangeOverlap(
+                reservation.getTimeFrom(),
+                reservation.getTimeTo(),
+                conflict.getTimeFrom(),
+                conflict.getTimeTo())) {
+            continue;
+          }
+
+          String boatName = getAuditBoatName(reservation.getBoatId(), day, reservation.getTimeFrom());
+
+          auditWarning(Logger.MSG_DATA_AUDIT, "ReservierungKonflikt: "
+                + getAuditReservationType(reservation)
+                + " am " + day
+                + " " + reservation.getTimeFrom() + "-" + reservation.getTimeTo()
+                + " für " + boatName
+                + " kollidiert mit "
+                + getAuditReservationType(conflict)
+                + " am " + day
+                + " " + conflict.getTimeFrom() + "-" + conflict.getTimeTo()
+                + " für " + boatName
+                + ".");
+
+          /*
+           * Für dieses Reservierungspaar reicht eine Meldung.
+           * Nicht jeden weiteren gemeinsamen Termin melden.
+           */
+          break;
+      }
+    }
   }
 
-
   /**
-   * Prüft reine Zeitüberschneidung.
-   *
-   * 10:00-12:00 und 12:00-14:00 gelten nicht als Kollision.
+   * Prüft, ob eine Reservierung an einem bestimmten Datum aktiv ist.
+   * Berücksichtigt WEEKLY und WEEKLY_INTERVAL über die vorhandene
+   * eFa-Methode isWeeklyReservationOnDate().
    */
-  private boolean isTimeOverlap(
-          DataTypeTime from1,
-          DataTypeTime to1,
-          DataTypeTime from2,
-          DataTypeTime to2) {
+  private boolean isBoatReservationActiveOnDate(
+          BoatReservationRecord reservation, DataTypeDate day) {
 
-    if (from1 == null || to1 == null || from2 == null || to2 == null
-            || !from1.isSet() || !to1.isSet()
-            || !from2.isSet() || !to2.isSet()) {
+    if (reservation == null || day == null) {
       return false;
     }
 
-    return DataTypeTime.isRangeOverlap(from1, to1, from2, to2);
+    if (reservation.isWeeklyReservationType()) {
+      return reservation.isWeeklyReservationOnDate(day);
+    }
+
+    if (BoatReservationRecord.TYPE_ONETIME.equals(
+            reservation.getType())) {
+
+      if (reservation.getDateFrom() == null
+              || !reservation.getDateFrom().isSet()) {
+        return false;
+      }
+
+      if (day.isBefore(reservation.getDateFrom())) {
+        return false;
+      }
+
+      if (reservation.getDateTo() != null
+              && reservation.getDateTo().isSet()
+              && day.isAfter(reservation.getDateTo())) {
+        return false;
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  private String getAuditReservationType(
+          BoatReservationRecord reservation) {
+
+    if (reservation != null && reservation.isWeeklyReservationType()) {
+      return "regelmäßige Reservierung";
+    }
+    return "Reservierung";
+  }
+
+  private String getAuditBoatName(
+          UUID boatId,
+          DataTypeDate date,
+          DataTypeTime time) {
+
+    String boatName = boatId != null
+            ? boatId.toString()
+            : "?";
+
+    if (boatId == null) {
+      return boatName;
+    }
+
+    try {
+      BoatRecord boat = project.getBoats(false).getBoat(
+              boatId, date.getTimestamp(time));
+
+      if (boat != null) {
+        boatName = boat.getQualifiedName();
+      }
+    } catch (Exception e) {
+      Logger.logdebug(e);
+    }
+
+    return boatName;
+  }
+
+  /**
+   * Prüft die einzelnen tatsächlichen Vorkommen einer Wochenreservierung.
+   */
+  private void runAuditWeeklyReservationLogbookConflict(
+          BoatReservationRecord reservation,
+          ArrayList<LogbookRecord> logbookRecords,
+          DataTypeDate today) {
+
+    DataTypeDate dateFrom = reservation.getDateFrom();
+
+    if (dateFrom == null || !dateFrom.isSet() || dateFrom.isBefore(today)) {
+      dateFrom = new DataTypeDate(today);
+    } else {
+      dateFrom = new DataTypeDate(dateFrom);
+    }
+
+    DataTypeDate dateTo;
+
+    if (reservation.getDateTo() != null
+            && reservation.getDateTo().isSet()) {
+      dateTo = new DataTypeDate(reservation.getDateTo());
+    } else {
+      /*
+       * Wie BoatReservations selbst: ohne DateTo maximal vier Jahre
+       * in die Zukunft betrachten.
+       */
+      dateTo = new DataTypeDate(dateFrom);
+      dateTo.addDays(4 * 365);
+    }
+
+    /*
+     * Nicht weiter als vier Jahre prüfen.
+     */
+    DataTypeDate maxDate = new DataTypeDate(today);
+    maxDate.addDays(4 * 365);
+
+    if (dateTo.isAfter(maxDate)) {
+      dateTo = maxDate;
+    }
+
+    for (DataTypeDate day = new DataTypeDate(dateFrom);
+         day.isBeforeOrEqual(dateTo);
+         day.addDays(1)) {
+
+      /*
+       * Nur tatsächliche Vorkommen der Wochenreservierung.
+       *
+       * Damit verwenden wir exakt die eFa-Logik für:
+       * - Wochentag
+       * - mehrere Wochentage
+       * - Wochenintervall
+       * - Beginn/Ende
+       * - ausgeschlossene Termine
+       */
+      if (!reservation.isWeeklyReservationOnDate(day)) {
+        continue;
+      }
+
+      LogbookRecord recurringTrip =
+              findRecurringLogbookConflict(
+                      reservation,
+                      day,
+                      logbookRecords);
+
+      if (recurringTrip != null) {
+        auditLogbookReservationConflict(
+                reservation,
+                day,
+                recurringTrip);
+      }
+    }
   }
 
 
   /**
-   * Eindeutiger Schlüssel für Boot + Datum.
+   * Sucht eine echte wiederkehrende Fahrt im Fahrtenbuch.
+   * Eine einzelne Fahrt am gleichen Wochentag reicht NICHT.
+   * Kriterien:
+   * 1. gleiches Boot
+   * 2. gleicher Wochentag
+   * 3. Zeitüberschneidung mit der Reservierung
+   * 4. mindestens drei passende Fahrten innerhalb der letzten
+   *    sechs Wochen
+   * 5. mindestens zwei dieser Fahrten liegen direkt eine Woche
+   *    auseinander
+   * Zusätzlich müssen die historischen Fahrten zeitlich zueinander
+   * passen. Dadurch wird z.B. "Bootshaus+" mit vielen völlig
+   * unterschiedlichen Einzelveranstaltungen nicht fälschlich als
+   * wöchentlicher Termin erkannt.
    */
-  private String getBoatDateKey(UUID boatId, DataTypeDate date) {
-    return boatId.toString() + "|" + date.toString();
+  private LogbookRecord findRecurringLogbookConflict(
+          BoatReservationRecord reservation,
+          DataTypeDate reservationDate,
+          ArrayList<LogbookRecord> logbookRecords) {
+
+    if (reservation == null
+        || reservation.getBoatId() == null
+        || reservationDate == null
+        || reservation.getTimeFrom() == null
+        || reservation.getTimeTo() == null
+        || !reservation.getTimeFrom().isSet()
+        || !reservation.getTimeTo().isSet()) {
+      return null;
+    }
+
+    ArrayList<LogbookRecord> matches = new ArrayList<>();
+
+    /*
+     * Wir betrachten die sechs vorhergehenden Wochen.
+     */
+    for (int weeksAgo = 1; weeksAgo <= 6; weeksAgo++) {
+
+      DataTypeDate historicalDate = new DataTypeDate(reservationDate);
+      historicalDate.addDays(-7 * weeksAgo);
+
+      LogbookRecord bestMatch = null;
+
+        for (LogbookRecord record : logbookRecords) {
+          if (record.getBoatId() == null
+              || !reservation.getBoatId().equals(record.getBoatId())
+              || record.getDate() == null
+              || !record.getDate().isSet()
+              || !record.getDate().equals(historicalDate)
+              || record.getStartTime() == null
+              || record.getEndTime() == null
+              || !record.getStartTime().isSet()
+              || !record.getEndTime().isSet()) {
+            continue;
+          }
+
+          /*
+           * Die historische Fahrt muss sich zeitlich mit der
+           * Reservierung überschneiden.
+           */
+          if (!DataTypeTime.isRangeOverlap(
+              reservation.getTimeFrom(),
+              reservation.getTimeTo(),
+              record.getStartTime(),
+              record.getEndTime())) {
+            continue;
+          }
+
+          /*
+           * Falls es an einem Tag mehrere passende Fahrten gibt,
+           * nehmen wir die zeitlich passendste.
+           */
+          if (bestMatch == null) {
+              bestMatch = record;
+          } else {
+            int oldDistance =
+                    Math.abs(bestMatch.getStartTime().getTimeAsSeconds()
+                            - reservation.getTimeFrom().getTimeAsSeconds());
+
+            int newDistance =
+                    Math.abs(record.getStartTime().getTimeAsSeconds()
+                            - reservation.getTimeFrom().getTimeAsSeconds());
+
+            if (newDistance < oldDistance) {
+                bestMatch = record;
+            }
+          }
+        }
+
+      if (bestMatch != null) {
+        matches.add(bestMatch);
+      }
+    }
+
+    /*
+     * Mindestens drei historische Treffer.
+     */
+    if (matches.size() < 3) {
+      return null;
+    }
+
+    /*
+     * Jetzt muss tatsächlich ein wöchentliches Muster vorhanden sein:
+     *
+     * zwei Treffer müssen exakt sieben Tage auseinanderliegen.
+     */
+    boolean consecutiveWeeks = false;
+
+    for (int i = 0; i < matches.size(); i++) {
+      for (int j = i + 1; j < matches.size(); j++) {
+
+        int difference = Math.toIntExact(Math.abs(
+              matches.get(i).getDate().getDifferenceDays(matches.get(j).getDate())));
+
+        if (difference == 7) {
+          consecutiveWeeks = true;
+          break;
+        }
+      }
+
+      if (consecutiveWeeks) {
+        break;
+      }
+    }
+
+    if (!consecutiveWeeks) {
+      return null;
+    }
+
+    /*
+     * Zusätzlich prüfen wir, ob die historischen Fahrten untereinander
+     * zeitlich einigermaßen dasselbe Muster bilden.
+     *
+     * Eine Abweichung von maximal 60 Minuten beim Beginn und 60 Minuten
+     * beim Ende ist erlaubt.
+     *
+     * Das ist wichtig für Boote wie Bootshaus+, bei denen es zwar sehr
+     * viele Fahrten gibt, aber zu völlig unterschiedlichen Zeiten.
+     */
+    LogbookRecord reference = matches.get(0);
+
+    int referenceStart =
+            reference.getStartTime().getTimeAsSeconds();
+
+    int referenceEnd =
+            reference.getEndTime().getTimeAsSeconds();
+
+    int consistentMatches = 0;
+
+      for (LogbookRecord record : matches) {
+        int start = record.getStartTime().getTimeAsSeconds();
+        int end = record.getEndTime().getTimeAsSeconds();
+        if (Math.abs(start - referenceStart) <= 60 * 60
+                && Math.abs(end - referenceEnd) <= 60 * 60) {
+            consistentMatches++;
+        }
+      }
+
+    if (consistentMatches < 3) {
+      return null;
+    }
+
+    /*
+     * Wir geben die zeitlich jüngste passende historische Fahrt zurück.
+     * Damit steht in der Warnung eine konkrete und möglichst aktuelle
+     * wiederkehrende Fahrt.
+     */
+    LogbookRecord newest = matches.get(0);
+
+    for (int i = 1; i < matches.size(); i++) {
+      LogbookRecord record = matches.get(i);
+
+      if (record.getDate().isAfter(newest.getDate())) {
+        newest = record;
+      }
+    }
+
+    return newest;
+  }
+
+
+  /**
+   * Gibt die eigentliche Warnung aus.
+   * Diese Methode verändert keine Daten.
+   */
+  private void auditLogbookReservationConflict(
+          BoatReservationRecord reservation,
+          DataTypeDate reservationDate,
+          LogbookRecord recurringTrip) {
+
+    String reservationType = getAuditReservationType(reservation);
+
+    String boatName = getAuditBoatName(
+            reservation.getBoatId(),
+            reservationDate,
+            reservation.getTimeFrom());
+
+    auditWarning(
+            Logger.MSG_DATA_AUDIT,
+            "ReservierungKonflikt: "
+                    + reservationType
+                    + " am " + reservationDate
+                    + " " + reservation.getTimeFrom() + "-" + reservation.getTimeTo()
+                    + " für " + boatName
+                    + " kollidiert mit einem wiederkehrenden Termin im selben Boot. "
+                    + "Gefundene wiederkehrende Fahrt: "
+                    + recurringTrip.getDate()
+                    + " "
+                    + recurringTrip.getStartTime() + "-" + recurringTrip.getEndTime()
+                    + ".");
   }
 
   private void runAuditClubworks() {

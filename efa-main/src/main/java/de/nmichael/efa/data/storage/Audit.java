@@ -1807,12 +1807,6 @@ public class Audit extends Thread {
                 + " " + conflict.getTimeFrom() + "-" + conflict.getTimeTo()
                 + " für " + boatName
                 + ".");
-
-          /*
-           * Für dieses Reservierungspaar reicht eine Meldung.
-           * Nicht jeden weiteren gemeinsamen Termin melden.
-           */
-          break;
       }
     }
   }

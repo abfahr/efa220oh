@@ -382,11 +382,24 @@ public abstract class DataFile extends DataAccess {
     }
 
     if (meta == null) {
-      String msg = "Cannot saveStorageObject() " + filename + ": metadata is null";
-      Logger.log(Logger.WARNING, Logger.MSG_DATA_SAVEFAILED, msg);
-      // ÄNDERUNG: Nicht werfen, sondern nur warnen und abbrechen, um Absturz zu verhindern.
-      return;
+      Logger.log(Logger.ERROR, Logger.MSG_DATA_SAVEFAILED,
+              "saveStorageObject() " + filename + ": Metadaten sind null (Thread="
+                      + Thread.currentThread().getName() + ", storageObjectOpen=" + isStorageObjectOpen() + ")");
+      Logger.logStackTrace(Logger.ERROR, Logger.MSG_DATA_SAVEFAILED,
+              "saveStorageObject() mit meta==null aufgerufen - Stacktrace des Aufrufers",
+              Thread.currentThread().getStackTrace());
+      // Kurzer Retry statt stillem Verwerfen: evtl. Race mit setMetaData()/openStorageObject().
+      for (int i = 0; i < 5 && meta == null; i++) {
+        try { Thread.sleep(200); } catch (InterruptedException ignore) {}
+      }
+      if (meta == null) {
+        Logger.log(Logger.ERROR, Logger.MSG_DATA_SAVEFAILED,
+                "saveStorageObject() " + filename
+                        + ": Metadaten nach 5xRetry immer noch null - SPEICHERUNG ABGEBROCHEN, Änderungen könnten bis zum nächsten Speichervorgang verloren gehen.");
+        return;
+      }
     }
+
     if (meta.getNumberOfFields() == 0) {
       String msg = "Cannot saveStorageObject() " + filename + ": metadata has 0 fields";
       Logger.log(Logger.ERROR, Logger.MSG_DATA_SAVEFAILED, msg);

@@ -54,9 +54,9 @@ public class EfaErrorPrintStream extends PrintStream {
       }
       lastErrorObject = o;
 
-      String stacktrace = "";
-      boolean efaError = false; // set to true if this exception occurred within efa code (first n
-      // stack elements)
+      StringBuilder stacktrace = new StringBuilder();
+      // set to true if this exception occurred within efa code (first n stack elements)
+      boolean efaError = false;
 
       // get the stack trace
       try {
@@ -73,12 +73,12 @@ public class EfaErrorPrintStream extends PrintStream {
           }
         }
         if (stack != null) {
-          for (int i = 0; stack != null && i < stack.length; i++) {
+          for (int i = 0; i < stack.length; i++) {
             String s = stack[i].toString();
-            if (i < MAX_STACK_DEPTH_FOR_EFA_ERROR && s != null && s.indexOf("de.nmichael.efa") >= 0) {
+            if (i < MAX_STACK_DEPTH_FOR_EFA_ERROR && s.contains("de.nmichael.efa")) {
               efaError = true;
             }
-            stacktrace += s + "\n";
+            stacktrace.append(s).append("\n");
           }
         }
       } catch (NoSuchMethodError j13) {
@@ -86,22 +86,21 @@ public class EfaErrorPrintStream extends PrintStream {
       }
 
       // if the stack trace concerns classes from efa, ask for bug reports
-      // (some other purely java (especially awt/swing) related bugs do not necessarily need to be
-      // reported...
-      String text = International.getString("Unerwarteter Programmfehler") + ": " + o.toString();
-      if (stacktrace.length() == 0) {
-        efaError = true; // assume this is an efa error (e.g. java.lang.ExceptionInInitializerError
-        // don't have a stack trace...)
+      // (some other purely java (especially awt/swing) related bugs do not necessarily need to be reported)
+      String text = International.getString("Unerwarteter Programmfehler") + ": " + o;
+      if (stacktrace.isEmpty()) {
+        // assume this is an efa error (e.g. java.lang.ExceptionInInitializerError don't have a stack trace...)
+        efaError = true;
       }
       if (efaError) {
-        if (stacktrace.length() > 0) {
+        if (!stacktrace.isEmpty()) {
           text += "\nStack Trace:\n" + stacktrace;
         }
         text += "\n"
             + International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EMAILSUPPORT);
         Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, text);
         if (Daten.isGuiAppl()) {
-          new ErrorThread(o.toString(), stacktrace).start();
+          new ErrorThread(o.toString(), stacktrace.toString()).start();
         }
       } else {
         text += "\n"
@@ -111,21 +110,15 @@ public class EfaErrorPrintStream extends PrintStream {
                 "Meistens führt diese Art von Fehlern nur zu vorübergehenden Darstellungsproblemen und hat keine Auswirkung auf efa und die Daten. "
                 +
                 "Sofern dieser Fehler nur selten auftritt und keine erkennbaren Folgen hat, kann er ignoriert werden.");
-        if (stacktrace.length() > 0) {
+        if (!stacktrace.isEmpty()) {
           text += "\nStack Trace:\n" + stacktrace;
         }
         Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, text);
       }
-
     }
   }
 
-  @Override
-  public void print(String s) {
-    super.print(s);
-  }
-
-  class ErrorThread extends Thread {
+  static class ErrorThread extends Thread {
 
     String message;
     String stacktrace;

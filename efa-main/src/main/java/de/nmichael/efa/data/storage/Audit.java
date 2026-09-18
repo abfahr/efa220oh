@@ -1148,7 +1148,7 @@ public class Audit extends Thread {
       Boats boats = project.getBoats(false);
       Persons persons = project.getPersons(false);
       Destinations destinations = project.getDestinations(false);
-      ProjectRecord prjLogkoobRec = project.getLoogbookRecord(logbookName);
+      ProjectRecord prjLogbookRec = project.getLoogbookRecord(logbookName);
       SessionGroups sessionGroups = project.getSessionGroups(false);
       BoatStatus boatStatus = project.getBoatStatus(false);
       if (boats.dataAccess.getNumberOfRecords() == 0 ||
@@ -1191,7 +1191,7 @@ public class Audit extends Thread {
                   + "No Date set.");
           logbookErr++;
         } else {
-          if (!r.getDate().isInRange(prjLogkoobRec.getStartDate(), prjLogkoobRec.getEndDate())) {
+          if (!r.getDate().isInRange(prjLogbookRec.getStartDate(), prjLogbookRec.getEndDate())) {
             auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
                 "runAuditLogbook(): "
                     + International.getString("Fahrtenbuch") + " "
@@ -1201,7 +1201,7 @@ public class Audit extends Thread {
                     + ": "
                     + "Date " + r.getDate().toString()
                     + " is not within defined range for this logbook (" +
-                    prjLogkoobRec.getStartDate() + " - " + prjLogkoobRec.getEndDate() + ").");
+                    prjLogbookRec.getStartDate() + " - " + prjLogbookRec.getEndDate() + ").");
             logbookErr++;
           }
         }
@@ -1615,7 +1615,7 @@ public class Audit extends Thread {
          * eigene Reservierungs-Konfliktlogik bauen.
          */
         List<BoatReservationRecord> reservationConflicts =
-                boatReservations.findConflictingReservations(reservation);
+                boatReservations.findActuallyOverlappingReservations(reservation);
 
         runAuditReservationReservationConflicts(reservation, reservationConflicts, today);
         /*
@@ -1645,7 +1645,6 @@ public class Audit extends Thread {
 
         if (reservation.getType() != null
                 && reservation.isWeeklyReservationType()) {
-
           runAuditWeeklyReservationLogbookConflict(
                   reservation, logbookRecords, today);
 
@@ -1653,8 +1652,7 @@ public class Audit extends Thread {
                 reservation.getType())) {
 
           if (!reservation.getDateFrom().isBefore(today)) {
-            LogbookRecord recurringTrip =
-                    findRecurringLogbookConflict(
+            LogbookRecord recurringTrip = findRecurringLogbookConflict(
                             reservation, reservation.getDateFrom(), logbookRecords);
 
             if (recurringTrip != null) {
@@ -1719,8 +1717,11 @@ public class Audit extends Thread {
        * Die Reservierungsnummer dient hier NUR als interner
        * technischer Vergleich und erscheint niemals im Logging.
        */
-      if (reservation.getReservation() >= conflict.getReservation()) {
-          continue;
+      if (reservation.getReservation() >= conflict.getReservation()
+              // && !isBootshausReservation(reservation)
+              // && !isBootshausReservation(conflict)
+      ) {
+        continue;
       }
 
       /*
@@ -1809,6 +1810,21 @@ public class Audit extends Thread {
                 + ".");
       }
     }
+  }
+
+  private boolean isBootshausReservation(
+          BoatReservationRecord reservation) {
+
+    if (reservation == null) {
+      return false;
+    }
+
+    String boatName = getAuditBoatName(
+            reservation.getBoatId(),
+            reservation.getDateFrom(),
+            reservation.getTimeFrom());
+
+    return BoatRecord.BOOTSHAUS_NAME.equals(boatName);
   }
 
   /**
@@ -2158,19 +2174,19 @@ public class Audit extends Thread {
             reservationDate,
             reservation.getTimeFrom());
 
+    boatName = boatName.replaceAll("\\s*\\(.*?\\)\\s*", "").isEmpty()
+            ? boatName : boatName.replaceAll("\\s*\\(.*?\\)\\s*", "");
+
     auditWarning(
             Logger.MSG_DATA_AUDIT,
-            "ReservierungKonflikt: "
+            "Konflikt: "
                     + reservationType
                     + " am " + reservationDate
                     + " " + reservation.getTimeFrom() + "-" + reservation.getTimeTo()
                     + " für " + boatName
-                    + " kollidiert mit einem wiederkehrenden Termin im selben Boot. "
-                    + "Gefundene wiederkehrende Fahrt: "
-                    + recurringTrip.getDate()
-                    + " "
-                    + recurringTrip.getStartTime() + "-" + recurringTrip.getEndTime()
-                    + ".");
+                    + " kollidiert mit einem Termin aus wiederkehrender Fahrt: "
+                    + recurringTrip.getDate() + " "
+                    + recurringTrip.getStartTime() + "-" + recurringTrip.getEndTime() + ".");
   }
 
   private void runAuditClubworks() {
@@ -2296,7 +2312,7 @@ public class Audit extends Thread {
         for (int i = 0; logbookNames != null && i < logbookNames.length; i++) {
           runAuditLogbook(logbookNames[i]);
         }
-        runAuditBoatReservationLogbookConflicts();
+        // TODO abf 2026-09-18 runAuditBoatReservationLogbookConflicts();
         if (errors == 0) {
           runAuditPurgeDeletedRecords(project.getBoats(false),
               International.getString("Boot"));

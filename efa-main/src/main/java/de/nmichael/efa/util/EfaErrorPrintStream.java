@@ -12,6 +12,8 @@ package de.nmichael.efa.util;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.nmichael.efa.Daten;
 
@@ -87,33 +89,38 @@ public class EfaErrorPrintStream extends PrintStream {
 
       // if the stack trace concerns classes from efa, ask for bug reports
       // (some other purely java (especially awt/swing) related bugs do not necessarily need to be reported)
-      String text = International.getString("Unerwarteter Programmfehler") + ": " + o;
+      StringBuilder text = new StringBuilder(International.getString("Unerwarteter Programmfehler") + ": " + o);
       if (stacktrace.isEmpty()) {
         // assume this is an efa error (e.g. java.lang.ExceptionInInitializerError don't have a stack trace...)
         efaError = true;
       }
       if (efaError) {
         if (!stacktrace.isEmpty()) {
-          text += "\nStack Trace:\n" + stacktrace;
+          text.append("\nStack Trace:\n").append(stacktrace);
         }
-        text += "\n"
-            + International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EMAILSUPPORT);
-        Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, text);
+        text.append("\n").append(International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EMAILSUPPORT));
+        Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, text.toString());
         if (Daten.isGuiAppl()) {
           new ErrorThread(o.toString(), stacktrace.toString()).start();
         }
       } else {
-        text += "\n"
-            + International
-            .getString("Dieser Fehler ist möglicherweise ein Fehler in Java, der durch ein Java-Update behoben werden kann. "
-                +
-                "Meistens führt diese Art von Fehlern nur zu vorübergehenden Darstellungsproblemen und hat keine Auswirkung auf efa und die Daten. "
-                +
-                "Sofern dieser Fehler nur selten auftritt und keine erkennbaren Folgen hat, kann er ignoriert werden.");
-        if (!stacktrace.isEmpty()) {
-          text += "\nStack Trace:\n" + stacktrace;
+        text.append("\n").append(International
+                .getString("Dieser Fehler ist möglicherweise ein Fehler in Java, der durch ein Java-Update behoben werden kann. "
+                        + "Meistens führt diese Aart von Fehlern nur zu vorübergehenden Darstellungsproblemen und hat keine Auswirkung auf efa und die Daten. "
+                        + "Sofern dieser Fehler nur selten auftritt und keine erkennbaren Folgen hat, kann er ignoriert werden."));
+
+        String[] lines = stacktrace.toString().split("\n");
+        boolean hasEfaLines = false;
+        for (String line : lines) {
+          if (line.contains("de.nmichael.efa")) {
+            if (!hasEfaLines) {
+              text.append("\nStack+Trace:");
+              hasEfaLines = true;
+            }
+            text.append("\n").append(line);
+          }
         }
-        Logger.log(Logger.WARNING, Logger.MSG_ERROR_EXCEPTION, text);
+        Logger.log(Logger.INFO, Logger.MSG_ERROR_EXCEPTION, text.toString());
       }
     }
   }

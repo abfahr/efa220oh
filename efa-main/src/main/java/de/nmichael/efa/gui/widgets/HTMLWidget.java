@@ -66,11 +66,12 @@ public class HTMLWidget extends Widget {
     htmlPane.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
+        // mouseClicked oder mouseReleased
         // Refresh-on-click: sofortiges Neuladen der URL, unabhängig vom regulären Update-Intervall
         if (htmlUpdater != null) {
           htmlUpdater.interrupt();
         }
-        super.mouseClicked(e);
+        //super.mouseClicked(e);
       }
     });
     // following hyperlinks is automatically "disabled" (if no HyperlinkListener is taking care of

@@ -231,6 +231,136 @@ public class BoatReservations extends StorageObject {
     return conflicts;
   }
 
+  /**
+   * Liefert alle Reservierungen desselben Boots, die sich tatsächlich
+   * zeitlich überschneiden.
+   * Im Gegensatz zu findConflictingReservations() wird hier KEINE
+   * Kulanz-Regel (minimumDauerFuerKulanz) angewendet.
+   * Diese Methode ist symmetrisch:
+   * Eine Überschneidung A <--> B wird unabhängig davon erkannt,
+   * welche der beiden Reservierungen als erstes übergeben wird.
+   * Die Methode verändert keinerlei Daten.
+   */
+  public List<BoatReservationRecord> findActuallyOverlappingReservations(
+          BoatReservationRecord r) {
+
+    List<BoatReservationRecord> conflicts = new ArrayList<>();
+
+    if (r == null || r.getBoatId() == null) {
+      return conflicts;
+    }
+
+    BoatReservationRecord[] br = this.getBoatReservations(r.getBoatId());
+
+    for (int i = 0; br != null && i < br.length; i++) {
+      BoatReservationRecord other = br[i];
+
+      if (other == null
+              || other.getReservation() == r.getReservation()) {
+        continue;
+      }
+
+      if (isActuallyOverlappingReservation(r, other)) {
+        conflicts.add(other);
+      }
+    }
+
+    return conflicts;
+  }
+
+  /**
+   * Prüft ausschließlich auf eine tatsächliche zeitliche Überschneidung
+   * zweier Reservierungen.
+   * Es wird ausdrücklich KEINE Kulanz-Regel berücksichtigt.
+   */
+  private boolean isActuallyOverlappingReservation(
+          BoatReservationRecord r,
+          BoatReservationRecord other) {
+
+    if (r == null || other == null) {
+      return false;
+    }
+
+    /*
+     * ONETIME <-> ONETIME
+     */
+    if (BoatReservationRecord.TYPE_ONETIME.equals(r.getType())
+            && BoatReservationRecord.TYPE_ONETIME.equals(other.getType())) {
+
+      return DataTypeDate.isRangeOverlap(
+              r.getDateFrom(),
+              r.getTimeFrom(),
+              r.getDateTo(),
+              r.getTimeTo(),
+              other.getDateFrom(),
+              other.getTimeFrom(),
+              other.getDateTo(),
+              other.getTimeTo());
+    }
+
+    /*
+     * WEEKLY <--> WEEKLY
+     *
+     * isWeeklyReservationOnDate() berücksichtigt dabei auch
+     * WEEKLY_INTERVAL.
+     */
+    if (r.isWeeklyReservationType()
+            && other.isWeeklyReservationType()) {
+
+      if (!isTimeRangeOverlap(
+              r.getTimeFrom(),
+              r.getTimeTo(),
+              other.getTimeFrom(),
+              other.getTimeTo())) {
+        return false;
+      }
+
+      return hasWeeklyDateOverlap(r, other);
+    }
+
+    /*
+     * WEEKLY <-> ONETIME
+     */
+    BoatReservationRecord weekly;
+    BoatReservationRecord onetime;
+
+    if (r.isWeeklyReservationType()
+            && BoatReservationRecord.TYPE_ONETIME.equals(other.getType())) {
+      weekly = r;
+      onetime = other;
+    } else if (other.isWeeklyReservationType()
+            && BoatReservationRecord.TYPE_ONETIME.equals(r.getType())) {
+      weekly = other;
+      onetime = r;
+    } else {
+      return false;
+    }
+
+    if (weekly.getTimeFrom() == null
+            || weekly.getTimeTo() == null
+            || onetime.getTimeFrom() == null
+            || onetime.getTimeTo() == null) {
+      return false;
+    }
+
+    if (!isTimeRangeOverlap(
+            weekly.getTimeFrom(),
+            weekly.getTimeTo(),
+            onetime.getTimeFrom(),
+            onetime.getTimeTo())) {
+      return false;
+    }
+
+    List<DataTypeDate> dates =
+            getListOfDates(onetime.getDateFrom(), onetime.getDateTo());
+    for (DataTypeDate day : dates) {
+      if (weekly.isWeeklyReservationOnDate(day)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public String getReservationConflictsDescription(BoatReservationRecord r) {
     return getReservationConflictsDescription(findConflictingReservations(r));
   }
@@ -415,12 +545,10 @@ public class BoatReservations extends StorageObject {
   }
 
   private List<DataTypeDate> getListOfDates(DataTypeDate dateFrom, DataTypeDate dateTo) {
-    DataTypeDate myDateFrom = dateFrom;
-    DataTypeDate myDateTo = dateTo;
 
     List<DataTypeDate> datumListe = new ArrayList<>();
-    DataTypeDate myDate = new DataTypeDate(myDateFrom);
-    while (myDate.isBeforeOrEqual(myDateTo)) {
+    DataTypeDate myDate = new DataTypeDate(dateFrom);
+    while (myDate.isBeforeOrEqual(dateTo)) {
       datumListe.add(new DataTypeDate(myDate));
       myDate.addDays(1);
     }

@@ -47,12 +47,7 @@ import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.MultiInputDialog;
 import de.nmichael.efa.gui.ReserveAdditionalsDialog;
-import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
-import de.nmichael.efa.gui.dataedit.BoatReservationListDialog;
-import de.nmichael.efa.gui.dataedit.DataEditDialog;
-import de.nmichael.efa.gui.dataedit.DataListDialog;
-import de.nmichael.efa.gui.dataedit.StatisticsListDialog;
-import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
+import de.nmichael.efa.gui.dataedit.*;
 import de.nmichael.efa.gui.util.EfaMouseListener;
 import de.nmichael.efa.gui.util.EfaMenuButton;
 import de.nmichael.efa.gui.util.TableCellRenderer;
@@ -675,6 +670,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
           case DataListDialog.ACTION_MERGE:
           case DataListDialog.ACTION_PRINTLIST:
           case DataListDialog.ACTION_EDITASSISTENT:
+          case LogbookListDialog.ACTION_CORRECTIONASSISTENT: // 2026-09-17 abf im Logfile gesehen
           case StatisticsListDialog.ACTION_CREATESTATISTICS: // Lasse
           case StatisticsListDialog.ACTION_ONETIMESTATISTIC: // Boris selber
           case StatisticsListDialog.ACTION_MOVEUP: // Lasse
@@ -767,7 +763,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   }
 
   private List<BoatReservationRecord> reserveSelectedItems(List<IItemType> selectedItems,
-      BoatReservationRecord reservation) throws EfaException {
+      BoatReservationRecord reservation) {
     ArrayList<String> fehlerListe = new ArrayList<>();
     String lastException = "";
     List<BoatReservationRecord> additionalReservations = new ArrayList<>();
@@ -875,7 +871,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (conflicts.isEmpty()) {
         continue;
       }
-      if (msg.length() == 0) {
+      if (msg.isEmpty()) {
         msg.append(International.getString("Folgende Reservierungen verursachen Kollisionen:"));
       }
       msg.append("\n\n")
@@ -945,10 +941,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     if (answer == 0) {
       return removeSelectedDateFromRecurringReservation(reservation);
     }
-    if (answer == 1) {
-      return false;
-    }
-    return true;
+    return answer != 1;
   }
 
   private boolean hasPermissionToDeleteRecurringReservation() {

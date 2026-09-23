@@ -42,18 +42,13 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
   private boolean saveDespiteReservationConflicts = false;
 
   public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r,
-      boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) throws Exception {
+      boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) {
     super(parent, International.getString("Reservierung"), r, newRecord, admin);
     initListener();
     setAllowWeeklyReservation(allowWeeklyReservation);
     if (!r.isBootshausOH() && admin == null) {
       enableReason(false);
     }
-  }
-
-  @Override
-  public void keyAction(ActionEvent evt) {
-    _keyAction(evt);
   }
 
   private void initListener() {
@@ -103,6 +98,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
       if (BoatRecord.BOOTSHAUS_NAME.equals(name) && reasonString == null) {
         errorText = "kein Reservierungsgrund angegeben??";
       }
+//    assert reasonString != null;
       if (BoatRecord.BOOTSHAUS_NAME.equals(name) && reasonString.trim().isEmpty()) {
         errorText = "Bitte Reservierungsgrund angegeben,\n"
             + "damit andere Beneidisch wissen!";
@@ -253,9 +249,9 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
   private void fragenUndLoggen(ItemTypeStringAutoComplete cox,
                                ItemTypeStringPhone phoneNr) {
     String info = checkUndAktualisiereHandyNr(phoneNr.getValue());
-    String coxName = (cox != null) ? cox.getValue() + " (unbekannt)" : "Ein unbekanntes Mitglied";
-    info = coxName + " hätte vielleicht gerne " + phoneNr + " gespeichert: " + info;
-    Logger.log(Logger.INFO, Logger.MSG_ABF_INFO, info);
+    String coxName = (cox != null) ? cox.getValue() + " (Mitglied?)" : "Ein unbekanntes Mitglied";
+    info = coxName + " hätte gerne " + phoneNr + " gespeichert: " + info;
+    Logger.log(Logger.WARNING, Logger.MSG_ABF_INFO, info);
   }
 
   private String checkUndAktualisiereHandyNr(String newPhone) {
@@ -585,7 +581,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
   }
 
-  private void setAllowWeeklyReservation(boolean allowWeeklyReservation) throws Exception {
+  private void setAllowWeeklyReservation(boolean allowWeeklyReservation) {
     if (allowWeeklyReservation) {
       return;
     }

@@ -51,6 +51,11 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog
     }
   }
 
+  @Override
+  public void keyAction(ActionEvent evt) {
+    _keyAction(evt);
+  }
+
   private void initListener() {
     IItemType itemType = null;
     for (IItemType item : allGuiItems) {

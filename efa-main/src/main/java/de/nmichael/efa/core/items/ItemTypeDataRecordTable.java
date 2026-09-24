@@ -436,7 +436,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
       if (rows != null && rows.length > 0) {
         records = new DataRecord[rows.length];
         for (int i = 0; i < rows.length; i++) {
-          records[i] = mappingKeyToRecord.get(keys[table.getOriginalIndex(rows[i])]);
+          // records[i] = mappingKeyToRecord.get(keys[table.getOriginalIndex(rows[i])]);
+          records[i] = mappingKeyToRecord.get(keys[rows[i]]);
         }
       }
       if (Daten.isNotWriteModeMitSchluessel()) {
@@ -1437,7 +1438,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
   public Vector<DataRecord> getDisplayedData() {
     Vector<DataRecord> sortedData = new Vector<>();
     for (int i = 0; i < data.size(); i++) {
-      sortedData.add(mappingKeyToRecord.get(keys[table.getOriginalIndex(i)]));
+      //sortedData.add(mappingKeyToRecord.get(keys[table.getOriginalIndex(i)]));
+      sortedData.add(mappingKeyToRecord.get(keys[i]));
     }
     return sortedData;
   }

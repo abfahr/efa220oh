@@ -491,11 +491,11 @@ public class Logger {
   private static boolean globalTraceLevelSetByCommandLine = false; // if set by Command Line, this
   // overwrites any configuration
   // in EfaConfig
-  private static Object logLock = new Object();
+  private static final Object logLock = new Object();
   private static volatile long totalLogCount = 0;
   private static volatile long lastLog;
   private static volatile long[] logCount;
-  private static String[] lastLogMessages = new String[10];
+  private static final String[] lastLogMessages = new String[10];
   private static volatile int nextLogIdx = 0;
   private static volatile int totalLogMessages = 0;
   private static volatile boolean doNotLog = false;
@@ -582,7 +582,7 @@ public class Logger {
           if (lastLogMessages[i].length() < 4096) {
             s.append(lastLogMessages[i]);
           } else {
-            s.append(lastLogMessages[i].substring(0, 4096) + "...");
+            s.append(lastLogMessages[i].substring(0, 4096)).append("...");
           }
         }
         if (justtobesafe++ == lastLogMessages.length) {
@@ -633,7 +633,7 @@ public class Logger {
    * @param type the type of the message, see Logger: Message Types
    * @param key the key for this message, see Logger: Message Keys
    * @param txt the message to be logged
-   * @param sendmail
+   * @param msgToAdmin ich kenne den Grund nicht
    */
   public static String log(String type, String key, String txt, boolean msgToAdmin) {
     if (inLogging || stopLogging) {
@@ -777,7 +777,7 @@ public class Logger {
       return;
     }
     StringBuilder s = new StringBuilder();
-    s.append(e.toString());
+    s.append(e);
     StackTraceElement[] stack = e.getStackTrace();
     for (int i = 0; stack != null && i < stack.length && i < MAX_STACK_DEPTH; i++) {
       s.append("\n" + stack[i].toString());
@@ -823,14 +823,14 @@ public class Logger {
     if (globalTraceTopicSetByCommandLine) {
       return false; // don't allow to change value if it has been set from command line
     }
-    if (topic == null || topic.length() == 0) {
+    if (topic == null || topic.isEmpty()) {
       newTraceTopic = 0;
     } else {
       topic = topic.trim();
       if (topic.startsWith("0x")) {
         topic = topic.substring(2);
       }
-      if (topic.length() == 0) {
+      if (topic.isEmpty()) {
         return false;
       }
       try {
@@ -906,19 +906,16 @@ public class Logger {
     try {
       StringBuffer txt = new StringBuffer();
       txt.append(International
-          .getString("Dies ist eine automatisch erstellte Fehlermeldung von efa.") + "\n\n"
-          + International.getString("Folgender Fehler ist aufgetreten:") + "\n" + msg);
+              .getString("Dies ist eine automatisch erstellte Fehlermeldung von efa.")).append("\n\n").append(International.getString("Folgender Fehler ist aufgetreten:")).append("\n").append(msg);
 
-      txt.append("\n\n" + International.getString("Vorausgegangene Log-Ausschriften") +
-          ":\n============================================\n");
+      txt.append("\n\n").append(International.getString("Vorausgegangene Log-Ausschriften")).append(":\n============================================\n");
       txt.append(Logger.getLastLogMessages());
 
       if (key != null && key.equals(Logger.MSG_ERROR_EXCEPTION)) {
-        txt.append("\n\n" + International.getString("Programm-Information") +
-            ":\n============================================\n");
+        txt.append("\n\n").append(International.getString("Programm-Information")).append(":\n============================================\n");
         Vector info = Daten.getEfaInfos();
         for (int i = 0; info != null && i < info.size(); i++) {
-          txt.append((String) info.get(i) + "\n");
+          txt.append((String) info.get(i)).append("\n");
         }
       }
       Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);

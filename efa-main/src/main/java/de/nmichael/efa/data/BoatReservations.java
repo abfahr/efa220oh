@@ -224,7 +224,14 @@ public class BoatReservations extends StorageObject {
       if (br[i].getReservation() == r.getReservation()) {
         continue;
       }
-      if (isReservationConflict(r, br[i])) {
+      boolean reservationConflict = true; // default, falls NPE
+      try {
+        reservationConflict = isReservationConflict(r, br[i]);
+      } catch (EfaException e) {
+        Logger.log(e);
+        // danach einfach die nächste Reservierung prüfen. Ja, das ist eine Lücke!
+      }
+      if (reservationConflict) {
         conflicts.add(br[i]);
       }
     }
@@ -386,7 +393,7 @@ public class BoatReservations extends StorageObject {
     return msg.toString();
   }
 
-  private boolean isReservationConflict(BoatReservationRecord r, BoatReservationRecord other) {
+  private boolean isReservationConflict(BoatReservationRecord r, BoatReservationRecord other) throws EfaException {
     if (other.isWeeklyReservationType()
         && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
       List<DataTypeDate> liste = getListOfDates(r.getDateFrom(), r.getDateTo());
@@ -433,14 +440,20 @@ public class BoatReservations extends StorageObject {
     }
     if (other.getType().equals(BoatReservationRecord.TYPE_ONETIME)
         && r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
-      return DataTypeDate.isRangeOverlap(r.getDateFrom(),
-          r.getTimeFrom(),
-          r.getDateTo(),
-          r.getTimeTo(),
-          other.getDateFrom(),
-          other.getTimeFrom(),
-          other.getDateTo(),
-          other.getTimeTo());
+        try {
+            return DataTypeDate.isRangeOverlap(r.getDateFrom(),
+                r.getTimeFrom(),
+                r.getDateTo(),
+                r.getTimeTo(),
+                other.getDateFrom(),
+                other.getTimeFrom(),
+                other.getDateTo(),
+                other.getTimeTo());
+        } catch (NullPointerException e) {
+            throw new EfaException(Logger.MSG_DATA_FIELDDOESNOTEXIST,
+                    "Zeiten unvollständig NPE bei r=" + r + " oder other=" + other,
+                    e.getStackTrace());
+        }
     }
     return false;
   }
